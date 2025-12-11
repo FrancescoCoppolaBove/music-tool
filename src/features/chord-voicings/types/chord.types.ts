@@ -6,11 +6,18 @@ export interface ParsedChord {
   quality: ChordQuality;
   hasSeventh: boolean;
   hasNinth: boolean;
-  extensions: string[];      // ["9", "13"]
-  alterations: string[];     // ["b9", "#11"]
-  addedTones: string[];      // ["add9"]
-  suspensions: string[];     // ["sus4"]
+  extensions: string[];
+  alterations: string[];
+  addedTones: string[];
+  suspensions: string[];
   rawSymbol: string;
+}
+
+// NUOVO: Nota con ottava specifica
+export interface NoteWithOctave {
+  note: NoteName;
+  octave: number;
+  midiNumber: number;
 }
 
 export interface ChordVoicing {
@@ -20,6 +27,8 @@ export interface ChordVoicing {
   leftHand: VoicingHand;
   rightHand: VoicingHand;
   fullChord: NoteName[];
+  // NUOVO: note specifiche con ottave
+  specificNotes: NoteWithOctave[];
   difficulty: 'easy' | 'medium' | 'hard';
   style: VoicingStyle;
 }
@@ -30,20 +39,12 @@ export interface VoicingHand {
   octaves: number[];
 }
 
-export type VoicingStyle = 
-  | 'basic'
-  | 'jazz-rootless'
-  | 'drop-2'
-  | 'drop-3'
-  | 'shell'
-  | 'spread'
-  | 'close'
-  | 'ai-generated';
+export type VoicingStyle = 'basic' | 'jazz-rootless' | 'drop-2' | 'drop-3' | 'shell' | 'spread' | 'close' | 'ai-generated';
 
 export interface VoicingGeneratorOptions {
   style: VoicingStyle;
   includeRoot: boolean;
   leftHandOctave: number;
   rightHandOctave: number;
-  maxStretch: number; // semitoni massimi tra note adiacenti nella stessa mano
+  maxStretch: number;
 }

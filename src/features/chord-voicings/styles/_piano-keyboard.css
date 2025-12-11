@@ -1,0 +1,303 @@
+/* ===================================
+   PIANO KEYBOARD
+   =================================== */
+
+.piano-keyboard-v2 {
+  width: 100%;
+  padding: var(--spacing-lg);
+  background: linear-gradient(to bottom, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.piano-keyboard-v2.compact {
+  padding: var(--spacing-md);
+}
+
+.keyboard-wrapper {
+  display: flex;
+  gap: 1px;
+  background: var(--bg-primary);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+.octave-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.octave-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-align: center;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-xs);
+}
+
+.keys-container {
+  display: flex;
+  gap: 1px;
+  position: relative;
+  height: 140px;
+}
+
+.piano-keyboard-v2.compact .keys-container {
+  height: 100px;
+}
+
+.key-group {
+  position: relative;
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.piano-keyboard-v2.compact .key-group {
+  width: 32px;
+}
+
+/* White Keys */
+.white-key-v2 {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #cbd5e1;
+  border-radius: 0 0 6px 6px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: var(--spacing-sm);
+}
+
+.white-key-v2:not(.is-highlighted) {
+  background: linear-gradient(to bottom, #ffffff 0%, #e2e8f0 100%);
+  opacity: 0.6;
+}
+
+.white-key-v2:not(.is-highlighted):hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+.white-key-v2.is-highlighted {
+  border-width: 3px;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.white-key-v2.hand-left {
+  background: linear-gradient(to bottom, #e9d5ff 0%, #d8b4fe 100%);
+  border-color: #a855f7;
+}
+
+.white-key-v2.hand-right {
+  background: linear-gradient(to bottom, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #3b82f6;
+}
+
+.white-key-v2.hand-both {
+  background: linear-gradient(135deg, #e9d5ff 0%, #dbeafe 100%);
+  border-color: #8b5cf6;
+  box-shadow: 
+    0 4px 12px rgba(139, 92, 246, 0.3),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Black Keys */
+.black-key-v2 {
+  position: absolute;
+  top: 0;
+  left: 65%;
+  width: 70%;
+  height: 60%;
+  background: linear-gradient(to bottom, #1e293b 0%, #0f172a 100%);
+  border: 2px solid #0f172a;
+  border-radius: 0 0 4px 4px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all var(--transition-base);
+  box-shadow: 
+    0 3px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: var(--spacing-xs);
+}
+
+.black-key-v2:not(.is-highlighted) {
+  background: linear-gradient(to bottom, #334155 0%, #1e293b 100%);
+  opacity: 0.7;
+}
+
+.black-key-v2:not(.is-highlighted):hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.black-key-v2.is-highlighted {
+  border-width: 3px;
+  transform: translateY(-2px);
+  z-index: 20;
+}
+
+.black-key-v2.hand-left {
+  background: linear-gradient(to bottom, #a855f7 0%, #7c3aed 100%);
+  border-color: #6d28d9;
+  box-shadow: 
+    0 4px 12px rgba(168, 85, 247, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.black-key-v2.hand-right {
+  background: linear-gradient(to bottom, #3b82f6 0%, #2563eb 100%);
+  border-color: #1d4ed8;
+  box-shadow: 
+    0 4px 12px rgba(59, 130, 246, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.black-key-v2.hand-both {
+  background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+  border-color: #7c3aed;
+  box-shadow: 
+    0 4px 12px rgba(139, 92, 246, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+/* Key Content */
+.key-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.note-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: #64748b;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  user-select: none;
+}
+
+.white-key-v2.is-highlighted .note-label {
+  color: #1e293b;
+}
+
+.hand-indicator {
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-extrabold);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  user-select: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.hand-indicator.left {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+}
+
+.hand-indicator.right {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.hand-indicator.both {
+  background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+}
+
+/* Legend */
+.keyboard-legend-v2 {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border);
+}
+
+.legend-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend-items {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.legend-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.left-swatch {
+  background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%);
+  border-color: #a855f7;
+}
+
+.right-swatch {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-color: #3b82f6;
+}
+
+.both-swatch {
+  background: linear-gradient(135deg, #e9d5ff 0%, #dbeafe 100%);
+  border-color: #8b5cf6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .keyboard-wrapper {
+    padding: var(--spacing-sm);
+  }
+
+  .key-group {
+    width: 32px;
+  }
+
+  .keys-container {
+    height: 120px;
+  }
+
+  .piano-keyboard-v2.compact .keys-container {
+    height: 80px;
+  }
+
+  .keyboard-legend-v2 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+}

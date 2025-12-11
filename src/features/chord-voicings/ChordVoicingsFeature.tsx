@@ -3,7 +3,7 @@ import { ChordInput } from './components/ChordInput';
 import { VoicingStyleSelector } from './components/VoicingStyleSelector';
 import { VoicingResults } from './components/VoicingResults';
 import { useChordVoicings } from './hooks/useChordVoicings';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Music2, Sparkles } from 'lucide-react';
 
 export const ChordVoicingsFeature: React.FC = () => {
   const {
@@ -35,10 +35,12 @@ export const ChordVoicingsFeature: React.FC = () => {
             disabled={isLoading}
           />
 
+          {/* Generate Button - usando classi atomiche */}
           <button
-            className="generate-button"
+            className="btn btn-gradient btn-lg btn-full"
             onClick={generateVoicingsForChord}
             disabled={isLoading || !chordSymbol.trim()}
+            type="button"
           >
             {isLoading ? (
               <>
@@ -46,7 +48,10 @@ export const ChordVoicingsFeature: React.FC = () => {
                 Generating...
               </>
             ) : (
-              <>Generate Voicings</>
+              <>
+                <Sparkles size={20} />
+                Generate Voicings
+              </>
             )}
           </button>
         </div>
@@ -54,7 +59,7 @@ export const ChordVoicingsFeature: React.FC = () => {
         {/* Error Message */}
         {error && (
           <div className="error-message">
-            <AlertCircle size={20} />
+            <AlertCircle size={20} className="error-icon" />
             <span>{error}</span>
           </div>
         )}
@@ -76,6 +81,3 @@ export const ChordVoicingsFeature: React.FC = () => {
     </div>
   );
 };
-
-// Helper import
-import { Music2 } from 'lucide-react';

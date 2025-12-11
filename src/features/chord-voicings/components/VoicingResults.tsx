@@ -8,10 +8,7 @@ interface VoicingResultsProps {
   chordSymbol: string;
 }
 
-export const VoicingResults: React.FC<VoicingResultsProps> = ({
-  voicings,
-  chordSymbol,
-}) => {
+export const VoicingResults: React.FC<VoicingResultsProps> = ({ voicings, chordSymbol }) => {
   if (voicings.length === 0) {
     return null;
   }
@@ -30,61 +27,61 @@ export const VoicingResults: React.FC<VoicingResultsProps> = ({
   };
 
   return (
-    <div className="voicing-results">
-      <div className="results-header">
+    <div className='voicing-results'>
+      <div className='results-header'>
         <h2>
           <Music2 size={24} />
-          Voicings for <span className="chord-symbol">{chordSymbol}</span>
+          Voicings for <span className='chord-symbol'>{chordSymbol}</span>
         </h2>
-        <p className="results-count">{voicings.length} voicing{voicings.length !== 1 ? 's' : ''} generated</p>
+        <p className='results-count'>
+          {voicings.length} voicing{voicings.length !== 1 ? 's' : ''} generated
+        </p>
       </div>
 
-      <div className="voicings-grid">
+      <div className='voicings-grid'>
         {voicings.map((voicing) => (
-          <div key={voicing.id} className="voicing-card">
-            <div className="voicing-header">
-              <div className="voicing-title">
+          <div key={voicing.id} className='voicing-card'>
+            <div className='voicing-header'>
+              <div className='voicing-title'>
                 <h3>{voicing.label}</h3>
-                <span className={`difficulty-badge ${getDifficultyColor(voicing.difficulty)}`}>
-                  {voicing.difficulty}
-                </span>
+                <span className={`difficulty-badge ${getDifficultyColor(voicing.difficulty)}`}>{voicing.difficulty}</span>
               </div>
-              <p className="voicing-description">
+              <p className='voicing-description'>
                 <Info size={14} />
                 {voicing.description}
               </p>
             </div>
 
-            <div className="voicing-content">
+            <div className='voicing-content'>
               {/* Left Hand */}
-              <div className="hand-section left-hand">
-                <div className="hand-header">
-                  <Hand size={16} className="hand-icon left" />
-                  <span className="hand-label">Left Hand</span>
+              <div className='hand-section left-hand'>
+                <div className='hand-header'>
+                  <Hand size={16} className='hand-icon left' />
+                  <span className='hand-label'>Left Hand</span>
                 </div>
-                <div className="notes-list">
+                <div className='notes-list'>
                   {voicing.leftHand.notes.map((note, idx) => (
-                    <div key={`lh-${idx}`} className="note-item">
-                      <span className="note-name">{note}</span>
-                      <span className="note-octave">{voicing.leftHand.octaves[idx]}</span>
-                      <span className="note-midi">MIDI {voicing.leftHand.midiNumbers[idx]}</span>
+                    <div key={`lh-${idx}`} className='note-item'>
+                      <span className='note-name'>{note}</span>
+                      <span className='note-octave'>{voicing.leftHand.octaves[idx]}</span>
+                      <span className='note-midi'>MIDI {voicing.leftHand.midiNumbers[idx]}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Right Hand */}
-              <div className="hand-section right-hand">
-                <div className="hand-header">
-                  <Hand size={16} className="hand-icon right" />
-                  <span className="hand-label">Right Hand</span>
+              <div className='hand-section right-hand'>
+                <div className='hand-header'>
+                  <Hand size={16} className='hand-icon right' />
+                  <span className='hand-label'>Right Hand</span>
                 </div>
-                <div className="notes-list">
+                <div className='notes-list'>
                   {voicing.rightHand.notes.map((note, idx) => (
-                    <div key={`rh-${idx}`} className="note-item">
-                      <span className="note-name">{note}</span>
-                      <span className="note-octave">{voicing.rightHand.octaves[idx]}</span>
-                      <span className="note-midi">MIDI {voicing.rightHand.midiNumbers[idx]}</span>
+                    <div key={`rh-${idx}`} className='note-item'>
+                      <span className='note-name'>{note}</span>
+                      <span className='note-octave'>{voicing.rightHand.octaves[idx]}</span>
+                      <span className='note-midi'>MIDI {voicing.rightHand.midiNumbers[idx]}</span>
                     </div>
                   ))}
                 </div>
@@ -92,9 +89,9 @@ export const VoicingResults: React.FC<VoicingResultsProps> = ({
             </div>
 
             {/* Piano Visualization */}
-            <div className="voicing-keyboard">
+            <div className='voicing-keyboard'>
               <PianoKeyboard
-                highlightedNotes={voicing.fullChord}
+                specificNotes={voicing.specificNotes}
                 leftHandNotes={voicing.leftHand.notes}
                 rightHandNotes={voicing.rightHand.notes}
                 compact
