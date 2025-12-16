@@ -54,7 +54,7 @@ export const FEATURES: Feature[] = [
     description: 'Improve your musical ear',
     icon: Headphones,
     level: 'all',
-    status: 'coming-soon',
+    status: 'active',
   },
   {
     id: 'circle-fifths',

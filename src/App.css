@@ -20,6 +20,7 @@
 @import './styles/components/_header.css';
 @import './features/scale-dictionary/styles/_piano-keyboard.css';
 @import './features/scale-dictionary/styles/_scale-dictionary.css';
+@import './features/ear-training/styles/_ear-training.css';
 
 /* Utilities */
 @import './styles/utilities/_animations.css';

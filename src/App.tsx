@@ -8,6 +8,7 @@ import { Header } from './shared/components/Header/Header';
 import { ChordVoicingsFeature } from './features/chord-voicings/ChordVoicingsFeature';
 import { ScaleRecognizerFeature } from './features/scale-recognition/ScaleRecognizerFeature';
 import { ScaleDictionaryFeature } from './features/scale-dictionary/ScaleDictionaryFeature';
+import { EarTrainingFeature } from './features/ear-training/EarTrainingFeature';
 import { FEATURES, getActiveFeatures } from './config/features';
 import type { FeatureId } from './config/features';
 import './App.css';
@@ -31,12 +32,7 @@ function App() {
         return <ScaleDictionaryFeature />;
 
       case 'ear-training':
-        return (
-          <div className='coming-soon-placeholder'>
-            <h2>Ear Training</h2>
-            <p>Coming soon! This feature is under development.</p>
-          </div>
-        );
+        return <EarTrainingFeature />;
 
       case 'circle-fifths':
         return (
