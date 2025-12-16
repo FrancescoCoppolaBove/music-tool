@@ -12,7 +12,7 @@
   border-radius: var(--radius-xl, 1rem);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
   position: relative;
-  z-index: 1; /* Basso z-index per stare sotto ai dropdown */
+  z-index: 0; /* Basso z-index per stare sotto ai dropdown */
 }
 
 .piano-keyboard {
