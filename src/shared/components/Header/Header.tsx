@@ -6,7 +6,7 @@
 import React from 'react';
 import { Music, Github } from 'lucide-react';
 import { Navigation } from './Navigation';
-import type { Feature, FeatureId } from '../../config/features';
+import type { Feature, FeatureId } from '../../../config/features';
 
 interface HeaderProps {
   features: Feature[];

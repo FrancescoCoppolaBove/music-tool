@@ -4,7 +4,7 @@
  * Test completi per normalizzazione, matching e scoring
  */
 
-import { recognizeScales, normalizeToPitchClass, normalizeNotes } from './scale-recognition';
+import { recognizeScales, normalizeToPitchClass, normalizeNotes } from '../services/scale-recognition';
 
 // ============================================================================
 // TEST 1: Normalizzazione note e enharmonics

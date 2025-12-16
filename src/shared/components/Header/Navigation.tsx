@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import type { Feature, FeatureId } from '../../config/features';
+import type { Feature, FeatureId } from '../../../config/features';
 
 interface NavigationProps {
   features: Feature[];
