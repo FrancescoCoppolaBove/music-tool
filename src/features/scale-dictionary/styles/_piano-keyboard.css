@@ -1,0 +1,299 @@
+/* ===================================
+   PIANO KEYBOARD - FIXED LAYOUT
+   Layout corretto con flexbox per posizionamento preciso
+   =================================== */
+
+.piano-keyboard-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-xl, 2rem);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: var(--radius-xl, 1rem);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 1; /* Basso z-index per stare sotto ai dropdown */
+}
+
+.piano-keyboard {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+  border-radius: var(--radius-lg, 0.75rem);
+  padding: var(--spacing-lg, 1.5rem);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5), inset 0 -2px 5px rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+}
+
+.keys-wrapper {
+  display: flex;
+  min-width: 900px;
+  height: 280px;
+  position: relative;
+}
+
+/* ===================================
+   BASE KEY STYLES
+   =================================== */
+
+.piano-key {
+  position: relative;
+  cursor: pointer;
+  transition: all 200ms ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  user-select: none;
+}
+
+/* ===================================
+   WHITE KEYS
+   =================================== */
+
+.white-key {
+  flex: 0 0 calc(100% / 21); /* 21 tasti bianchi (3 ottave × 7) */
+  height: 100%;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid #d1d5db;
+  border-right: 1px solid #9ca3af;
+  margin-right: -1px;
+  border-radius: 0 0 var(--radius-sm, 0.375rem) var(--radius-sm, 0.375rem);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+  padding-bottom: var(--spacing-md, 1rem);
+  z-index: 1;
+}
+
+.white-key:hover {
+  background: linear-gradient(180deg, #f8f9fa 0%, #e5e7eb 100%);
+  transform: translateY(2px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 -1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.white-key.highlighted {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 0 20px rgba(59, 130, 246, 0.3) !important;
+  transform: translateY(-2px) !important;
+  z-index: 2;
+}
+
+.white-key.root-note {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  border-color: #b45309 !important;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 0 25px rgba(245, 158, 11, 0.4) !important;
+  transform: translateY(-3px) !important;
+  z-index: 3;
+}
+
+/* ===================================
+   BLACK KEYS
+   =================================== */
+
+.black-key {
+  flex: 0 0 calc(100% / 36); /* Circa metà larghezza tasto bianco */
+  height: 65%;
+  background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+  border: 1px solid #000000;
+  border-radius: 0 0 var(--radius-sm, 0.375rem) var(--radius-sm, 0.375rem);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  margin-left: calc(-100% / 72); /* Sposta a sinistra per sovrapporsi */
+  margin-right: calc(-100% / 72); /* Sposta a destra */
+  padding-bottom: var(--spacing-sm, 0.75rem);
+  z-index: 10;
+}
+
+.black-key:hover {
+  background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+  /* Rimuovi transform per evitare gap */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  filter: brightness(1.15);
+}
+
+.black-key.highlighted {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-color: #1d4ed8 !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 0 20px rgba(59, 130, 246, 0.4) !important;
+  /* Rimuovi il transform che crea il gap */
+  transform: translateY(0) !important;
+  /* Aggiungi un effetto glow più forte per compensare */
+  filter: brightness(1.1);
+  z-index: 11;
+}
+
+.black-key.root-note {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  border-color: #92400e !important;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 0 25px rgba(245, 158, 11, 0.5) !important;
+  /* Rimuovi il transform che crea il gap */
+  transform: translateY(0) !important;
+  /* Aggiungi un effetto glow più forte per compensare */
+  filter: brightness(1.2);
+  z-index: 12;
+}
+
+/* ===================================
+   KEY LABELS
+   =================================== */
+
+.key-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  text-align: center;
+}
+
+.white-key .key-label {
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.black-key .key-label {
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.note-name {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-bold, 700);
+  line-height: 1;
+}
+
+.interval-name {
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  opacity: 0.95;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 3px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (max-width: 1024px) {
+  .keys-wrapper {
+    height: 240px;
+  }
+
+  .note-name {
+    font-size: var(--font-size-xs, 0.75rem);
+  }
+
+  .interval-name {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .piano-keyboard-container {
+    padding: var(--spacing-md, 1rem);
+  }
+
+  .keys-wrapper {
+    height: 200px;
+    min-width: 700px;
+  }
+
+  .note-name {
+    font-size: 0.7rem;
+  }
+
+  .interval-name {
+    display: none;
+  }
+
+  .white-key {
+    padding-bottom: var(--spacing-sm, 0.75rem);
+  }
+
+  .black-key {
+    padding-bottom: var(--spacing-xs, 0.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .keys-wrapper {
+    height: 160px;
+    min-width: 600px;
+  }
+
+  .note-name {
+    font-size: 0.6rem;
+  }
+
+  .key-label {
+    gap: 2px;
+  }
+}
+
+/* ===================================
+   ANIMATIONS
+   =================================== */
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 0 25px rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.4), 0 0 35px rgba(245, 158, 11, 0.6);
+  }
+}
+
+.piano-key.root-note {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ===================================
+   SCROLLBAR STYLING
+   =================================== */
+
+.piano-keyboard::-webkit-scrollbar {
+  height: 8px;
+}
+
+.piano-keyboard::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: var(--radius-md, 0.5rem);
+}
+
+.piano-keyboard::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: var(--radius-md, 0.5rem);
+}
+
+.piano-keyboard::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* ===================================
+   ACCESSIBILITY
+   =================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .piano-key {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .white-key {
+    border-width: 2px;
+  }
+
+  .black-key {
+    border-width: 2px;
+  }
+
+  .white-key.highlighted,
+  .black-key.highlighted {
+    border-width: 3px;
+  }
+}

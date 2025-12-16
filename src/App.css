@@ -17,6 +17,9 @@
 @import './styles/components/_buttons.css';
 @import './styles/components/_inputs.css';
 @import './styles/components/_cards.css';
+@import './styles/components/_header.css';
+@import './features/scale-dictionary/styles/_piano-keyboard.css';
+@import './features/scale-dictionary/styles/_scale-dictionary.css';
 
 /* Utilities */
 @import './styles/utilities/_animations.css';
@@ -24,6 +27,101 @@
 
 /* Features */
 @import './features/chord-voicings/styles/index.css';
+@import './features/scale-recognition/styles/scale-recognizer.css';
+
+/* ===================================
+   APP LAYOUT
+   =================================== */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary, #0f172a);
+}
+
+.app-main {
+  flex: 1;
+  padding: var(--spacing-xl, 2rem) var(--spacing-lg, 1.5rem);
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ===================================
+   FOOTER
+   =================================== */
+
+.app-footer {
+  background: var(--bg-secondary, #1e293b);
+  border-top: 1px solid var(--border, #334155);
+  padding: var(--spacing-lg, 1.5rem);
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--text-muted, #94a3b8);
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.footer-content p {
+  margin: var(--spacing-xs, 0.25rem) 0;
+}
+
+.footer-links a {
+  color: var(--text-secondary, #cbd5e1);
+  text-decoration: none;
+  transition: color var(--transition-base, 200ms ease);
+}
+
+.footer-links a:hover {
+  color: var(--primary-light, #60a5fa);
+  text-decoration: underline;
+}
+
+/* ===================================
+   PLACEHOLDER CONTENT
+   =================================== */
+
+.coming-soon-placeholder,
+.error-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  text-align: center;
+  padding: var(--spacing-xl, 2rem);
+}
+
+.coming-soon-placeholder h2,
+.error-placeholder h2 {
+  font-size: var(--font-size-3xl, 2rem);
+  color: var(--text-primary, #f1f5f9);
+  margin-bottom: var(--spacing-md, 1rem);
+}
+
+.coming-soon-placeholder p,
+.error-placeholder p {
+  font-size: var(--font-size-lg, 1.125rem);
+  color: var(--text-secondary, #cbd5e1);
+  max-width: 600px;
+}
+
+.coming-soon-placeholder {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+  border-radius: var(--radius-xl, 1rem);
+  border: 2px dashed var(--border-light, #475569);
+}
+
+.error-placeholder {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+  border-radius: var(--radius-xl, 1rem);
+  border: 2px dashed var(--error, #ef4444);
+}
 
 /* ===================================
    CUSTOM SCROLLBAR
@@ -35,16 +133,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: var(--bg-secondary, #1e293b);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-light);
+  background: var(--border-light, #475569);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-lighter);
+  background: var(--border-lighter, #64748b);
 }
 
 /* ===================================
@@ -52,16 +150,15 @@
    =================================== */
 
 :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--primary, #3b82f6);
   outline-offset: 2px;
 }
 
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
-textarea:focus-visible,
-.style-option:focus-visible {
-  outline: 2px solid var(--primary);
+textarea:focus-visible {
+  outline: 2px solid var(--primary, #3b82f6);
   outline-offset: 2px;
 }
 
@@ -71,4 +168,40 @@ textarea:focus-visible,
 
 html {
   scroll-behavior: smooth;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (max-width: 768px) {
+  .app-main {
+    padding: var(--spacing-md, 1rem);
+  }
+
+  .coming-soon-placeholder h2,
+  .error-placeholder h2 {
+    font-size: var(--font-size-2xl, 1.5rem);
+  }
+
+  .coming-soon-placeholder p,
+  .error-placeholder p {
+    font-size: var(--font-size-base, 1rem);
+  }
+}
+
+/* ===================================
+   REDUCED MOTION
+   =================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
 }

@@ -8,6 +8,8 @@
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   transition: all var(--transition-base);
+  position: relative;
+  z-index: 1;
 }
 
 .card:hover {

@@ -1,34 +1,92 @@
-import React from 'react';
+/**
+ * MAIN APP COMPONENT
+ * Entry point dell'applicazione
+ */
+
+import React, { useState, useMemo } from 'react';
+import { Header } from './shared/components/Header/Header';
 import { ChordVoicingsFeature } from './features/chord-voicings/ChordVoicingsFeature';
-import { Music } from 'lucide-react';
+import { ScaleRecognizerFeature } from './features/scale-recognition/ScaleRecognizerFeature';
+import { ScaleDictionaryFeature } from './features/scale-dictionary/ScaleDictionaryFeature';
+import { FEATURES, getActiveFeatures } from './config/features';
+import type { FeatureId } from './config/features';
 import './App.css';
 
 function App() {
-  return (
-    <div className="app">
-      <header className="app-header">
-        <div className="header-content">
-          <div className="logo">
-            <Music size={32} />
-            <h1>Piano Voicings Generator</h1>
+  const [activeFeature, setActiveFeature] = useState<FeatureId>('voicings');
+
+  // Filtra solo feature attive per la navigazione
+  const activeFeatures = useMemo(() => getActiveFeatures(), []);
+
+  // Render del contenuto in base alla feature attiva
+  const renderFeatureContent = () => {
+    switch (activeFeature) {
+      case 'voicings':
+        return <ChordVoicingsFeature />;
+
+      case 'scale-recognition':
+        return <ScaleRecognizerFeature />;
+
+      case 'scale-dictionary':
+        return <ScaleDictionaryFeature />;
+
+      case 'ear-training':
+        return (
+          <div className='coming-soon-placeholder'>
+            <h2>Ear Training</h2>
+            <p>Coming soon! This feature is under development.</p>
           </div>
-          <p className="tagline">
-            Generate professional piano voicings for any chord
+        );
+
+      case 'circle-fifths':
+        return (
+          <div className='coming-soon-placeholder'>
+            <h2>Circle of Fifths</h2>
+            <p>Coming soon! This feature is under development.</p>
+          </div>
+        );
+
+      case 'chord-builder':
+        return (
+          <div className='coming-soon-placeholder'>
+            <h2>Chord Builder</h2>
+            <p>Coming soon! This feature is under development.</p>
+          </div>
+        );
+
+      default:
+        return (
+          <div className='error-placeholder'>
+            <h2>Feature Not Found</h2>
+            <p>The requested feature could not be loaded.</p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className='app'>
+      <Header features={FEATURES} activeFeature={activeFeature} onFeatureChange={setActiveFeature} />
+
+      <main className='app-main'>{renderFeatureContent()}</main>
+
+      <footer className='app-footer'>
+        <div className='footer-content'>
+          <p>Music Theory Pro • Built with React + TypeScript</p>
+          <p className='footer-links'>
+            <a href='#' onClick={(e) => e.preventDefault()}>
+              About
+            </a>
+            {' • '}
+            <a href='#' onClick={(e) => e.preventDefault()}>
+              GitHub
+            </a>
+            {' • '}
+            <a href='#' onClick={(e) => e.preventDefault()}>
+              Feedback
+            </a>
           </p>
         </div>
-      </header>
-
-      <main className="app-main">
-        <ChordVoicingsFeature />
-      </main>
-
-      <footer className="app-footer">
-        <p>
-          Built with React + TypeScript • 
-          <a href="https://github.com/yourusername/piano-voicings-generator" target="_blank" rel="noopener noreferrer">
-            View on GitHub
-          </a>
-        </p>
       </footer>
     </div>
   );

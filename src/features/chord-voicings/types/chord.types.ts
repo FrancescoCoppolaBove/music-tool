@@ -39,7 +39,14 @@ export interface VoicingHand {
   octaves: number[];
 }
 
-export type VoicingStyle = 'basic' | 'jazz-rootless' | 'drop-2' | 'drop-3' | 'shell' | 'spread' | 'close' | 'ai-generated';
+export type VoicingStyle =
+  | 'basic' // Solo triadi
+  | 'quadriads' // Accordi a 4 note (7ths, 6ths)
+  | 'extensions' // Estensioni (9, 11, 13)
+  | 'jazz-rootless' // Jazz rootless
+  | 'drop-2' // Drop-2
+  | 'drop-3' // Drop-3
+  | 'shell'; // Shell voicings
 
 export interface VoicingGeneratorOptions {
   style: VoicingStyle;
