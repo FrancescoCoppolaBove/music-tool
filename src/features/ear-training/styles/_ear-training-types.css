@@ -1,0 +1,221 @@
+/* ===================================
+   INTERVALS SPECIFIC STYLES
+   =================================== */
+
+.interval-button {
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.5rem);
+  padding: var(--spacing-md, 1rem);
+  min-height: 80px;
+}
+
+.interval-short {
+  font-size: var(--font-size-xl, 1.25rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--primary, #3b82f6);
+}
+
+.interval-button:hover:not(:disabled) .interval-short {
+  color: var(--primary-light, #60a5fa);
+}
+
+.interval-button.correct .interval-short,
+.interval-button.incorrect .interval-short {
+  color: white;
+}
+
+.interval-full {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.interval-button.correct .interval-full,
+.interval-button.incorrect .interval-full {
+  color: white;
+  opacity: 0.9;
+}
+
+.interval-detail {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--success, #10b981);
+  font-weight: var(--font-weight-medium, 500);
+  margin-top: var(--spacing-xs, 0.5rem);
+}
+
+/* ===================================
+   CHORDS SPECIFIC STYLES
+   =================================== */
+
+.chord-button {
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.5rem);
+  padding: var(--spacing-md, 1rem);
+  min-height: 90px;
+}
+
+.chord-symbol {
+  font-size: var(--font-size-xl, 1.25rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--primary, #3b82f6);
+  font-family: 'Georgia', serif;
+}
+
+.chord-button:hover:not(:disabled) .chord-symbol {
+  color: var(--primary-light, #60a5fa);
+}
+
+.chord-button.correct .chord-symbol,
+.chord-button.incorrect .chord-symbol {
+  color: white;
+}
+
+.chord-name {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.chord-button.correct .chord-name,
+.chord-button.incorrect .chord-name {
+  color: white;
+  opacity: 0.9;
+}
+
+.chord-detail {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--success, #10b981);
+  font-weight: var(--font-weight-medium, 500);
+  margin-top: var(--spacing-xs, 0.5rem);
+  font-family: monospace;
+}
+
+/* ===================================
+   SCALES SPECIFIC STYLES
+   =================================== */
+
+.scale-button {
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.5rem);
+  padding: var(--spacing-md, 1rem);
+  min-height: 70px;
+}
+
+.scale-name {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-primary, #f1f5f9);
+  text-align: center;
+}
+
+.scale-button:hover:not(:disabled) .scale-name {
+  color: var(--primary-light, #60a5fa);
+}
+
+.scale-button.correct .scale-name,
+.scale-button.incorrect .scale-name {
+  color: white;
+}
+
+.scale-detail {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--success, #10b981);
+  font-weight: var(--font-weight-medium, 500);
+  margin-top: var(--spacing-xs, 0.5rem);
+  font-family: monospace;
+}
+
+/* ===================================
+   PROGRESSIONS SPECIFIC STYLES
+   =================================== */
+
+.progression-button {
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.5rem);
+  padding: var(--spacing-md, 1rem);
+  min-height: 70px;
+}
+
+.progression-name {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-primary, #f1f5f9);
+  text-align: center;
+  font-family: 'Georgia', serif;
+}
+
+.progression-button:hover:not(:disabled) .progression-name {
+  color: var(--primary-light, #60a5fa);
+}
+
+.progression-button.correct .progression-name,
+.progression-button.incorrect .progression-name {
+  color: white;
+}
+
+.progression-detail {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--success, #10b981);
+  font-weight: var(--font-weight-medium, 500);
+  margin-top: var(--spacing-xs, 0.5rem);
+  font-family: 'Georgia', serif;
+}
+
+/* ===================================
+   SCALE DEGREES SPECIFIC STYLES
+   =================================== */
+
+.degree-button {
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.5rem);
+  padding: var(--spacing-md, 1rem);
+  min-height: 60px;
+  font-size: var(--font-size-lg, 1.125rem);
+}
+
+.degree-name {
+  font-size: var(--font-size-xl, 1.25rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--text-primary, #f1f5f9);
+  text-align: center;
+  font-family: 'Georgia', serif;
+}
+
+.degree-note-name {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-normal, 400);
+  color: var(--text-secondary, #94a3b8);
+  text-align: center;
+  font-family: 'Monaco', 'Courier New', monospace;
+  opacity: 0.8;
+}
+
+.degree-button:hover:not(:disabled) .degree-name {
+  color: var(--primary-light, #60a5fa);
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+.degree-button:hover:not(:disabled) .degree-note-name {
+  color: var(--primary-light, #60a5fa);
+  opacity: 1;
+}
+
+.degree-button.correct .degree-name,
+.degree-button.incorrect .degree-name {
+  color: white;
+}
+
+.degree-button.correct .degree-note-name,
+.degree-button.incorrect .degree-note-name {
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 1;
+}
+
+.degree-detail {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--success, #10b981);
+  font-weight: var(--font-weight-medium, 500);
+  margin-top: var(--spacing-xs, 0.5rem);
+  font-family: 'Georgia', serif;
+}

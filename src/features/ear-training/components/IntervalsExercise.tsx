@@ -4,9 +4,10 @@
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { Volume2, Check, X, RotateCcw, Trophy } from 'lucide-react';
+import { Volume2, Check, X, Trophy } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
-import { INTERVALS, generateRandomInterval } from '../utils/interval-data';
+import { INTERVALS } from '../utils/interval-data';
+import { generateRandomIntervalWithHistory } from '../utils/random-with-history';
 
 interface IntervalQuestion {
   rootNote: string;
@@ -15,7 +16,7 @@ interface IntervalQuestion {
 }
 
 export function IntervalsExercise() {
-  const [currentQuestion, setCurrentQuestion] = useState<IntervalQuestion>(() => generateRandomInterval());
+  const [currentQuestion, setCurrentQuestion] = useState<IntervalQuestion>(() => generateRandomIntervalWithHistory());
   const [attempts, setAttempts] = useState<Set<string>>(new Set());
   const [wrongAttempts, setWrongAttempts] = useState<Set<string>>(new Set());
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
@@ -30,10 +31,40 @@ export function IntervalsExercise() {
     audioPlayer.preloadAllNotes();
   }, []);
 
+  const nextQuestion = useCallback(() => {
+    // Se non ha ancora indovinato, conta come errore
+    if (!isCorrect) {
+      setScore((prev) => ({
+        correct: prev.correct,
+        total: prev.total + 1,
+      }));
+      setStreak(0);
+    }
+
+    // Reset per prossima domanda - genera intervallo diverso
+    setCurrentQuestion(generateRandomIntervalWithHistory());
+    setAttempts(new Set());
+    setWrongAttempts(new Set());
+    setIsCorrect(false);
+    setIsFirstTry(true); // Reset first try flag
+  }, [isCorrect]);
+
+  // Auto-advance after correct answer
+  useEffect(() => {
+    if (isCorrect) {
+      const timer = setTimeout(() => {
+        nextQuestion();
+      }, 1000); // 1 secondo
+
+      return () => clearTimeout(timer);
+    }
+  }, [isCorrect]);
+
   const playInterval = useCallback(async () => {
     setIsPlaying(true);
     try {
-      await audioPlayer.playSequence([currentQuestion.rootNote, currentQuestion.secondNote], 600);
+      // Volume ridotto per evitare clipping
+      await audioPlayer.playSequence([currentQuestion.rootNote, currentQuestion.secondNote], 600, 0.8);
     } catch (error) {
       console.error('Error playing interval:', error);
     }
@@ -94,24 +125,6 @@ export function IntervalsExercise() {
     [currentQuestion, isCorrect, attempts, wrongAttempts, streak, bestStreak, isFirstTry]
   );
 
-  const nextQuestion = useCallback(() => {
-    // Se non ha ancora indovinato, conta come errore
-    if (!isCorrect) {
-      setScore((prev) => ({
-        correct: prev.correct,
-        total: prev.total + 1,
-      }));
-      setStreak(0);
-    }
-
-    // Reset per prossima domanda
-    setCurrentQuestion(generateRandomInterval());
-    setAttempts(new Set());
-    setWrongAttempts(new Set());
-    setIsCorrect(false);
-    setIsFirstTry(true); // Reset first try flag
-  }, [isCorrect]);
-
   const resetScore = useCallback(() => {
     setScore({ correct: 0, total: 0 });
     setStreak(0);
@@ -159,7 +172,7 @@ export function IntervalsExercise() {
 
       {/* Play Button */}
       <div className='exercise-playback'>
-        <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={playInterval} disabled={isPlaying}>
+        <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={playInterval} disabled={isPlaying || isCorrect}>
           <Volume2 size={32} />
           <span className='play-button-text'>{isPlaying ? 'Playing...' : 'Play Interval'}</span>
         </button>
@@ -213,10 +226,7 @@ export function IntervalsExercise() {
       {/* Actions */}
       <div className='exercise-actions'>
         {isCorrect ? (
-          <button className='btn btn-primary btn-lg' onClick={nextQuestion}>
-            <RotateCcw size={20} />
-            Next Question
-          </button>
+          <div className='auto-advance-message'>Next question in 1s... ⏱️</div>
         ) : (
           <>
             <button className='btn btn-ghost' onClick={resetScore}>

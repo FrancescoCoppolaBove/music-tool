@@ -1,43 +1,33 @@
 /**
- * CHORDS EXERCISE - WITH SETTINGS
- * Configurabile: difficoltà accordi e inversioni
+ * CHORD PROGRESSIONS EXERCISE
+ * Riconoscimento progressioni armoniche
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { Volume2, Check, X, RotateCcw, Trophy, Settings } from 'lucide-react';
+import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
-import { CHORD_TYPES, generateRandomChord, ChordDifficulty, ChordInversion } from '../utils/interval-data';
-import { generateRandomChordWithHistory } from '../utils/random-with-history';
+import { CHORD_PROGRESSIONS, generateRandomProgression, ProgressionDifficulty, ChordProgression } from '../utils/interval-data';
+import { generateRandomProgressionWithHistory } from '../utils/random-with-history';
 
-interface ChordQuestion {
-  rootNote: string;
-  chordType: (typeof CHORD_TYPES)[number];
-  notes: string[];
-  inversion: ChordInversion;
+interface ProgressionQuestion {
+  progression: ChordProgression;
+  chords: string[][];
+  degrees: string[];
 }
 
-type DifficultyLevel = 'triads' | 'basic-sevenths' | 'triads-and-basic-sevenths' | 'triads-and-all-sevenths';
+type DifficultyLevel = 'simple-triads' | 'all-triads' | 'triads-and-sevenths';
 
 const DIFFICULTY_OPTIONS: { value: DifficultyLevel; label: string }[] = [
-  { value: 'triads', label: 'Triads Only (Major, Minor, Dim, Aug)' },
-  { value: 'basic-sevenths', label: 'Basic Sevenths (Dom7, Maj7, Min7)' },
-  { value: 'triads-and-basic-sevenths', label: 'Triads + Basic Sevenths' },
-  { value: 'triads-and-all-sevenths', label: 'Triads + All Sevenths' },
+  { value: 'simple-triads', label: 'Simple Triads (I, IV, V)' },
+  { value: 'all-triads', label: 'All Triads (I, II, III, IV, V, VI, VII)' },
+  { value: 'triads-and-sevenths', label: 'Triads and Sevenths' },
 ];
 
-const INVERSION_OPTIONS: { value: ChordInversion; label: string }[] = [
-  { value: 'root', label: 'Root Position' },
-  { value: 'first', label: '1st Inversion' },
-  { value: 'second', label: '2nd Inversion' },
-  { value: 'third', label: '3rd Inversion (7th chords only)' },
-];
-
-export function ChordsExercise() {
-  const [difficulty, setDifficulty] = useState<DifficultyLevel>('triads');
-  const [enabledInversions, setEnabledInversions] = useState<Set<ChordInversion>>(new Set(['root']));
+export function ChordProgressionsExercise() {
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>('simple-triads');
   const [showSettings, setShowSettings] = useState(false);
 
-  const [currentQuestion, setCurrentQuestion] = useState<ChordQuestion | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<ProgressionQuestion | null>(null);
   const [attempts, setAttempts] = useState<Set<string>>(new Set());
   const [wrongAttempts, setWrongAttempts] = useState<Set<string>>(new Set());
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
@@ -54,81 +44,65 @@ export function ChordsExercise() {
 
   // Generate question when settings change
   useEffect(() => {
-    if (enabledInversions.size > 0) {
-      generateQuestion();
-    }
-  }, [difficulty, enabledInversions]);
+    generateQuestion();
+  }, [difficulty]);
 
   // Auto-advance after correct answer
   useEffect(() => {
     if (isCorrect) {
       const timer = setTimeout(() => {
         nextQuestion();
-      }, 1000); // 1 secondo
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
   }, [isCorrect]);
 
   const generateQuestion = useCallback(() => {
-    const inversionsArray = Array.from(enabledInversions);
-    const question = generateRandomChordWithHistory(difficulty as ChordDifficulty, inversionsArray);
-    setCurrentQuestion(question);
-  }, [difficulty, enabledInversions]);
-
-  const toggleInversion = useCallback((inversion: ChordInversion) => {
-    setEnabledInversions((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(inversion)) {
-        newSet.delete(inversion);
-      } else {
-        newSet.add(inversion);
-      }
-      // Ensure at least one is selected
-      return newSet.size > 0 ? newSet : prev;
-    });
-  }, []);
-
-  const getAvailableChords = useCallback(() => {
-    switch (difficulty) {
-      case 'triads':
-        return CHORD_TYPES.filter((c) => c.notes.length === 3);
-      case 'basic-sevenths':
-        return CHORD_TYPES.filter((c) => c.notes.length === 4 && ['Dominant 7th', 'Major 7th', 'Minor 7th'].includes(c.name));
-      case 'triads-and-basic-sevenths':
-        return CHORD_TYPES.filter((c) => c.notes.length === 3 || ['Dominant 7th', 'Major 7th', 'Minor 7th'].includes(c.name));
-      case 'triads-and-all-sevenths':
-        return CHORD_TYPES;
-      default:
-        return CHORD_TYPES.filter((c) => c.notes.length === 3);
-    }
+    const result = generateRandomProgressionWithHistory(difficulty as ProgressionDifficulty);
+    setCurrentQuestion(result);
   }, [difficulty]);
 
-  const playChord = useCallback(async () => {
-    if (!currentQuestion) return;
+  const getAvailableProgressions = useCallback(() => {
+    return CHORD_PROGRESSIONS.filter((p) => p.category === difficulty);
+  }, [difficulty]);
+
+  const playProgression = useCallback(async () => {
+    if (!currentQuestion) {
+      console.error('❌ No current question!');
+      return;
+    }
+
+    console.log('🎹 Playing progression:', currentQuestion.progression.name);
 
     setIsPlaying(true);
     try {
-      await audioPlayer.playChord(currentQuestion.notes);
+      // Suona ogni accordo della progressione
+      for (const chord of currentQuestion.chords) {
+        console.log('🎵 Playing chord:', chord);
+        await audioPlayer.playChord(chord);
+        await audioPlayer.delay(800); // 800ms tra gli accordi
+      }
+      console.log('✅ Progression played successfully');
     } catch (error) {
-      console.error('Error playing chord:', error);
+      console.error('❌ Error playing progression:', error);
     }
-    setTimeout(() => setIsPlaying(false), 2000);
+    setIsPlaying(false);
   }, [currentQuestion]);
 
   const handleAnswer = useCallback(
-    (chordName: string) => {
+    (progressionName: string) => {
       if (!currentQuestion) return;
       if (isCorrect) return;
-      if (attempts.has(chordName)) return;
+      if (attempts.has(progressionName)) return;
 
       const newAttempts = new Set(attempts);
-      newAttempts.add(chordName);
+      newAttempts.add(progressionName);
       setAttempts(newAttempts);
 
-      const correctAnswer = currentQuestion.chordType.name;
+      const correctAnswer = currentQuestion.progression.name;
 
-      if (chordName === correctAnswer) {
+      if (progressionName === correctAnswer) {
         setIsCorrect(true);
 
         if (isFirstTry) {
@@ -153,7 +127,7 @@ export function ChordsExercise() {
         setIsFirstTry(false);
 
         const newWrongAttempts = new Set(wrongAttempts);
-        newWrongAttempts.add(chordName);
+        newWrongAttempts.add(progressionName);
         setWrongAttempts(newWrongAttempts);
       }
     },
@@ -182,22 +156,12 @@ export function ChordsExercise() {
     nextQuestion();
   }, [nextQuestion]);
 
-  const getInversionLabel = (inv: ChordInversion) => {
-    switch (inv) {
-      case 'root':
-        return 'Root';
-      case 'first':
-        return '1st';
-      case 'second':
-        return '2nd';
-      case 'third':
-        return '3rd';
-    }
-  };
+  if (!currentQuestion) {
+    console.log('⚠️ No current question, returning null');
+    return null;
+  }
 
-  if (!currentQuestion) return null;
-
-  const availableChords = getAvailableChords();
+  const availableProgressions = getAvailableProgressions();
 
   return (
     <div className='exercise-container'>
@@ -205,8 +169,8 @@ export function ChordsExercise() {
       <div className='exercise-header'>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <div>
-            <h3 className='exercise-title'>Chord Recognition</h3>
-            <p className='exercise-description'>Identify the chord on the first try to score!</p>
+            <h3 className='exercise-title'>Chord Progressions</h3>
+            <p className='exercise-description'>Identify the progression on the first try to score!</p>
           </div>
           <button onClick={() => setShowSettings(!showSettings)} className='settings-toggle-button' title='Settings'>
             <Settings size={24} />
@@ -221,7 +185,7 @@ export function ChordsExercise() {
 
           {/* Difficulty Selection */}
           <div className='settings-section'>
-            <label className='settings-label'>Chord Types:</label>
+            <label className='settings-label'>Difficulty:</label>
             <div className='settings-options'>
               {DIFFICULTY_OPTIONS.map((option) => (
                 <label key={option.value} className='settings-radio'>
@@ -236,25 +200,6 @@ export function ChordsExercise() {
                 </label>
               ))}
             </div>
-          </div>
-
-          {/* Inversions Selection */}
-          <div className='settings-section'>
-            <label className='settings-label'>Inversions (select multiple):</label>
-            <div className='settings-options'>
-              {INVERSION_OPTIONS.map((option) => (
-                <label key={option.value} className='settings-checkbox'>
-                  <input
-                    type='checkbox'
-                    checked={enabledInversions.has(option.value)}
-                    onChange={() => toggleInversion(option.value)}
-                    disabled={option.value === 'third' && (difficulty === 'triads' || difficulty === 'basic-sevenths')}
-                  />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-            <p className='settings-hint'>Note: 3rd inversion only available for 7th chords</p>
           </div>
         </div>
       )}
@@ -292,47 +237,40 @@ export function ChordsExercise() {
 
       {/* Play Button */}
       <div className='exercise-playback'>
-        <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={playChord} disabled={isPlaying || isCorrect}>
+        <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={playProgression} disabled={isPlaying || isCorrect}>
           <Volume2 size={32} />
-          <span className='play-button-text'>{isPlaying ? 'Playing...' : 'Play Chord'}</span>
+          <span className='play-button-text'>{isPlaying ? 'Playing...' : 'Play Progression'}</span>
         </button>
         <p className='playback-hint'>
           {isCorrect
             ? isFirstTry
-              ? `✅ Perfect! ${currentQuestion.rootNote}${currentQuestion.chordType.symbol} (${getInversionLabel(
-                  currentQuestion.inversion
-                )})`
-              : `✅ Found it: ${currentQuestion.rootNote}${currentQuestion.chordType.symbol} (${getInversionLabel(
-                  currentQuestion.inversion
-                )})`
+              ? `✅ Perfect! ${currentQuestion.progression.name}`
+              : `✅ Found it: ${currentQuestion.progression.name}`
             : isFirstTry
             ? 'First attempt - make it count!'
-            : 'Keep trying to find the chord'}
+            : 'Keep trying to find the progression'}
         </p>
       </div>
 
       {/* Answer Grid */}
       <div className='answer-section'>
         <h4 className='answer-section-title'>
-          {isCorrect
-            ? `It was a ${currentQuestion.chordType.name} (${getInversionLabel(currentQuestion.inversion)} inversion)`
-            : 'Select the chord type you heard:'}
+          {isCorrect ? `It was ${currentQuestion.progression.name}` : 'Select the progression you heard:'}
         </h4>
-        <div className='answer-grid chords-grid'>
-          {availableChords.map((chordType) => {
-            const isSelectedCorrect = isCorrect && chordType.name === currentQuestion.chordType.name;
-            const isWrong = wrongAttempts.has(chordType.name);
-            const isDisabled = isCorrect || attempts.has(chordType.name);
+        <div className='answer-grid progressions-grid'>
+          {availableProgressions.map((progression) => {
+            const isSelectedCorrect = isCorrect && progression.name === currentQuestion.progression.name;
+            const isWrong = wrongAttempts.has(progression.name);
+            const isDisabled = isCorrect || attempts.has(progression.name);
 
             return (
               <button
-                key={chordType.name}
-                onClick={() => handleAnswer(chordType.name)}
+                key={progression.name}
+                onClick={() => handleAnswer(progression.name)}
                 disabled={isDisabled}
-                className={`answer-button chord-button ${isSelectedCorrect ? 'correct' : ''} ${isWrong ? 'incorrect' : ''}`}
+                className={`answer-button progression-button ${isSelectedCorrect ? 'correct' : ''} ${isWrong ? 'incorrect' : ''}`}
               >
-                <span className='chord-symbol'>{chordType.symbol || 'Major'}</span>
-                <span className='chord-name'>{chordType.name}</span>
+                <span className='progression-name'>{progression.name}</span>
                 {isSelectedCorrect && (
                   <span className='answer-icon'>
                     <Check size={20} />
@@ -374,7 +312,7 @@ export function ChordsExercise() {
           <div className='feedback-content'>
             <h4>Not quite!</h4>
             <p>
-              You've tried {wrongAttempts.size} incorrect chord{wrongAttempts.size > 1 ? 's' : ''}.
+              You've tried {wrongAttempts.size} incorrect progression{wrongAttempts.size > 1 ? 's' : ''}.
             </p>
             <p className='hint'>⚠️ This question will not count towards your score</p>
           </div>
@@ -389,18 +327,18 @@ export function ChordsExercise() {
               <>
                 <h4>Perfect! 🎉</h4>
                 <p>
-                  Correct: <strong>{currentQuestion.chordType.name}</strong> ({getInversionLabel(currentQuestion.inversion)} inversion)
+                  Correct: <strong>{currentQuestion.progression.name}</strong>
                 </p>
-                <p className='chord-detail'>Notes: {currentQuestion.notes.join(' - ')}</p>
+                <p className='progression-detail'>Degrees: {currentQuestion.degrees.join(' - ')}</p>
                 <p className='streak-message'>+1 point • Streak: {streak} 🔥</p>
               </>
             ) : (
               <>
                 <h4>Found it!</h4>
                 <p>
-                  The chord was <strong>{currentQuestion.chordType.name}</strong> ({getInversionLabel(currentQuestion.inversion)} inversion)
+                  The progression was <strong>{currentQuestion.progression.name}</strong>
                 </p>
-                <p className='chord-detail'>Notes: {currentQuestion.notes.join(' - ')}</p>
+                <p className='progression-detail'>Degrees: {currentQuestion.degrees.join(' - ')}</p>
                 <p className='hint'>But it took {attempts.size} attempts, so no points this time</p>
               </>
             )}

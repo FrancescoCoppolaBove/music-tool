@@ -1,0 +1,182 @@
+/* ===================================
+   ANSWER BUTTONS - BASE STYLES
+   Stili comuni per tutti i tipi di risposte
+   =================================== */
+
+.answer-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md, 1rem);
+}
+
+.answer-section-title {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-primary, #f1f5f9);
+  text-align: center;
+}
+
+.answer-grid {
+  display: grid;
+  gap: var(--spacing-sm, 0.75rem);
+}
+
+.answer-button {
+  position: relative;
+  padding: var(--spacing-md, 1rem);
+  background: var(--bg-tertiary, #334155);
+  color: var(--text-primary, #f1f5f9);
+  border: 2px solid var(--border, #475569);
+  border-radius: var(--radius-md, 0.5rem);
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  cursor: pointer;
+  transition: all var(--transition-base, 200ms ease);
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.answer-button:hover:not(:disabled) {
+  border-color: var(--primary, #3b82f6);
+  background: var(--bg-hover, #475569);
+  transform: translateY(-2px);
+}
+
+.answer-button:disabled {
+  cursor: not-allowed;
+}
+
+.answer-button.correct {
+  background: linear-gradient(135deg, var(--success, #10b981) 0%, #059669 100%);
+  border-color: var(--success, #10b981);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  animation: correct-bounce 0.5s ease;
+}
+
+.answer-button.incorrect {
+  background: linear-gradient(135deg, var(--error, #ef4444) 0%, #dc2626 100%);
+  border-color: var(--error, #ef4444);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  animation: incorrect-shake 0.5s ease;
+}
+
+.answer-button.show-correct {
+  background: linear-gradient(135deg, var(--success, #10b981) 0%, #059669 100%);
+  border-color: var(--success, #10b981);
+  color: white;
+  animation: show-correct-pulse 1s ease;
+}
+
+@keyframes correct-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes incorrect-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+@keyframes show-correct-pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+  }
+}
+
+.answer-text {
+  display: block;
+}
+
+.answer-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.correct-icon {
+  color: white;
+}
+
+/* ===================================
+   BUTTON TYPES & GRIDS
+   =================================== */
+
+/* Notes Grid (Perfect Pitch) */
+.notes-grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+/* Intervals Grid */
+.intervals-grid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--spacing-md, 1rem);
+}
+
+/* Chords Grid */
+.chords-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-md, 1rem);
+}
+
+/* Scales Grid */
+.scales-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-md, 1rem);
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (max-width: 768px) {
+  .notes-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .answer-button {
+    min-height: 50px;
+    font-size: var(--font-size-base, 1rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .notes-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ===================================
+   ACCESSIBILITY
+   =================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .answer-button.correct,
+  .answer-button.incorrect,
+  .answer-button.show-correct {
+    animation: none;
+  }
+}

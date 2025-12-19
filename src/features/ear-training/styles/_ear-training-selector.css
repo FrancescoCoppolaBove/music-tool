@@ -1,0 +1,168 @@
+/* ===================================
+   EXERCISE SELECTOR
+   =================================== */
+
+.exercise-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-md, 1rem);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+}
+
+.exercise-selector-button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md, 1rem);
+  padding: var(--spacing-md, 1rem);
+  background: var(--bg-tertiary, #334155);
+  border: 2px solid var(--border, #475569);
+  border-radius: var(--radius-lg, 0.75rem);
+  cursor: pointer;
+  transition: all var(--transition-base, 200ms ease);
+  text-align: left;
+}
+
+.exercise-selector-button:hover {
+  border-color: var(--primary, #3b82f6);
+  background: var(--bg-hover, #475569);
+  transform: translateY(-2px);
+}
+
+.exercise-selector-button.active {
+  background: linear-gradient(135deg, var(--primary, #3b82f6) 0%, var(--primary-dark, #2563eb) 100%);
+  border-color: var(--primary, #3b82f6);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.exercise-selector-button.active svg {
+  color: white;
+}
+
+.exercise-selector-button:not(.active) svg {
+  color: var(--primary, #3b82f6);
+}
+
+.exercise-selector-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.25rem);
+}
+
+.exercise-selector-name {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-primary, #f1f5f9);
+}
+
+.exercise-selector-button.active .exercise-selector-name {
+  color: white;
+}
+
+.exercise-selector-description {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--text-muted, #94a3b8);
+}
+
+.exercise-selector-button.active .exercise-selector-description {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===================================
+   SETTINGS
+   =================================== */
+
+.settings-toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm, 0.75rem);
+  background: var(--bg-tertiary, #334155);
+  border: 2px solid var(--border, #475569);
+  border-radius: var(--radius-md, 0.5rem);
+  cursor: pointer;
+  transition: all var(--transition-base, 200ms ease);
+  color: var(--text-primary, #f1f5f9);
+}
+
+.settings-toggle-button:hover {
+  border-color: var(--primary, #3b82f6);
+  background: var(--bg-hover, #475569);
+}
+
+.settings-panel {
+  background: var(--bg-tertiary, #334155);
+  border: 2px solid var(--border, #475569);
+  border-radius: var(--radius-lg, 0.75rem);
+  padding: var(--spacing-lg, 1.5rem);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+}
+
+.settings-title {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--text-primary, #f1f5f9);
+  margin: 0 0 var(--spacing-md, 1rem) 0;
+}
+
+.settings-section {
+  margin-bottom: var(--spacing-md, 1rem);
+}
+
+.settings-section:last-child {
+  margin-bottom: 0;
+}
+
+.settings-label {
+  display: block;
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-secondary, #cbd5e1);
+  margin-bottom: var(--spacing-xs, 0.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.settings-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 0.5rem);
+}
+
+.settings-radio,
+.settings-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 0.75rem);
+  padding: var(--spacing-sm, 0.75rem);
+  background: var(--bg-secondary, #1e293b);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md, 0.5rem);
+  cursor: pointer;
+  transition: all var(--transition-base, 200ms ease);
+}
+
+.settings-radio:hover,
+.settings-checkbox:hover {
+  border-color: var(--primary, #3b82f6);
+}
+
+.settings-radio input,
+.settings-checkbox input {
+  cursor: pointer;
+}
+
+.settings-radio span,
+.settings-checkbox span {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--text-primary, #f1f5f9);
+  cursor: pointer;
+}
+
+.settings-hint {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--text-muted, #94a3b8);
+  margin-top: var(--spacing-xs, 0.5rem);
+  margin-bottom: 0;
+  font-style: italic;
+}

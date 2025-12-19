@@ -4,12 +4,13 @@
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { Volume2, Check, X, RotateCcw, Trophy } from 'lucide-react';
+import { Volume2, Check, X, Trophy } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
-import { CHROMATIC_NOTES, getRandomNote } from '../utils/interval-data';
+import { CHROMATIC_NOTES } from '../utils/interval-data';
+import { getRandomNoteWithHistory } from '../utils/random-with-history';
 
 export function PerfectPitchExercise() {
-  const [currentNote, setCurrentNote] = useState<string>(() => getRandomNote());
+  const [currentNote, setCurrentNote] = useState<string>(() => getRandomNoteWithHistory());
   const [attempts, setAttempts] = useState<Set<string>>(new Set());
   const [wrongAttempts, setWrongAttempts] = useState<Set<string>>(new Set());
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
@@ -23,6 +24,35 @@ export function PerfectPitchExercise() {
   useEffect(() => {
     audioPlayer.preloadAllNotes();
   }, []);
+
+  const nextQuestion = useCallback(() => {
+    // Se non ha ancora indovinato, conta come errore
+    if (!isCorrect) {
+      setScore((prev) => ({
+        correct: prev.correct,
+        total: prev.total + 1,
+      }));
+      setStreak(0);
+    }
+
+    // Genera nuova nota diversa dalla precedente
+    setCurrentNote(getRandomNoteWithHistory());
+    setAttempts(new Set());
+    setWrongAttempts(new Set());
+    setIsCorrect(false);
+    setIsFirstTry(true); // Reset first try flag
+  }, [isCorrect]);
+
+  // Auto-advance after correct answer
+  useEffect(() => {
+    if (isCorrect) {
+      const timer = setTimeout(() => {
+        nextQuestion();
+      }, 1000); // 1 secondo
+
+      return () => clearTimeout(timer);
+    }
+  }, [isCorrect, nextQuestion]);
 
   const playNote = useCallback(async () => {
     setIsPlaying(true);
@@ -86,23 +116,7 @@ export function PerfectPitchExercise() {
     [currentNote, isCorrect, attempts, wrongAttempts, streak, bestStreak, isFirstTry]
   );
 
-  const nextQuestion = useCallback(() => {
-    // Se non ha ancora indovinato, conta come errore
-    if (!isCorrect) {
-      setScore((prev) => ({
-        correct: prev.correct,
-        total: prev.total + 1,
-      }));
-      setStreak(0);
-    }
-
-    // Reset per prossima domanda
-    setCurrentNote(getRandomNote());
-    setAttempts(new Set());
-    setWrongAttempts(new Set());
-    setIsCorrect(false);
-    setIsFirstTry(true); // Reset first try flag
-  }, [isCorrect]);
+  
 
   const resetScore = useCallback(() => {
     setScore({ correct: 0, total: 0 });
@@ -151,7 +165,7 @@ export function PerfectPitchExercise() {
 
       {/* Play Button */}
       <div className='exercise-playback'>
-        <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={playNote} disabled={isPlaying}>
+        <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={playNote} disabled={isPlaying || isCorrect}>
           <Volume2 size={32} />
           <span className='play-button-text'>{isPlaying ? 'Playing...' : 'Play Note'}</span>
         </button>
@@ -202,10 +216,7 @@ export function PerfectPitchExercise() {
       {/* Actions */}
       <div className='exercise-actions'>
         {isCorrect ? (
-          <button className='btn btn-primary btn-lg' onClick={nextQuestion}>
-            <RotateCcw size={20} />
-            Next Question
-          </button>
+          <div className='auto-advance-message'>Next question in 1s... ⏱️</div>
         ) : (
           <>
             <button className='btn btn-ghost' onClick={resetScore}>

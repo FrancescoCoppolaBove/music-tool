@@ -93,10 +93,44 @@ const NOTE_FILES: Record<string, string> = {
 
 export class AudioPlayer {
   private audioElements: Map<string, HTMLAudioElement> = new Map();
+  private audioContext: AudioContext | null = null;
+  private masterGain: GainNode | null = null;
 
   constructor() {
-    console.log('🎵 Audio Player initialized with 2 octaves (C2-B2, C3-B3)');
-    console.log('📁 Available notes:', Object.keys(NOTE_FILES).length, 'variations');
+    // console.log('🎵 Audio Player initialized with 2 octaves (C2-B2, C3-B3)');
+    // console.log('📁 Available notes:', Object.keys(NOTE_FILES).length, 'variations');
+
+    // Inizializza Web Audio API per controllo gain preciso
+    this.initAudioContext();
+  }
+
+  /**
+   * Inizializza Audio Context con master gain
+   */
+  private initAudioContext() {
+    try {
+      // @ts-ignore - AudioContext ha diversi nomi nei browser
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      this.audioContext = new AudioContextClass();
+
+      // Master gain per controllare volume globale
+      this.masterGain = this.audioContext.createGain();
+      this.masterGain.gain.value = 0.7; // Master volume al 70%
+      this.masterGain.connect(this.audioContext.destination);
+
+      // console.log('✅ Web Audio API initialized');
+    } catch (error) {
+      console.warn('⚠️ Web Audio API not available, using fallback', error);
+    }
+  }
+
+  /**
+   * Resume audio context (necessario dopo user interaction)
+   */
+  private async resumeAudioContext() {
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      await this.audioContext.resume();
+    }
   }
 
   /**
@@ -105,7 +139,7 @@ export class AudioPlayer {
   async preloadAllNotes(): Promise<void> {
     const uniqueFiles = new Set(Object.values(NOTE_FILES));
 
-    console.log('🔄 Preloading', uniqueFiles.size, 'audio files...');
+    // console.log('🔄 Preloading', uniqueFiles.size, 'audio files...');
 
     const loadPromises = Array.from(uniqueFiles).map(async (filePath) => {
       try {
@@ -120,7 +154,7 @@ export class AudioPlayer {
         });
 
         this.audioElements.set(filePath, audio);
-        console.log('✅ Loaded:', filePath.split('/').pop());
+        // console.log('✅ Loaded:', filePath.split('/').pop());
       } catch (error) {
         console.error('❌ Failed to load:', filePath.split('/').pop(), error);
       }
@@ -131,10 +165,12 @@ export class AudioPlayer {
   }
 
   /**
-   * Riproduci una singola nota
+   * Riproduci una singola nota con Web Audio API per miglior controllo gain
    */
   async playNote(note: string, volume: number = 1.0): Promise<void> {
-    console.log('🎹 Playing note:', note, 'volume:', volume);
+    // console.log('🎹 Playing note:', note, 'volume:', volume);
+
+    await this.resumeAudioContext();
 
     const filePath = NOTE_FILES[note];
     if (!filePath) {
@@ -151,27 +187,55 @@ export class AudioPlayer {
     let audio = this.audioElements.get(filePath);
 
     if (!audio) {
-      console.log('⚠️ Audio not preloaded, creating on demand');
+      // console.log('⚠️ Audio not preloaded, creating on demand');
       audio = new Audio(filePath);
       this.audioElements.set(filePath, audio);
     }
 
     try {
+      // Usa Web Audio API se disponibile
+      if (this.audioContext && this.masterGain) {
+        const source = this.audioContext.createMediaElementSource(audio);
+        const gainNode = this.audioContext.createGain();
+
+        // Applica volume con gain node
+        gainNode.gain.value = Math.max(0, Math.min(1, volume));
+
+        // Connetti: source → gainNode → masterGain → destination
+        source.connect(gainNode);
+        gainNode.connect(this.masterGain);
+
+        // Disconnetti questo audio element da future call
+        // (evita di ricreare source per stesso elemento)
+        this.audioElements.delete(filePath);
+      } else {
+        // Fallback: volume diretto
+        audio.volume = Math.max(0, Math.min(1, volume * 0.7));
+      }
+
       audio.currentTime = 0;
-      audio.volume = Math.max(0, Math.min(1, volume)); // Clamp between 0 and 1
       await audio.play();
       console.log('✅ Playing successfully');
     } catch (error) {
-      console.error('❌ Error playing audio:', error);
+      // Se l'errore è che il source è già connesso, riprova con nuovo audio
+      if (error.name === 'InvalidStateError') {
+        console.log('♻️ Recreating audio element');
+        const newAudio = new Audio(filePath);
+        newAudio.volume = Math.max(0, Math.min(1, volume * 0.7));
+        this.audioElements.set(filePath, newAudio);
+        await newAudio.play();
+      } else {
+        console.error('❌ Error playing audio:', error);
+      }
     }
   }
 
   /**
    * Riproduci sequenza di note
    */
-  async playSequence(notes: string[], delayMs: number = 600): Promise<void> {
+  async playSequence(notes: string[], delayMs: number = 600, volume: number = 1.0): Promise<void> {
     for (const note of notes) {
-      await this.playNote(note, 1.0); // Volume normale per sequenze
+      await this.playNote(note, volume);
       await this.delay(delayMs);
     }
   }
@@ -180,18 +244,24 @@ export class AudioPlayer {
    * Riproduci accordo (simultaneo) con volume ridotto per evitare clipping
    */
   async playChord(notes: string[]): Promise<void> {
-    // Calcola volume per evitare clipping
-    // Formula: volume = 1 / sqrt(numero_note)
-    // Questo mantiene l'energia percepita ma previene distorsione
-    const volume = 1.0 / Math.sqrt(notes.length);
+    // Formula migliorata: volume più conservativo
+    // Per 3 note: 0.5, per 4 note: 0.43
+    const volume = 0.8 / Math.sqrt(notes.length);
 
-    console.log(`🎼 Playing chord with ${notes.length} notes, volume: ${volume.toFixed(2)}`);
+    // console.log(`🎼 Playing chord with ${notes.length} notes, volume: ${volume.toFixed(2)}`);
 
     const promises = notes.map((note) => this.playNote(note, volume));
     await Promise.all(promises);
   }
 
   private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Delay pubblico per progressioni
+   */
+  delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

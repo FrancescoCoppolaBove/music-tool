@@ -1,43 +1,43 @@
 /**
- * CHORDS EXERCISE - WITH SETTINGS
- * Configurabile: difficoltà accordi e inversioni
+ * SCALE DEGREES EXERCISE
+ * Riconoscimento gradi della scala in contesto tonale
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { Volume2, Check, X, RotateCcw, Trophy, Settings } from 'lucide-react';
+import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
-import { CHORD_TYPES, generateRandomChord, ChordDifficulty, ChordInversion } from '../utils/interval-data';
-import { generateRandomChordWithHistory } from '../utils/random-with-history';
+import { generateRandomScaleDegreeWithHistory } from '../utils/random-with-history';
+import {
+  getScaleDegreesByDifficulty,
+  generateTargetNoteFromDegree,
+  type ScaleDegreeDifficulty,
+  type ScaleDegree,
+} from '../utils/scale-degrees-data';
 
-interface ChordQuestion {
-  rootNote: string;
-  chordType: (typeof CHORD_TYPES)[number];
-  notes: string[];
-  inversion: ChordInversion;
+interface ScaleDegreeQuestion {
+  scaleDegree: ScaleDegree;
+  key: string;
+  targetNote: string;
+  contextProgression: {
+    progression: any;
+    chords: string[][];
+    degrees: string[];
+  };
 }
 
-type DifficultyLevel = 'triads' | 'basic-sevenths' | 'triads-and-basic-sevenths' | 'triads-and-all-sevenths';
+type DifficultyLevel = 'simple' | 'diatonic' | 'chromatic';
 
 const DIFFICULTY_OPTIONS: { value: DifficultyLevel; label: string }[] = [
-  { value: 'triads', label: 'Triads Only (Major, Minor, Dim, Aug)' },
-  { value: 'basic-sevenths', label: 'Basic Sevenths (Dom7, Maj7, Min7)' },
-  { value: 'triads-and-basic-sevenths', label: 'Triads + Basic Sevenths' },
-  { value: 'triads-and-all-sevenths', label: 'Triads + All Sevenths' },
+  { value: 'simple', label: 'Simple (1st, 3rd, 5th)' },
+  { value: 'diatonic', label: 'Diatonic (All 7 degrees)' },
+  { value: 'chromatic', label: 'Chromatic (All 12 degrees)' },
 ];
 
-const INVERSION_OPTIONS: { value: ChordInversion; label: string }[] = [
-  { value: 'root', label: 'Root Position' },
-  { value: 'first', label: '1st Inversion' },
-  { value: 'second', label: '2nd Inversion' },
-  { value: 'third', label: '3rd Inversion (7th chords only)' },
-];
-
-export function ChordsExercise() {
-  const [difficulty, setDifficulty] = useState<DifficultyLevel>('triads');
-  const [enabledInversions, setEnabledInversions] = useState<Set<ChordInversion>>(new Set(['root']));
+export function ScaleDegreesExercise() {
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>('simple');
   const [showSettings, setShowSettings] = useState(false);
 
-  const [currentQuestion, setCurrentQuestion] = useState<ChordQuestion | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<ScaleDegreeQuestion | null>(null);
   const [attempts, setAttempts] = useState<Set<string>>(new Set());
   const [wrongAttempts, setWrongAttempts] = useState<Set<string>>(new Set());
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
@@ -54,81 +54,79 @@ export function ChordsExercise() {
 
   // Generate question when settings change
   useEffect(() => {
-    if (enabledInversions.size > 0) {
-      generateQuestion();
-    }
-  }, [difficulty, enabledInversions]);
+    generateQuestion();
+  }, [difficulty]);
 
   // Auto-advance after correct answer
   useEffect(() => {
     if (isCorrect) {
       const timer = setTimeout(() => {
         nextQuestion();
-      }, 1000); // 1 secondo
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
   }, [isCorrect]);
 
   const generateQuestion = useCallback(() => {
-    const inversionsArray = Array.from(enabledInversions);
-    const question = generateRandomChordWithHistory(difficulty as ChordDifficulty, inversionsArray);
+    const question = generateRandomScaleDegreeWithHistory(difficulty as ScaleDegreeDifficulty);
+
+    console.log('🎼 Generated scale degree question:');
+    console.log('   Degree:', question.scaleDegree.name);
+    console.log('   Key:', question.key);
+    console.log('   Target note:', question.targetNote);
+
     setCurrentQuestion(question);
-  }, [difficulty, enabledInversions]);
-
-  const toggleInversion = useCallback((inversion: ChordInversion) => {
-    setEnabledInversions((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(inversion)) {
-        newSet.delete(inversion);
-      } else {
-        newSet.add(inversion);
-      }
-      // Ensure at least one is selected
-      return newSet.size > 0 ? newSet : prev;
-    });
-  }, []);
-
-  const getAvailableChords = useCallback(() => {
-    switch (difficulty) {
-      case 'triads':
-        return CHORD_TYPES.filter((c) => c.notes.length === 3);
-      case 'basic-sevenths':
-        return CHORD_TYPES.filter((c) => c.notes.length === 4 && ['Dominant 7th', 'Major 7th', 'Minor 7th'].includes(c.name));
-      case 'triads-and-basic-sevenths':
-        return CHORD_TYPES.filter((c) => c.notes.length === 3 || ['Dominant 7th', 'Major 7th', 'Minor 7th'].includes(c.name));
-      case 'triads-and-all-sevenths':
-        return CHORD_TYPES;
-      default:
-        return CHORD_TYPES.filter((c) => c.notes.length === 3);
-    }
   }, [difficulty]);
 
-  const playChord = useCallback(async () => {
-    if (!currentQuestion) return;
+  const getAvailableDegrees = useCallback(() => {
+    return getScaleDegreesByDifficulty(difficulty as ScaleDegreeDifficulty);
+  }, [difficulty]);
+
+  const playContextAndNote = useCallback(async () => {
+    if (!currentQuestion) {
+      console.error('❌ No current question!');
+      return;
+    }
+
+    console.log('🎹 Playing context progression + target note');
 
     setIsPlaying(true);
     try {
-      await audioPlayer.playChord(currentQuestion.notes);
+      // 1. Suona progressione di contesto
+      for (const chord of currentQuestion.contextProgression.chords) {
+        console.log('🎵 Playing chord:', chord);
+        await audioPlayer.playChord(chord);
+        await audioPlayer.delay(600); // 600ms tra accordi
+      }
+
+      // 2. Pausa prima della nota target
+      await audioPlayer.delay(500);
+
+      // 3. Suona nota target
+      console.log('🎵 Playing target note:', currentQuestion.targetNote);
+      await audioPlayer.playNote(currentQuestion.targetNote, 0.8);
+
+      console.log('✅ Context + note played successfully');
     } catch (error) {
-      console.error('Error playing chord:', error);
+      console.error('❌ Error playing context + note:', error);
     }
-    setTimeout(() => setIsPlaying(false), 2000);
+    setIsPlaying(false);
   }, [currentQuestion]);
 
   const handleAnswer = useCallback(
-    (chordName: string) => {
+    (degreeName: string) => {
       if (!currentQuestion) return;
       if (isCorrect) return;
-      if (attempts.has(chordName)) return;
+      if (attempts.has(degreeName)) return;
 
       const newAttempts = new Set(attempts);
-      newAttempts.add(chordName);
+      newAttempts.add(degreeName);
       setAttempts(newAttempts);
 
-      const correctAnswer = currentQuestion.chordType.name;
+      const correctAnswer = currentQuestion.scaleDegree.name;
 
-      if (chordName === correctAnswer) {
+      if (degreeName === correctAnswer) {
         setIsCorrect(true);
 
         if (isFirstTry) {
@@ -153,7 +151,7 @@ export function ChordsExercise() {
         setIsFirstTry(false);
 
         const newWrongAttempts = new Set(wrongAttempts);
-        newWrongAttempts.add(chordName);
+        newWrongAttempts.add(degreeName);
         setWrongAttempts(newWrongAttempts);
       }
     },
@@ -182,22 +180,12 @@ export function ChordsExercise() {
     nextQuestion();
   }, [nextQuestion]);
 
-  const getInversionLabel = (inv: ChordInversion) => {
-    switch (inv) {
-      case 'root':
-        return 'Root';
-      case 'first':
-        return '1st';
-      case 'second':
-        return '2nd';
-      case 'third':
-        return '3rd';
-    }
-  };
+  if (!currentQuestion) {
+    console.log('⚠️ No current question, returning null');
+    return null;
+  }
 
-  if (!currentQuestion) return null;
-
-  const availableChords = getAvailableChords();
+  const availableDegrees = getAvailableDegrees();
 
   return (
     <div className='exercise-container'>
@@ -205,8 +193,8 @@ export function ChordsExercise() {
       <div className='exercise-header'>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <div>
-            <h3 className='exercise-title'>Chord Recognition</h3>
-            <p className='exercise-description'>Identify the chord on the first try to score!</p>
+            <h3 className='exercise-title'>Scale Degrees</h3>
+            <p className='exercise-description'>Identify the scale degree on the first try to score!</p>
           </div>
           <button onClick={() => setShowSettings(!showSettings)} className='settings-toggle-button' title='Settings'>
             <Settings size={24} />
@@ -221,7 +209,7 @@ export function ChordsExercise() {
 
           {/* Difficulty Selection */}
           <div className='settings-section'>
-            <label className='settings-label'>Chord Types:</label>
+            <label className='settings-label'>Difficulty:</label>
             <div className='settings-options'>
               {DIFFICULTY_OPTIONS.map((option) => (
                 <label key={option.value} className='settings-radio'>
@@ -236,25 +224,6 @@ export function ChordsExercise() {
                 </label>
               ))}
             </div>
-          </div>
-
-          {/* Inversions Selection */}
-          <div className='settings-section'>
-            <label className='settings-label'>Inversions (select multiple):</label>
-            <div className='settings-options'>
-              {INVERSION_OPTIONS.map((option) => (
-                <label key={option.value} className='settings-checkbox'>
-                  <input
-                    type='checkbox'
-                    checked={enabledInversions.has(option.value)}
-                    onChange={() => toggleInversion(option.value)}
-                    disabled={option.value === 'third' && (difficulty === 'triads' || difficulty === 'basic-sevenths')}
-                  />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-            <p className='settings-hint'>Note: 3rd inversion only available for 7th chords</p>
           </div>
         </div>
       )}
@@ -292,22 +261,18 @@ export function ChordsExercise() {
 
       {/* Play Button */}
       <div className='exercise-playback'>
-        <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={playChord} disabled={isPlaying || isCorrect}>
+        <button className={`play-button ${isPlaying ? 'playing' : ''}`} onClick={playContextAndNote} disabled={isPlaying || isCorrect}>
           <Volume2 size={32} />
-          <span className='play-button-text'>{isPlaying ? 'Playing...' : 'Play Chord'}</span>
+          <span className='play-button-text'>{isPlaying ? 'Playing...' : 'Play Context + Note'}</span>
         </button>
         <p className='playback-hint'>
           {isCorrect
             ? isFirstTry
-              ? `✅ Perfect! ${currentQuestion.rootNote}${currentQuestion.chordType.symbol} (${getInversionLabel(
-                  currentQuestion.inversion
-                )})`
-              : `✅ Found it: ${currentQuestion.rootNote}${currentQuestion.chordType.symbol} (${getInversionLabel(
-                  currentQuestion.inversion
-                )})`
+              ? `✅ Perfect! Degree ${currentQuestion.scaleDegree.name}`
+              : `✅ Found it: Degree ${currentQuestion.scaleDegree.name}`
             : isFirstTry
             ? 'First attempt - make it count!'
-            : 'Keep trying to find the chord'}
+            : 'Keep trying to find the degree'}
         </p>
       </div>
 
@@ -315,24 +280,28 @@ export function ChordsExercise() {
       <div className='answer-section'>
         <h4 className='answer-section-title'>
           {isCorrect
-            ? `It was a ${currentQuestion.chordType.name} (${getInversionLabel(currentQuestion.inversion)} inversion)`
-            : 'Select the chord type you heard:'}
+            ? `It was degree ${currentQuestion.scaleDegree.name} (${currentQuestion.targetNote.replace('2', '').replace('3', '')})`
+            : 'Select the scale degree you heard:'}
         </h4>
-        <div className='answer-grid chords-grid'>
-          {availableChords.map((chordType) => {
-            const isSelectedCorrect = isCorrect && chordType.name === currentQuestion.chordType.name;
-            const isWrong = wrongAttempts.has(chordType.name);
-            const isDisabled = isCorrect || attempts.has(chordType.name);
+        <div className='answer-grid degrees-grid'>
+          {availableDegrees.map((degree) => {
+            const isSelectedCorrect = isCorrect && degree.name === currentQuestion.scaleDegree.name;
+            const isWrong = wrongAttempts.has(degree.name);
+            const isDisabled = isCorrect || attempts.has(degree.name);
+
+            // Calcola il nome della nota per questo grado nella tonalità corrente
+            const targetNoteForDegree = generateTargetNoteFromDegree(currentQuestion.key, degree);
+            const noteName = targetNoteForDegree.replace('2', '').replace('3', '');
 
             return (
               <button
-                key={chordType.name}
-                onClick={() => handleAnswer(chordType.name)}
+                key={degree.name}
+                onClick={() => handleAnswer(degree.name)}
                 disabled={isDisabled}
-                className={`answer-button chord-button ${isSelectedCorrect ? 'correct' : ''} ${isWrong ? 'incorrect' : ''}`}
+                className={`answer-button degree-button ${isSelectedCorrect ? 'correct' : ''} ${isWrong ? 'incorrect' : ''}`}
               >
-                <span className='chord-symbol'>{chordType.symbol || 'Major'}</span>
-                <span className='chord-name'>{chordType.name}</span>
+                <span className='degree-name'>{degree.name}</span>
+                <span className='degree-note-name'>{noteName}</span>
                 {isSelectedCorrect && (
                   <span className='answer-icon'>
                     <Check size={20} />
@@ -374,7 +343,7 @@ export function ChordsExercise() {
           <div className='feedback-content'>
             <h4>Not quite!</h4>
             <p>
-              You've tried {wrongAttempts.size} incorrect chord{wrongAttempts.size > 1 ? 's' : ''}.
+              You've tried {wrongAttempts.size} incorrect degree{wrongAttempts.size > 1 ? 's' : ''}.
             </p>
             <p className='hint'>⚠️ This question will not count towards your score</p>
           </div>
@@ -389,18 +358,24 @@ export function ChordsExercise() {
               <>
                 <h4>Perfect! 🎉</h4>
                 <p>
-                  Correct: <strong>{currentQuestion.chordType.name}</strong> ({getInversionLabel(currentQuestion.inversion)} inversion)
+                  Correct: <strong>Degree {currentQuestion.scaleDegree.name}</strong> ={' '}
+                  <strong>{currentQuestion.targetNote.replace('2', '').replace('3', '')}</strong>
                 </p>
-                <p className='chord-detail'>Notes: {currentQuestion.notes.join(' - ')}</p>
+                <p className='degree-detail'>
+                  Context: {currentQuestion.contextProgression.progression.name} in {currentQuestion.key.replace('2', '')} major
+                </p>
                 <p className='streak-message'>+1 point • Streak: {streak} 🔥</p>
               </>
             ) : (
               <>
                 <h4>Found it!</h4>
                 <p>
-                  The chord was <strong>{currentQuestion.chordType.name}</strong> ({getInversionLabel(currentQuestion.inversion)} inversion)
+                  The degree was <strong>{currentQuestion.scaleDegree.name}</strong> ={' '}
+                  <strong>{currentQuestion.targetNote.replace('2', '').replace('3', '')}</strong>
                 </p>
-                <p className='chord-detail'>Notes: {currentQuestion.notes.join(' - ')}</p>
+                <p className='degree-detail'>
+                  Context: {currentQuestion.contextProgression.progression.name} in {currentQuestion.key.replace('2', '')} major
+                </p>
                 <p className='hint'>But it took {attempts.size} attempts, so no points this time</p>
               </>
             )}

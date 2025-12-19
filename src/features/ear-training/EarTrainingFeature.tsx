@@ -1,15 +1,19 @@
 /**
  * EAR TRAINING FEATURE
- * Selector tra Perfect Pitch, Intervals e Chords
+ * Selector tra 7 esercizi
  */
 
 import React, { useState } from 'react';
-import { Headphones, Music2, GitCompare, Music } from 'lucide-react';
+import { Headphones, Music2, GitCompare, Music, Scale3d, List, Target, Music4 } from 'lucide-react';
 import { PerfectPitchExercise } from './components/PerfectPitchExercise';
 import { IntervalsExercise } from './components/IntervalsExercise';
 import { ChordsExercise } from './components/ChordsExercise';
+import { ScalesExercise } from './components/ScalesExercise';
+import { ChordProgressionsExercise } from './components/ChordProgressionsExercise';
+import { ScaleDegreesExercise } from './components/ScaleDegreesExercise';
+import { MelodicDictationExercise } from './components/MelodicDictationExercise';
 
-type ExerciseType = 'perfect-pitch' | 'intervals' | 'chords';
+type ExerciseType = 'perfect-pitch' | 'intervals' | 'chords' | 'scales' | 'progressions' | 'degrees' | 'melodic';
 
 const EXERCISES = [
   {
@@ -29,6 +33,30 @@ const EXERCISES = [
     name: 'Chords',
     icon: Music,
     description: 'Identify chord types',
+  },
+  {
+    id: 'scales' as ExerciseType,
+    name: 'Scales',
+    icon: Scale3d,
+    description: 'Recognize scales',
+  },
+  {
+    id: 'progressions' as ExerciseType,
+    name: 'Progressions',
+    icon: List,
+    description: 'Identify chord progressions',
+  },
+  {
+    id: 'degrees' as ExerciseType,
+    name: 'Scale Degrees',
+    icon: Target,
+    description: 'Identify scale degrees in context',
+  },
+  {
+    id: 'melodic' as ExerciseType,
+    name: 'Melodic Dictation',
+    icon: Music4,
+    description: 'Identify melodies note by note',
   },
 ];
 
@@ -78,6 +106,10 @@ export function EarTrainingFeature() {
       {activeExercise === 'perfect-pitch' && <PerfectPitchExercise />}
       {activeExercise === 'intervals' && <IntervalsExercise />}
       {activeExercise === 'chords' && <ChordsExercise />}
+      {activeExercise === 'scales' && <ScalesExercise />}
+      {activeExercise === 'progressions' && <ChordProgressionsExercise />}
+      {activeExercise === 'degrees' && <ScaleDegreesExercise />}
+      {activeExercise === 'melodic' && <MelodicDictationExercise />}
     </div>
   );
 }
