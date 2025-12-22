@@ -21,10 +21,11 @@ function App() {
   const activeFeatures = useMemo(() => getActiveFeatures(), []);
 
   useEffect(() => {
-    const unlock = async () => {
-      await audioPlayer.initAudioContext();
-      await audioPlayer.preloadAllNotes();
-    };
+  (async () => {
+    await audioPlayer.initAudioContext();
+    await audioPlayer.preloadAllNotes();
+  })();
+}, []);
 
     // Sblocca audio alla prima interazione dell’utente
     document.body.addEventListener('click', unlock, { once: true });
