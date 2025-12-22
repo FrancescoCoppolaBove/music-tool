@@ -82,7 +82,7 @@ export function EarTrainingFeature() {
                 return (
                   <button
                     key={exercise.id}
-                    onClick={() => handleSelect(exercise.id)}
+                    onClick={() => handleSelect(exercise.id as ExerciseType)}
                     className={`exercise-selector-button ${isActive ? 'active' : ''}`}
                   >
                     <Icon size={24} />
