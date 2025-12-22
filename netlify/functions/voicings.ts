@@ -6,10 +6,7 @@ interface VoicingsRequest {
   style: string;
 }
 
-export const handler: Handler = async (
-  event: HandlerEvent,
-  context: HandlerContext
-) => {
+export const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -89,10 +86,9 @@ export const handler: Handler = async (
         timestamp: new Date().toISOString(),
       }),
     };
-
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in voicings function:', error);
-    
+
     return {
       statusCode: 500,
       headers,

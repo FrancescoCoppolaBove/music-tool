@@ -91,6 +91,12 @@ const NOTE_FILES: Record<string, string> = {
   B: noteB2,
 };
 
+declare global {
+  interface Window {
+    webkitAudioContext?: typeof AudioContext;
+  }
+}
+
 export class AudioPlayer {
   private audioElements: Map<string, HTMLAudioElement> = new Map();
   private audioContext: AudioContext | null = null;
@@ -108,7 +114,7 @@ export class AudioPlayer {
    */
   async initAudioContext(): Promise<void> {
     try {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext!;
       this.audioContext = new AudioContextClass();
 
       // Sblocca l’audio con un suono muto
@@ -124,7 +130,7 @@ export class AudioPlayer {
 
       await this.audioContext.resume();
       console.log('🔓 Audio context unlocked');
-    } catch (err) {
+    } catch (err: any) {
       console.warn('⚠️ Web Audio API unavailable or locked', err);
     }
   }
@@ -157,7 +163,7 @@ export class AudioPlayer {
 
         this.audioElements.set(filePath, audio);
         // console.log('✅ Loaded:', filePath.split('/').pop());
-      } catch (error) {
+      } catch (error: any) {
         console.error('❌ Failed to load:', filePath.split('/').pop(), error);
       }
     });
@@ -218,7 +224,7 @@ export class AudioPlayer {
       audio.currentTime = 0;
       await audio.play();
       console.log('✅ Playing successfully');
-    } catch (error) {
+    } catch (error: any) {
       // Se l'errore è che il source è già connesso, riprova con nuovo audio
       if (error.name === 'InvalidStateError') {
         console.log('♻️ Recreating audio element');
@@ -256,13 +262,6 @@ export class AudioPlayer {
     await Promise.all(promises);
   }
 
-  delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  /**
-   * Delay pubblico per progressioni
-   */
   delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

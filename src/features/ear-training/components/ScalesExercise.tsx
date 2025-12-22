@@ -83,7 +83,7 @@ export function ScalesExercise() {
       // Suona la scala in sequenza con volume ridotto (50%)
       await audioPlayer.playSequence(currentQuestion.notes, 400, 0.5);
       console.log('✅ Scale played successfully');
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error playing scale:', error);
     }
     setTimeout(() => setIsPlaying(false), currentQuestion.notes.length * 450);

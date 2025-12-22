@@ -38,11 +38,9 @@ export function useChordVoicings(): UseChordVoicingsResult {
     try {
       // Parse chord
       const parsed = parseChordSymbol(chordSymbol);
-      
+
       if (!parsed) {
-        setError(
-          `Sorry, I couldn't understand "${chordSymbol}". Try something like Cmaj7, F#m7b5, or Bb13#11/G.`
-        );
+        setError(`Sorry, I couldn't understand "${chordSymbol}". Try something like Cmaj7, F#m7b5, or Bb13#11/G.`);
         setVoicings([]);
         setParsedChord(null);
         setIsLoading(false);
@@ -58,7 +56,7 @@ export function useChordVoicings(): UseChordVoicingsResult {
 
       setVoicings(generatedVoicings);
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error generating voicings:', err);
       setError('An error occurred while generating voicings. Please try again.');
       setVoicings([]);

@@ -65,7 +65,7 @@ export function IntervalsExercise() {
     try {
       // Volume ridotto per evitare clipping
       await audioPlayer.playSequence([currentQuestion.rootNote, currentQuestion.secondNote], 600, 0.8);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error playing interval:', error);
     }
     setTimeout(() => setIsPlaying(false), 1500);

@@ -84,7 +84,7 @@ export function ChordProgressionsExercise() {
         await audioPlayer.delay(800); // 800ms tra gli accordi
       }
       console.log('✅ Progression played successfully');
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error playing progression:', error);
     }
     setIsPlaying(false);

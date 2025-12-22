@@ -108,7 +108,7 @@ export function ScaleDegreesExercise() {
       await audioPlayer.playNote(currentQuestion.targetNote, 0.8);
 
       console.log('✅ Context + note played successfully');
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error playing context + note:', error);
     }
     setIsPlaying(false);

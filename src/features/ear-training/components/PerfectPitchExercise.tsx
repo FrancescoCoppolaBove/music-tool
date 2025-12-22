@@ -58,7 +58,7 @@ export function PerfectPitchExercise() {
     setIsPlaying(true);
     try {
       await audioPlayer.playNote(currentNote);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error playing note:', error);
     }
     setTimeout(() => setIsPlaying(false), 1000);
@@ -115,8 +115,6 @@ export function PerfectPitchExercise() {
     },
     [currentNote, isCorrect, attempts, wrongAttempts, streak, bestStreak, isFirstTry]
   );
-
-  
 
   const resetScore = useCallback(() => {
     setScore({ correct: 0, total: 0 });

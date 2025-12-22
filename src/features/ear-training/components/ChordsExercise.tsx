@@ -110,7 +110,7 @@ export function ChordsExercise() {
     setIsPlaying(true);
     try {
       await audioPlayer.playChord(currentQuestion.notes);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error playing chord:', error);
     }
     setTimeout(() => setIsPlaying(false), 2000);

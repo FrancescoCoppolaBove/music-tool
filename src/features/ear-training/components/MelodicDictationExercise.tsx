@@ -108,7 +108,7 @@ export function MelodicDictationExercise() {
         await audioPlayer.playNote(note, 0.8);
         await audioPlayer.delay(500);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
     }
     setIsPlaying(false);
@@ -123,7 +123,7 @@ export function MelodicDictationExercise() {
         await audioPlayer.playNote(note, 0.8);
         await audioPlayer.delay(500);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
     }
     setIsPlayingMelodyOnly(false);

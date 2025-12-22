@@ -22,8 +22,8 @@ app.post('/api/voicings/ai', async (req: Request, res: Response) => {
     const { chordSymbol, parsedChord, style } = req.body;
 
     if (!chordSymbol || !parsedChord) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: chordSymbol, parsedChord' 
+      return res.status(400).json({
+        error: 'Missing required fields: chordSymbol, parsedChord',
       });
     }
 
@@ -35,12 +35,11 @@ app.post('/api/voicings/ai', async (req: Request, res: Response) => {
       voicings: [],
       timestamp: new Date().toISOString(),
     });
-
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating AI voicings:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to generate AI voicings',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -53,9 +52,9 @@ app.use((req: Request, res: Response) => {
 // Error handler
 app.use((err: Error, req: Request, res: Response, next: any) => {
   console.error('Server error:', err);
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Internal server error',
-    details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    details: process.env.NODE_ENV === 'development' ? err.message : undefined,
   });
 });
 

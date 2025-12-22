@@ -128,7 +128,7 @@ export function IntervalsInContextExercise() {
       await audioPlayer.playNote(currentQuestion.firstNote, 0.8);
       await audioPlayer.delay(500);
       await audioPlayer.playNote(currentQuestion.secondNote, 0.8);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
     }
     setIsPlaying(false);
