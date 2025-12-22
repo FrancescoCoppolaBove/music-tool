@@ -117,20 +117,23 @@ export class AudioPlayer {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext!;
       this.audioContext = new AudioContextClass();
 
-      // Sblocca l’audio con un suono muto
-      const buffer = this.audioContext.createBuffer(1, 1, 22050);
-      const source = this.audioContext.createBufferSource();
-      source.buffer = buffer;
-      source.connect(this.audioContext.destination);
-      source.start(0);
-
       this.masterGain = this.audioContext.createGain();
       this.masterGain.gain.value = 0.7;
       this.masterGain.connect(this.audioContext.destination);
 
-      await this.audioContext.resume();
-      console.log('🔓 Audio context unlocked');
-    } catch (err: any) {
+      // iOS: sblocco immediato dopo interazione utente
+      const unlock = () => {
+        if (this.audioContext?.state === 'suspended') {
+          this.audioContext.resume();
+          console.log('🔓 AudioContext resumed via user gesture');
+        }
+        window.removeEventListener('touchstart', unlock);
+        window.removeEventListener('click', unlock);
+      };
+
+      window.addEventListener('touchstart', unlock, { once: true });
+      window.addEventListener('click', unlock, { once: true });
+    } catch (err) {
       console.warn('⚠️ Web Audio API unavailable or locked', err);
     }
   }
@@ -176,65 +179,45 @@ export class AudioPlayer {
    * Riproduci una singola nota con Web Audio API per miglior controllo gain
    */
   async playNote(note: string, volume: number = 1.0): Promise<void> {
-    // console.log('🎹 Playing note:', note, 'volume:', volume);
-
     await this.resumeAudioContext();
 
     const filePath = NOTE_FILES[note];
     if (!filePath) {
       console.error('❌ Note not found:', note);
-      console.log(
-        'Available notes:',
-        Object.keys(NOTE_FILES)
-          .filter((k) => !k.includes('b'))
-          .slice(0, 24)
-      );
       return;
     }
 
     let audio = this.audioElements.get(filePath);
-
     if (!audio) {
-      // console.log('⚠️ Audio not preloaded, creating on demand');
       audio = new Audio(filePath);
       this.audioElements.set(filePath, audio);
     }
 
     try {
-      // Usa Web Audio API se disponibile
+      // iOS FIX: collega direttamente l’audio context corrente
       if (this.audioContext && this.masterGain) {
-        const source = this.audioContext.createMediaElementSource(audio);
+        const source = this.audioContext.createBufferSource();
+
+        // Decodifica e riproduce il file MP3 come buffer
+        const response = await fetch(filePath);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+
+        source.buffer = audioBuffer;
         const gainNode = this.audioContext.createGain();
-
-        // Applica volume con gain node
         gainNode.gain.value = Math.max(0, Math.min(1, volume));
-
-        // Connetti: source → gainNode → masterGain → destination
         source.connect(gainNode);
         gainNode.connect(this.masterGain);
 
-        // Disconnetti questo audio element da future call
-        // (evita di ricreare source per stesso elemento)
-        this.audioElements.delete(filePath);
+        source.start(0);
       } else {
-        // Fallback: volume diretto
+        // fallback (desktop)
+        audio.currentTime = 0;
         audio.volume = Math.max(0, Math.min(1, volume * 0.7));
+        await audio.play();
       }
-
-      audio.currentTime = 0;
-      await audio.play();
-      console.log('✅ Playing successfully');
     } catch (error: any) {
-      // Se l'errore è che il source è già connesso, riprova con nuovo audio
-      if (error.name === 'InvalidStateError') {
-        console.log('♻️ Recreating audio element');
-        const newAudio = new Audio(filePath);
-        newAudio.volume = Math.max(0, Math.min(1, volume * 0.7));
-        this.audioElements.set(filePath, newAudio);
-        await newAudio.play();
-      } else {
-        console.error('❌ Error playing audio:', error);
-      }
+      console.error('❌ Error playing audio:', error);
     }
   }
 
