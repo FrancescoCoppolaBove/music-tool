@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Headphones, Music2, GitCompare, Music, Scale3d, List, Target, Music4 } from 'lucide-react';
+import { Headphones, Music2, GitCompare, Music, Scale3d, List, Target, Music4, GitMerge } from 'lucide-react';
 import { PerfectPitchExercise } from './components/PerfectPitchExercise';
 import { IntervalsExercise } from './components/IntervalsExercise';
 import { ChordsExercise } from './components/ChordsExercise';
@@ -12,8 +12,9 @@ import { ScalesExercise } from './components/ScalesExercise';
 import { ChordProgressionsExercise } from './components/ChordProgressionsExercise';
 import { ScaleDegreesExercise } from './components/ScaleDegreesExercise';
 import { MelodicDictationExercise } from './components/MelodicDictationExercise';
+import { IntervalsInContextExercise } from './components/IntervalsInContextExercise';
 
-type ExerciseType = 'perfect-pitch' | 'intervals' | 'chords' | 'scales' | 'progressions' | 'degrees' | 'melodic';
+type ExerciseType = 'perfect-pitch' | 'intervals' | 'chords' | 'scales' | 'progressions' | 'degrees' | 'melodic' | 'intervals-context';
 
 const EXERCISES = [
   {
@@ -57,6 +58,12 @@ const EXERCISES = [
     name: 'Melodic Dictation',
     icon: Music4,
     description: 'Identify melodies note by note',
+  },
+  {
+    id: 'intervals-context' as ExerciseType,
+    name: 'Intervals in Context',
+    icon: GitMerge,
+    description: 'Identify intervals and degrees in key',
   },
 ];
 
@@ -110,6 +117,7 @@ export function EarTrainingFeature() {
       {activeExercise === 'progressions' && <ChordProgressionsExercise />}
       {activeExercise === 'degrees' && <ScaleDegreesExercise />}
       {activeExercise === 'melodic' && <MelodicDictationExercise />}
+      {activeExercise === 'intervals-context' && <IntervalsInContextExercise />}
     </div>
   );
 }

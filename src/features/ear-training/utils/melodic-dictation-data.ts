@@ -200,3 +200,10 @@ export function getNoteStaffPosition(note: string): {
 
   return { y: basePosition, accidental, ledgerLines };
 }
+
+/**
+ * Genera nota target da grado e key
+ */
+export function generateTargetNoteFromDegree(key: string, melodicNote: MelodicNote): string {
+  return transposeNote(key, melodicNote.semitones);
+}

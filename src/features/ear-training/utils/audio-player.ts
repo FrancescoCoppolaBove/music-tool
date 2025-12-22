@@ -99,34 +99,37 @@ export class AudioPlayer {
   constructor() {
     // console.log('🎵 Audio Player initialized with 2 octaves (C2-B2, C3-B3)');
     // console.log('📁 Available notes:', Object.keys(NOTE_FILES).length, 'variations');
-
     // Inizializza Web Audio API per controllo gain preciso
-    this.initAudioContext();
+    // this.initAudioContext();
   }
 
   /**
    * Inizializza Audio Context con master gain
    */
-  private initAudioContext() {
+  async initAudioContext(): Promise<void> {
     try {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       this.audioContext = new AudioContextClass();
 
-      // Master gain per controllare volume globale
+      // Sblocca l’audio con un suono muto
+      const buffer = this.audioContext.createBuffer(1, 1, 22050);
+      const source = this.audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(this.audioContext.destination);
+      source.start(0);
+
       this.masterGain = this.audioContext.createGain();
-      this.masterGain.gain.value = 0.7; // Master volume al 70%
+      this.masterGain.gain.value = 0.7;
       this.masterGain.connect(this.audioContext.destination);
 
-      // console.log('✅ Web Audio API initialized');
-    } catch (error) {
-      console.warn('⚠️ Web Audio API not available, using fallback', error);
+      await this.audioContext.resume();
+      console.log('🔓 Audio context unlocked');
+    } catch (err) {
+      console.warn('⚠️ Web Audio API unavailable or locked', err);
     }
   }
 
-  /**
-   * Resume audio context (necessario dopo user interaction)
-   */
-  private async resumeAudioContext() {
+  async resumeAudioContext() {
     if (this.audioContext && this.audioContext.state === 'suspended') {
       await this.audioContext.resume();
     }

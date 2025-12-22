@@ -12,6 +12,7 @@ import {
   getMelodicContextProgression,
   generateRandomMelody,
   getNoteStaffPosition,
+  generateTargetNoteFromDegree,
   MELODY_LENGTH,
   type MelodicDictationDifficulty,
   type MelodicNote,
@@ -332,19 +333,6 @@ export function MelodicDictationExercise() {
       </div>
 
       <div className='answer-section'>
-        <h4 className='answer-section-title'>Your Answer:</h4>
-        <div className='melody-answer-display'>
-          {userAnswer.map((degree, idx) => (
-            <div key={idx} className='melody-note-box'>
-              {degree}
-            </div>
-          ))}
-          {Array.from({ length: melodyLength - userAnswer.length }).map((_, idx) => (
-            <div key={`empty-${idx}`} className='melody-note-box empty'>
-              _
-            </div>
-          ))}
-        </div>
         <button
           onClick={handleRemoveLastNote}
           disabled={userAnswer.length === 0 || isCorrect || hasSubmitted}
@@ -358,16 +346,23 @@ export function MelodicDictationExercise() {
       <div className='answer-section'>
         <h4 className='answer-section-title'>Select degrees (in order):</h4>
         <div className='answer-grid degrees-grid'>
-          {availableDegrees.map((degree) => (
-            <button
-              key={degree.name}
-              onClick={() => handleDegreeClick(degree.name)}
-              disabled={isCorrect || hasSubmitted || userAnswer.length >= melodyLength}
-              className='answer-button degree-button'
-            >
-              <span className='degree-name'>{degree.name}</span>
-            </button>
-          ))}
+          {availableDegrees.map((degree) => {
+            // Calcola nome nota per questo grado nella tonalità corrente
+            const targetNote = generateTargetNoteFromDegree(currentQuestion.key, degree);
+            const noteName = targetNote.replace('2', '').replace('3', '');
+
+            return (
+              <button
+                key={degree.name}
+                onClick={() => handleDegreeClick(degree.name)}
+                disabled={isCorrect || hasSubmitted || userAnswer.length >= melodyLength}
+                className='answer-button degree-button'
+              >
+                <span className='degree-name'>{degree.name}</span>
+                <span className='degree-note-name'>{noteName}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

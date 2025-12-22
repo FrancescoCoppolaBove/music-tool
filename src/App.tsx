@@ -3,13 +3,14 @@
  * Entry point dell'applicazione
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from './shared/components/Header/Header';
 import { ChordVoicingsFeature } from './features/chord-voicings/ChordVoicingsFeature';
 import { ScaleRecognizerFeature } from './features/scale-recognition/ScaleRecognizerFeature';
 import { ScaleDictionaryFeature } from './features/scale-dictionary/ScaleDictionaryFeature';
 import { EarTrainingFeature } from './features/ear-training/EarTrainingFeature';
 import { FEATURES, getActiveFeatures } from './config/features';
+import { audioPlayer } from './features/ear-training/utils/audio-player';
 import type { FeatureId } from './config/features';
 import './App.css';
 
@@ -18,6 +19,22 @@ function App() {
 
   // Filtra solo feature attive per la navigazione
   const activeFeatures = useMemo(() => getActiveFeatures(), []);
+
+  useEffect(() => {
+    const unlock = async () => {
+      await audioPlayer.initAudioContext();
+      await audioPlayer.preloadAllNotes();
+    };
+
+    // Sblocca audio alla prima interazione dell’utente
+    document.body.addEventListener('click', unlock, { once: true });
+    document.body.addEventListener('touchstart', unlock, { once: true });
+
+    return () => {
+      document.body.removeEventListener('click', unlock);
+      document.body.removeEventListener('touchstart', unlock);
+    };
+  }, []);
 
   // Render del contenuto in base alla feature attiva
   const renderFeatureContent = () => {
