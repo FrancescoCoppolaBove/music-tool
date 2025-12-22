@@ -22,8 +22,8 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      await audioPlayer.initAudioContext();
       await audioPlayer.preloadAllNotes();
+      await audioPlayer.initAudioContext(); // si auto-sbloccherà al primo tap
     })();
   }, []);
 

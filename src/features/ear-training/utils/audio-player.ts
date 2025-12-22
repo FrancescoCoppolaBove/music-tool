@@ -121,18 +121,30 @@ export class AudioPlayer {
       this.masterGain.gain.value = 0.7;
       this.masterGain.connect(this.audioContext.destination);
 
-      // iOS: sblocco immediato dopo interazione utente
-      const unlock = () => {
-        if (this.audioContext?.state === 'suspended') {
-          this.audioContext.resume();
-          console.log('🔓 AudioContext resumed via user gesture');
+      const unlockAudio = async () => {
+        try {
+          if (this.audioContext?.state === 'suspended') {
+            await this.audioContext.resume();
+            console.log('🔓 iOS AudioContext resumed via user gesture');
+          }
+
+          // Riproduci un suono silenzioso (trucco iOS)
+          const buffer = this.audioContext.createBuffer(1, 1, 22050);
+          const source = this.audioContext.createBufferSource();
+          source.buffer = buffer;
+          source.connect(this.audioContext.destination);
+          source.start(0);
+
+          window.removeEventListener('touchstart', unlockAudio);
+          window.removeEventListener('click', unlockAudio);
+        } catch (err) {
+          console.warn('⚠️ Unlock error:', err);
         }
-        window.removeEventListener('touchstart', unlock);
-        window.removeEventListener('click', unlock);
       };
 
-      window.addEventListener('touchstart', unlock, { once: true });
-      window.addEventListener('click', unlock, { once: true });
+      // iOS Safari: necessario tocco utente per sbloccare
+      window.addEventListener('touchstart', unlockAudio, { once: true });
+      window.addEventListener('click', unlockAudio, { once: true });
     } catch (err) {
       console.warn('⚠️ Web Audio API unavailable or locked', err);
     }
@@ -179,6 +191,9 @@ export class AudioPlayer {
    * Riproduci una singola nota con Web Audio API per miglior controllo gain
    */
   async playNote(note: string, volume: number = 1.0): Promise<void> {
+    if (this.audioContext?.state === 'suspended') {
+      await this.audioContext.resume();
+    }
     await this.resumeAudioContext();
 
     const filePath = NOTE_FILES[note];
