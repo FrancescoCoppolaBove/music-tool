@@ -1,0 +1,172 @@
+/* ===================================
+   📱 MOBILE OPTIMIZATION (EAR TRAINING)
+   =================================== */
+
+@media (max-width: 768px) {
+  .exercise-container {
+    max-width: 100%;
+    padding: 0 var(--spacing-sm, 0.5rem);
+    gap: var(--spacing-md, 1rem);
+  }
+
+  .exercise-header {
+    padding: var(--spacing-md, 1rem);
+  }
+
+  .exercise-title {
+    font-size: 1.25rem;
+  }
+
+  .exercise-description {
+    font-size: 0.9rem;
+  }
+
+  .exercise-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm, 0.5rem);
+  }
+
+  .stat-item {
+    padding: var(--spacing-sm, 0.5rem);
+  }
+
+  .exercise-playback {
+    padding: var(--spacing-md, 1rem);
+    gap: var(--spacing-xs, 0.5rem);
+  }
+
+  .play-button {
+    min-width: 140px;
+    padding: var(--spacing-sm, 0.75rem) var(--spacing-md, 1rem);
+    font-size: 1rem;
+  }
+
+  .answer-grid {
+    gap: var(--spacing-xs, 0.5rem);
+  }
+
+  .answer-button {
+    min-height: 50px;
+    font-size: 0.95rem;
+    padding: var(--spacing-sm, 0.75rem);
+  }
+
+  .intervals-grid,
+  .chords-grid,
+  .scales-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm, 0.5rem);
+  }
+
+  .interval-button,
+  .chord-button,
+  .scale-button,
+  .degree-button {
+    padding: var(--spacing-sm, 0.75rem);
+    min-height: 55px;
+  }
+
+  .exercise-feedback {
+    padding: var(--spacing-sm, 0.75rem);
+    margin-top: var(--spacing-sm, 0.5rem);
+  }
+
+  .exercise-actions {
+    gap: var(--spacing-xs, 0.5rem);
+    flex-wrap: wrap;
+  }
+
+  .ear-training-feature {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md, 1rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .exercise-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .play-button {
+    min-width: 120px;
+    font-size: 0.9rem;
+  }
+
+  .answer-button {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    min-height: 45px;
+  }
+
+  .exercise-header {
+    padding: 0.75rem;
+  }
+
+  .exercise-description {
+    display: none;
+  }
+
+  .answer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===================================
+   📱 MOBILE - COLLAPSIBLE EXERCISE SELECTOR
+   =================================== */
+
+@media (max-width: 768px) {
+  .selector-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm, 0.5rem);
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary, #3b82f6) 0%, var(--primary-dark, #2563eb) 100%);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-lg, 0.75rem);
+    padding: var(--spacing-md, 1rem);
+    margin-bottom: var(--spacing-md, 1rem);
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .selector-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(59, 130, 246, 0.5);
+  }
+
+  .exercise-selector-wrapper {
+    overflow: hidden;
+    transition: max-height 0.35s ease, opacity 0.3s ease;
+  }
+
+  .exercise-selector-wrapper.closed {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .exercise-selector-wrapper.open {
+    max-height: 1000px;
+    opacity: 1;
+  }
+
+  .exercise-selector {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm, 0.5rem);
+  }
+
+  .exercise-selector-button {
+    padding: var(--spacing-sm, 0.75rem);
+  }
+
+  .exercise-selector-description {
+    display: none;
+  }
+}

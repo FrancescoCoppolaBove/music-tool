@@ -180,3 +180,130 @@
     animation: none;
   }
 }
+
+/* ===================================
+   📱 MOBILE OPTIMIZATION (EAR TRAINING)
+   =================================== */
+
+@media (max-width: 768px) {
+  /* Riduce margini e spazi verticali */
+  .exercise-container {
+    max-width: 100%;
+    padding: 0 var(--spacing-sm, 0.5rem);
+    gap: var(--spacing-md, 1rem);
+  }
+
+  .exercise-header {
+    padding: var(--spacing-md, 1rem);
+  }
+
+  .exercise-title {
+    font-size: 1.25rem;
+  }
+
+  .exercise-description {
+    font-size: 0.9rem;
+  }
+
+  /* Stats più compatte e affiancate */
+  .exercise-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm, 0.5rem);
+  }
+
+  .stat-item {
+    padding: var(--spacing-sm, 0.5rem);
+  }
+
+  .stat-value {
+    font-size: 1.1rem;
+  }
+
+  /* Playback compatto */
+  .exercise-playback {
+    padding: var(--spacing-md, 1rem);
+    gap: var(--spacing-xs, 0.5rem);
+  }
+
+  .play-button {
+    min-width: 140px;
+    padding: var(--spacing-sm, 0.75rem) var(--spacing-md, 1rem);
+    font-size: 1rem;
+  }
+
+  /* Pulsanti risposta in griglia più densa */
+  .answer-grid {
+    gap: var(--spacing-xs, 0.5rem);
+  }
+
+  .answer-button {
+    min-height: 50px;
+    font-size: 0.95rem;
+    padding: var(--spacing-sm, 0.75rem);
+  }
+
+  /* Intervalli / Scale / Chords con 2 colonne compatte */
+  .intervals-grid,
+  .chords-grid,
+  .scales-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm, 0.5rem);
+  }
+
+  /* Riduce dimensioni bottoni intervalli / scale */
+  .interval-button,
+  .chord-button,
+  .scale-button,
+  .degree-button {
+    padding: var(--spacing-sm, 0.75rem);
+    min-height: 55px;
+  }
+
+  /* Feedback e azioni più vicine */
+  .exercise-feedback {
+    padding: var(--spacing-sm, 0.75rem);
+    margin-top: var(--spacing-sm, 0.5rem);
+  }
+
+  .exercise-actions {
+    gap: var(--spacing-xs, 0.5rem);
+    flex-wrap: wrap;
+  }
+
+  /* Imposta container fit-screen per ridurre scroll */
+  .ear-training-feature {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md, 1rem);
+  }
+}
+
+@media (max-width: 480px) {
+  /* Ultra compatto per telefoni piccoli */
+  .exercise-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .play-button {
+    min-width: 120px;
+    font-size: 0.9rem;
+  }
+
+  .answer-button {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    min-height: 45px;
+  }
+
+  .exercise-header {
+    padding: 0.75rem;
+  }
+
+  .exercise-description {
+    display: none; /* nasconde descrizioni per guadagnare spazio */
+  }
+
+  .answer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

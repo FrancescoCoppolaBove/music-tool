@@ -17,3 +17,5 @@
 
 /* Action buttons (Reset, Skip, etc) */
 @import './_ear-training-buttons.css';
+
+@import './_ear-training-mobile.css';
