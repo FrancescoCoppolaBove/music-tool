@@ -21,20 +21,10 @@ function App() {
   const activeFeatures = useMemo(() => getActiveFeatures(), []);
 
   useEffect(() => {
-  (async () => {
-    await audioPlayer.initAudioContext();
-    await audioPlayer.preloadAllNotes();
-  })();
-}, []);
-
-    // Sblocca audio alla prima interazione dell’utente
-    document.body.addEventListener('click', unlock, { once: true });
-    document.body.addEventListener('touchstart', unlock, { once: true });
-
-    return () => {
-      document.body.removeEventListener('click', unlock);
-      document.body.removeEventListener('touchstart', unlock);
-    };
+    (async () => {
+      await audioPlayer.initAudioContext();
+      await audioPlayer.preloadAllNotes();
+    })();
   }, []);
 
   // Render del contenuto in base alla feature attiva
