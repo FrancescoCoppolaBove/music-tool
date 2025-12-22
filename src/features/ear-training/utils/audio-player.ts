@@ -109,7 +109,6 @@ export class AudioPlayer {
    */
   private initAudioContext() {
     try {
-      // @ts-ignore - AudioContext ha diversi nomi nei browser
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       this.audioContext = new AudioContextClass();
 
@@ -254,7 +253,7 @@ export class AudioPlayer {
     await Promise.all(promises);
   }
 
-  private delay(ms: number): Promise<void> {
+  delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
