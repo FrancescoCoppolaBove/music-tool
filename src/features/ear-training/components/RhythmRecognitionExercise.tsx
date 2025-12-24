@@ -53,6 +53,40 @@ export function RhythmRecognitionExercise() {
     }
   }, [isCorrect]);
 
+  const playClick = (audioContext: AudioContext, isDownbeat: boolean) => {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = isDownbeat ? 1000 : 800;
+    gainNode.gain.value = isDownbeat ? 0.3 : 0.15;
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.05);
+  };
+
+  const playClap = (audioContext: AudioContext) => {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.type = ('white-noise' as any) || 'sawtooth';
+    filter.type = 'bandpass';
+    filter.frequency.value = 1000;
+
+    gainNode.gain.value = 0.5;
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
+  };
+
   const generateQuestion = useCallback(() => {
     const difficulty_level = difficulty as RhythmDifficulty;
     const availablePatterns = getRhythmPatternsByDifficulty(difficulty_level);
@@ -100,7 +134,7 @@ export function RhythmRecognitionExercise() {
       let currentTime = 0;
 
       for (const note of currentPattern.notes) {
-        if (!note.isRest) {
+        if (note.isRest === false) {
           playClap(audioContext);
         }
         currentTime += note.duration * BEAT_DURATION;
@@ -112,40 +146,6 @@ export function RhythmRecognitionExercise() {
 
     setIsPlaying(false);
   }, [currentPattern, isPlaying]);
-
-  const playClick = (audioContext: AudioContext, isDownbeat: boolean) => {
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.frequency.value = isDownbeat ? 1000 : 800;
-    gainNode.gain.value = isDownbeat ? 0.3 : 0.15;
-
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.05);
-  };
-
-  const playClap = (audioContext: AudioContext) => {
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
-
-    oscillator.connect(filter);
-    filter.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.type = ('white-noise' as any) || 'sawtooth';
-    filter.type = 'bandpass';
-    filter.frequency.value = 1000;
-
-    gainNode.gain.value = 0.5;
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
-  };
 
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
