@@ -76,7 +76,7 @@ export function RhythmRecognitionExercise() {
     filter.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    oscillator.type = ('white-noise' as any) || 'sawtooth';
+    (oscillator as any).type = 'sawtooth';
     filter.type = 'bandpass';
     filter.frequency.value = 1000;
 
