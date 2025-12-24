@@ -14,7 +14,7 @@ import { ScaleDegreesExercise } from './components/ScaleDegreesExercise';
 import { MelodicDictationExercise } from './components/MelodicDictationExercise';
 import { IntervalsInContextExercise } from './components/IntervalsInContextExercise';
 import { RhythmRecognitionExercise } from './components/RhythmRecognitionExercise';
-import { BPMRecognitionExercise } from './components/BPMRecognitionExercise';
+import { BPMRecognitionExercise } from './components/BpmRecognitionExercise';
 
 type ExerciseType =
   | 'perfect-pitch'

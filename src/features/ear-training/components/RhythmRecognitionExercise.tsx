@@ -285,7 +285,7 @@ export function RhythmRecognitionExercise() {
           </span>
         </h4>
         <div className='rhythm-patterns-grid'>
-          {availablePatterns.map((pattern) => {
+          {availablePatterns?.map((pattern) => {
             const isSelected = selectedPatternId === pattern.id;
             const isCorrectAnswer = pattern.id === currentPattern.id;
             const isWrong = wrongPatternIds.has(pattern.id);
