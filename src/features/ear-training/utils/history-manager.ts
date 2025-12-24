@@ -96,3 +96,23 @@ export const progressionsHistory = new HistoryManager<string>(3);
  * Scale Degrees History (evita ultimi 4 gradi)
  */
 export const scaleDegreesHistory = new HistoryManager<string>(4);
+
+/**
+ * Melodic Dictation History (evita ultime 3 melodie - basato su pattern)
+ */
+export const melodicDictationHistory = new HistoryManager<string>(3);
+
+/**
+ * Intervals in Context History (evita ultimi 3 pattern)
+ */
+export const intervalsInContextHistory = new HistoryManager<string>(3);
+
+/**
+ * Rhythm Recognition History (evita ultimi 5 pattern)
+ */
+export const rhythmRecognitionHistory = new HistoryManager<string>(5);
+
+/**
+ * BPM Recognition History (evita ultimi 5 BPM)
+ */
+export const bpmRecognitionHistory = new HistoryManager<number>(5);

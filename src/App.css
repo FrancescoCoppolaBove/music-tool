@@ -21,6 +21,8 @@
 @import './features/scale-dictionary/styles/_piano-keyboard.css';
 @import './features/scale-dictionary/styles/_scale-dictionary.css';
 @import './features/ear-training/styles/_ear-training.css';
+@import './features/ear-training/styles/_ear-training-rhythm-recognition.css';
+@import './features/ear-training/styles/_ear-training-bpm-recognition.css';
 
 /* Utilities */
 @import './styles/utilities/_animations.css';

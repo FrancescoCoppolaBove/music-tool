@@ -1,0 +1,99 @@
+/* ===================================
+   RHYTHM PATTERNS
+   =================================== */
+
+.rhythm-patterns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.rhythm-pattern-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  background-color: var(--bg-secondary, #1e293b);
+  border: 2px solid var(--border, #334155);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rhythm-pattern-button:hover:not(:disabled) {
+  border-color: var(--primary, #3b82f6);
+  background-color: var(--bg-hover, #334155);
+  transform: translateY(-2px);
+}
+
+.rhythm-pattern-button:disabled {
+  opacity: 0.6;
+}
+
+.rhythm-pattern-button.correct {
+  background-color: var(--success-bg, #065f46);
+  border-color: var(--success, #10b981);
+  color: white;
+}
+
+.rhythm-pattern-button.incorrect {
+  background-color: #7f1d1d;
+  border-color: #dc2626;
+  color: white;
+}
+
+/* Rhythm Pattern Visual */
+.rhythm-pattern-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  font-size: 1.5rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  color: var(--text-primary, #e2e8f0);
+  min-height: 3rem;
+  max-height: 4rem;
+  overflow: hidden;
+  padding: 0.25rem 0.5rem;
+  flex-wrap: wrap;
+  line-height: 1.2;
+}
+
+.rhythm-note {
+  display: inline-block;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.rhythm-rest-svg {
+  vertical-align: middle;
+  margin: 0 0.05rem;
+}
+
+.rhythm-pattern-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #94a3b8);
+  text-align: center;
+}
+
+.rhythm-pattern-button.correct .rhythm-pattern-name,
+.rhythm-pattern-button.incorrect .rhythm-pattern-name {
+  color: white;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (max-width: 768px) {
+  .rhythm-patterns-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rhythm-pattern-visual {
+    font-size: 1.5rem;
+  }
+}
