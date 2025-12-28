@@ -8,6 +8,7 @@ import { Header } from './shared/components/Header/Header';
 import { ChordVoicingsFeature } from './features/chord-voicings/ChordVoicingsFeature';
 import { ScaleRecognizerFeature } from './features/scale-recognition/ScaleRecognizerFeature';
 import { ScaleDictionaryFeature } from './features/scale-dictionary/ScaleDictionaryFeature';
+import { ScaleHarmonizationFeature } from './features/scales-harmonizations/ScalesHarmonizationFeature';
 import { EarTrainingFeature } from './features/ear-training/EarTrainingFeature';
 import { FEATURES, getActiveFeatures } from './config/features';
 import { audioPlayer } from './features/ear-training/utils/audio-player';
@@ -52,6 +53,9 @@ function App() {
 
       case 'scale-dictionary':
         return <ScaleDictionaryFeature />;
+
+      case 'scale-harmonization':
+        return <ScaleHarmonizationFeature />;
 
       case 'ear-training':
         return <EarTrainingFeature />;

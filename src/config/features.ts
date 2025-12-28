@@ -3,10 +3,17 @@
  * Configurazione centralizzata di tutte le feature dell'app
  */
 
-import { Piano, Search, Book, Headphones, Circle, Grid } from 'lucide-react';
+import { Piano, Search, Book, Music, Headphones, Circle, Grid } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export type FeatureId = 'voicings' | 'scale-recognition' | 'scale-dictionary' | 'ear-training' | 'circle-fifths' | 'chord-builder';
+export type FeatureId =
+  | 'voicings'
+  | 'scale-recognition'
+  | 'scale-dictionary'
+  | 'scale-harmonization'
+  | 'ear-training'
+  | 'circle-fifths'
+  | 'chord-builder';
 
 export type FeatureLevel = 'beginner' | 'intermediate' | 'advanced' | 'all';
 
@@ -46,6 +53,14 @@ export const FEATURES: Feature[] = [
     description: 'Explore scales in all keys',
     icon: Book,
     level: 'beginner',
+    status: 'active',
+  },
+  {
+    id: 'scale-harmonization',
+    name: 'Scale Harmonization',
+    description: 'Harmonize scales and modes',
+    icon: Music,
+    level: 'intermediate',
     status: 'active',
   },
   {

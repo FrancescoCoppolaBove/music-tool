@@ -1,0 +1,503 @@
+/* ===================================
+   SCALE HARMONIZATION FEATURE
+   =================================== */
+
+.scale-harmonization-feature {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ===================================
+   SELECTORS
+   =================================== */
+
+.harmonization-selectors {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.selector-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Key Selector */
+.key-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.key-button {
+  min-width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: var(--bg-secondary, #1e293b);
+  border: 2px solid var(--border, #334155);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.key-button:hover {
+  border-color: var(--primary, #3b82f6);
+  background-color: var(--bg-hover, #334155);
+  transform: translateY(-2px);
+}
+
+.key-button.active {
+  background-color: var(--primary, #3b82f6);
+  border-color: var(--primary, #3b82f6);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Mode Selector */
+.mode-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.mode-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary, #1e293b);
+  border: 2px solid var(--border, #334155);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.mode-button:hover {
+  border-color: var(--primary, #3b82f6);
+  background-color: var(--bg-hover, #334155);
+  transform: translateY(-2px);
+}
+
+.mode-button.active {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: var(--primary, #3b82f6);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.mode-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.mode-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+}
+
+/* ===================================
+   MODE INFO
+   =================================== */
+
+.mode-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mode-info-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+  margin: 0;
+}
+
+.mode-info-description {
+  font-size: 1rem;
+  color: var(--text-secondary, #94a3b8);
+  margin: 0;
+}
+
+.mode-characteristics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: rgba(59, 130, 246, 0.05);
+  border-left: 4px solid var(--primary, #3b82f6);
+  border-radius: 4px;
+}
+
+.characteristic-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary, #3b82f6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.characteristic-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.characteristic-list li {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #94a3b8);
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.characteristic-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0.5rem;
+  color: var(--primary, #3b82f6);
+  font-weight: bold;
+}
+
+/* ===================================
+   DEGREES TABLE
+   =================================== */
+
+.degrees-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.degree-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-secondary, #1e293b);
+  border: 2px solid var(--border, #334155);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.degree-card:hover {
+  border-color: var(--primary, #3b82f6);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.degree-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: rgba(59, 130, 246, 0.1);
+  border-bottom: 1px solid var(--border, #334155);
+}
+
+.degree-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.degree-number {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary, #3b82f6);
+}
+
+.degree-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.degree-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.degree-chord {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  background-color: var(--bg, #0f172a);
+  border: 2px solid var(--primary, #3b82f6);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.degree-chord:hover {
+  background-color: var(--primary, #3b82f6);
+  color: white;
+  transform: scale(1.05);
+}
+
+.degree-chord.playing {
+  background-color: var(--success, #10b981);
+  border-color: var(--success, #10b981);
+  color: white;
+  animation: pulse 0.5s ease;
+}
+
+.degree-function {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+  padding: 0.5rem;
+  background-color: rgba(59, 130, 246, 0.1);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.degree-role {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* ===================================
+   PROGRESSIONS
+   =================================== */
+
+.progressions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.progression-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary, #1e293b);
+  border: 2px solid var(--border, #334155);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.progression-card:hover {
+  border-color: var(--primary, #3b82f6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.progression-degrees {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary, #3b82f6);
+  text-align: center;
+}
+
+.progression-chords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.progression-chords .arrow {
+  color: var(--text-tertiary, #64748b);
+  font-weight: 300;
+}
+
+.progression-chords .chord-symbol {
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.progression-play-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary, #3b82f6);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.progression-play-button:hover {
+  background-color: var(--primary-hover, #2563eb);
+  transform: scale(1.05);
+}
+
+/* ===================================
+   THEORY INFO
+   =================================== */
+
+.theory-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.theory-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.theory-section h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+  margin: 0;
+}
+
+.theory-section p {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.theory-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.theory-section li {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #94a3b8);
+  padding-left: 1.5rem;
+  position: relative;
+  line-height: 1.6;
+}
+
+.theory-section li::before {
+  content: '→';
+  position: absolute;
+  left: 0.5rem;
+  color: var(--primary, #3b82f6);
+  font-weight: bold;
+}
+
+.theory-section strong {
+  color: var(--text-primary, #e2e8f0);
+  font-weight: 600;
+}
+
+/* ===================================
+   ANIMATIONS
+   =================================== */
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (max-width: 768px) {
+  .scale-harmonization-feature {
+    padding: 0.5rem;
+  }
+
+  .harmonization-selectors {
+    gap: 1.5rem;
+  }
+
+  .key-selector {
+    gap: 0.375rem;
+  }
+
+  .key-button {
+    min-width: 44px;
+    height: 44px;
+    font-size: 0.875rem;
+  }
+
+  .mode-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-button {
+    padding: 0.75rem;
+  }
+
+  .degrees-table {
+    grid-template-columns: 1fr;
+  }
+
+  .progressions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-info-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .key-button {
+    min-width: 40px;
+    height: 40px;
+    font-size: 0.75rem;
+  }
+
+  .degree-card {
+    border-radius: 8px;
+  }
+
+  .degree-body {
+    padding: 0.75rem;
+  }
+
+  .progression-card {
+    padding: 0.75rem;
+  }
+}
