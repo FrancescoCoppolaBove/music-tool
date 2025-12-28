@@ -31,6 +31,8 @@ import noteA3 from '/src/assets/audio/A3.mp3';
 import noteASharp3 from '/src/assets/audio/A-sharp3.mp3';
 import noteB3 from '/src/assets/audio/B3.mp3';
 
+import { audioPlayer } from '@/utils/audio-player';
+
 // Map note names to imported audio files
 const NOTE_FILES: Record<string, string> = {
   // Ottava 2 (bassa)
