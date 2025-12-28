@@ -1,6 +1,6 @@
 /**
  * EAR TRAINING FEATURE
- * Selector tra 7 esercizi
+ * Selector tra 7 esercizi + iOS audio unlock
  */
 
 import React, { useState, useEffect } from 'react';
@@ -17,7 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
   Music3,
-  Activity, // ✅ AGGIUNGILO QUI
+  Activity,
 } from 'lucide-react';
 import { PerfectPitchExercise } from './components/PerfectPitchExercise';
 import { IntervalsExercise } from './components/IntervalsExercise';
@@ -44,73 +44,30 @@ type ExerciseType =
   | 'bpm';
 
 const EXERCISES = [
-  {
-    id: 'perfect-pitch' as ExerciseType,
-    name: 'Perfect Pitch',
-    icon: Music2,
-    description: 'Identify single notes',
-  },
-  {
-    id: 'intervals' as ExerciseType,
-    name: 'Intervals',
-    icon: GitCompare,
-    description: 'Recognize intervals',
-  },
-  {
-    id: 'chords' as ExerciseType,
-    name: 'Chords',
-    icon: Music,
-    description: 'Identify chord types',
-  },
-  {
-    id: 'scales' as ExerciseType,
-    name: 'Scales',
-    icon: Scale3d,
-    description: 'Recognize scales',
-  },
-  {
-    id: 'progressions' as ExerciseType,
-    name: 'Progressions',
-    icon: List,
-    description: 'Identify chord progressions',
-  },
-  {
-    id: 'degrees' as ExerciseType,
-    name: 'Scale Degrees',
-    icon: Target,
-    description: 'Identify scale degrees in context',
-  },
-  {
-    id: 'melodic' as ExerciseType,
-    name: 'Melodic Dictation',
-    icon: Music4,
-    description: 'Identify melodies note by note',
-  },
+  { id: 'perfect-pitch' as ExerciseType, name: 'Perfect Pitch', icon: Music2, description: 'Identify single notes' },
+  { id: 'intervals' as ExerciseType, name: 'Intervals', icon: GitCompare, description: 'Recognize intervals' },
+  { id: 'chords' as ExerciseType, name: 'Chords', icon: Music, description: 'Identify chord types' },
+  { id: 'scales' as ExerciseType, name: 'Scales', icon: Scale3d, description: 'Recognize scales' },
+  { id: 'progressions' as ExerciseType, name: 'Progressions', icon: List, description: 'Identify chord progressions' },
+  { id: 'degrees' as ExerciseType, name: 'Scale Degrees', icon: Target, description: 'Identify scale degrees in context' },
+  { id: 'melodic' as ExerciseType, name: 'Melodic Dictation', icon: Music4, description: 'Identify melodies note by note' },
   {
     id: 'intervals-context' as ExerciseType,
     name: 'Intervals in Context',
     icon: GitMerge,
     description: 'Identify intervals and degrees in key',
   },
-  {
-    id: 'rhythm' as ExerciseType,
-    name: 'Rhythm Recognition',
-    icon: Music3,
-    description: 'Identify rhythm patterns',
-  },
-  {
-    id: 'bpm' as ExerciseType,
-    name: 'BPM Recognition',
-    icon: Activity,
-    description: 'Identify tempo (BPM)',
-  },
+  { id: 'rhythm' as ExerciseType, name: 'Rhythm Recognition', icon: Music3, description: 'Identify rhythm patterns' },
+  { id: 'bpm' as ExerciseType, name: 'BPM Recognition', icon: Activity, description: 'Identify tempo (BPM)' },
 ];
 
 export function EarTrainingFeature() {
   const [activeExercise, setActiveExercise] = useState<ExerciseType>('perfect-pitch');
   const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
 
+  // ✅ 1. Gestisce la responsività
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
@@ -118,27 +75,56 @@ export function EarTrainingFeature() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // ✅ 2. Sblocco automatico per Desktop / Android (non necessario su iOS)
   useEffect(() => {
-    const unlockAudio = async () => {
-      await audioPlayer.initAudioContext();
+    const tryAutoUnlock = async () => {
+      try {
+        await audioPlayer.initAudioContext();
+        setAudioUnlocked(true);
+        console.log('🎧 Auto-unlocked audio (desktop/android)');
+      } catch {
+        console.log('🔒 Awaiting user gesture to unlock audio...');
+      }
     };
-
-    window.addEventListener('touchstart', unlockAudio, { once: true });
-    window.addEventListener('click', unlockAudio, { once: true });
-
-    return () => {
-      window.removeEventListener('touchstart', unlockAudio);
-      window.removeEventListener('click', unlockAudio);
-    };
+    tryAutoUnlock();
   }, []);
 
+  // ✅ 3. Unlock manuale su iOS (click/tap diretto)
+  const unlockAudio = () => {
+    if (audioUnlocked) return;
+
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext!;
+      const ctx = audioPlayer['audioContext'] || new AudioContextClass();
+
+      ctx.resume();
+
+      // Suono silenzioso per sbloccare iOS
+      const buffer = ctx.createBuffer(1, 1, 22050);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start(0);
+
+      // Assegna al player e segna come sbloccato
+      // @ts-ignore
+      audioPlayer.audioContext = ctx;
+      setAudioUnlocked(true);
+      console.log('🔓 Audio context unlocked by user gesture');
+    } catch (err) {
+      console.warn('⚠️ Failed to unlock audio:', err);
+    }
+  };
+
+  // ✅ 4. Quando l’utente seleziona un esercizio
   const handleSelect = (id: ExerciseType) => {
+    if (!audioUnlocked) unlockAudio();
     setActiveExercise(id);
-    if (isMobile) setMenuOpen(false); // Chiude automaticamente su mobile
+    if (isMobile) setMenuOpen(false);
   };
 
   return (
-    <div className='ear-training-feature'>
+    <div className='ear-training-feature' onClick={!audioUnlocked ? unlockAudio : undefined}>
       {/* Header */}
       <div className='card'>
         <div className='card-header'>
@@ -190,6 +176,7 @@ export function EarTrainingFeature() {
           </div>
         </div>
       </div>
+
       {/* Active Exercise */}
       {activeExercise === 'perfect-pitch' && <PerfectPitchExercise />}
       {activeExercise === 'intervals' && <IntervalsExercise />}
