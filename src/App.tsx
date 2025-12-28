@@ -1,6 +1,6 @@
 /**
- * MAIN APP COMPONENT
- * Entry point dell'applicazione
+ * MAIN APP COMPONENT - iOS AUDIO FIX
+ * Entry point dell'applicazione con audio unlock corretto per iOS
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -16,16 +16,30 @@ import './App.css';
 
 function App() {
   const [activeFeature, setActiveFeature] = useState<FeatureId>('voicings');
+  const [audioReady, setAudioReady] = useState(false);
 
   // Filtra solo feature attive per la navigazione
   const activeFeatures = useMemo(() => getActiveFeatures(), []);
 
-  useEffect(() => {
-    (async () => {
+  // ✅ Inizializza audio SOLO dopo user gesture (iOS fix)
+  const initializeAudio = async () => {
+    if (audioReady) return;
+
+    console.log('🎧 User gesture detected - initializing audio...');
+
+    try {
+      // 1. Prima inizializza AudioContext con user gesture
+      await audioPlayer.initAudioContext();
+
+      // 2. POI preload notes (opzionale, può essere fatto dopo)
       await audioPlayer.preloadAllNotes();
-      await audioPlayer.initAudioContext(); // si auto-sbloccherà al primo tap
-    })();
-  }, []);
+
+      setAudioReady(true);
+      console.log('✅ Audio ready for iOS!');
+    } catch (err) {
+      console.error('❌ Audio initialization failed:', err);
+    }
+  };
 
   // Render del contenuto in base alla feature attiva
   const renderFeatureContent = () => {
@@ -69,7 +83,7 @@ function App() {
   };
 
   return (
-    <div className='app'>
+    <div className='app' onClick={initializeAudio} onTouchStart={initializeAudio}>
       <Header features={FEATURES} activeFeature={activeFeature} onFeatureChange={setActiveFeature} />
 
       <main className='app-main'>{renderFeatureContent()}</main>
