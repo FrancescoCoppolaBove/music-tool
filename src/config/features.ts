@@ -56,14 +56,6 @@ export const FEATURES: Feature[] = [
     status: 'active',
   },
   {
-    id: 'scale-harmonization',
-    name: 'Scale Harmonization',
-    description: 'Harmonize scales and modes',
-    icon: Music,
-    level: 'intermediate',
-    status: 'active',
-  },
-  {
     id: 'ear-training',
     name: 'Ear Training',
     description: 'Improve your musical ear',
@@ -77,7 +69,15 @@ export const FEATURES: Feature[] = [
     description: 'Interactive key relationships',
     icon: Circle,
     level: 'beginner',
-    status: 'coming-soon',
+    status: 'active',
+  },
+  {
+    id: 'scale-harmonization',
+    name: 'Scale Harmonization',
+    description: 'Harmonize scales and modes',
+    icon: Music,
+    level: 'intermediate',
+    status: 'active',
   },
   {
     id: 'chord-builder',

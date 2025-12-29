@@ -32,6 +32,8 @@
 @import './features/chord-voicings/styles/index.css';
 @import './features/scale-recognition/styles/scale-recognizer.css';
 @import './features/scales-harmonizations/styles/scales-harmonization.css';
+@import './features/circle-of-fifth/styles/circle-of-fifths.css';
+@import './features/circle-of-fifth/styles/key-signature-trainer.css';
 
 /* ===================================
    APP LAYOUT

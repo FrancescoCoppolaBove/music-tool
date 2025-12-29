@@ -10,6 +10,7 @@ import { ScaleRecognizerFeature } from './features/scale-recognition/ScaleRecogn
 import { ScaleDictionaryFeature } from './features/scale-dictionary/ScaleDictionaryFeature';
 import { ScaleHarmonizationFeature } from './features/scales-harmonizations/ScalesHarmonizationFeature';
 import { EarTrainingFeature } from './features/ear-training/EarTrainingFeature';
+import { CircleOfFifthsFeature } from './features/circle-of-fifth/CircleOfFifthsFeature';
 import { FEATURES, getActiveFeatures } from './config/features';
 import { audioPlayer } from './features/ear-training/utils/audio-player';
 import type { FeatureId } from './config/features';
@@ -61,12 +62,7 @@ function App() {
         return <EarTrainingFeature />;
 
       case 'circle-fifths':
-        return (
-          <div className='coming-soon-placeholder'>
-            <h2>Circle of Fifths</h2>
-            <p>Coming soon! This feature is under development.</p>
-          </div>
-        );
+        return <CircleOfFifthsFeature />;
 
       case 'chord-builder':
         return (
