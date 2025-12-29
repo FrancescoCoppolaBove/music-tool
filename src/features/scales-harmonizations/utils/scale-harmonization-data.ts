@@ -38,8 +38,8 @@ export const CHROMATIC_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#',
 
 const IONIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
   mode: 'ionian',
-  modeName: 'Ionian (Scala Maggiore)',
-  description: 'Scala maggiore classica - allegra, luminosa, funzionale',
+  modeName: 'Ionian (Major Scale)',
+  description: 'Classic major scale - bright, cheerful, functional',
   commonProgressions: [
     ['I', 'IV', 'V'], // I-IV-V (50s progression - "La Bamba", "Blitzkrieg Bop")
     ['I', 'V', 'vi', 'IV'], // I-V-vi-IV ("Four Magic Chords" - "Don't Stop Believin'", "Let It Be")
@@ -49,80 +49,80 @@ const IONIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
     ['vi', 'ii', 'V', 'I'], // vi-ii-V-I (Circle progression - "I Got Rhythm", "Island in the Sun")
     ['I', 'V', 'vi', 'iii', 'IV', 'I', 'IV', 'V'], // Pachelbel ("Canon in D", "Memories", "Basket Case")
   ],
-  characteristics: ['Punto di riferimento armonico', 'Tensione/risoluzione chiara (V → I)', 'Funzioni tonali ben definite'],
+  characteristics: ['Reference point for harmony', 'Clear tension/resolution (V → I)', 'Well-defined tonal functions'],
 };
 
 const DORIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
   mode: 'dorian',
-  modeName: 'Dorian (Minore Moderno)',
-  description: 'Minore con 6ª maggiore - jazz, funk, sofisticato',
+  modeName: 'Dorian (Modern Minor)',
+  description: 'Minor with major 6th - jazz, funk, sophisticated',
   commonProgressions: [
-    ['i', 'IV'], // Caratteristico dorico
+    ['i', 'IV'], // Dorian signature
     ['i', 'IV', 'i'],
     ['i', '♭VII', 'IV', 'i'],
   ],
-  characteristics: ["IV7 è l'accordo caratteristico", 'Più luminoso del minore naturale', 'Usato in jazz, funk, Miles Davis'],
+  characteristics: ['IV7 is the characteristic chord', 'Brighter than natural minor', 'Used in jazz, funk, Miles Davis'],
 };
 
 const PHRYGIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
   mode: 'phrygian',
-  modeName: 'Phrygian (Scuro e Teso)',
-  description: 'Minore con 2ª minore - flamenco, metal, mediorientale',
+  modeName: 'Phrygian (Dark and Tense)',
+  description: 'Minor with flat 2 - flamenco, metal, middle eastern',
   commonProgressions: [
-    ['i', '♭II'], // Tipico phrygian
+    ['i', '♭II'], // Typical phrygian
     ['i', '♭VII', '♭VI', '♭II'],
     ['♭II', 'i'], // Reverse
   ],
-  characteristics: ["♭II maj7 è l'accordo signature", 'Suono scuro e tensivo', 'Usato in flamenco, metal, musica araba'],
+  characteristics: ['♭II maj7 is the signature chord', 'Dark and tense sound', 'Used in flamenco, metal, Arabic music'],
 };
 
 const LYDIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
   mode: 'lydian',
-  modeName: 'Lydian (Aperto e Cinematico)',
-  description: 'Maggiore con #4 - sognante, aperto, spaziale',
+  modeName: 'Lydian (Open and Cinematic)',
+  description: 'Major with #4 - dreamy, open, spacious',
   commonProgressions: [
-    ['I', 'II', 'I'], // Caratteristico lydian
+    ['I', 'II', 'I'], // Lydian signature
     ['I', 'II', 'iii'],
     ['I', '#IV°', 'I'],
   ],
-  characteristics: ['#4 crea apertura e tensione dolce', 'Suono sognante e cinematico', 'Usato da Joe Satriani, colonne sonore'],
+  characteristics: ['#4 creates openness and sweet tension', 'Dreamy and cinematic sound', 'Used by Joe Satriani, film scores'],
 };
 
 const MIXOLYDIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
   mode: 'mixolydian',
-  modeName: 'Mixolydian (Funk e Groove)',
-  description: 'Maggiore con 7ª minore - rock, funk, blues',
+  modeName: 'Mixolydian (Funk and Groove)',
+  description: 'Major with flat 7 - rock, funk, blues',
   commonProgressions: [
-    ['I', '♭VII', 'IV'], // Classico mixolydian
+    ['I', '♭VII', 'IV'], // Classic mixolydian
     ['I', '♭VII', 'I'],
     ['I', 'ii', '♭VII'],
   ],
-  characteristics: ['I7 (dominante che NON risolve)', "♭VII è l'accordo caratteristico", 'Usato in rock, funk, Beatles'],
+  characteristics: ['I7 (dominant that does NOT resolve)', '♭VII is the characteristic chord', 'Used in rock, funk, Beatles'],
 };
 
 const AEOLIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
   mode: 'aeolian',
-  modeName: 'Aeolian (Minore Naturale)',
-  description: 'Minore naturale - triste, nostalgico, emotivo',
+  modeName: 'Aeolian (Natural Minor)',
+  description: 'Natural minor - sad, nostalgic, emotional',
   commonProgressions: [
-    ['i', 'iv', 'v'], // Minore naturale
-    ['i', 'iv', 'V'], // Minore armonica
+    ['i', 'iv', 'v'], // Natural minor
+    ['i', 'iv', 'V'], // Harmonic minor
     ['i', '♭VII', '♭VI', 'V'], // Andalusian cadence
-    ['i', '♭VI', '♭III', '♭VII'], // Pop minore
-    ['i', '♭VI', '♭VII', 'i'], // Dark/emotivo
+    ['i', '♭VI', '♭III', '♭VII'], // Minor pop
+    ['i', '♭VI', '♭VII', 'i'], // Dark/emotional
   ],
-  characteristics: ['Minore naturale puro', 'v minore (no tensione forte)', 'Suono nostalgico e malinconico'],
+  characteristics: ['Pure natural minor', 'v minor (no strong tension)', 'Nostalgic and melancholic sound'],
 };
 
 const LOCRIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
   mode: 'locrian',
-  modeName: 'Locrian (Instabile)',
-  description: 'Diminuito - instabile, tensivo, raro',
+  modeName: 'Locrian (Unstable)',
+  description: 'Diminished - unstable, tense, rare',
   commonProgressions: [
-    ['i°', '♭II'], // Momentaneo
+    ['i°', '♭II'], // Momentary
     ['i°', '♭VII', 'i°'],
   ],
-  characteristics: ['Centro instabile (m7♭5)', 'Usato raramente come "tonalità"', 'Più come passaggio o colore'],
+  characteristics: ['Unstable center (m7♭5)', 'Rarely used as a "key"', 'More as passing or color'],
 };
 
 // ===================================
@@ -139,80 +139,73 @@ interface DegreePattern {
 }
 
 const IONIAN_DEGREES: DegreePattern[] = [
-  { degree: 'I', name: 'Tonica', chordQuality: 'maj7', function: 'Tonica', role: '"Casa", punto di riposo', icon: '🏠' },
-  { degree: 'ii', name: 'Sopratonica', chordQuality: 'm7', function: 'Pre-dominante', role: 'Preparazione alla dominante', icon: '🚶' },
-  { degree: 'iii', name: 'Modale/Mediante', chordQuality: 'm7', function: 'Debole/Modale', role: 'Alternativa tonica', icon: '💫' },
-  { degree: 'IV', name: 'Sottodominante', chordQuality: 'maj7', function: 'Pre-dominante', role: 'Introduce tensione', icon: '⬆️' },
-  { degree: 'V', name: 'Dominante', chordQuality: '7', function: 'Dominante', role: 'Crea tensione forte', icon: '🔥' },
-  { degree: 'vi', name: 'Soperdominante', chordQuality: 'm7', function: 'Tonica Alternativa', role: '"Sospiro" minore', icon: '🌙' },
-  {
-    degree: 'vii°',
-    name: 'Sensibile',
-    chordQuality: 'm7b5',
-    function: 'Dominante Debole',
-    role: 'Tende a tornare alla tonica',
-    icon: '↩️',
-  },
+  { degree: 'I', name: 'Tonic', chordQuality: 'maj7', function: 'Tonic', role: '"Home", point of rest', icon: '🏠' },
+  { degree: 'ii', name: 'Supertonic', chordQuality: 'm7', function: 'Pre-dominant', role: 'Prepares dominant', icon: '🚶' },
+  { degree: 'iii', name: 'Mediant', chordQuality: 'm7', function: 'Weak/Modal', role: 'Tonic alternative', icon: '💫' },
+  { degree: 'IV', name: 'Subdominant', chordQuality: 'maj7', function: 'Pre-dominant', role: 'Introduces tension', icon: '⬆️' },
+  { degree: 'V', name: 'Dominant', chordQuality: '7', function: 'Dominant', role: 'Creates strong tension', icon: '🔥' },
+  { degree: 'vi', name: 'Submediant', chordQuality: 'm7', function: 'Tonic Alternative', role: 'Minor "sigh"', icon: '🌙' },
+  { degree: 'vii°', name: 'Leading tone', chordQuality: 'm7b5', function: 'Weak Dominant', role: 'Tends back to tonic', icon: '↩️' },
 ];
 
 const DORIAN_DEGREES: DegreePattern[] = [
-  { degree: 'i', name: 'Centro modale', chordQuality: 'm7', function: 'Centro', role: 'Riposo modale', icon: '🏠' },
-  { degree: 'ii', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: '♭III', name: 'Luce', chordQuality: 'maj7', function: 'Colore', role: 'Contrasto luminoso', icon: '✨' },
-  { degree: 'IV', name: 'Caratteristico', chordQuality: '7', function: 'Firma dorica', role: 'Accordo chiave del modo', icon: '⭐' },
-  { degree: 'v', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'vi°', name: 'Instabile', chordQuality: 'm7b5', function: 'Instabile', role: 'Passaggio', icon: '🌀' },
-  { degree: '♭VII', name: 'Colore', chordQuality: 'maj7', function: 'Colore', role: 'Supporto', icon: '🎨' },
+  { degree: 'i', name: 'Modal center', chordQuality: 'm7', function: 'Center', role: 'Modal rest', icon: '🏠' },
+  { degree: 'ii', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: '♭III', name: 'Light', chordQuality: 'maj7', function: 'Color', role: 'Bright contrast', icon: '✨' },
+  { degree: 'IV', name: 'Characteristic', chordQuality: '7', function: 'Dorian signature', role: 'Key chord of mode', icon: '⭐' },
+  { degree: 'v', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'vi°', name: 'Unstable', chordQuality: 'm7b5', function: 'Unstable', role: 'Passing', icon: '🌀' },
+  { degree: '♭VII', name: 'Color', chordQuality: 'maj7', function: 'Color', role: 'Support', icon: '🎨' },
 ];
 
 const PHRYGIAN_DEGREES: DegreePattern[] = [
-  { degree: 'i', name: 'Centro', chordQuality: 'm7', function: 'Centro', role: 'Riposo teso', icon: '🏠' },
-  { degree: '♭II', name: 'Caratteristico', chordQuality: 'maj7', function: 'Firma phrygian', role: 'Accordo chiave', icon: '⭐' },
-  { degree: '♭III', name: 'Colore', chordQuality: '7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'iv', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'v°', name: 'Instabile', chordQuality: 'm7b5', function: 'Instabile', role: 'Passaggio', icon: '🌀' },
-  { degree: '♭VI', name: 'Colore', chordQuality: 'maj7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: '♭VII', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
+  { degree: 'i', name: 'Center', chordQuality: 'm7', function: 'Center', role: 'Tense rest', icon: '🏠' },
+  { degree: '♭II', name: 'Characteristic', chordQuality: 'maj7', function: 'Phrygian signature', role: 'Key chord', icon: '⭐' },
+  { degree: '♭III', name: 'Color', chordQuality: '7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'iv', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'v°', name: 'Unstable', chordQuality: 'm7b5', function: 'Unstable', role: 'Passing', icon: '🌀' },
+  { degree: '♭VI', name: 'Color', chordQuality: 'maj7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: '♭VII', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
 ];
 
 const LYDIAN_DEGREES: DegreePattern[] = [
-  { degree: 'I', name: 'Centro', chordQuality: 'maj7', function: 'Centro', role: 'Riposo aperto', icon: '🏠' },
-  { degree: 'II', name: 'Colore', chordQuality: '7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'iii', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: '#IV°', name: 'Caratteristico', chordQuality: 'm7b5', function: 'Firma lydian', role: 'Apertura #4', icon: '⭐' },
-  { degree: 'V', name: 'Colore', chordQuality: 'maj7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'vi', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'vii', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
+  { degree: 'I', name: 'Center', chordQuality: 'maj7', function: 'Center', role: 'Open rest', icon: '🏠' },
+  { degree: 'II', name: 'Color', chordQuality: '7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'iii', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: '#IV°', name: 'Characteristic', chordQuality: 'm7b5', function: 'Lydian signature', role: '#4 openness', icon: '⭐' },
+  { degree: 'V', name: 'Color', chordQuality: 'maj7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'vi', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'vii', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
 ];
 
 const MIXOLYDIAN_DEGREES: DegreePattern[] = [
-  { degree: 'I', name: 'Centro modale', chordQuality: '7', function: 'Centro', role: 'Dominante che NON risolve', icon: '🏠' },
-  { degree: 'ii', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'iii°', name: 'Instabile', chordQuality: 'm7b5', function: 'Instabile', role: 'Passaggio', icon: '🌀' },
-  { degree: 'IV', name: 'Colore', chordQuality: 'maj7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'v', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'vi', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: '♭VII', name: 'Caratteristico', chordQuality: 'maj7', function: 'Firma mixolydian', role: 'Accordo chiave', icon: '⭐' },
+  { degree: 'I', name: 'Modal center', chordQuality: '7', function: 'Center', role: 'Dominant that does NOT resolve', icon: '🏠' },
+  { degree: 'ii', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'iii°', name: 'Unstable', chordQuality: 'm7b5', function: 'Unstable', role: 'Passing', icon: '🌀' },
+  { degree: 'IV', name: 'Color', chordQuality: 'maj7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'v', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'vi', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: '♭VII', name: 'Characteristic', chordQuality: 'maj7', function: 'Mixolydian signature', role: 'Key chord', icon: '⭐' },
 ];
 
 const AEOLIAN_DEGREES: DegreePattern[] = [
-  { degree: 'i', name: 'Tonica minore', chordQuality: 'm7', function: 'Tonica', role: 'Riposo, tristezza', icon: '🏠' },
-  { degree: 'ii°', name: 'Sopratonica minore', chordQuality: 'm7b5', function: 'Pre-dominante', role: 'Debole ma utile', icon: '🚶' },
-  { degree: '♭III', name: 'Modale/Mediante', chordQuality: 'maj7', function: 'Tonica Alternativa', role: 'Luce maggiore', icon: '✨' },
-  { degree: 'iv', name: 'Sottodominante', chordQuality: 'm7', function: 'Pre-dominante', role: 'Movimento', icon: '⬆️' },
-  { degree: 'v', name: 'Dominante debole', chordQuality: 'm7', function: 'Debole', role: 'No tensione forte', icon: '🌫️' },
-  { degree: '♭VI', name: 'Submediante', chordQuality: 'maj7', function: 'Tonica Alternativa', role: 'Lift emotivo', icon: '💫' },
-  { degree: '♭VII', name: 'Subtonica', chordQuality: '7', function: 'Dominante Modale', role: 'Preparazione tonica', icon: '🔄' },
+  { degree: 'i', name: 'Minor tonic', chordQuality: 'm7', function: 'Tonic', role: 'Rest, sadness', icon: '🏠' },
+  { degree: 'ii°', name: 'Minor supertonic', chordQuality: 'm7b5', function: 'Pre-dominant', role: 'Weak but useful', icon: '🚶' },
+  { degree: '♭III', name: 'Mediant', chordQuality: 'maj7', function: 'Tonic Alternative', role: 'Major light', icon: '✨' },
+  { degree: 'iv', name: 'Subdominant', chordQuality: 'm7', function: 'Pre-dominant', role: 'Movement', icon: '⬆️' },
+  { degree: 'v', name: 'Weak dominant', chordQuality: 'm7', function: 'Weak', role: 'No strong tension', icon: '🌫️' },
+  { degree: '♭VI', name: 'Submediant', chordQuality: 'maj7', function: 'Tonic Alternative', role: 'Emotional lift', icon: '💫' },
+  { degree: '♭VII', name: 'Subtonic', chordQuality: '7', function: 'Modal Dominant', role: 'Prepares tonic', icon: '🔄' },
 ];
 
 const LOCRIAN_DEGREES: DegreePattern[] = [
-  { degree: 'i°', name: 'Centro instabile', chordQuality: 'm7b5', function: 'Centro', role: 'Instabile', icon: '🌀' },
-  { degree: '♭II', name: 'Colore', chordQuality: 'maj7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: '♭III', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: 'iv', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: '♭V', name: 'Colore', chordQuality: 'maj7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: '♭VI', name: 'Colore', chordQuality: '7', function: 'Colore', role: 'Supporto', icon: '🎨' },
-  { degree: '♭VII', name: 'Colore', chordQuality: 'm7', function: 'Colore', role: 'Supporto', icon: '🎨' },
+  { degree: 'i°', name: 'Unstable center', chordQuality: 'm7b5', function: 'Center', role: 'Unstable', icon: '🌀' },
+  { degree: '♭II', name: 'Color', chordQuality: 'maj7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: '♭III', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: 'iv', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: '♭V', name: 'Color', chordQuality: 'maj7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: '♭VI', name: 'Color', chordQuality: '7', function: 'Color', role: 'Support', icon: '🎨' },
+  { degree: '♭VII', name: 'Color', chordQuality: 'm7', function: 'Color', role: 'Support', icon: '🎨' },
 ];
 
 // ===================================

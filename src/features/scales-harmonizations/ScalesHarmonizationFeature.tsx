@@ -15,12 +15,12 @@ import {
 import { audioPlayer } from '../ear-training/utils/audio-player';
 
 const MODE_OPTIONS: { value: ScaleMode; label: string; emoji: string }[] = [
-  { value: 'ionian', label: 'Ionian (Maggiore)', emoji: '🌞' },
+  { value: 'ionian', label: 'Ionian (Major)', emoji: '🌞' },
   { value: 'dorian', label: 'Dorian', emoji: '🎷' },
   { value: 'phrygian', label: 'Phrygian', emoji: '🌚' },
   { value: 'lydian', label: 'Lydian', emoji: '✨' },
   { value: 'mixolydian', label: 'Mixolydian', emoji: '🎸' },
-  { value: 'aeolian', label: 'Aeolian (Minore)', emoji: '🌙' },
+  { value: 'aeolian', label: 'Aeolian (Minor)', emoji: '🌙' },
   { value: 'locrian', label: 'Locrian', emoji: '🌀' },
 ];
 
@@ -56,22 +56,16 @@ export function ScaleHarmonizationFeature() {
 
   // Get chord notes from symbol
   const getChordNotes = (symbol: string): string[] => {
-    // Parse chord symbol (es: "Cmaj7", "Dm7", "Bbm7♭5", "F##maj7")
     const match = symbol.match(/^([A-G][#b]*)/);
     if (!match) return ['C2'];
 
     let root = match[1];
     const quality = symbol.replace(root, '');
 
-    // Normalizza doppi sharp/flat ma MANTIENI flat (Db, Eb, Bb)
-    // Audio player supporta entrambi!
+    // Normalize double sharps/flats but KEEP flats (Db, Eb, Bb)
     root = root.replace('##', '#').replace('bb', 'b');
 
-    // Mappa cromatica completa (sharps E flats)
-    const allNotes = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
-
-    // Trova semitono (posizione)
-    let rootSemitone = -1;
+    // Semitone mapping
     const enharmonicValues: Record<string, number> = {
       C: 0,
       'B#': 0,
@@ -96,29 +90,28 @@ export function ScaleHarmonizationFeature() {
       Cb: 11,
     };
 
-    rootSemitone = enharmonicValues[root];
+    const rootSemitone = enharmonicValues[root];
     if (rootSemitone === undefined) {
       console.error('❌ Root not recognized:', root, 'from symbol:', symbol);
       return [`${root}2`];
     }
 
-    // Determina intervalli
+    // Determine intervals
     let intervals: number[] = [];
 
     if (quality.includes('maj7')) {
-      intervals = [0, 4, 7, 11]; // Root, 3rd, 5th, maj7
+      intervals = [0, 4, 7, 11];
     } else if (quality.includes('m7♭5') || quality.includes('m7b5')) {
-      intervals = [0, 3, 6, 10]; // Root, ♭3, ♭5, ♭7
+      intervals = [0, 3, 6, 10];
     } else if (quality.includes('m7')) {
-      intervals = [0, 3, 7, 10]; // Root, ♭3, 5th, ♭7
+      intervals = [0, 3, 7, 10];
     } else if (quality.includes('7')) {
-      intervals = [0, 4, 7, 10]; // Root, 3rd, 5th, ♭7
+      intervals = [0, 4, 7, 10];
     } else {
-      intervals = [0, 4, 7]; // Major triad fallback
+      intervals = [0, 4, 7];
     }
 
-    // Costruisci note accordo USANDO LA STESSA NOMENCLATURA
-    // Se root è flat, usa flat per le altre note
+    // Use flats if root has flat
     const useFlats = root.includes('b');
     const chromaticScale = useFlats
       ? ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
@@ -142,7 +135,7 @@ export function ScaleHarmonizationFeature() {
             <Music size={28} style={{ color: 'var(--primary)' }} />
             <div>
               <h2 className='card-title'>Scale Harmonization</h2>
-              <p className='card-description'>Armonizzazione di scale e modi</p>
+              <p className='card-description'>Harmonize scales and modes</p>
             </div>
           </div>
         </div>
@@ -151,7 +144,7 @@ export function ScaleHarmonizationFeature() {
         <div className='card-content'>
           <div className='harmonization-selectors'>
             <div className='selector-group'>
-              <label className='selector-label'>Tonalità (Key)</label>
+              <label className='selector-label'>Key</label>
               <div className='key-selector'>
                 {CHROMATIC_NOTES.map((note) => (
                   <button key={note} onClick={() => setSelectedKey(note)} className={`key-button ${selectedKey === note ? 'active' : ''}`}>
@@ -162,7 +155,7 @@ export function ScaleHarmonizationFeature() {
             </div>
 
             <div className='selector-group'>
-              <label className='selector-label'>Modo (Mode)</label>
+              <label className='selector-label'>Mode</label>
               <div className='mode-selector'>
                 {MODE_OPTIONS.map((option) => (
                   <button
@@ -192,7 +185,7 @@ export function ScaleHarmonizationFeature() {
             <div className='mode-characteristics'>
               <div className='characteristic-header'>
                 <Info size={18} />
-                <span>Caratteristiche:</span>
+                <span>Characteristics:</span>
               </div>
               <ul className='characteristic-list'>
                 {harmonization.characteristics.map((char, idx) => (
@@ -207,7 +200,7 @@ export function ScaleHarmonizationFeature() {
       {/* Chord Degrees Table */}
       <div className='card'>
         <div className='card-header accordion-header' onClick={() => setShowChords(!showChords)} style={{ cursor: 'pointer' }}>
-          <h3 className='card-title'>Accordi della Scala</h3>
+          <h3 className='card-title'>Scale Chords</h3>
           <button className='accordion-toggle'>{showChords ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</button>
         </div>
         {showChords && (
@@ -244,7 +237,7 @@ export function ScaleHarmonizationFeature() {
         <div className='card-header accordion-header' onClick={() => setShowProgressions(!showProgressions)} style={{ cursor: 'pointer' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <GitBranch size={24} style={{ color: 'var(--primary)' }} />
-            <h3 className='card-title'>Progressioni Comuni</h3>
+            <h3 className='card-title'>Common Progressions</h3>
           </div>
           <button className='accordion-toggle'>{showProgressions ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</button>
         </div>
@@ -281,7 +274,7 @@ export function ScaleHarmonizationFeature() {
         <div className='card-header accordion-header' onClick={() => setShowTheory(!showTheory)} style={{ cursor: 'pointer' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Lightbulb size={24} style={{ color: 'var(--primary)' }} />
-            <h3 className='card-title'>Come Usarlo</h3>
+            <h3 className='card-title'>How to Use</h3>
           </div>
           <button className='accordion-toggle'>{showTheory ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</button>
         </div>
@@ -289,66 +282,66 @@ export function ScaleHarmonizationFeature() {
           <div className='card-content'>
             <div className='theory-content'>
               <div className='theory-section'>
-                <h4>Pensiero Funzionale vs Modale</h4>
+                <h4>Functional vs Modal Thinking</h4>
                 <p>
-                  <strong>Ionian/Aeolian:</strong> Usa il pensiero funzionale (Tonica → Pre-dominante → Dominante → Tonica). Cerca tensione
-                  e risoluzione.
+                  <strong>Ionian/Aeolian:</strong> Use functional thinking (Tonic → Pre-dominant → Dominant → Tonic). Look for tension and
+                  resolution.
                 </p>
                 <p>
-                  <strong>Altri Modi:</strong> Pensa in termini modali (Centro → Colore → Contrasto → Centro). Cerca l'identità del modo,
-                  non la risoluzione.
+                  <strong>Other Modes:</strong> Think modally (Center → Color → Contrast → Center). Look for the mode's identity, not
+                  resolution.
                 </p>
               </div>
 
               <div className='theory-section'>
-                <h4>Accordi "Firma"</h4>
-                <p>Ogni modo ha 1-2 accordi caratteristici che definiscono il suo suono:</p>
+                <h4>Signature Chords</h4>
+                <p>Each mode has 1-2 characteristic chords that define its sound:</p>
                 <ul>
                   <li>
-                    <strong>Dorian:</strong> IV7 (accordo chiave)
+                    <strong>Dorian:</strong> IV7 (key chord)
                   </li>
                   <li>
                     <strong>Phrygian:</strong> ♭II maj7 (signature)
                   </li>
                   <li>
-                    <strong>Lydian:</strong> #IV° (apertura)
+                    <strong>Lydian:</strong> #IV° (openness)
                   </li>
                   <li>
-                    <strong>Mixolydian:</strong> ♭VII maj7 (chiave)
+                    <strong>Mixolydian:</strong> ♭VII maj7 (key chord)
                   </li>
                 </ul>
               </div>
 
               <div className='theory-section'>
                 <h4>Modal Interchange Chords</h4>
-                <p>Accordi "prestati" da altri modi per aggiungere colore emotivo:</p>
+                <p>Chords "borrowed" from other modes to add emotional color:</p>
                 <ul>
                   <li>
-                    <strong>iv (minor four):</strong> Suono malinconico - Radiohead "No Surprises", Beatles "In My Life"
+                    <strong>iv (minor four):</strong> Melancholic sound - Radiohead "No Surprises", Beatles "In My Life"
                   </li>
                   <li>
-                    <strong>♭VI ♭VII I:</strong> Cadenza "vittoria" - Super Mario, Beatles "With a Little Help"
+                    <strong>♭VI ♭VII I:</strong> "Victory" cadence - Super Mario, Beatles "With a Little Help"
                   </li>
                   <li>
-                    <strong>♭II maj7:</strong> Ritardo drammatico - Radiohead "Everything in Its Right Place"
+                    <strong>♭II maj7:</strong> Dramatic delay - Radiohead "Everything in Its Right Place"
                   </li>
                   <li>
-                    <strong>I III IV iv:</strong> Progressione "Creep" (usare con cautela!)
+                    <strong>I III IV iv:</strong> "Creep" progression (use with caution!)
                   </li>
                 </ul>
               </div>
 
               <div className='theory-section'>
-                <h4>Come Scrivere</h4>
+                <h4>How to Write</h4>
                 <p>
-                  <strong>❌ Non serve usare tutti gli accordi!</strong>
+                  <strong>❌ You don't need to use all chords!</strong>
                   <br />
-                  <strong>✅ Usa: 1 centro + 2-3 accordi caratteristici</strong>
+                  <strong>✅ Use: 1 center + 2-3 characteristic chords</strong>
                 </p>
                 <p>
-                  Esempio Dorico: Em7 (centro) → A7 (IV7) → Dmaj7 (♭VII)
+                  Dorian example: Em7 (center) → A7 (IV7) → Dmaj7 (♭VII)
                   <br />
-                  Esempio Mixolydian: G7 (centro) → Fmaj7 (♭VII) → Cmaj7 (IV)
+                  Mixolydian example: G7 (center) → Fmaj7 (♭VII) → Cmaj7 (IV)
                 </p>
               </div>
             </div>
@@ -373,17 +366,14 @@ async function playProgression(progression: string[], harmonization: ScaleHarmon
 
 // Helper to get chord notes
 function getChordNotesHelper(symbol: string): string[] {
-  // Parse chord symbol
   const match = symbol.match(/^([A-G][#b]*)/);
   if (!match) return ['C2'];
 
   let root = match[1];
   const quality = symbol.replace(root, '');
 
-  // Normalizza doppi sharp/flat ma MANTIENI flat
   root = root.replace('##', '#').replace('bb', 'b');
 
-  // Mappa semitoni
   const enharmonicValues: Record<string, number> = {
     C: 0,
     'B#': 0,
@@ -428,7 +418,6 @@ function getChordNotesHelper(symbol: string): string[] {
     intervals = [0, 4, 7];
   }
 
-  // Usa flats se root ha flat
   const useFlats = root.includes('b');
   const chromaticScale = useFlats
     ? ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
