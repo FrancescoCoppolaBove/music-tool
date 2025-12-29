@@ -3,6 +3,8 @@
  * Armonizzazione scale e modi
  */
 
+import { SCALE_PATTERNS, normalizeKey } from '../../../shared/utils/scale-patterns';
+
 export type ScaleMode = 'ionian' | 'dorian' | 'phrygian' | 'lydian' | 'mixolydian' | 'aeolian' | 'locrian';
 
 export interface ChordDegree {
@@ -39,13 +41,12 @@ const IONIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
   modeName: 'Ionian (Scala Maggiore)',
   description: 'Scala maggiore classica - allegra, luminosa, funzionale',
   commonProgressions: [
-    ['IV', 'V', 'I'], // Cadenza perfetta
-    ['IV', 'I'], // Cadenza plagale ("Amen")
-    ['V', 'vi'], // Cadenza sospesa
-    ['I', 'V', 'vi', 'IV'], // Pop classico
-    ['vi', 'IV', 'I', 'V'], // Axis of Awesome
-    ['I', 'vi', 'ii', 'V'], // Turnaround jazz
-    ['ii', 'V', 'I'], // 2-5-1 (jazz)
+    ['I', 'IV', 'V'], // I-IV-V (50s progression)
+    ['I', 'V', 'vi', 'IV'], // I-V-vi-IV (Pop/Rock)
+    ['vi', 'IV', 'I', 'V'], // vi-IV-I-V (Axis of Awesome)
+    ['I', 'vi', 'IV', 'V'], // I-vi-IV-V (50s Doo-Wop)
+    ['ii', 'V', 'I'], // ii-V-I (Jazz)
+    ['I', 'V', 'vi', 'iii', 'IV', 'I', 'IV', 'V'], // Royal Road progression
   ],
   characteristics: ['Punto di riferimento armonico', 'Tensione/risoluzione chiara (V → I)', 'Funzioni tonali ben definite'],
 };
@@ -278,55 +279,43 @@ export function generateScaleHarmonization(key: string, mode: ScaleMode): ScaleH
 }
 
 /**
- * Build scale from key and mode
+ * Build scale from key and mode usando dati pre-calcolati corretti
  */
 function buildScale(key: string, mode: ScaleMode): string[] {
-  // Major scale intervals (whole = 2, half = 1)
-  const intervals = [2, 2, 1, 2, 2, 2, 1]; // W W H W W W H
+  const modePatterns = SCALE_PATTERNS[mode];
 
-  // Mode starting points
-  const modeStarts: Record<ScaleMode, number> = {
-    ionian: 0,
-    dorian: 1,
-    phrygian: 2,
-    lydian: 3,
-    mixolydian: 4,
-    aeolian: 5,
-    locrian: 6,
-  };
+  if (!modePatterns) {
+    console.error('Mode not found:', mode);
+    return [key];
+  }
 
-  // Rotate intervals for mode
-  const start = modeStarts[mode];
-  const rotatedIntervals = [...intervals.slice(start), ...intervals.slice(0, start)];
+  const scale = modePatterns[key];
 
-  // Build scale
-  const keyIndex = CHROMATIC_NOTES.indexOf(key);
-  const scale: string[] = [key];
-
-  let currentIndex = keyIndex;
-  for (const interval of rotatedIntervals.slice(0, 6)) {
-    // 6 intervals = 7 notes
-    currentIndex = (currentIndex + interval) % 12;
-    scale.push(CHROMATIC_NOTES[currentIndex]);
+  if (!scale) {
+    console.error('Key not found for mode:', key, mode);
+    return [key];
   }
 
   return scale;
 }
 
 /**
- * Build chord symbol
+ * Build chord symbol usando note dalla scala
  */
 function buildChordSymbol(root: string, quality: 'maj7' | 'm7' | '7' | 'm7b5'): string {
+  // Normalizza root (rimuovi doppi sharp/flat per display)
+  const displayRoot = root.replace('##', '#').replace('bb', 'b');
+
   switch (quality) {
     case 'maj7':
-      return `${root}maj7`;
+      return `${displayRoot}maj7`;
     case 'm7':
-      return `${root}m7`;
+      return `${displayRoot}m7`;
     case '7':
-      return `${root}7`;
+      return `${displayRoot}7`;
     case 'm7b5':
-      return `${root}m7♭5`;
+      return `${displayRoot}m7♭5`;
     default:
-      return root;
+      return displayRoot;
   }
 }
