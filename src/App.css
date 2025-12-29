@@ -18,6 +18,7 @@
 @import './styles/components/_inputs.css';
 @import './styles/components/_cards.css';
 @import './styles/components/_header.css';
+@import './styles/components/_navigation.css';
 @import './features/scale-dictionary/styles/_piano-keyboard.css';
 @import './features/scale-dictionary/styles/_scale-dictionary.css';
 @import './features/ear-training/styles/_ear-training.css';

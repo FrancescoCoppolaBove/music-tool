@@ -1,0 +1,79 @@
+/**
+ * NAVIGATION STYLES - DESKTOP & MOBILE
+ */
+
+.app-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  background: var(--bg-secondary, #f1f5f9);
+  color: var(--text-primary, #0f172a);
+}
+
+.nav-item.active {
+  background: var(--primary, #3b82f6);
+  color: white;
+}
+
+.nav-icon {
+  flex-shrink: 0;
+}
+
+.nav-label {
+  display: inline;
+}
+
+/* ===================================
+   RESPONSIVE - MOBILE
+   =================================== */
+
+@media (max-width: 768px) {
+  /* In mobile menu, stack items vertically */
+  .header-nav-mobile .app-navigation {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .header-nav-mobile .nav-item {
+    justify-content: flex-start;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+
+  .header-nav-mobile .nav-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .header-nav-mobile .nav-label {
+    display: inline; /* Always show label in mobile menu */
+  }
+}
+
+@media (max-width: 480px) {
+  .header-nav-mobile .nav-item {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9375rem;
+  }
+}

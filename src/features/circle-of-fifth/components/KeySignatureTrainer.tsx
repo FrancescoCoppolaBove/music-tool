@@ -127,10 +127,12 @@ export function KeySignaturesTrainer() {
         const availableWrongKeys = keys.filter((k) => k !== randomKey);
         const wrongKeys = shuffle(availableWrongKeys).slice(0, 3);
 
-        // Get relative keys (will be unique since source keys are unique)
-        const wrongRelatives = wrongKeys.map((k) => (mode === 'major' ? keyData[k].relativeMinor : keyData[k].relativeMajor));
+        // Get relative keys and filter out any undefined
+        const wrongRelatives = wrongKeys
+          .map((k) => (mode === 'major' ? keyData[k].relativeMinor : keyData[k].relativeMajor))
+          .filter((key): key is string => key !== undefined);
 
-        const options = shuffle([relativeKey, ...wrongRelatives]);
+        const options = shuffle([relativeKey!, ...wrongRelatives]);
 
         return {
           type,
@@ -377,7 +379,7 @@ export function KeySignaturesTrainer() {
 
               {showResult && selectedAnswer !== currentQuestion.correctAnswer && (
                 <div className='feedback-message incorrect'>
-                  <span>Try again! Select another answer.</span>
+                  <p>Try again! Select another answer.</p>
                 </div>
               )}
             </div>

@@ -3,8 +3,8 @@
  * Header principale dell'applicazione con logo e navigazione
  */
 
-import React from 'react';
-import { Music, Github } from 'lucide-react';
+import React, { useState } from 'react';
+import { Music, Github, Menu, X } from 'lucide-react';
 import { Navigation } from './Navigation';
 import type { Feature, FeatureId } from '../../../config/features';
 
@@ -15,6 +15,13 @@ interface HeaderProps {
 }
 
 export function Header({ features, activeFeature, onFeatureChange }: HeaderProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleFeatureChange = (featureId: FeatureId) => {
+    onFeatureChange(featureId);
+    setMobileMenuOpen(false); // Close mobile menu after selection
+  };
+
   return (
     <header className='app-header'>
       <div className='header-container'>
@@ -29,8 +36,10 @@ export function Header({ features, activeFeature, onFeatureChange }: HeaderProps
           </div>
         </div>
 
-        {/* Navigation */}
-        <Navigation features={features} activeFeature={activeFeature} onFeatureChange={onFeatureChange} />
+        {/* Desktop Navigation */}
+        <div className='header-nav-desktop'>
+          <Navigation features={features} activeFeature={activeFeature} onFeatureChange={onFeatureChange} />
+        </div>
 
         {/* Actions */}
         <div className='header-actions'>
@@ -43,8 +52,20 @@ export function Header({ features, activeFeature, onFeatureChange }: HeaderProps
           >
             <Github size={20} />
           </a>
+
+          {/* Mobile Menu Button */}
+          <button className='mobile-menu-btn' onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label='Toggle menu'>
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div className='header-nav-mobile'>
+          <Navigation features={features} activeFeature={activeFeature} onFeatureChange={handleFeatureChange} />
+        </div>
+      )}
     </header>
   );
 }

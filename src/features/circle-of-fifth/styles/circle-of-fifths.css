@@ -393,6 +393,16 @@
   .key-details-panel {
     position: static;
   }
+
+  .circle-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tab-button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 768px) {
@@ -408,5 +418,23 @@
 
   .diatonic-chords {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .circle-container {
+    padding: 1rem;
+  }
+
+  .detail-section {
+    padding: 0.75rem 0;
+  }
+
+  .scale-notes {
+    gap: 0.375rem;
+  }
+
+  .note-badge {
+    min-width: 2rem;
+    padding: 0.375rem;
+    font-size: 0.8125rem;
   }
 }
