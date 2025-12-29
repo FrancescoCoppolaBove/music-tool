@@ -41,12 +41,13 @@ const IONIAN_TEMPLATE: Omit<ScaleHarmonization, 'key' | 'degrees'> = {
   modeName: 'Ionian (Scala Maggiore)',
   description: 'Scala maggiore classica - allegra, luminosa, funzionale',
   commonProgressions: [
-    ['I', 'IV', 'V'], // I-IV-V (50s progression)
-    ['I', 'V', 'vi', 'IV'], // I-V-vi-IV (Pop/Rock)
-    ['vi', 'IV', 'I', 'V'], // vi-IV-I-V (Axis of Awesome)
-    ['I', 'vi', 'IV', 'V'], // I-vi-IV-V (50s Doo-Wop)
-    ['ii', 'V', 'I'], // ii-V-I (Jazz)
-    ['I', 'V', 'vi', 'iii', 'IV', 'I', 'IV', 'V'], // Royal Road progression
+    ['I', 'IV', 'V'], // I-IV-V (50s progression - "La Bamba", "Blitzkrieg Bop")
+    ['I', 'V', 'vi', 'IV'], // I-V-vi-IV ("Four Magic Chords" - "Don't Stop Believin'", "Let It Be")
+    ['vi', 'IV', 'I', 'V'], // vi-IV-I-V (Axis of Awesome - "Africa", "Boulevard of Broken Dreams")
+    ['I', 'vi', 'IV', 'V'], // I-vi-IV-V (Doo-Wop/50s - "Earth Angel", "Heart and Soul", "Crocodile Rock")
+    ['ii', 'V', 'I'], // ii-V-I (Jazz standard - "Take the A Train", "Sunday Morning")
+    ['vi', 'ii', 'V', 'I'], // vi-ii-V-I (Circle progression - "I Got Rhythm", "Island in the Sun")
+    ['I', 'V', 'vi', 'iii', 'IV', 'I', 'IV', 'V'], // Pachelbel ("Canon in D", "Memories", "Basket Case")
   ],
   characteristics: ['Punto di riferimento armonico', 'Tensione/risoluzione chiara (V → I)', 'Funzioni tonali ben definite'],
 };

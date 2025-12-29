@@ -56,45 +56,49 @@ export function ScaleHarmonizationFeature() {
 
   // Get chord notes from symbol
   const getChordNotes = (symbol: string): string[] => {
-    // Parse chord symbol (es: "Cmaj7", "Dm7", "G7", "Bm7♭5", "F#maj7", "Bbm7")
+    // Parse chord symbol (es: "Cmaj7", "Dm7", "Bbm7♭5", "F##maj7")
     const match = symbol.match(/^([A-G][#b]*)/);
     if (!match) return ['C2'];
 
     let root = match[1];
     const quality = symbol.replace(root, '');
 
-    // Normalizza e converti a formato audio player
-    // Audio player ha solo sharps (C#, D#, F#, G#, A#)
-    const enharmonicMap: Record<string, string> = {
-      Cb: 'B',
-      Db: 'C#',
-      Ebb: 'D',
-      Eb: 'D#',
-      Fb: 'E',
-      Gb: 'F#',
-      Abb: 'G',
-      Ab: 'G#',
-      Bbb: 'A',
-      Bb: 'A#',
-      'B#': 'C',
-      'C##': 'D',
-      'D##': 'E',
-      'E#': 'F',
-      'E##': 'F#',
-      'F##': 'G',
-      'G##': 'A',
-      'A##': 'B',
+    // Normalizza doppi sharp/flat ma MANTIENI flat (Db, Eb, Bb)
+    // Audio player supporta entrambi!
+    root = root.replace('##', '#').replace('bb', 'b');
+
+    // Mappa cromatica completa (sharps E flats)
+    const allNotes = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
+
+    // Trova semitono (posizione)
+    let rootSemitone = -1;
+    const enharmonicValues: Record<string, number> = {
+      C: 0,
+      'B#': 0,
+      'C#': 1,
+      Db: 1,
+      D: 2,
+      'D#': 3,
+      Eb: 3,
+      E: 4,
+      Fb: 4,
+      F: 5,
+      'E#': 5,
+      'F#': 6,
+      Gb: 6,
+      G: 7,
+      'G#': 8,
+      Ab: 8,
+      A: 9,
+      'A#': 10,
+      Bb: 10,
+      B: 11,
+      Cb: 11,
     };
 
-    // Converti root a enharmonic equivalente
-    if (enharmonicMap[root]) {
-      root = enharmonicMap[root];
-    }
-
-    // Trova root index
-    const rootIndex = CHROMATIC_NOTES.indexOf(root);
-    if (rootIndex === -1) {
-      console.error('Root not found in CHROMATIC_NOTES:', root, 'from symbol:', symbol);
+    rootSemitone = enharmonicValues[root];
+    if (rootSemitone === undefined) {
+      console.error('❌ Root not recognized:', root, 'from symbol:', symbol);
       return [`${root}2`];
     }
 
@@ -113,13 +117,19 @@ export function ScaleHarmonizationFeature() {
       intervals = [0, 4, 7]; // Major triad fallback
     }
 
-    // Costruisci note accordo
+    // Costruisci note accordo USANDO LA STESSA NOMENCLATURA
+    // Se root è flat, usa flat per le altre note
+    const useFlats = root.includes('b');
+    const chromaticScale = useFlats
+      ? ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+      : ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
     const notes = intervals.map((interval) => {
-      const noteIndex = (rootIndex + interval) % 12;
-      return `${CHROMATIC_NOTES[noteIndex]}2`;
+      const noteSemitone = (rootSemitone + interval) % 12;
+      return `${chromaticScale[noteSemitone]}2`;
     });
 
-    console.log('🎹 Chord:', symbol, '→ Root:', root, '→ Notes:', notes);
+    console.log('🎹 Chord:', symbol, '→ Root:', root, '(semitone:', rootSemitone, ') → Notes:', notes);
     return notes;
   };
 
@@ -310,6 +320,25 @@ export function ScaleHarmonizationFeature() {
               </div>
 
               <div className='theory-section'>
+                <h4>Modal Interchange Chords</h4>
+                <p>Accordi "prestati" da altri modi per aggiungere colore emotivo:</p>
+                <ul>
+                  <li>
+                    <strong>iv (minor four):</strong> Suono malinconico - Radiohead "No Surprises", Beatles "In My Life"
+                  </li>
+                  <li>
+                    <strong>♭VI ♭VII I:</strong> Cadenza "vittoria" - Super Mario, Beatles "With a Little Help"
+                  </li>
+                  <li>
+                    <strong>♭II maj7:</strong> Ritardo drammatico - Radiohead "Everything in Its Right Place"
+                  </li>
+                  <li>
+                    <strong>I III IV iv:</strong> Progressione "Creep" (usare con cautela!)
+                  </li>
+                </ul>
+              </div>
+
+              <div className='theory-section'>
                 <h4>Come Scrivere</h4>
                 <p>
                   <strong>❌ Non serve usare tutti gli accordi!</strong>
@@ -351,35 +380,37 @@ function getChordNotesHelper(symbol: string): string[] {
   let root = match[1];
   const quality = symbol.replace(root, '');
 
-  // Normalizza e converti a formato audio player
-  const enharmonicMap: Record<string, string> = {
-    Cb: 'B',
-    Db: 'C#',
-    Ebb: 'D',
-    Eb: 'D#',
-    Fb: 'E',
-    Gb: 'F#',
-    Abb: 'G',
-    Ab: 'G#',
-    Bbb: 'A',
-    Bb: 'A#',
-    'B#': 'C',
-    'C##': 'D',
-    'D##': 'E',
-    'E#': 'F',
-    'E##': 'F#',
-    'F##': 'G',
-    'G##': 'A',
-    'A##': 'B',
+  // Normalizza doppi sharp/flat ma MANTIENI flat
+  root = root.replace('##', '#').replace('bb', 'b');
+
+  // Mappa semitoni
+  const enharmonicValues: Record<string, number> = {
+    C: 0,
+    'B#': 0,
+    'C#': 1,
+    Db: 1,
+    D: 2,
+    'D#': 3,
+    Eb: 3,
+    E: 4,
+    Fb: 4,
+    F: 5,
+    'E#': 5,
+    'F#': 6,
+    Gb: 6,
+    G: 7,
+    'G#': 8,
+    Ab: 8,
+    A: 9,
+    'A#': 10,
+    Bb: 10,
+    B: 11,
+    Cb: 11,
   };
 
-  if (enharmonicMap[root]) {
-    root = enharmonicMap[root];
-  }
-
-  const rootIndex = CHROMATIC_NOTES.indexOf(root);
-  if (rootIndex === -1) {
-    console.error('Root not found:', root, 'from symbol:', symbol);
+  const rootSemitone = enharmonicValues[root];
+  if (rootSemitone === undefined) {
+    console.error('❌ Root not recognized:', root, 'from symbol:', symbol);
     return [`${root}2`];
   }
 
@@ -397,8 +428,14 @@ function getChordNotesHelper(symbol: string): string[] {
     intervals = [0, 4, 7];
   }
 
+  // Usa flats se root ha flat
+  const useFlats = root.includes('b');
+  const chromaticScale = useFlats
+    ? ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+    : ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
   return intervals.map((interval) => {
-    const noteIndex = (rootIndex + interval) % 12;
-    return `${CHROMATIC_NOTES[noteIndex]}2`;
+    const noteSemitone = (rootSemitone + interval) % 12;
+    return `${chromaticScale[noteSemitone]}2`;
   });
 }
