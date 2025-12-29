@@ -47,8 +47,8 @@
 .type-btn {
   padding: 0.75rem 1.5rem;
   border: 2px solid var(--border, #e2e8f0);
-  background: var(--primary, #3b82f6);
-  color: var(--text-secondary, #64748b);
+  background: transparent;
+  color: var(--text-primary, #0f172a);
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: 8px;
@@ -123,11 +123,11 @@
 .reset-btn {
   margin-left: auto;
   padding: 0.5rem;
-  background: var(--primary, #3b82f6);
+  background: transparent;
   border: 1px solid var(--border, #e2e8f0);
   border-radius: 6px;
   cursor: pointer;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-primary, #0f172a);
   transition: all 0.2s ease;
 }
 
@@ -170,7 +170,7 @@
 
 .answer-option {
   padding: 1.5rem;
-  background: var(--primary, #3b82f6);
+  background: var(--bg-secondary, #f1f5f9);
   border: 2px solid var(--border, #e2e8f0);
   border-radius: 12px;
   font-size: 1.125rem;
@@ -187,14 +187,14 @@
 
 .answer-option:hover:not(:disabled) {
   border-color: var(--primary, #3b82f6);
-  background: var(--bg-secondary, #f1f5f9);
+  background: var(--bg-tertiary, #e2e8f0);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .answer-option.selected {
   border-color: var(--primary, #3b82f6);
-  background: var(--bg-secondary, #f1f5f9);
+  background: var(--bg-tertiary, #e2e8f0);
   color: var(--text-primary, #0f172a);
 }
 

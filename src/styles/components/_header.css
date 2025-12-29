@@ -3,6 +3,7 @@
  */
 
 .app-header {
+  background: var(--bg-primary, #ffffff);
   border-bottom: 1px solid var(--border, #e2e8f0);
   position: sticky;
   top: 0;
@@ -82,7 +83,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
+  background: var(--bg-primary, #ffffff);
   border-bottom: 1px solid var(--border, #e2e8f0);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   padding: 1rem;
