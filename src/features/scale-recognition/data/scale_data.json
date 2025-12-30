@@ -1,95 +1,5 @@
 [
   {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "A",
-    "notes": "A B C D E F G",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "B",
-    "notes": "B C#/Db D E F#/Gb G A",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "C",
-    "notes": "C D D#/Eb F G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E F#/Gb G#/Ab A B",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "D",
-    "notes": "D E F G A A#/Bb C",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb G#/Ab A#/Bb B C#/Db",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "E",
-    "notes": "E F#/Gb G A B C D",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "F",
-    "notes": "F G G#/Ab A#/Bb C C#/Db D#/Eb",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A B C#/Db D E",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "G",
-    "notes": "G A A#/Bb C D D#/Eb F",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian (Natural Minor)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B C#/Db D#/Eb E F#/Gb",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Aeolian b1",
-    "root": "A",
-    "notes": "A C C#/Db D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 3 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Aeolian b1",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C#/Db D E F#/Gb G A",
-    "interval_pattern": "0 3 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Aeolian b1",
-    "root": "B",
-    "notes": "B D D#/Eb F G G#/Ab A#/Bb",
-    "interval_pattern": "0 3 4 6 8 9 11"
-  },
-  {
     "scale_name": "Aeolian b1",
     "root": "C",
     "notes": "C D#/Eb E F#/Gb G#/Ab A B",
@@ -144,22 +54,22 @@
     "interval_pattern": "0 3 4 6 8 9 11"
   },
   {
-    "scale_name": "Aeolian b5 (Locrian #2)",
+    "scale_name": "Aeolian b1",
     "root": "A",
-    "notes": "A B C D D#/Eb F G",
-    "interval_pattern": "0 2 3 5 6 8 10"
+    "notes": "A C C#/Db D#/Eb F F#/Gb G#/Ab",
+    "interval_pattern": "0 3 4 6 8 9 11"
   },
   {
-    "scale_name": "Aeolian b5 (Locrian #2)",
+    "scale_name": "Aeolian b1",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 5 6 8 10"
+    "notes": "A#/Bb C#/Db D E F#/Gb G A",
+    "interval_pattern": "0 3 4 6 8 9 11"
   },
   {
-    "scale_name": "Aeolian b5 (Locrian #2)",
+    "scale_name": "Aeolian b1",
     "root": "B",
-    "notes": "B C#/Db D E F G A",
-    "interval_pattern": "0 2 3 5 6 8 10"
+    "notes": "B D D#/Eb F G G#/Ab A#/Bb",
+    "interval_pattern": "0 3 4 6 8 9 11"
   },
   {
     "scale_name": "Aeolian b5 (Locrian #2)",
@@ -216,22 +126,22 @@
     "interval_pattern": "0 2 3 5 6 8 10"
   },
   {
-    "scale_name": "Algerian",
+    "scale_name": "Aeolian b5 (Locrian #2)",
     "root": "A",
-    "notes": "A B C D D#/Eb E F G#/Ab",
-    "interval_pattern": "0 2 3 5 6 7 8 11"
+    "notes": "A B C D D#/Eb F G",
+    "interval_pattern": "0 2 3 5 6 8 10"
   },
   {
-    "scale_name": "Algerian",
+    "scale_name": "Aeolian b5 (Locrian #2)",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb E F F#/Gb A",
-    "interval_pattern": "0 2 3 5 6 7 8 11"
+    "notes": "A#/Bb C C#/Db D#/Eb E F#/Gb G#/Ab",
+    "interval_pattern": "0 2 3 5 6 8 10"
   },
   {
-    "scale_name": "Algerian",
+    "scale_name": "Aeolian b5 (Locrian #2)",
     "root": "B",
-    "notes": "B C#/Db D E F F#/Gb G A#/Bb",
-    "interval_pattern": "0 2 3 5 6 7 8 11"
+    "notes": "B C#/Db D E F G A",
+    "interval_pattern": "0 2 3 5 6 8 10"
   },
   {
     "scale_name": "Algerian",
@@ -288,22 +198,22 @@
     "interval_pattern": "0 2 3 5 6 7 8 11"
   },
   {
-    "scale_name": "Algerian (Long)",
+    "scale_name": "Algerian",
     "root": "A",
-    "notes": "A B C D#/Eb E F G#/Ab",
-    "interval_pattern": "0 2 3 6 7 8 11"
+    "notes": "A B C D D#/Eb E F G#/Ab",
+    "interval_pattern": "0 2 3 5 6 7 8 11"
   },
   {
-    "scale_name": "Algerian (Long)",
+    "scale_name": "Algerian",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db E F F#/Gb A",
-    "interval_pattern": "0 2 3 6 7 8 11"
+    "notes": "A#/Bb C C#/Db D#/Eb E F F#/Gb A",
+    "interval_pattern": "0 2 3 5 6 7 8 11"
   },
   {
-    "scale_name": "Algerian (Long)",
+    "scale_name": "Algerian",
     "root": "B",
-    "notes": "B C#/Db D F F#/Gb G A#/Bb",
-    "interval_pattern": "0 2 3 6 7 8 11"
+    "notes": "B C#/Db D E F F#/Gb G A#/Bb",
+    "interval_pattern": "0 2 3 5 6 7 8 11"
   },
   {
     "scale_name": "Algerian (Long)",
@@ -360,22 +270,22 @@
     "interval_pattern": "0 2 3 6 7 8 11"
   },
   {
-    "scale_name": "Arabic",
+    "scale_name": "Algerian (Long)",
     "root": "A",
-    "notes": "A B C#/Db D D#/Eb F G",
-    "interval_pattern": "0 2 4 5 6 8 10"
+    "notes": "A B C D#/Eb E F G#/Ab",
+    "interval_pattern": "0 2 3 6 7 8 11"
   },
   {
-    "scale_name": "Arabic",
+    "scale_name": "Algerian (Long)",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 5 6 8 10"
+    "notes": "A#/Bb C C#/Db E F F#/Gb A",
+    "interval_pattern": "0 2 3 6 7 8 11"
   },
   {
-    "scale_name": "Arabic",
+    "scale_name": "Algerian (Long)",
     "root": "B",
-    "notes": "B C#/Db D#/Eb E F G A",
-    "interval_pattern": "0 2 4 5 6 8 10"
+    "notes": "B C#/Db D F F#/Gb G A#/Bb",
+    "interval_pattern": "0 2 3 6 7 8 11"
   },
   {
     "scale_name": "Arabic",
@@ -432,22 +342,22 @@
     "interval_pattern": "0 2 4 5 6 8 10"
   },
   {
-    "scale_name": "Augmented",
+    "scale_name": "Arabic",
     "root": "A",
-    "notes": "A C C#/Db E F G#/Ab",
-    "interval_pattern": "0 3 4 7 8 11"
+    "notes": "A B C#/Db D D#/Eb F G",
+    "interval_pattern": "0 2 4 5 6 8 10"
   },
   {
-    "scale_name": "Augmented",
+    "scale_name": "Arabic",
     "root": "A#/Bb",
-    "notes": "A#/Bb C#/Db D F F#/Gb A",
-    "interval_pattern": "0 3 4 7 8 11"
+    "notes": "A#/Bb C D D#/Eb E F#/Gb G#/Ab",
+    "interval_pattern": "0 2 4 5 6 8 10"
   },
   {
-    "scale_name": "Augmented",
+    "scale_name": "Arabic",
     "root": "B",
-    "notes": "B D D#/Eb F#/Gb G A#/Bb",
-    "interval_pattern": "0 3 4 7 8 11"
+    "notes": "B C#/Db D#/Eb E F G A",
+    "interval_pattern": "0 2 4 5 6 8 10"
   },
   {
     "scale_name": "Augmented",
@@ -504,22 +414,22 @@
     "interval_pattern": "0 3 4 7 8 11"
   },
   {
-    "scale_name": "Balinese",
+    "scale_name": "Augmented",
     "root": "A",
-    "notes": "A A#/Bb C E F",
-    "interval_pattern": "0 1 3 7 8"
+    "notes": "A C C#/Db E F G#/Ab",
+    "interval_pattern": "0 3 4 7 8 11"
   },
   {
-    "scale_name": "Balinese",
+    "scale_name": "Augmented",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db F F#/Gb",
-    "interval_pattern": "0 1 3 7 8"
+    "notes": "A#/Bb C#/Db D F F#/Gb A",
+    "interval_pattern": "0 3 4 7 8 11"
   },
   {
-    "scale_name": "Balinese",
+    "scale_name": "Augmented",
     "root": "B",
-    "notes": "B C D F#/Gb G",
-    "interval_pattern": "0 1 3 7 8"
+    "notes": "B D D#/Eb F#/Gb G A#/Bb",
+    "interval_pattern": "0 3 4 7 8 11"
   },
   {
     "scale_name": "Balinese",
@@ -576,22 +486,22 @@
     "interval_pattern": "0 1 3 7 8"
   },
   {
-    "scale_name": "Bebop (Dominant / Mixolydian Bebop)",
+    "scale_name": "Balinese",
     "root": "A",
-    "notes": "A B C#/Db D E F#/Gb G G#/Ab",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
+    "notes": "A A#/Bb C E F",
+    "interval_pattern": "0 1 3 7 8"
   },
   {
-    "scale_name": "Bebop (Dominant / Mixolydian Bebop)",
+    "scale_name": "Balinese",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F G G#/Ab A",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
+    "notes": "A#/Bb B C#/Db F F#/Gb",
+    "interval_pattern": "0 1 3 7 8"
   },
   {
-    "scale_name": "Bebop (Dominant / Mixolydian Bebop)",
+    "scale_name": "Balinese",
     "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G#/Ab A A#/Bb",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
+    "notes": "B C D F#/Gb G",
+    "interval_pattern": "0 1 3 7 8"
   },
   {
     "scale_name": "Bebop (Dominant / Mixolydian Bebop)",
@@ -648,22 +558,22 @@
     "interval_pattern": "0 2 4 5 7 9 10 11"
   },
   {
-    "scale_name": "Bebop (Dominant Mode 3)",
+    "scale_name": "Bebop (Dominant / Mixolydian Bebop)",
     "root": "A",
-    "notes": "A A#/Bb C D D#/Eb E F G",
-    "interval_pattern": "0 1 3 5 6 7 8 10"
+    "notes": "A B C#/Db D E F#/Gb G G#/Ab",
+    "interval_pattern": "0 2 4 5 7 9 10 11"
   },
   {
-    "scale_name": "Bebop (Dominant Mode 3)",
+    "scale_name": "Bebop (Dominant / Mixolydian Bebop)",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D#/Eb E F F#/Gb G#/Ab",
-    "interval_pattern": "0 1 3 5 6 7 8 10"
+    "notes": "A#/Bb C D D#/Eb F G G#/Ab A",
+    "interval_pattern": "0 2 4 5 7 9 10 11"
   },
   {
-    "scale_name": "Bebop (Dominant Mode 3)",
+    "scale_name": "Bebop (Dominant / Mixolydian Bebop)",
     "root": "B",
-    "notes": "B C D E F F#/Gb G A",
-    "interval_pattern": "0 1 3 5 6 7 8 10"
+    "notes": "B C#/Db D#/Eb E F#/Gb G#/Ab A A#/Bb",
+    "interval_pattern": "0 2 4 5 7 9 10 11"
   },
   {
     "scale_name": "Bebop (Dominant Mode 3)",
@@ -720,22 +630,22 @@
     "interval_pattern": "0 1 3 5 6 7 8 10"
   },
   {
-    "scale_name": "Bebop (Dominant Mode 5)",
+    "scale_name": "Bebop (Dominant Mode 3)",
     "root": "A",
-    "notes": "A B C C#/Db D E F#/Gb G",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "A A#/Bb C D D#/Eb E F G",
+    "interval_pattern": "0 1 3 5 6 7 8 10"
   },
   {
-    "scale_name": "Bebop (Dominant Mode 5)",
+    "scale_name": "Bebop (Dominant Mode 3)",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D D#/Eb F G G#/Ab",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "A#/Bb B C#/Db D#/Eb E F F#/Gb G#/Ab",
+    "interval_pattern": "0 1 3 5 6 7 8 10"
   },
   {
-    "scale_name": "Bebop (Dominant Mode 5)",
+    "scale_name": "Bebop (Dominant Mode 3)",
     "root": "B",
-    "notes": "B C#/Db D D#/Eb E F#/Gb G#/Ab A",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "B C D E F F#/Gb G A",
+    "interval_pattern": "0 1 3 5 6 7 8 10"
   },
   {
     "scale_name": "Bebop (Dominant Mode 5)",
@@ -792,454 +702,94 @@
     "interval_pattern": "0 2 3 4 5 7 9 10"
   },
   {
-    "scale_name": "Bebop (Major)",
-    "root": "A",
-    "notes": "A B C#/Db D E F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F F#/Gb G A",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "C",
-    "notes": "C D E F G G#/Ab A B",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F F#/Gb G#/Ab A A#/Bb C",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "D",
-    "notes": "D E F#/Gb G A A#/Bb B C#/Db",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G G#/Ab A#/Bb B C D",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A B C C#/Db D#/Eb",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "F",
-    "notes": "F G A A#/Bb C C#/Db D E",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb B C#/Db D D#/Eb F",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "G",
-    "notes": "G A B C D D#/Eb E F#/Gb",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop (Major)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C C#/Db D#/Eb E F G",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "A",
-    "notes": "A B C#/Db D E F#/Gb G G#/Ab",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F G G#/Ab A",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G#/Ab A A#/Bb",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "C",
-    "notes": "C D E F G A A#/Bb B",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F F#/Gb G#/Ab A#/Bb B C",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "D",
-    "notes": "D E F#/Gb G A B C C#/Db",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G G#/Ab A#/Bb C C#/Db D",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A B C#/Db D D#/Eb",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "F",
-    "notes": "F G A A#/Bb C D D#/Eb E",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb B C#/Db D#/Eb E F",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "G",
-    "notes": "G A B C D E F F#/Gb",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dominant",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C C#/Db D#/Eb F F#/Gb G",
-    "interval_pattern": "0 2 4 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "A",
-    "notes": "A B C D E F#/Gb G G#/Ab",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb F G G#/Ab A",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "B",
-    "notes": "B C#/Db D E F#/Gb G#/Ab A A#/Bb",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "C",
-    "notes": "C D D#/Eb F G A A#/Bb B",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E F#/Gb G#/Ab A#/Bb B C",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "D",
-    "notes": "D E F G A B C C#/Db",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb G#/Ab A#/Bb C C#/Db D",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "E",
-    "notes": "E F#/Gb G A B C#/Db D D#/Eb",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "F",
-    "notes": "F G G#/Ab A#/Bb C D D#/Eb E",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A B C#/Db D#/Eb E F",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "G",
-    "notes": "G A A#/Bb C D E F F#/Gb",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Dorian",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B C#/Db D#/Eb F F#/Gb G",
-    "interval_pattern": "0 2 3 5 7 9 10 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "A",
-    "notes": "A B C#/Db D E F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F F#/Gb G A",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "C",
-    "notes": "C D E F G G#/Ab A B",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F F#/Gb G#/Ab A A#/Bb C",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "D",
-    "notes": "D E F#/Gb G A A#/Bb B C#/Db",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G G#/Ab A#/Bb B C D",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A B C C#/Db D#/Eb",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "F",
-    "notes": "F G A A#/Bb C C#/Db D E",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb B C#/Db D D#/Eb F",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "G",
-    "notes": "G A B C D D#/Eb E F#/Gb",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Major",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C C#/Db D#/Eb E F G",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Dominant Mode 5)",
     "root": "A",
     "notes": "A B C C#/Db D E F#/Gb G",
     "interval_pattern": "0 2 3 4 5 7 9 10"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Dominant Mode 5)",
     "root": "A#/Bb",
     "notes": "A#/Bb C C#/Db D D#/Eb F G G#/Ab",
     "interval_pattern": "0 2 3 4 5 7 9 10"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Dominant Mode 5)",
     "root": "B",
     "notes": "B C#/Db D D#/Eb E F#/Gb G#/Ab A",
     "interval_pattern": "0 2 3 4 5 7 9 10"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Major)",
     "root": "C",
-    "notes": "C D D#/Eb E F G A A#/Bb",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "C D E F G G#/Ab A B",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Major)",
     "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E F F#/Gb G#/Ab A#/Bb B",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "C#/Db D#/Eb F F#/Gb G#/Ab A A#/Bb C",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Major)",
     "root": "D",
-    "notes": "D E F F#/Gb G A B C",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "D E F#/Gb G A A#/Bb B C#/Db",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Major)",
     "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb G G#/Ab A#/Bb C C#/Db",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "D#/Eb F G G#/Ab A#/Bb B C D",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Major)",
     "root": "E",
-    "notes": "E F#/Gb G G#/Ab A B C#/Db D",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "E F#/Gb G#/Ab A B C C#/Db D#/Eb",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Major)",
     "root": "F",
-    "notes": "F G G#/Ab A A#/Bb C D D#/Eb",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "F G A A#/Bb C C#/Db D E",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Major)",
     "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A A#/Bb B C#/Db D#/Eb E",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "F#/Gb G#/Ab A#/Bb B C#/Db D D#/Eb F",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Major)",
     "root": "G",
-    "notes": "G A A#/Bb B C D E F",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "G A B C D D#/Eb E F#/Gb",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Bebop Minor",
+    "scale_name": "Bebop (Major)",
     "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B C C#/Db D#/Eb F F#/Gb",
-    "interval_pattern": "0 2 3 4 5 7 9 10"
+    "notes": "G#/Ab A#/Bb C C#/Db D#/Eb E F G",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Blues",
+    "scale_name": "Bebop (Major)",
     "root": "A",
-    "notes": "A C D D#/Eb E G",
-    "interval_pattern": "0 3 5 6 7 10"
+    "notes": "A B C#/Db D E F F#/Gb G#/Ab",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Blues",
+    "scale_name": "Bebop (Major)",
     "root": "A#/Bb",
-    "notes": "A#/Bb C#/Db D#/Eb E F G#/Ab",
-    "interval_pattern": "0 3 5 6 7 10"
+    "notes": "A#/Bb C D D#/Eb F F#/Gb G A",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
-    "scale_name": "Blues",
+    "scale_name": "Bebop (Major)",
     "root": "B",
-    "notes": "B D E F F#/Gb A",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Blues",
-    "root": "C",
-    "notes": "C D#/Eb F F#/Gb G A#/Bb",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Blues",
-    "root": "C#/Db",
-    "notes": "C#/Db E F#/Gb G G#/Ab B",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Blues",
-    "root": "D",
-    "notes": "D F G G#/Ab A C",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Blues",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F#/Gb G#/Ab A A#/Bb C#/Db",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Blues",
-    "root": "E",
-    "notes": "E G A A#/Bb B D",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Blues",
-    "root": "F",
-    "notes": "F G#/Ab A#/Bb B C D#/Eb",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Blues",
-    "root": "F#/Gb",
-    "notes": "F#/Gb A B C C#/Db E",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Blues",
-    "root": "G",
-    "notes": "G A#/Bb C C#/Db D F",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Blues",
-    "root": "G#/Ab",
-    "notes": "G#/Ab B C#/Db D D#/Eb F#/Gb",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Byzantine",
-    "root": "A",
-    "notes": "A A#/Bb C#/Db D E F G#/Ab",
-    "interval_pattern": "0 1 4 5 7 8 11"
-  },
-  {
-    "scale_name": "Byzantine",
-    "root": "A#/Bb",
-    "notes": "A#/Bb B D D#/Eb F F#/Gb A",
-    "interval_pattern": "0 1 4 5 7 8 11"
-  },
-  {
-    "scale_name": "Byzantine",
-    "root": "B",
-    "notes": "B C D#/Eb E F#/Gb G A#/Bb",
-    "interval_pattern": "0 1 4 5 7 8 11"
+    "notes": "B C#/Db D#/Eb E F#/Gb G G#/Ab A#/Bb",
+    "interval_pattern": "0 2 4 5 7 8 9 11"
   },
   {
     "scale_name": "Byzantine",
@@ -1296,22 +846,22 @@
     "interval_pattern": "0 1 4 5 7 8 11"
   },
   {
-    "scale_name": "Chinese",
+    "scale_name": "Byzantine",
     "root": "A",
-    "notes": "A C#/Db D#/Eb E G#/Ab",
-    "interval_pattern": "0 4 6 7 11"
+    "notes": "A A#/Bb C#/Db D E F G#/Ab",
+    "interval_pattern": "0 1 4 5 7 8 11"
   },
   {
-    "scale_name": "Chinese",
+    "scale_name": "Byzantine",
     "root": "A#/Bb",
-    "notes": "A#/Bb D E F A",
-    "interval_pattern": "0 4 6 7 11"
+    "notes": "A#/Bb B D D#/Eb F F#/Gb A",
+    "interval_pattern": "0 1 4 5 7 8 11"
   },
   {
-    "scale_name": "Chinese",
+    "scale_name": "Byzantine",
     "root": "B",
-    "notes": "B D#/Eb F F#/Gb A#/Bb",
-    "interval_pattern": "0 4 6 7 11"
+    "notes": "B C D#/Eb E F#/Gb G A#/Bb",
+    "interval_pattern": "0 1 4 5 7 8 11"
   },
   {
     "scale_name": "Chinese",
@@ -1368,22 +918,22 @@
     "interval_pattern": "0 4 6 7 11"
   },
   {
-    "scale_name": "Chromatic",
+    "scale_name": "Chinese",
     "root": "A",
-    "notes": "A A#/Bb B C C#/Db D D#/Eb E F F#/Gb G G#/Ab",
-    "interval_pattern": "0 1 2 3 4 5 6 7 8 9 10 11"
+    "notes": "A C#/Db D#/Eb E G#/Ab",
+    "interval_pattern": "0 4 6 7 11"
   },
   {
-    "scale_name": "Chromatic",
+    "scale_name": "Chinese",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C C#/Db D D#/Eb E F F#/Gb G G#/Ab A",
-    "interval_pattern": "0 1 2 3 4 5 6 7 8 9 10 11"
+    "notes": "A#/Bb D E F A",
+    "interval_pattern": "0 4 6 7 11"
   },
   {
-    "scale_name": "Chromatic",
+    "scale_name": "Chinese",
     "root": "B",
-    "notes": "B C C#/Db D D#/Eb E F F#/Gb G G#/Ab A A#/Bb",
-    "interval_pattern": "0 1 2 3 4 5 6 7 8 9 10 11"
+    "notes": "B D#/Eb F F#/Gb A#/Bb",
+    "interval_pattern": "0 4 6 7 11"
   },
   {
     "scale_name": "Chromatic",
@@ -1440,22 +990,22 @@
     "interval_pattern": "0 1 2 3 4 5 6 7 8 9 10 11"
   },
   {
-    "scale_name": "Diminished (Half-Whole / Dominant Diminished)",
+    "scale_name": "Chromatic",
     "root": "A",
-    "notes": "A A#/Bb C C#/Db D#/Eb E F#/Gb G",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
+    "notes": "A A#/Bb B C C#/Db D D#/Eb E F F#/Gb G G#/Ab",
+    "interval_pattern": "0 1 2 3 4 5 6 7 8 9 10 11"
   },
   {
-    "scale_name": "Diminished (Half-Whole / Dominant Diminished)",
+    "scale_name": "Chromatic",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D E F G G#/Ab",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
+    "notes": "A#/Bb B C C#/Db D D#/Eb E F F#/Gb G G#/Ab A",
+    "interval_pattern": "0 1 2 3 4 5 6 7 8 9 10 11"
   },
   {
-    "scale_name": "Diminished (Half-Whole / Dominant Diminished)",
+    "scale_name": "Chromatic",
     "root": "B",
-    "notes": "B C D D#/Eb F F#/Gb G#/Ab A",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
+    "notes": "B C C#/Db D D#/Eb E F F#/Gb G G#/Ab A A#/Bb",
+    "interval_pattern": "0 1 2 3 4 5 6 7 8 9 10 11"
   },
   {
     "scale_name": "Diminished (Half-Whole / Dominant Diminished)",
@@ -1512,22 +1062,22 @@
     "interval_pattern": "0 1 3 4 6 7 9 10"
   },
   {
-    "scale_name": "Diminished (Whole-Half)",
+    "scale_name": "Diminished (Half-Whole / Dominant Diminished)",
     "root": "A",
-    "notes": "A B C D D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 5 6 8 9 11"
+    "notes": "A A#/Bb C C#/Db D#/Eb E F#/Gb G",
+    "interval_pattern": "0 1 3 4 6 7 9 10"
   },
   {
-    "scale_name": "Diminished (Whole-Half)",
+    "scale_name": "Diminished (Half-Whole / Dominant Diminished)",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb E F#/Gb G A",
-    "interval_pattern": "0 2 3 5 6 8 9 11"
+    "notes": "A#/Bb B C#/Db D E F G G#/Ab",
+    "interval_pattern": "0 1 3 4 6 7 9 10"
   },
   {
-    "scale_name": "Diminished (Whole-Half)",
+    "scale_name": "Diminished (Half-Whole / Dominant Diminished)",
     "root": "B",
-    "notes": "B C#/Db D E F G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 3 5 6 8 9 11"
+    "notes": "B C D D#/Eb F F#/Gb G#/Ab A",
+    "interval_pattern": "0 1 3 4 6 7 9 10"
   },
   {
     "scale_name": "Diminished (Whole-Half)",
@@ -1584,22 +1134,22 @@
     "interval_pattern": "0 2 3 5 6 8 9 11"
   },
   {
-    "scale_name": "Dominant Pentatonic",
+    "scale_name": "Diminished (Whole-Half)",
     "root": "A",
-    "notes": "A B C#/Db E G",
-    "interval_pattern": "0 2 4 7 10"
+    "notes": "A B C D D#/Eb F F#/Gb G#/Ab",
+    "interval_pattern": "0 2 3 5 6 8 9 11"
   },
   {
-    "scale_name": "Dominant Pentatonic",
+    "scale_name": "Diminished (Whole-Half)",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D F G#/Ab",
-    "interval_pattern": "0 2 4 7 10"
+    "notes": "A#/Bb C C#/Db D#/Eb E F#/Gb G A",
+    "interval_pattern": "0 2 3 5 6 8 9 11"
   },
   {
-    "scale_name": "Dominant Pentatonic",
+    "scale_name": "Diminished (Whole-Half)",
     "root": "B",
-    "notes": "B C#/Db D#/Eb F#/Gb A",
-    "interval_pattern": "0 2 4 7 10"
+    "notes": "B C#/Db D E F G G#/Ab A#/Bb",
+    "interval_pattern": "0 2 3 5 6 8 9 11"
   },
   {
     "scale_name": "Dominant Pentatonic",
@@ -1656,22 +1206,22 @@
     "interval_pattern": "0 2 4 7 10"
   },
   {
-    "scale_name": "Dorian",
+    "scale_name": "Dominant Pentatonic",
     "root": "A",
-    "notes": "A B C D E F#/Gb G",
-    "interval_pattern": "0 2 3 5 7 9 10"
+    "notes": "A B C#/Db E G",
+    "interval_pattern": "0 2 4 7 10"
   },
   {
-    "scale_name": "Dorian",
+    "scale_name": "Dominant Pentatonic",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb F G G#/Ab",
-    "interval_pattern": "0 2 3 5 7 9 10"
+    "notes": "A#/Bb C D F G#/Ab",
+    "interval_pattern": "0 2 4 7 10"
   },
   {
-    "scale_name": "Dorian",
+    "scale_name": "Dominant Pentatonic",
     "root": "B",
-    "notes": "B C#/Db D E F#/Gb G#/Ab A",
-    "interval_pattern": "0 2 3 5 7 9 10"
+    "notes": "B C#/Db D#/Eb F#/Gb A",
+    "interval_pattern": "0 2 4 7 10"
   },
   {
     "scale_name": "Dorian",
@@ -1728,22 +1278,22 @@
     "interval_pattern": "0 2 3 5 7 9 10"
   },
   {
-    "scale_name": "Dorian #4 (Ukrainian Dorian)",
+    "scale_name": "Dorian",
     "root": "A",
-    "notes": "A B C D#/Eb E F#/Gb G",
-    "interval_pattern": "0 2 3 6 7 9 10"
+    "notes": "A B C D E F#/Gb G",
+    "interval_pattern": "0 2 3 5 7 9 10"
   },
   {
-    "scale_name": "Dorian #4 (Ukrainian Dorian)",
+    "scale_name": "Dorian",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db E F G G#/Ab",
-    "interval_pattern": "0 2 3 6 7 9 10"
+    "notes": "A#/Bb C C#/Db D#/Eb F G G#/Ab",
+    "interval_pattern": "0 2 3 5 7 9 10"
   },
   {
-    "scale_name": "Dorian #4 (Ukrainian Dorian)",
+    "scale_name": "Dorian",
     "root": "B",
-    "notes": "B C#/Db D F F#/Gb G#/Ab A",
-    "interval_pattern": "0 2 3 6 7 9 10"
+    "notes": "B C#/Db D E F#/Gb G#/Ab A",
+    "interval_pattern": "0 2 3 5 7 9 10"
   },
   {
     "scale_name": "Dorian #4 (Ukrainian Dorian)",
@@ -1800,22 +1350,22 @@
     "interval_pattern": "0 2 3 6 7 9 10"
   },
   {
-    "scale_name": "Dorian b2",
+    "scale_name": "Dorian #4 (Ukrainian Dorian)",
     "root": "A",
-    "notes": "A A#/Bb C D E F#/Gb G",
-    "interval_pattern": "0 1 3 5 7 9 10"
+    "notes": "A B C D#/Eb E F#/Gb G",
+    "interval_pattern": "0 2 3 6 7 9 10"
   },
   {
-    "scale_name": "Dorian b2",
+    "scale_name": "Dorian #4 (Ukrainian Dorian)",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D#/Eb F G G#/Ab",
-    "interval_pattern": "0 1 3 5 7 9 10"
+    "notes": "A#/Bb C C#/Db E F G G#/Ab",
+    "interval_pattern": "0 2 3 6 7 9 10"
   },
   {
-    "scale_name": "Dorian b2",
+    "scale_name": "Dorian #4 (Ukrainian Dorian)",
     "root": "B",
-    "notes": "B C D E F#/Gb G#/Ab A",
-    "interval_pattern": "0 1 3 5 7 9 10"
+    "notes": "B C#/Db D F F#/Gb G#/Ab A",
+    "interval_pattern": "0 2 3 6 7 9 10"
   },
   {
     "scale_name": "Dorian b2",
@@ -1872,22 +1422,22 @@
     "interval_pattern": "0 1 3 5 7 9 10"
   },
   {
-    "scale_name": "Dorian b5",
+    "scale_name": "Dorian b2",
     "root": "A",
-    "notes": "A B C D D#/Eb F#/Gb G",
-    "interval_pattern": "0 2 3 5 6 9 10"
+    "notes": "A A#/Bb C D E F#/Gb G",
+    "interval_pattern": "0 1 3 5 7 9 10"
   },
   {
-    "scale_name": "Dorian b5",
+    "scale_name": "Dorian b2",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb E G G#/Ab",
-    "interval_pattern": "0 2 3 5 6 9 10"
+    "notes": "A#/Bb B C#/Db D#/Eb F G G#/Ab",
+    "interval_pattern": "0 1 3 5 7 9 10"
   },
   {
-    "scale_name": "Dorian b5",
+    "scale_name": "Dorian b2",
     "root": "B",
-    "notes": "B C#/Db D E F G#/Ab A",
-    "interval_pattern": "0 2 3 5 6 9 10"
+    "notes": "B C D E F#/Gb G#/Ab A",
+    "interval_pattern": "0 1 3 5 7 9 10"
   },
   {
     "scale_name": "Dorian b5",
@@ -1944,22 +1494,22 @@
     "interval_pattern": "0 2 3 5 6 9 10"
   },
   {
-    "scale_name": "Egyptian",
+    "scale_name": "Dorian b5",
     "root": "A",
-    "notes": "A B D E G",
-    "interval_pattern": "0 2 5 7 10"
+    "notes": "A B C D D#/Eb F#/Gb G",
+    "interval_pattern": "0 2 3 5 6 9 10"
   },
   {
-    "scale_name": "Egyptian",
+    "scale_name": "Dorian b5",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D#/Eb F G#/Ab",
-    "interval_pattern": "0 2 5 7 10"
+    "notes": "A#/Bb C C#/Db D#/Eb E G G#/Ab",
+    "interval_pattern": "0 2 3 5 6 9 10"
   },
   {
-    "scale_name": "Egyptian",
+    "scale_name": "Dorian b5",
     "root": "B",
-    "notes": "B C#/Db E F#/Gb A",
-    "interval_pattern": "0 2 5 7 10"
+    "notes": "B C#/Db D E F G#/Ab A",
+    "interval_pattern": "0 2 3 5 6 9 10"
   },
   {
     "scale_name": "Egyptian",
@@ -2016,22 +1566,22 @@
     "interval_pattern": "0 2 5 7 10"
   },
   {
-    "scale_name": "Eight Tone Spanish",
+    "scale_name": "Egyptian",
     "root": "A",
-    "notes": "A A#/Bb C C#/Db D D#/Eb F G",
-    "interval_pattern": "0 1 3 4 5 6 8 10"
+    "notes": "A B D E G",
+    "interval_pattern": "0 2 5 7 10"
   },
   {
-    "scale_name": "Eight Tone Spanish",
+    "scale_name": "Egyptian",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D D#/Eb E F#/Gb G#/Ab",
-    "interval_pattern": "0 1 3 4 5 6 8 10"
+    "notes": "A#/Bb C D#/Eb F G#/Ab",
+    "interval_pattern": "0 2 5 7 10"
   },
   {
-    "scale_name": "Eight Tone Spanish",
+    "scale_name": "Egyptian",
     "root": "B",
-    "notes": "B C D D#/Eb E F G A",
-    "interval_pattern": "0 1 3 4 5 6 8 10"
+    "notes": "B C#/Db E F#/Gb A",
+    "interval_pattern": "0 2 5 7 10"
   },
   {
     "scale_name": "Eight Tone Spanish",
@@ -2088,22 +1638,22 @@
     "interval_pattern": "0 1 3 4 5 6 8 10"
   },
   {
-    "scale_name": "Enigmatic Major",
+    "scale_name": "Eight Tone Spanish",
     "root": "A",
-    "notes": "A A#/Bb C#/Db D#/Eb F G G#/Ab",
-    "interval_pattern": "0 1 4 6 8 10 11"
+    "notes": "A A#/Bb C C#/Db D D#/Eb F G",
+    "interval_pattern": "0 1 3 4 5 6 8 10"
   },
   {
-    "scale_name": "Enigmatic Major",
+    "scale_name": "Eight Tone Spanish",
     "root": "A#/Bb",
-    "notes": "A#/Bb B D E F#/Gb G#/Ab A",
-    "interval_pattern": "0 1 4 6 8 10 11"
+    "notes": "A#/Bb B C#/Db D D#/Eb E F#/Gb G#/Ab",
+    "interval_pattern": "0 1 3 4 5 6 8 10"
   },
   {
-    "scale_name": "Enigmatic Major",
+    "scale_name": "Eight Tone Spanish",
     "root": "B",
-    "notes": "B C D#/Eb F G A A#/Bb",
-    "interval_pattern": "0 1 4 6 8 10 11"
+    "notes": "B C D D#/Eb E F G A",
+    "interval_pattern": "0 1 3 4 5 6 8 10"
   },
   {
     "scale_name": "Enigmatic Major",
@@ -2160,22 +1710,22 @@
     "interval_pattern": "0 1 4 6 8 10 11"
   },
   {
-    "scale_name": "Enigmatic Minor",
+    "scale_name": "Enigmatic Major",
     "root": "A",
-    "notes": "A A#/Bb C D#/Eb E G G#/Ab",
-    "interval_pattern": "0 1 3 6 7 10 11"
+    "notes": "A A#/Bb C#/Db D#/Eb F G G#/Ab",
+    "interval_pattern": "0 1 4 6 8 10 11"
   },
   {
-    "scale_name": "Enigmatic Minor",
+    "scale_name": "Enigmatic Major",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db E F G#/Ab A",
-    "interval_pattern": "0 1 3 6 7 10 11"
+    "notes": "A#/Bb B D E F#/Gb G#/Ab A",
+    "interval_pattern": "0 1 4 6 8 10 11"
   },
   {
-    "scale_name": "Enigmatic Minor",
+    "scale_name": "Enigmatic Major",
     "root": "B",
-    "notes": "B C D F F#/Gb A A#/Bb",
-    "interval_pattern": "0 1 3 6 7 10 11"
+    "notes": "B C D#/Eb F G A A#/Bb",
+    "interval_pattern": "0 1 4 6 8 10 11"
   },
   {
     "scale_name": "Enigmatic Minor",
@@ -2232,22 +1782,22 @@
     "interval_pattern": "0 1 3 6 7 10 11"
   },
   {
-    "scale_name": "Geez",
+    "scale_name": "Enigmatic Minor",
     "root": "A",
-    "notes": "A B C D E F G",
-    "interval_pattern": "0 2 3 5 7 8 10"
+    "notes": "A A#/Bb C D#/Eb E G G#/Ab",
+    "interval_pattern": "0 1 3 6 7 10 11"
   },
   {
-    "scale_name": "Geez",
+    "scale_name": "Enigmatic Minor",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 5 7 8 10"
+    "notes": "A#/Bb B C#/Db E F G#/Ab A",
+    "interval_pattern": "0 1 3 6 7 10 11"
   },
   {
-    "scale_name": "Geez",
+    "scale_name": "Enigmatic Minor",
     "root": "B",
-    "notes": "B C#/Db D E F#/Gb G A",
-    "interval_pattern": "0 2 3 5 7 8 10"
+    "notes": "B C D F F#/Gb A A#/Bb",
+    "interval_pattern": "0 1 3 6 7 10 11"
   },
   {
     "scale_name": "Geez",
@@ -2304,22 +1854,22 @@
     "interval_pattern": "0 2 3 5 7 8 10"
   },
   {
-    "scale_name": "Harmonic Minor",
+    "scale_name": "Geez",
     "root": "A",
-    "notes": "A B C D E F G#/Ab",
-    "interval_pattern": "0 2 3 5 7 8 11"
+    "notes": "A B C D E F G",
+    "interval_pattern": "0 2 3 5 7 8 10"
   },
   {
-    "scale_name": "Harmonic Minor",
+    "scale_name": "Geez",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb F F#/Gb A",
-    "interval_pattern": "0 2 3 5 7 8 11"
+    "notes": "A#/Bb C C#/Db D#/Eb F F#/Gb G#/Ab",
+    "interval_pattern": "0 2 3 5 7 8 10"
   },
   {
-    "scale_name": "Harmonic Minor",
+    "scale_name": "Geez",
     "root": "B",
-    "notes": "B C#/Db D E F#/Gb G A#/Bb",
-    "interval_pattern": "0 2 3 5 7 8 11"
+    "notes": "B C#/Db D E F#/Gb G A",
+    "interval_pattern": "0 2 3 5 7 8 10"
   },
   {
     "scale_name": "Harmonic Minor",
@@ -2376,22 +1926,22 @@
     "interval_pattern": "0 2 3 5 7 8 11"
   },
   {
-    "scale_name": "Hawaiian",
+    "scale_name": "Harmonic Minor",
     "root": "A",
-    "notes": "A B C D E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 5 7 9 11"
+    "notes": "A B C D E F G#/Ab",
+    "interval_pattern": "0 2 3 5 7 8 11"
   },
   {
-    "scale_name": "Hawaiian",
+    "scale_name": "Harmonic Minor",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb F G A",
-    "interval_pattern": "0 2 3 5 7 9 11"
+    "notes": "A#/Bb C C#/Db D#/Eb F F#/Gb A",
+    "interval_pattern": "0 2 3 5 7 8 11"
   },
   {
-    "scale_name": "Hawaiian",
+    "scale_name": "Harmonic Minor",
     "root": "B",
-    "notes": "B C#/Db D E F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 2 3 5 7 9 11"
+    "notes": "B C#/Db D E F#/Gb G A#/Bb",
+    "interval_pattern": "0 2 3 5 7 8 11"
   },
   {
     "scale_name": "Hawaiian",
@@ -2448,22 +1998,22 @@
     "interval_pattern": "0 2 3 5 7 9 11"
   },
   {
-    "scale_name": "Hindu (Aeolian Dominant)",
+    "scale_name": "Hawaiian",
     "root": "A",
-    "notes": "A B C#/Db D E F G",
-    "interval_pattern": "0 2 4 5 7 8 10"
+    "notes": "A B C D E F#/Gb G#/Ab",
+    "interval_pattern": "0 2 3 5 7 9 11"
   },
   {
-    "scale_name": "Hindu (Aeolian Dominant)",
+    "scale_name": "Hawaiian",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 5 7 8 10"
+    "notes": "A#/Bb C C#/Db D#/Eb F G A",
+    "interval_pattern": "0 2 3 5 7 9 11"
   },
   {
-    "scale_name": "Hindu (Aeolian Dominant)",
+    "scale_name": "Hawaiian",
     "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G A",
-    "interval_pattern": "0 2 4 5 7 8 10"
+    "notes": "B C#/Db D E F#/Gb G#/Ab A#/Bb",
+    "interval_pattern": "0 2 3 5 7 9 11"
   },
   {
     "scale_name": "Hindu (Aeolian Dominant)",
@@ -2520,22 +2070,22 @@
     "interval_pattern": "0 2 4 5 7 8 10"
   },
   {
-    "scale_name": "Hirajoshi",
+    "scale_name": "Hindu (Aeolian Dominant)",
     "root": "A",
-    "notes": "A B C E F",
-    "interval_pattern": "0 2 3 7 8"
+    "notes": "A B C#/Db D E F G",
+    "interval_pattern": "0 2 4 5 7 8 10"
   },
   {
-    "scale_name": "Hirajoshi",
+    "scale_name": "Hindu (Aeolian Dominant)",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db F F#/Gb",
-    "interval_pattern": "0 2 3 7 8"
+    "notes": "A#/Bb C D D#/Eb F F#/Gb G#/Ab",
+    "interval_pattern": "0 2 4 5 7 8 10"
   },
   {
-    "scale_name": "Hirajoshi",
+    "scale_name": "Hindu (Aeolian Dominant)",
     "root": "B",
-    "notes": "B C#/Db D F#/Gb G",
-    "interval_pattern": "0 2 3 7 8"
+    "notes": "B C#/Db D#/Eb E F#/Gb G A",
+    "interval_pattern": "0 2 4 5 7 8 10"
   },
   {
     "scale_name": "Hirajoshi",
@@ -2592,94 +2142,22 @@
     "interval_pattern": "0 2 3 7 8"
   },
   {
-    "scale_name": "Hungarian Gypsy",
+    "scale_name": "Hirajoshi",
     "root": "A",
-    "notes": "A B C D#/Eb E F G#/Ab",
-    "interval_pattern": "0 2 3 6 7 8 11"
+    "notes": "A B C E F",
+    "interval_pattern": "0 2 3 7 8"
   },
   {
-    "scale_name": "Hungarian Gypsy",
+    "scale_name": "Hirajoshi",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db E F F#/Gb A",
-    "interval_pattern": "0 2 3 6 7 8 11"
+    "notes": "A#/Bb C C#/Db F F#/Gb",
+    "interval_pattern": "0 2 3 7 8"
   },
   {
-    "scale_name": "Hungarian Gypsy",
+    "scale_name": "Hirajoshi",
     "root": "B",
-    "notes": "B C#/Db D F F#/Gb G A#/Bb",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Gypsy",
-    "root": "C",
-    "notes": "C D D#/Eb F#/Gb G G#/Ab B",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Gypsy",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E G G#/Ab A C",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Gypsy",
-    "root": "D",
-    "notes": "D E F G#/Ab A A#/Bb C#/Db",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Gypsy",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb A A#/Bb B D",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Gypsy",
-    "root": "E",
-    "notes": "E F#/Gb G A#/Bb B C D#/Eb",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Gypsy",
-    "root": "F",
-    "notes": "F G G#/Ab B C C#/Db E",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Gypsy",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A C C#/Db D F",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Gypsy",
-    "root": "G",
-    "notes": "G A A#/Bb C#/Db D D#/Eb F#/Gb",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Gypsy",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B D D#/Eb E G",
-    "interval_pattern": "0 2 3 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Major",
-    "root": "A",
-    "notes": "A C C#/Db D#/Eb E F G#/Ab",
-    "interval_pattern": "0 3 4 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Major",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C#/Db D E F F#/Gb A",
-    "interval_pattern": "0 3 4 6 7 8 11"
-  },
-  {
-    "scale_name": "Hungarian Major",
-    "root": "B",
-    "notes": "B D D#/Eb F F#/Gb G A#/Bb",
-    "interval_pattern": "0 3 4 6 7 8 11"
+    "notes": "B C#/Db D F#/Gb G",
+    "interval_pattern": "0 2 3 7 8"
   },
   {
     "scale_name": "Hungarian Major",
@@ -2736,22 +2214,22 @@
     "interval_pattern": "0 3 4 6 7 8 11"
   },
   {
-    "scale_name": "Iberian",
+    "scale_name": "Hungarian Major",
     "root": "A",
-    "notes": "A A#/Bb C#/Db D E G",
-    "interval_pattern": "0 1 4 5 7 10"
+    "notes": "A C C#/Db D#/Eb E F G#/Ab",
+    "interval_pattern": "0 3 4 6 7 8 11"
   },
   {
-    "scale_name": "Iberian",
+    "scale_name": "Hungarian Major",
     "root": "A#/Bb",
-    "notes": "A#/Bb B D D#/Eb F G#/Ab",
-    "interval_pattern": "0 1 4 5 7 10"
+    "notes": "A#/Bb C#/Db D E F F#/Gb A",
+    "interval_pattern": "0 3 4 6 7 8 11"
   },
   {
-    "scale_name": "Iberian",
+    "scale_name": "Hungarian Major",
     "root": "B",
-    "notes": "B C D#/Eb E F#/Gb A",
-    "interval_pattern": "0 1 4 5 7 10"
+    "notes": "B D D#/Eb F F#/Gb G A#/Bb",
+    "interval_pattern": "0 3 4 6 7 8 11"
   },
   {
     "scale_name": "Iberian",
@@ -2808,22 +2286,22 @@
     "interval_pattern": "0 1 4 5 7 10"
   },
   {
-    "scale_name": "Indian (Ascending Pentatonic)",
+    "scale_name": "Iberian",
     "root": "A",
-    "notes": "A A#/Bb D E F",
-    "interval_pattern": "0 1 5 7 8"
+    "notes": "A A#/Bb C#/Db D E G",
+    "interval_pattern": "0 1 4 5 7 10"
   },
   {
-    "scale_name": "Indian (Ascending Pentatonic)",
+    "scale_name": "Iberian",
     "root": "A#/Bb",
-    "notes": "A#/Bb B D#/Eb F F#/Gb",
-    "interval_pattern": "0 1 5 7 8"
+    "notes": "A#/Bb B D D#/Eb F G#/Ab",
+    "interval_pattern": "0 1 4 5 7 10"
   },
   {
-    "scale_name": "Indian (Ascending Pentatonic)",
+    "scale_name": "Iberian",
     "root": "B",
-    "notes": "B C E F#/Gb G",
-    "interval_pattern": "0 1 5 7 8"
+    "notes": "B C D#/Eb E F#/Gb A",
+    "interval_pattern": "0 1 4 5 7 10"
   },
   {
     "scale_name": "Indian (Ascending Pentatonic)",
@@ -2880,22 +2358,22 @@
     "interval_pattern": "0 1 5 7 8"
   },
   {
-    "scale_name": "Indian (Heptatonic)",
+    "scale_name": "Indian (Ascending Pentatonic)",
     "root": "A",
-    "notes": "A A#/Bb C D E F G",
-    "interval_pattern": "0 1 3 5 7 8 10"
+    "notes": "A A#/Bb D E F",
+    "interval_pattern": "0 1 5 7 8"
   },
   {
-    "scale_name": "Indian (Heptatonic)",
+    "scale_name": "Indian (Ascending Pentatonic)",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 1 3 5 7 8 10"
+    "notes": "A#/Bb B D#/Eb F F#/Gb",
+    "interval_pattern": "0 1 5 7 8"
   },
   {
-    "scale_name": "Indian (Heptatonic)",
+    "scale_name": "Indian (Ascending Pentatonic)",
     "root": "B",
-    "notes": "B C D E F#/Gb G A",
-    "interval_pattern": "0 1 3 5 7 8 10"
+    "notes": "B C E F#/Gb G",
+    "interval_pattern": "0 1 5 7 8"
   },
   {
     "scale_name": "Indian (Heptatonic)",
@@ -2952,22 +2430,22 @@
     "interval_pattern": "0 1 3 5 7 8 10"
   },
   {
-    "scale_name": "Ionian #5",
+    "scale_name": "Indian (Heptatonic)",
     "root": "A",
-    "notes": "A B C#/Db D F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 5 8 9 11"
+    "notes": "A A#/Bb C D E F G",
+    "interval_pattern": "0 1 3 5 7 8 10"
   },
   {
-    "scale_name": "Ionian #5",
+    "scale_name": "Indian (Heptatonic)",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F#/Gb G A",
-    "interval_pattern": "0 2 4 5 8 9 11"
+    "notes": "A#/Bb B C#/Db D#/Eb F F#/Gb G#/Ab",
+    "interval_pattern": "0 1 3 5 7 8 10"
   },
   {
-    "scale_name": "Ionian #5",
+    "scale_name": "Indian (Heptatonic)",
     "root": "B",
-    "notes": "B C#/Db D#/Eb E G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 5 8 9 11"
+    "notes": "B C D E F#/Gb G A",
+    "interval_pattern": "0 1 3 5 7 8 10"
   },
   {
     "scale_name": "Ionian #5",
@@ -3024,94 +2502,22 @@
     "interval_pattern": "0 2 4 5 8 9 11"
   },
   {
-    "scale_name": "Ionian (Major)",
+    "scale_name": "Ionian #5",
     "root": "A",
-    "notes": "A B C#/Db D E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 5 7 9 11"
+    "notes": "A B C#/Db D F F#/Gb G#/Ab",
+    "interval_pattern": "0 2 4 5 8 9 11"
   },
   {
-    "scale_name": "Ionian (Major)",
+    "scale_name": "Ionian #5",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F G A",
-    "interval_pattern": "0 2 4 5 7 9 11"
+    "notes": "A#/Bb C D D#/Eb F#/Gb G A",
+    "interval_pattern": "0 2 4 5 8 9 11"
   },
   {
-    "scale_name": "Ionian (Major)",
+    "scale_name": "Ionian #5",
     "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Ionian (Major)",
-    "root": "C",
-    "notes": "C D E F G A B",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Ionian (Major)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F F#/Gb G#/Ab A#/Bb C",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Ionian (Major)",
-    "root": "D",
-    "notes": "D E F#/Gb G A B C#/Db",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Ionian (Major)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G G#/Ab A#/Bb C D",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Ionian (Major)",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A B C#/Db D#/Eb",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Ionian (Major)",
-    "root": "F",
-    "notes": "F G A A#/Bb C D E",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Ionian (Major)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb B C#/Db D#/Eb F",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Ionian (Major)",
-    "root": "G",
-    "notes": "G A B C D E F#/Gb",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Ionian (Major)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C C#/Db D#/Eb F G",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Iwato",
-    "root": "A",
-    "notes": "A A#/Bb D D#/Eb G",
-    "interval_pattern": "0 1 5 6 10"
-  },
-  {
-    "scale_name": "Iwato",
-    "root": "A#/Bb",
-    "notes": "A#/Bb B D#/Eb E G#/Ab",
-    "interval_pattern": "0 1 5 6 10"
-  },
-  {
-    "scale_name": "Iwato",
-    "root": "B",
-    "notes": "B C E F A",
-    "interval_pattern": "0 1 5 6 10"
+    "notes": "B C#/Db D#/Eb E G G#/Ab A#/Bb",
+    "interval_pattern": "0 2 4 5 8 9 11"
   },
   {
     "scale_name": "Iwato",
@@ -3168,22 +2574,22 @@
     "interval_pattern": "0 1 5 6 10"
   },
   {
-    "scale_name": "Japanese (In Sen)",
+    "scale_name": "Iwato",
     "root": "A",
-    "notes": "A A#/Bb D E G",
-    "interval_pattern": "0 1 5 7 10"
+    "notes": "A A#/Bb D D#/Eb G",
+    "interval_pattern": "0 1 5 6 10"
   },
   {
-    "scale_name": "Japanese (In Sen)",
+    "scale_name": "Iwato",
     "root": "A#/Bb",
-    "notes": "A#/Bb B D#/Eb F G#/Ab",
-    "interval_pattern": "0 1 5 7 10"
+    "notes": "A#/Bb B D#/Eb E G#/Ab",
+    "interval_pattern": "0 1 5 6 10"
   },
   {
-    "scale_name": "Japanese (In Sen)",
+    "scale_name": "Iwato",
     "root": "B",
-    "notes": "B C E F#/Gb A",
-    "interval_pattern": "0 1 5 7 10"
+    "notes": "B C E F A",
+    "interval_pattern": "0 1 5 6 10"
   },
   {
     "scale_name": "Japanese (In Sen)",
@@ -3240,22 +2646,22 @@
     "interval_pattern": "0 1 5 7 10"
   },
   {
-    "scale_name": "Locrian",
+    "scale_name": "Japanese (In Sen)",
     "root": "A",
-    "notes": "A A#/Bb C D D#/Eb F G",
-    "interval_pattern": "0 1 3 5 6 8 10"
+    "notes": "A A#/Bb D E G",
+    "interval_pattern": "0 1 5 7 10"
   },
   {
-    "scale_name": "Locrian",
+    "scale_name": "Japanese (In Sen)",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D#/Eb E F#/Gb G#/Ab",
-    "interval_pattern": "0 1 3 5 6 8 10"
+    "notes": "A#/Bb B D#/Eb F G#/Ab",
+    "interval_pattern": "0 1 5 7 10"
   },
   {
-    "scale_name": "Locrian",
+    "scale_name": "Japanese (In Sen)",
     "root": "B",
-    "notes": "B C D E F G A",
-    "interval_pattern": "0 1 3 5 6 8 10"
+    "notes": "B C E F#/Gb A",
+    "interval_pattern": "0 1 5 7 10"
   },
   {
     "scale_name": "Locrian",
@@ -3312,94 +2718,22 @@
     "interval_pattern": "0 1 3 5 6 8 10"
   },
   {
-    "scale_name": "Locrian Natural 2",
+    "scale_name": "Locrian",
     "root": "A",
-    "notes": "A B C D D#/Eb F G",
-    "interval_pattern": "0 2 3 5 6 8 10"
+    "notes": "A A#/Bb C D D#/Eb F G",
+    "interval_pattern": "0 1 3 5 6 8 10"
   },
   {
-    "scale_name": "Locrian Natural 2",
+    "scale_name": "Locrian",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 5 6 8 10"
+    "notes": "A#/Bb B C#/Db D#/Eb E F#/Gb G#/Ab",
+    "interval_pattern": "0 1 3 5 6 8 10"
   },
   {
-    "scale_name": "Locrian Natural 2",
+    "scale_name": "Locrian",
     "root": "B",
-    "notes": "B C#/Db D E F G A",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Locrian Natural 2",
-    "root": "C",
-    "notes": "C D D#/Eb F F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Locrian Natural 2",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E F#/Gb G A B",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Locrian Natural 2",
-    "root": "D",
-    "notes": "D E F G G#/Ab A#/Bb C",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Locrian Natural 2",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb G#/Ab A B C#/Db",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Locrian Natural 2",
-    "root": "E",
-    "notes": "E F#/Gb G A A#/Bb C D",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Locrian Natural 2",
-    "root": "F",
-    "notes": "F G G#/Ab A#/Bb B C#/Db D#/Eb",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Locrian Natural 2",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A B C D E",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Locrian Natural 2",
-    "root": "G",
-    "notes": "G A A#/Bb C C#/Db D#/Eb F",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Locrian Natural 2",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B C#/Db D E F#/Gb",
-    "interval_pattern": "0 2 3 5 6 8 10"
-  },
-  {
-    "scale_name": "Lydian",
-    "root": "A",
-    "notes": "A B C#/Db D#/Eb E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 6 7 9 11"
-  },
-  {
-    "scale_name": "Lydian",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C D E F G A",
-    "interval_pattern": "0 2 4 6 7 9 11"
-  },
-  {
-    "scale_name": "Lydian",
-    "root": "B",
-    "notes": "B C#/Db D#/Eb F F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 6 7 9 11"
+    "notes": "B C D E F G A",
+    "interval_pattern": "0 1 3 5 6 8 10"
   },
   {
     "scale_name": "Lydian",
@@ -3456,22 +2790,22 @@
     "interval_pattern": "0 2 4 6 7 9 11"
   },
   {
-    "scale_name": "Lydian #2",
+    "scale_name": "Lydian",
     "root": "A",
-    "notes": "A C C#/Db D#/Eb E F#/Gb G#/Ab",
-    "interval_pattern": "0 3 4 6 7 9 11"
+    "notes": "A B C#/Db D#/Eb E F#/Gb G#/Ab",
+    "interval_pattern": "0 2 4 6 7 9 11"
   },
   {
-    "scale_name": "Lydian #2",
+    "scale_name": "Lydian",
     "root": "A#/Bb",
-    "notes": "A#/Bb C#/Db D E F G A",
-    "interval_pattern": "0 3 4 6 7 9 11"
+    "notes": "A#/Bb C D E F G A",
+    "interval_pattern": "0 2 4 6 7 9 11"
   },
   {
-    "scale_name": "Lydian #2",
+    "scale_name": "Lydian",
     "root": "B",
-    "notes": "B D D#/Eb F F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 3 4 6 7 9 11"
+    "notes": "B C#/Db D#/Eb F F#/Gb G#/Ab A#/Bb",
+    "interval_pattern": "0 2 4 6 7 9 11"
   },
   {
     "scale_name": "Lydian #2",
@@ -3528,310 +2862,22 @@
     "interval_pattern": "0 3 4 6 7 9 11"
   },
   {
-    "scale_name": "Lydian Augmented",
+    "scale_name": "Lydian #2",
     "root": "A",
-    "notes": "A B C#/Db D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 6 8 9 11"
+    "notes": "A C C#/Db D#/Eb E F#/Gb G#/Ab",
+    "interval_pattern": "0 3 4 6 7 9 11"
   },
   {
-    "scale_name": "Lydian Augmented",
+    "scale_name": "Lydian #2",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D E F#/Gb G A",
-    "interval_pattern": "0 2 4 6 8 9 11"
+    "notes": "A#/Bb C#/Db D E F G A",
+    "interval_pattern": "0 3 4 6 7 9 11"
   },
   {
-    "scale_name": "Lydian Augmented",
+    "scale_name": "Lydian #2",
     "root": "B",
-    "notes": "B C#/Db D#/Eb F G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented",
-    "root": "C",
-    "notes": "C D E F#/Gb G#/Ab A B",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F G A A#/Bb C",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented",
-    "root": "D",
-    "notes": "D E F#/Gb G#/Ab A#/Bb B C#/Db",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G A B C D",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A#/Bb C C#/Db D#/Eb",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented",
-    "root": "F",
-    "notes": "F G A B C#/Db D E",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb C D D#/Eb F",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented",
-    "root": "G",
-    "notes": "G A B C#/Db D#/Eb E F#/Gb",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C D E F G",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "A",
-    "notes": "A B C#/Db D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C D E F#/Gb G A",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "B",
-    "notes": "B C#/Db D#/Eb F G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "C",
-    "notes": "C D E F#/Gb G#/Ab A B",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F G A A#/Bb C",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "D",
-    "notes": "D E F#/Gb G#/Ab A#/Bb B C#/Db",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G A B C D",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A#/Bb C C#/Db D#/Eb",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "F",
-    "notes": "F G A B C#/Db D E",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb C D D#/Eb F",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "G",
-    "notes": "G A B C#/Db D#/Eb E F#/Gb",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Augmented (Lydian #5)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C D E F G",
-    "interval_pattern": "0 2 4 6 8 9 11"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "A",
-    "notes": "A B C#/Db D#/Eb E F#/Gb G",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C D E F G G#/Ab",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "B",
-    "notes": "B C#/Db D#/Eb F F#/Gb G#/Ab A",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "C",
-    "notes": "C D E F#/Gb G A A#/Bb",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F G G#/Ab A#/Bb B",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "D",
-    "notes": "D E F#/Gb G#/Ab A B C",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G A A#/Bb C C#/Db",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A#/Bb B C#/Db D",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "F",
-    "notes": "F G A B C D D#/Eb",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb C C#/Db D#/Eb E",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "G",
-    "notes": "G A B C#/Db D E F",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C D D#/Eb F F#/Gb",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "A",
-    "notes": "A B C#/Db D#/Eb E F#/Gb G",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C D E F G G#/Ab",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "B",
-    "notes": "B C#/Db D#/Eb F F#/Gb G#/Ab A",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "C",
-    "notes": "C D E F#/Gb G A A#/Bb",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F G G#/Ab A#/Bb B",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "D",
-    "notes": "D E F#/Gb G#/Ab A B C",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G A A#/Bb C C#/Db",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A#/Bb B C#/Db D",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "F",
-    "notes": "F G A B C D D#/Eb",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb C C#/Db D#/Eb E",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "G",
-    "notes": "G A B C#/Db D E F",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian Dominant (Lydian b7)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C D D#/Eb F F#/Gb",
-    "interval_pattern": "0 2 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Lydian b3",
-    "root": "A",
-    "notes": "A B C D#/Eb E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 6 7 9 11"
-  },
-  {
-    "scale_name": "Lydian b3",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db E F G A",
-    "interval_pattern": "0 2 3 6 7 9 11"
-  },
-  {
-    "scale_name": "Lydian b3",
-    "root": "B",
-    "notes": "B C#/Db D F F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 2 3 6 7 9 11"
+    "notes": "B D D#/Eb F F#/Gb G#/Ab A#/Bb",
+    "interval_pattern": "0 3 4 6 7 9 11"
   },
   {
     "scale_name": "Lydian b3",
@@ -3888,94 +2934,22 @@
     "interval_pattern": "0 2 3 6 7 9 11"
   },
   {
-    "scale_name": "Major (Ionian)",
+    "scale_name": "Lydian b3",
     "root": "A",
-    "notes": "A B C#/Db D E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 5 7 9 11"
+    "notes": "A B C D#/Eb E F#/Gb G#/Ab",
+    "interval_pattern": "0 2 3 6 7 9 11"
   },
   {
-    "scale_name": "Major (Ionian)",
+    "scale_name": "Lydian b3",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F G A",
-    "interval_pattern": "0 2 4 5 7 9 11"
+    "notes": "A#/Bb C C#/Db E F G A",
+    "interval_pattern": "0 2 3 6 7 9 11"
   },
   {
-    "scale_name": "Major (Ionian)",
+    "scale_name": "Lydian b3",
     "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major (Ionian)",
-    "root": "C",
-    "notes": "C D E F G A B",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major (Ionian)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F F#/Gb G#/Ab A#/Bb C",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major (Ionian)",
-    "root": "D",
-    "notes": "D E F#/Gb G A B C#/Db",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major (Ionian)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G G#/Ab A#/Bb C D",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major (Ionian)",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A B C#/Db D#/Eb",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major (Ionian)",
-    "root": "F",
-    "notes": "F G A A#/Bb C D E",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major (Ionian)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb B C#/Db D#/Eb F",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major (Ionian)",
-    "root": "G",
-    "notes": "G A B C D E F#/Gb",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major (Ionian)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C C#/Db D#/Eb F G",
-    "interval_pattern": "0 2 4 5 7 9 11"
-  },
-  {
-    "scale_name": "Major Blues",
-    "root": "A",
-    "notes": "A B C C#/Db E F#/Gb",
-    "interval_pattern": "0 2 3 4 7 9"
-  },
-  {
-    "scale_name": "Major Blues",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D F G",
-    "interval_pattern": "0 2 3 4 7 9"
-  },
-  {
-    "scale_name": "Major Blues",
-    "root": "B",
-    "notes": "B C#/Db D D#/Eb F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 4 7 9"
+    "notes": "B C#/Db D F F#/Gb G#/Ab A#/Bb",
+    "interval_pattern": "0 2 3 6 7 9 11"
   },
   {
     "scale_name": "Major Blues",
@@ -4032,22 +3006,22 @@
     "interval_pattern": "0 2 3 4 7 9"
   },
   {
-    "scale_name": "Major Pentatonic",
+    "scale_name": "Major Blues",
     "root": "A",
-    "notes": "A B C#/Db E F#/Gb",
-    "interval_pattern": "0 2 4 7 9"
+    "notes": "A B C C#/Db E F#/Gb",
+    "interval_pattern": "0 2 3 4 7 9"
   },
   {
-    "scale_name": "Major Pentatonic",
+    "scale_name": "Major Blues",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D F G",
-    "interval_pattern": "0 2 4 7 9"
+    "notes": "A#/Bb C C#/Db D F G",
+    "interval_pattern": "0 2 3 4 7 9"
   },
   {
-    "scale_name": "Major Pentatonic",
+    "scale_name": "Major Blues",
     "root": "B",
-    "notes": "B C#/Db D#/Eb F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 7 9"
+    "notes": "B C#/Db D D#/Eb F#/Gb G#/Ab",
+    "interval_pattern": "0 2 3 4 7 9"
   },
   {
     "scale_name": "Major Pentatonic",
@@ -4104,238 +3078,22 @@
     "interval_pattern": "0 2 4 7 9"
   },
   {
-    "scale_name": "Melodic Minor",
+    "scale_name": "Major Pentatonic",
     "root": "A",
-    "notes": "A B C D E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 5 7 9 11"
+    "notes": "A B C#/Db E F#/Gb",
+    "interval_pattern": "0 2 4 7 9"
   },
   {
-    "scale_name": "Melodic Minor",
+    "scale_name": "Major Pentatonic",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb F G A",
-    "interval_pattern": "0 2 3 5 7 9 11"
+    "notes": "A#/Bb C D F G",
+    "interval_pattern": "0 2 4 7 9"
   },
   {
-    "scale_name": "Melodic Minor",
+    "scale_name": "Major Pentatonic",
     "root": "B",
-    "notes": "B C#/Db D E F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor",
-    "root": "C",
-    "notes": "C D D#/Eb F G A B",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E F#/Gb G#/Ab A#/Bb C",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor",
-    "root": "D",
-    "notes": "D E F G A B C#/Db",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb G#/Ab A#/Bb C D",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor",
-    "root": "E",
-    "notes": "E F#/Gb G A B C#/Db D#/Eb",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor",
-    "root": "F",
-    "notes": "F G G#/Ab A#/Bb C D E",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A B C#/Db D#/Eb F",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor",
-    "root": "G",
-    "notes": "G A A#/Bb C D E F#/Gb",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B C#/Db D#/Eb F G",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "A",
-    "notes": "A B C D E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb F G A",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "B",
-    "notes": "B C#/Db D E F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "C",
-    "notes": "C D D#/Eb F G A B",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E F#/Gb G#/Ab A#/Bb C",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "D",
-    "notes": "D E F G A B C#/Db",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb G#/Ab A#/Bb C D",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "E",
-    "notes": "E F#/Gb G A B C#/Db D#/Eb",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "F",
-    "notes": "F G G#/Ab A#/Bb C D E",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A B C#/Db D#/Eb F",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "G",
-    "notes": "G A A#/Bb C D E F#/Gb",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Melodic Minor (Ascending)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B C#/Db D#/Eb F G",
-    "interval_pattern": "0 2 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "A",
-    "notes": "A B C D#/Eb E F#/Gb G",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db E F G G#/Ab",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "B",
-    "notes": "B C#/Db D F F#/Gb G#/Ab A",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "C",
-    "notes": "C D D#/Eb F#/Gb G A A#/Bb",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E G G#/Ab A#/Bb B",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "D",
-    "notes": "D E F G#/Ab A B C",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb A A#/Bb C C#/Db",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "E",
-    "notes": "E F#/Gb G A#/Bb B C#/Db D",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "F",
-    "notes": "F G G#/Ab B C D D#/Eb",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A C C#/Db D#/Eb E",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "G",
-    "notes": "G A A#/Bb C#/Db D E F",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Mi Sheberach",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B D D#/Eb F F#/Gb",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Minor Blues",
-    "root": "A",
-    "notes": "A C D D#/Eb E G",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Minor Blues",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C#/Db D#/Eb E F G#/Ab",
-    "interval_pattern": "0 3 5 6 7 10"
-  },
-  {
-    "scale_name": "Minor Blues",
-    "root": "B",
-    "notes": "B D E F F#/Gb A",
-    "interval_pattern": "0 3 5 6 7 10"
+    "notes": "B C#/Db D#/Eb F#/Gb G#/Ab",
+    "interval_pattern": "0 2 4 7 9"
   },
   {
     "scale_name": "Minor Blues",
@@ -4392,22 +3150,22 @@
     "interval_pattern": "0 3 5 6 7 10"
   },
   {
-    "scale_name": "Minor Pentatonic",
+    "scale_name": "Minor Blues",
     "root": "A",
-    "notes": "A C D E G",
-    "interval_pattern": "0 3 5 7 10"
+    "notes": "A C D D#/Eb E G",
+    "interval_pattern": "0 3 5 6 7 10"
   },
   {
-    "scale_name": "Minor Pentatonic",
+    "scale_name": "Minor Blues",
     "root": "A#/Bb",
-    "notes": "A#/Bb C#/Db D#/Eb F G#/Ab",
-    "interval_pattern": "0 3 5 7 10"
+    "notes": "A#/Bb C#/Db D#/Eb E F G#/Ab",
+    "interval_pattern": "0 3 5 6 7 10"
   },
   {
-    "scale_name": "Minor Pentatonic",
+    "scale_name": "Minor Blues",
     "root": "B",
-    "notes": "B D E F#/Gb A",
-    "interval_pattern": "0 3 5 7 10"
+    "notes": "B D E F F#/Gb A",
+    "interval_pattern": "0 3 5 6 7 10"
   },
   {
     "scale_name": "Minor Pentatonic",
@@ -4464,22 +3222,22 @@
     "interval_pattern": "0 3 5 7 10"
   },
   {
-    "scale_name": "Mixolydian",
+    "scale_name": "Minor Pentatonic",
     "root": "A",
-    "notes": "A B C#/Db D E F#/Gb G",
-    "interval_pattern": "0 2 4 5 7 9 10"
+    "notes": "A C D E G",
+    "interval_pattern": "0 3 5 7 10"
   },
   {
-    "scale_name": "Mixolydian",
+    "scale_name": "Minor Pentatonic",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F G G#/Ab",
-    "interval_pattern": "0 2 4 5 7 9 10"
+    "notes": "A#/Bb C#/Db D#/Eb F G#/Ab",
+    "interval_pattern": "0 3 5 7 10"
   },
   {
-    "scale_name": "Mixolydian",
+    "scale_name": "Minor Pentatonic",
     "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G#/Ab A",
-    "interval_pattern": "0 2 4 5 7 9 10"
+    "notes": "B D E F#/Gb A",
+    "interval_pattern": "0 3 5 7 10"
   },
   {
     "scale_name": "Mixolydian",
@@ -4536,310 +3294,22 @@
     "interval_pattern": "0 2 4 5 7 9 10"
   },
   {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
+    "scale_name": "Mixolydian",
     "root": "A",
-    "notes": "A B C#/Db D E F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
+    "notes": "A B C#/Db D E F#/Gb G",
+    "interval_pattern": "0 2 4 5 7 9 10"
   },
   {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
+    "scale_name": "Mixolydian",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F F#/Gb G A",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
+    "notes": "A#/Bb C D D#/Eb F G G#/Ab",
+    "interval_pattern": "0 2 4 5 7 9 10"
   },
   {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
+    "scale_name": "Mixolydian",
     "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
-    "root": "C",
-    "notes": "C D E F G G#/Ab A B",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F F#/Gb G#/Ab A A#/Bb C",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
-    "root": "D",
-    "notes": "D E F#/Gb G A A#/Bb B C#/Db",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G G#/Ab A#/Bb B C D",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A B C C#/Db D#/Eb",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
-    "root": "F",
-    "notes": "F G A A#/Bb C C#/Db D E",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb B C#/Db D D#/Eb F",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
-    "root": "G",
-    "notes": "G A B C D D#/Eb E F#/Gb",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian (Altered #5 + 7)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C C#/Db D#/Eb E F G",
-    "interval_pattern": "0 2 4 5 7 8 9 11"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "A",
-    "notes": "A B C#/Db D E F G",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C D D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "B",
-    "notes": "B C#/Db D#/Eb E F#/Gb G A",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "C",
-    "notes": "C D E F G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F F#/Gb G#/Ab A B",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "D",
-    "notes": "D E F#/Gb G A A#/Bb C",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G G#/Ab A#/Bb B C#/Db",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab A B C D",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "F",
-    "notes": "F G A A#/Bb C C#/Db D#/Eb",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb B C#/Db D E",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "G",
-    "notes": "G A B C D D#/Eb F",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mixolydian b6 (Hindu)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C C#/Db D#/Eb E F#/Gb",
-    "interval_pattern": "0 2 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "A",
-    "notes": "A B C#/Db E F#/Gb",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C D F G",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "B",
-    "notes": "B C#/Db D#/Eb F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "C",
-    "notes": "C D E G A",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb F G#/Ab A#/Bb",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "D",
-    "notes": "D E F#/Gb A B",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F G A#/Bb C",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "E",
-    "notes": "E F#/Gb G#/Ab B C#/Db",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "F",
-    "notes": "F G A C D",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A#/Bb C#/Db D#/Eb",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "G",
-    "notes": "G A B D E",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Mongolian (Chinese)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb C D#/Eb F",
-    "interval_pattern": "0 2 4 7 9"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "A",
-    "notes": "A B C D E F G",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "B",
-    "notes": "B C#/Db D E F#/Gb G A",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "C",
-    "notes": "C D D#/Eb F G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E F#/Gb G#/Ab A B",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "D",
-    "notes": "D E F G A A#/Bb C",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb G#/Ab A#/Bb B C#/Db",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "E",
-    "notes": "E F#/Gb G A B C D",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "F",
-    "notes": "F G G#/Ab A#/Bb C C#/Db D#/Eb",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A B C#/Db D E",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "G",
-    "notes": "G A A#/Bb C D D#/Eb F",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Natural Minor (Aeolian)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B C#/Db D#/Eb E F#/Gb",
-    "interval_pattern": "0 2 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Neapolitan Major",
-    "root": "A",
-    "notes": "A A#/Bb C D E F#/Gb G#/Ab",
-    "interval_pattern": "0 1 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Neapolitan Major",
-    "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D#/Eb F G A",
-    "interval_pattern": "0 1 3 5 7 9 11"
-  },
-  {
-    "scale_name": "Neapolitan Major",
-    "root": "B",
-    "notes": "B C D E F#/Gb G#/Ab A#/Bb",
-    "interval_pattern": "0 1 3 5 7 9 11"
+    "notes": "B C#/Db D#/Eb E F#/Gb G#/Ab A",
+    "interval_pattern": "0 2 4 5 7 9 10"
   },
   {
     "scale_name": "Neapolitan Major",
@@ -4896,22 +3366,22 @@
     "interval_pattern": "0 1 3 5 7 9 11"
   },
   {
-    "scale_name": "Neapolitan Minor",
+    "scale_name": "Neapolitan Major",
     "root": "A",
-    "notes": "A A#/Bb C D E F G#/Ab",
-    "interval_pattern": "0 1 3 5 7 8 11"
+    "notes": "A A#/Bb C D E F#/Gb G#/Ab",
+    "interval_pattern": "0 1 3 5 7 9 11"
   },
   {
-    "scale_name": "Neapolitan Minor",
+    "scale_name": "Neapolitan Major",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D#/Eb F F#/Gb A",
-    "interval_pattern": "0 1 3 5 7 8 11"
+    "notes": "A#/Bb B C#/Db D#/Eb F G A",
+    "interval_pattern": "0 1 3 5 7 9 11"
   },
   {
-    "scale_name": "Neapolitan Minor",
+    "scale_name": "Neapolitan Major",
     "root": "B",
-    "notes": "B C D E F#/Gb G A#/Bb",
-    "interval_pattern": "0 1 3 5 7 8 11"
+    "notes": "B C D E F#/Gb G#/Ab A#/Bb",
+    "interval_pattern": "0 1 3 5 7 9 11"
   },
   {
     "scale_name": "Neapolitan Minor",
@@ -4968,166 +3438,22 @@
     "interval_pattern": "0 1 3 5 7 8 11"
   },
   {
-    "scale_name": "Nine Tone Scale",
+    "scale_name": "Neapolitan Minor",
     "root": "A",
-    "notes": "A B C C#/Db D#/Eb E F F#/Gb G#/Ab",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
+    "notes": "A A#/Bb C D E F G#/Ab",
+    "interval_pattern": "0 1 3 5 7 8 11"
   },
   {
-    "scale_name": "Nine Tone Scale",
+    "scale_name": "Neapolitan Minor",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db D E F F#/Gb G A",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
+    "notes": "A#/Bb B C#/Db D#/Eb F F#/Gb A",
+    "interval_pattern": "0 1 3 5 7 8 11"
   },
   {
-    "scale_name": "Nine Tone Scale",
+    "scale_name": "Neapolitan Minor",
     "root": "B",
-    "notes": "B C#/Db D D#/Eb F F#/Gb G G#/Ab A#/Bb",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Nine Tone Scale",
-    "root": "C",
-    "notes": "C D D#/Eb E F#/Gb G G#/Ab A B",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Nine Tone Scale",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E F G G#/Ab A A#/Bb C",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Nine Tone Scale",
-    "root": "D",
-    "notes": "D E F F#/Gb G#/Ab A A#/Bb B C#/Db",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Nine Tone Scale",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb G A A#/Bb B C D",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Nine Tone Scale",
-    "root": "E",
-    "notes": "E F#/Gb G G#/Ab A#/Bb B C C#/Db D#/Eb",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Nine Tone Scale",
-    "root": "F",
-    "notes": "F G G#/Ab A B C C#/Db D E",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Nine Tone Scale",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A A#/Bb C C#/Db D D#/Eb F",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Nine Tone Scale",
-    "root": "G",
-    "notes": "G A A#/Bb B C#/Db D D#/Eb E F#/Gb",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Nine Tone Scale",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B C D D#/Eb E F G",
-    "interval_pattern": "0 2 3 4 6 7 8 9 11"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "A",
-    "notes": "A A#/Bb C C#/Db D#/Eb E F#/Gb G",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D E F G G#/Ab",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "B",
-    "notes": "B C D D#/Eb F F#/Gb G#/Ab A",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "C",
-    "notes": "C C#/Db D#/Eb E F#/Gb G A A#/Bb",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "C#/Db",
-    "notes": "C#/Db D E F G G#/Ab A#/Bb B",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "D",
-    "notes": "D D#/Eb F F#/Gb G#/Ab A B C",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "D#/Eb",
-    "notes": "D#/Eb E F#/Gb G A A#/Bb C C#/Db",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "E",
-    "notes": "E F G G#/Ab A#/Bb B C#/Db D",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "F",
-    "notes": "F F#/Gb G#/Ab A B C D D#/Eb",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G A A#/Bb C C#/Db D#/Eb E",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "G",
-    "notes": "G G#/Ab A#/Bb B C#/Db D E F",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Octatonic (Half-Whole)",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A B C D D#/Eb F F#/Gb",
-    "interval_pattern": "0 1 3 4 6 7 9 10"
-  },
-  {
-    "scale_name": "Oriental",
-    "root": "A",
-    "notes": "A A#/Bb C#/Db D D#/Eb F#/Gb G",
-    "interval_pattern": "0 1 4 5 6 9 10"
-  },
-  {
-    "scale_name": "Oriental",
-    "root": "A#/Bb",
-    "notes": "A#/Bb B D D#/Eb E G G#/Ab",
-    "interval_pattern": "0 1 4 5 6 9 10"
-  },
-  {
-    "scale_name": "Oriental",
-    "root": "B",
-    "notes": "B C D#/Eb E F G#/Ab A",
-    "interval_pattern": "0 1 4 5 6 9 10"
+    "notes": "B C D E F#/Gb G A#/Bb",
+    "interval_pattern": "0 1 3 5 7 8 11"
   },
   {
     "scale_name": "Oriental",
@@ -5184,94 +3510,22 @@
     "interval_pattern": "0 1 4 5 6 9 10"
   },
   {
-    "scale_name": "Phrygian",
+    "scale_name": "Oriental",
     "root": "A",
-    "notes": "A A#/Bb C D E F G",
-    "interval_pattern": "0 1 3 5 7 8 10"
+    "notes": "A A#/Bb C#/Db D D#/Eb F#/Gb G",
+    "interval_pattern": "0 1 4 5 6 9 10"
   },
   {
-    "scale_name": "Phrygian",
+    "scale_name": "Oriental",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 1 3 5 7 8 10"
+    "notes": "A#/Bb B D D#/Eb E G G#/Ab",
+    "interval_pattern": "0 1 4 5 6 9 10"
   },
   {
-    "scale_name": "Phrygian",
+    "scale_name": "Oriental",
     "root": "B",
-    "notes": "B C D E F#/Gb G A",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian",
-    "root": "C",
-    "notes": "C C#/Db D#/Eb F G G#/Ab A#/Bb",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian",
-    "root": "C#/Db",
-    "notes": "C#/Db D E F#/Gb G#/Ab A B",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian",
-    "root": "D",
-    "notes": "D D#/Eb F G A A#/Bb C",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian",
-    "root": "D#/Eb",
-    "notes": "D#/Eb E F#/Gb G#/Ab A#/Bb B C#/Db",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian",
-    "root": "E",
-    "notes": "E F G A B C D",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian",
-    "root": "F",
-    "notes": "F F#/Gb G#/Ab A#/Bb C C#/Db D#/Eb",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G A B C#/Db D E",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian",
-    "root": "G",
-    "notes": "G G#/Ab A#/Bb C D D#/Eb F",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A B C#/Db D#/Eb E F#/Gb",
-    "interval_pattern": "0 1 3 5 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian b4",
-    "root": "A",
-    "notes": "A A#/Bb C C#/Db E F G",
-    "interval_pattern": "0 1 3 4 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian b4",
-    "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D F F#/Gb G#/Ab",
-    "interval_pattern": "0 1 3 4 7 8 10"
-  },
-  {
-    "scale_name": "Phrygian b4",
-    "root": "B",
-    "notes": "B C D D#/Eb F#/Gb G A",
-    "interval_pattern": "0 1 3 4 7 8 10"
+    "notes": "B C D#/Eb E F G#/Ab A",
+    "interval_pattern": "0 1 4 5 6 9 10"
   },
   {
     "scale_name": "Phrygian b4",
@@ -5328,22 +3582,22 @@
     "interval_pattern": "0 1 3 4 7 8 10"
   },
   {
-    "scale_name": "Prometheus",
+    "scale_name": "Phrygian b4",
     "root": "A",
-    "notes": "A B C#/Db D#/Eb F#/Gb G",
-    "interval_pattern": "0 2 4 6 9 10"
+    "notes": "A A#/Bb C C#/Db E F G",
+    "interval_pattern": "0 1 3 4 7 8 10"
   },
   {
-    "scale_name": "Prometheus",
+    "scale_name": "Phrygian b4",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D E G G#/Ab",
-    "interval_pattern": "0 2 4 6 9 10"
+    "notes": "A#/Bb B C#/Db D F F#/Gb G#/Ab",
+    "interval_pattern": "0 1 3 4 7 8 10"
   },
   {
-    "scale_name": "Prometheus",
+    "scale_name": "Phrygian b4",
     "root": "B",
-    "notes": "B C#/Db D#/Eb F G#/Ab A",
-    "interval_pattern": "0 2 4 6 9 10"
+    "notes": "B C D D#/Eb F#/Gb G A",
+    "interval_pattern": "0 1 3 4 7 8 10"
   },
   {
     "scale_name": "Prometheus",
@@ -5400,94 +3654,22 @@
     "interval_pattern": "0 2 4 6 9 10"
   },
   {
-    "scale_name": "Romanian Minor",
+    "scale_name": "Prometheus",
     "root": "A",
-    "notes": "A B C D#/Eb E F#/Gb G",
-    "interval_pattern": "0 2 3 6 7 9 10"
+    "notes": "A B C#/Db D#/Eb F#/Gb G",
+    "interval_pattern": "0 2 4 6 9 10"
   },
   {
-    "scale_name": "Romanian Minor",
+    "scale_name": "Prometheus",
     "root": "A#/Bb",
-    "notes": "A#/Bb C C#/Db E F G G#/Ab",
-    "interval_pattern": "0 2 3 6 7 9 10"
+    "notes": "A#/Bb C D E G G#/Ab",
+    "interval_pattern": "0 2 4 6 9 10"
   },
   {
-    "scale_name": "Romanian Minor",
+    "scale_name": "Prometheus",
     "root": "B",
-    "notes": "B C#/Db D F F#/Gb G#/Ab A",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Romanian Minor",
-    "root": "C",
-    "notes": "C D D#/Eb F#/Gb G A A#/Bb",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Romanian Minor",
-    "root": "C#/Db",
-    "notes": "C#/Db D#/Eb E G G#/Ab A#/Bb B",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Romanian Minor",
-    "root": "D",
-    "notes": "D E F G#/Ab A B C",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Romanian Minor",
-    "root": "D#/Eb",
-    "notes": "D#/Eb F F#/Gb A A#/Bb C C#/Db",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Romanian Minor",
-    "root": "E",
-    "notes": "E F#/Gb G A#/Bb B C#/Db D",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Romanian Minor",
-    "root": "F",
-    "notes": "F G G#/Ab B C D D#/Eb",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Romanian Minor",
-    "root": "F#/Gb",
-    "notes": "F#/Gb G#/Ab A C C#/Db D#/Eb E",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Romanian Minor",
-    "root": "G",
-    "notes": "G A A#/Bb C#/Db D E F",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Romanian Minor",
-    "root": "G#/Ab",
-    "notes": "G#/Ab A#/Bb B D D#/Eb F F#/Gb",
-    "interval_pattern": "0 2 3 6 7 9 10"
-  },
-  {
-    "scale_name": "Spanish Gypsy (Phrygian Dominant)",
-    "root": "A",
-    "notes": "A A#/Bb C#/Db D E F G",
-    "interval_pattern": "0 1 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Spanish Gypsy (Phrygian Dominant)",
-    "root": "A#/Bb",
-    "notes": "A#/Bb B D D#/Eb F F#/Gb G#/Ab",
-    "interval_pattern": "0 1 4 5 7 8 10"
-  },
-  {
-    "scale_name": "Spanish Gypsy (Phrygian Dominant)",
-    "root": "B",
-    "notes": "B C D#/Eb E F#/Gb G A",
-    "interval_pattern": "0 1 4 5 7 8 10"
+    "notes": "B C#/Db D#/Eb F G#/Ab A",
+    "interval_pattern": "0 2 4 6 9 10"
   },
   {
     "scale_name": "Spanish Gypsy (Phrygian Dominant)",
@@ -5544,22 +3726,22 @@
     "interval_pattern": "0 1 4 5 7 8 10"
   },
   {
-    "scale_name": "Super Locrian (Altered)",
+    "scale_name": "Spanish Gypsy (Phrygian Dominant)",
     "root": "A",
-    "notes": "A A#/Bb C C#/Db D#/Eb F G",
-    "interval_pattern": "0 1 3 4 6 8 10"
+    "notes": "A A#/Bb C#/Db D E F G",
+    "interval_pattern": "0 1 4 5 7 8 10"
   },
   {
-    "scale_name": "Super Locrian (Altered)",
+    "scale_name": "Spanish Gypsy (Phrygian Dominant)",
     "root": "A#/Bb",
-    "notes": "A#/Bb B C#/Db D E F#/Gb G#/Ab",
-    "interval_pattern": "0 1 3 4 6 8 10"
+    "notes": "A#/Bb B D D#/Eb F F#/Gb G#/Ab",
+    "interval_pattern": "0 1 4 5 7 8 10"
   },
   {
-    "scale_name": "Super Locrian (Altered)",
+    "scale_name": "Spanish Gypsy (Phrygian Dominant)",
     "root": "B",
-    "notes": "B C D D#/Eb F G A",
-    "interval_pattern": "0 1 3 4 6 8 10"
+    "notes": "B C D#/Eb E F#/Gb G A",
+    "interval_pattern": "0 1 4 5 7 8 10"
   },
   {
     "scale_name": "Super Locrian (Altered)",
@@ -5616,22 +3798,22 @@
     "interval_pattern": "0 1 3 4 6 8 10"
   },
   {
-    "scale_name": "Whole Tone",
+    "scale_name": "Super Locrian (Altered)",
     "root": "A",
-    "notes": "A B C#/Db D#/Eb F G",
-    "interval_pattern": "0 2 4 6 8 10"
+    "notes": "A A#/Bb C C#/Db D#/Eb F G",
+    "interval_pattern": "0 1 3 4 6 8 10"
   },
   {
-    "scale_name": "Whole Tone",
+    "scale_name": "Super Locrian (Altered)",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 4 6 8 10"
+    "notes": "A#/Bb B C#/Db D E F#/Gb G#/Ab",
+    "interval_pattern": "0 1 3 4 6 8 10"
   },
   {
-    "scale_name": "Whole Tone",
+    "scale_name": "Super Locrian (Altered)",
     "root": "B",
-    "notes": "B C#/Db D#/Eb F G A",
-    "interval_pattern": "0 2 4 6 8 10"
+    "notes": "B C D D#/Eb F G A",
+    "interval_pattern": "0 1 3 4 6 8 10"
   },
   {
     "scale_name": "Whole Tone",
@@ -5688,22 +3870,22 @@
     "interval_pattern": "0 2 4 6 8 10"
   },
   {
-    "scale_name": "Yo (Japanese)",
+    "scale_name": "Whole Tone",
     "root": "A",
-    "notes": "A B D E F#/Gb",
-    "interval_pattern": "0 2 5 7 9"
+    "notes": "A B C#/Db D#/Eb F G",
+    "interval_pattern": "0 2 4 6 8 10"
   },
   {
-    "scale_name": "Yo (Japanese)",
+    "scale_name": "Whole Tone",
     "root": "A#/Bb",
-    "notes": "A#/Bb C D#/Eb F G",
-    "interval_pattern": "0 2 5 7 9"
+    "notes": "A#/Bb C D E F#/Gb G#/Ab",
+    "interval_pattern": "0 2 4 6 8 10"
   },
   {
-    "scale_name": "Yo (Japanese)",
+    "scale_name": "Whole Tone",
     "root": "B",
-    "notes": "B C#/Db E F#/Gb G#/Ab",
-    "interval_pattern": "0 2 5 7 9"
+    "notes": "B C#/Db D#/Eb F G A",
+    "interval_pattern": "0 2 4 6 8 10"
   },
   {
     "scale_name": "Yo (Japanese)",
@@ -5757,6 +3939,24 @@
     "scale_name": "Yo (Japanese)",
     "root": "G#/Ab",
     "notes": "G#/Ab A#/Bb C#/Db D#/Eb F",
+    "interval_pattern": "0 2 5 7 9"
+  },
+  {
+    "scale_name": "Yo (Japanese)",
+    "root": "A",
+    "notes": "A B D E F#/Gb",
+    "interval_pattern": "0 2 5 7 9"
+  },
+  {
+    "scale_name": "Yo (Japanese)",
+    "root": "A#/Bb",
+    "notes": "A#/Bb C D#/Eb F G",
+    "interval_pattern": "0 2 5 7 9"
+  },
+  {
+    "scale_name": "Yo (Japanese)",
+    "root": "B",
+    "notes": "B C#/Db E F#/Gb G#/Ab",
     "interval_pattern": "0 2 5 7 9"
   }
 ]

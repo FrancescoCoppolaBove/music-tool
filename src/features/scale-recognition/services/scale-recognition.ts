@@ -1,19 +1,16 @@
 /**
- * SCALE RECOGNITION ENGINE
+ * SCALE RECOGNITION ENGINE V2
  *
- * Algoritmo per riconoscere scale musicali da un insieme di note input
- *
- * ARCHITETTURA:
- * 1. Normalizzazione note → pitch class (0-11)
- * 2. Matching con database scale
- * 3. Scoring con metriche multiple
- * 4. Ranking e probabilità
+ * FIX IMPLEMENTATI:
+ * 1. Perfect match con root ha priorità ASSOLUTA
+ * 2. Sequence detection: trova scale con sequenze contigue di note
+ * 3. Scoring corretto: penalizza scale lunghe quando input è breve
  */
 
 import scaleData from '../data/scale_data.json';
 
 // ============================================================================
-// TYPES & INTERFACES
+// TYPES
 // ============================================================================
 
 export interface NoteInput {
@@ -34,6 +31,10 @@ export interface ScaleCandidate {
   probability_percent: number;
   explanation: string;
   raw_intervals: number[];
+  // NUOVO: sequence matching
+  has_contiguous_sequence?: boolean;
+  sequence_position?: 'start' | 'middle' | 'end' | null;
+  sequence_length?: number;
 }
 
 export interface ScaleRecognitionResult {
@@ -55,7 +56,7 @@ interface ScaleData {
 }
 
 // ============================================================================
-// CONSTANTS & CONFIGURATION
+// CONSTANTS
 // ============================================================================
 
 const NOTE_TO_PITCH_CLASS: Record<string, number> = {
@@ -84,38 +85,17 @@ const NOTE_TO_PITCH_CLASS: Record<string, number> = {
 
 const PITCH_CLASS_TO_NOTE = ['C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B'];
 
-// SCORING WEIGHTS (configurabili)
-const WEIGHTS = {
-  EXTRA_NOTE_PENALTY: 25, // Penalità forte per note fuori scala
-  MISSING_NOTE_PENALTY: 8, // Penalità media per note mancanti
-  ROOT_BONUS: 10, // Bonus se contiene la tonica
-  CHARACTERISTIC_NOTE_BONUS: 5, // Bonus per note caratteristiche del modo
-};
-
 // ============================================================================
-// CORE FUNCTIONS - NORMALIZZAZIONE
+// NORMALIZZAZIONE
 // ============================================================================
 
-/**
- * Normalizza una singola nota in pitch class (0-11)
- * Gestisce enharmonics e formati misti
- */
 export function normalizeToPitchClass(note: string): number | null {
-  // Rimuovi spazi e caratteri unicode
   note = note.trim().replace(/♯/g, '#').replace(/♭/g, 'b').replace(/♮/g, '');
-
-  // Gestisci formato "C#/Db" prendendo la prima parte
-  if (note.includes('/')) {
-    note = note.split('/')[0];
-  }
-
+  if (note.includes('/')) note = note.split('/')[0];
   const pitchClass = NOTE_TO_PITCH_CLASS[note];
   return pitchClass !== undefined ? pitchClass : null;
 }
 
-/**
- * Normalizza un array di note input
- */
 export function normalizeNotes(notes: string[]): {
   normalized: string[];
   pitchClasses: number[];
@@ -140,71 +120,51 @@ export function normalizeNotes(notes: string[]): {
 }
 
 // ============================================================================
-// CORE FUNCTIONS - MATCHING
+// SEQUENCE DETECTION
 // ============================================================================
 
 /**
- * Calcola il matching tra input e scala candidata
+ * Verifica se inputPCs è una sottosequenza contigua di scalePCs
  */
-function calculateMatching(
-  inputPitchClasses: Set<number>,
-  scalePitchClasses: Set<number>,
-  inputNormalized: string[],
-  scaleNotes: string[]
-): {
-  matched: Set<number>;
-  matchedNotes: string[];
-  extra: Set<number>;
-  extraNotes: string[];
-  missing: Set<number>;
-  missingNotes: string[];
-} {
-  const matched = new Set<number>();
-  const matchedNotes: string[] = [];
-  const extra = new Set<number>();
-  const extraNotes: string[] = [];
-  const missing = new Set<number>();
-  const missingNotes: string[] = [];
+function findContiguousSequence(
+  inputPCs: number[],
+  scalePCs: number[]
+): { found: boolean; position: 'start' | 'middle' | 'end' | null; matchLength: number } {
+  if (inputPCs.length === 0 || scalePCs.length === 0) {
+    return { found: false, position: null, matchLength: 0 };
+  }
 
-  // Note input che matchano la scala
-  inputPitchClasses.forEach((pc) => {
-    if (scalePitchClasses.has(pc)) {
-      matched.add(pc);
-      const noteIndex = inputNormalized.findIndex((n) => normalizeToPitchClass(n) === pc);
-      if (noteIndex !== -1) matchedNotes.push(inputNormalized[noteIndex]);
-    } else {
-      extra.add(pc);
-      const noteIndex = inputNormalized.findIndex((n) => normalizeToPitchClass(n) === pc);
-      if (noteIndex !== -1) extraNotes.push(inputNormalized[noteIndex]);
+  const inputLen = inputPCs.length;
+  const scaleLen = scalePCs.length;
+
+  // Cerca la sequenza contigua nell'ordine esatto
+  for (let i = 0; i <= scaleLen - inputLen; i++) {
+    let matches = true;
+    for (let j = 0; j < inputLen; j++) {
+      if (scalePCs[i + j] !== inputPCs[j]) {
+        matches = false;
+        break;
+      }
     }
-  });
 
-  // Note della scala mancanti nell'input
-  scalePitchClasses.forEach((pc) => {
-    if (!inputPitchClasses.has(pc)) {
-      missing.add(pc);
-      const noteIndex = scaleNotes.findIndex((n) => normalizeToPitchClass(n) === pc);
-      if (noteIndex !== -1) missingNotes.push(scaleNotes[noteIndex]);
+    if (matches) {
+      // Determina posizione
+      let position: 'start' | 'middle' | 'end' = 'middle';
+      if (i === 0) position = 'start';
+      else if (i === scaleLen - inputLen) position = 'end';
+
+      return { found: true, position, matchLength: inputLen };
     }
-  });
+  }
 
-  return { matched, matchedNotes, extra, extraNotes, missing, missingNotes };
+  return { found: false, position: null, matchLength: 0 };
 }
 
 // ============================================================================
-// CORE FUNCTIONS - SCORING
+// SCORING V2
 // ============================================================================
 
-/**
- * Calcola lo score (0-100) per una scala candidata
- *
- * FORMULA:
- * base = 100 * (matched / input_size)
- * penalty = (extra_count * W_extra) + (missing_count * W_missing)
- * bonus = root_bonus + characteristic_bonus
- * score = clamp(base - penalty + bonus, 0, 100)
- */
-function calculateScore(
+function calculateScoreV2(
   matchedCount: number,
   inputSize: number,
   scaleSize: number,
@@ -212,266 +172,129 @@ function calculateScore(
   missingCount: number,
   rootPitchClass: number,
   inputPitchClasses: Set<number>,
-  intervals: number[]
+  hasSequence: boolean,
+  sequencePosition: 'start' | 'middle' | 'end' | null,
+  scaleName?: string // DEBUG
 ): number {
-  // Coverage ratio (quanto dell'input è contenuto nella scala)
+  let score = 0;
+
+  // 1. BASE: Coverage (quanto dell'input è coperto)
   const coverageRatio = inputSize > 0 ? matchedCount / inputSize : 0;
+  score = 100 * coverageRatio;
 
-  // Base score da coverage
-  let score = 100 * coverageRatio;
+  const debugLog: string[] = [];
+  debugLog.push(`[${scaleName || 'unknown'}]`);
+  debugLog.push(`  Coverage: ${matchedCount}/${inputSize} = ${coverageRatio.toFixed(2)} → score: ${score.toFixed(1)}`);
 
-  // PENALITÀ per note extra (molto pesante!)
-  score -= extraCount * WEIGHTS.EXTRA_NOTE_PENALTY;
-
-  // PENALITÀ per note mancanti (più leggera)
-  score -= missingCount * WEIGHTS.MISSING_NOTE_PENALTY;
-
-  // BONUS se l'input contiene la tonica
-  if (inputPitchClasses.has(rootPitchClass)) {
-    score += WEIGHTS.ROOT_BONUS;
-  }
-
-  // BONUS per note caratteristiche (es: #4 per Lydian, b2 per Phrygian)
-  const characteristicBonus = calculateCharacteristicBonus(intervals, inputPitchClasses);
-  score += characteristicBonus;
-
-  // Clamp 0-100
-  return Math.max(0, Math.min(100, score));
-}
-
-/**
- * Calcola bonus per note caratteristiche del modo
- */
-function calculateCharacteristicBonus(intervals: number[], inputPitchClasses: Set<number>): number {
-  let bonus = 0;
-
-  // Caratteristiche modali comuni
-  const characteristics = [
-    { interval: 6, name: '#4 (Lydian)' },
-    { interval: 1, name: 'b2 (Phrygian)' },
-    { interval: 8, name: '#5 (Lydian Augmented)' },
-    { interval: 4, name: '#2 (Altered)' },
-  ];
-
-  characteristics.forEach((char) => {
-    if (intervals.includes(char.interval)) {
-      // La scala ha questa caratteristica
-      // Se l'input la contiene, bonus!
-      const rootPc = 0; // relativo alla root
-      const charPc = (rootPc + char.interval) % 12;
-      if (inputPitchClasses.has(charPc)) {
-        bonus += WEIGHTS.CHARACTERISTIC_NOTE_BONUS;
-      }
-    }
-  });
-
-  return bonus;
-}
-
-/**
- * Genera spiegazione testuale del match
- */
-function generateExplanation(coverageRatio: number, purityRatio: number, extraCount: number, missingCount: number): string {
-  if (coverageRatio === 1.0 && extraCount === 0) {
-    return 'Perfect match: all input notes fit exactly in this scale';
-  }
-
-  if (coverageRatio >= 0.8 && extraCount === 0) {
-    return `Strong match: ${Math.round(coverageRatio * 100)}% coverage, no extra notes`;
-  }
-
+  // 2. PENALITÀ EXTRA NOTES (molto pesante)
   if (extraCount > 0) {
-    return `Contains ${extraCount} note${extraCount > 1 ? 's' : ''} outside this scale`;
+    const penalty = extraCount * 30;
+    score -= penalty;
+    debugLog.push(`  Extra notes: ${extraCount} × 30 = -${penalty} → score: ${score.toFixed(1)}`);
   }
 
-  if (missingCount > 2) {
-    return `Partial match: missing ${missingCount} scale notes`;
+  // 3. PENALITÀ MISSING NOTES (progressiva)
+  if (missingCount > 0) {
+    // Penalità aumenta con la differenza di lunghezza
+    const scaleLengthPenalty = Math.max(0, (scaleSize - inputSize) * 2);
+    const totalMissingPenalty = missingCount * 5 + scaleLengthPenalty;
+    score -= totalMissingPenalty;
+    debugLog.push(`  Missing notes: ${missingCount} × 5 = ${missingCount * 5}`);
+    debugLog.push(`  Scale length penalty: (${scaleSize} - ${inputSize}) × 2 = ${scaleLengthPenalty}`);
+    debugLog.push(`  Total missing penalty: -${totalMissingPenalty} → score: ${score.toFixed(1)}`);
   }
 
-  return `Good match: ${Math.round(coverageRatio * 100)}% coverage`;
+  // 4. BONUS ROOT
+  if (inputPitchClasses.has(rootPitchClass)) {
+    score += 15;
+    debugLog.push(`  Root present: +15 → score: ${score.toFixed(1)}`);
+  }
+
+  // 5. BONUS SEQUENCE MATCHING (AUMENTATI per maggiore differenziazione)
+  if (hasSequence) {
+    let seqBonus = 0;
+    if (sequencePosition === 'start') {
+      seqBonus = 30; // Era 20
+    } else if (sequencePosition === 'end') {
+      seqBonus = 20; // Era 15
+    } else {
+      seqBonus = 15; // Era 10 - middle position
+    }
+    score += seqBonus;
+    debugLog.push(`  Sequence ${sequencePosition}: +${seqBonus} → score: ${score.toFixed(1)}`);
+  }
+
+  // CLAMP: min 0, NO MAX (per permettere ai bonus di differenziare)
+  const finalScore = Math.max(0, score);
+  debugLog.push(`  FINAL: ${finalScore.toFixed(1)}`);
+
+  // Log solo per scale con score alto O che hanno sequence (per non spammare)
+  if (finalScore > 80 || hasSequence || (scaleName && scaleName.includes('Ionian')) || (scaleName && scaleName.includes('Major'))) {
+    console.log(debugLog.join('\n'));
+  }
+
+  return finalScore;
 }
 
-/**
- * Estrae il nome del modo da una scala (se applicabile)
- */
+// ============================================================================
+// EXPLANATION
+// ============================================================================
+
+function generateExplanationV2(
+  coverageRatio: number,
+  extraCount: number,
+  missingCount: number,
+  hasSequence: boolean,
+  sequencePosition: 'start' | 'middle' | 'end' | null
+): string {
+  // Perfect match
+  if (coverageRatio === 1.0 && extraCount === 0 && missingCount === 0) {
+    return 'Perfect match: exact scale';
+  }
+
+  // Perfect match con missing notes
+  if (coverageRatio === 1.0 && extraCount === 0) {
+    if (hasSequence && sequencePosition === 'start') {
+      return `Contains your ${missingCount > 1 ? 'notes' : 'note'} as starting sequence`;
+    }
+    return `All your notes fit this scale (${missingCount} scale note${missingCount > 1 ? 's' : ''} not played)`;
+  }
+
+  // Extra notes
+  if (extraCount > 0) {
+    return `${extraCount} note${extraCount > 1 ? 's' : ''} outside this scale`;
+  }
+
+  // Sequence match
+  if (hasSequence) {
+    if (sequencePosition === 'start') {
+      return 'Your notes start this scale';
+    } else if (sequencePosition === 'end') {
+      return 'Your notes end this scale';
+    } else {
+      return 'Your notes appear in sequence within this scale';
+    }
+  }
+
+  return `${Math.round(coverageRatio * 100)}% coverage`;
+}
+
 function extractModeName(scaleName: string): string | null {
   const modes = ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian', 'Locrian'];
-
   for (const mode of modes) {
-    if (scaleName.includes(mode)) {
-      return mode;
-    }
+    if (scaleName.includes(mode)) return mode;
   }
-
   return null;
 }
 
 // ============================================================================
-// MAIN RECOGNITION FUNCTIONS
+// MAIN RECOGNITION - WITH ROOT
 // ============================================================================
 
-/**
- * Riconosce le scale compatibili con un insieme di note input
- * MODALITÀ AUTOMATICA - senza specificare la root
- *
- * @param inputNotes - Array di note (es: ["C", "D", "Eb", "F", "G"])
- * @param maxResults - Numero massimo di risultati da restituire (default: 10)
- * @returns ScaleRecognitionResult
- */
-export function recognizeScales(inputNotes: string[], maxResults: number = 10): ScaleRecognitionResult {
+export function recognizeScalesWithRoot(inputNotes: string[], specifiedRoot: string, maxResults: number = 200): ScaleRecognitionResult {
   const startTime = performance.now();
-
-  // STEP 1: Normalizzazione input
-  const { normalized, pitchClasses, uniquePitchClasses } = normalizeNotes(inputNotes);
-
-  if (uniquePitchClasses.size === 0) {
-    return {
-      input_notes_normalized: [],
-      input_pitch_classes: [],
-      candidates: [],
-      top_guess: null,
-      analysis_metadata: {
-        total_candidates_analyzed: 0,
-        execution_time_ms: performance.now() - startTime,
-      },
-    };
-  }
-
-  // STEP 2: Analizza tutte le scale nel database
-  const candidates: ScaleCandidate[] = [];
-
-  (scaleData as ScaleData[]).forEach((scale) => {
-    const scaleNotes = scale.notes.split(' ');
-    const scaleIntervals = scale.interval_pattern.split(' ').map(Number);
-
-    // Converti note scala in pitch classes
-    const scalePitchClasses = new Set<number>();
-    scaleNotes.forEach((note) => {
-      const pc = normalizeToPitchClass(note);
-      if (pc !== null) scalePitchClasses.add(pc);
-    });
-
-    // Calcola matching
-    const { matched, matchedNotes, extra, extraNotes, missing, missingNotes } = calculateMatching(
-      uniquePitchClasses,
-      scalePitchClasses,
-      normalized,
-      scaleNotes
-    );
-
-    // Calcola metriche
-    const coverageRatio = uniquePitchClasses.size > 0 ? matched.size / uniquePitchClasses.size : 0;
-    const purityRatio = scalePitchClasses.size > 0 ? matched.size / scalePitchClasses.size : 0;
-
-    // Calcola root pitch class
-    const rootPc = normalizeToPitchClass(scale.root.split('/')[0]) || 0;
-
-    // Calcola score
-    const score = calculateScore(
-      matched.size,
-      uniquePitchClasses.size,
-      scalePitchClasses.size,
-      extra.size,
-      missing.size,
-      rootPc,
-      uniquePitchClasses,
-      scaleIntervals
-    );
-
-    // Genera explanation
-    const explanation = generateExplanation(coverageRatio, purityRatio, extra.size, missing.size);
-
-    candidates.push({
-      scale_name: scale.scale_name,
-      root: scale.root,
-      mode_name: extractModeName(scale.scale_name),
-      matched_notes: matchedNotes,
-      missing_scale_notes: missingNotes,
-      extra_notes: extraNotes,
-      coverage_ratio: Math.round(coverageRatio * 1000) / 1000,
-      purity_ratio: Math.round(purityRatio * 1000) / 1000,
-      score_0_100: Math.round(score * 10) / 10,
-      probability_percent: 0, // Calcolato dopo
-      explanation,
-      raw_intervals: scaleIntervals,
-    });
-  });
-
-  // STEP 3: Ordina per score decrescente
-  candidates.sort((a, b) => b.score_0_100 - a.score_0_100);
-
-  // STEP 4: Calcola percentuale di match assoluta
-  const topCandidates = candidates.slice(0, maxResults);
-
-  topCandidates.forEach((candidate) => {
-    const inputSize = uniquePitchClasses.size;
-    const matchedCount = candidate.matched_notes.length;
-    const extraCount = candidate.extra_notes.length;
-    const missingCount = candidate.missing_scale_notes.length;
-
-    // 1. Coverage: quanto dell'input è coperto dalla scala (0-100)
-    const coverageScore = (matchedCount / inputSize) * 100;
-
-    // 2. Purity: penalità per note extra (molto pesante!)
-    const purityPenalty = extraCount * 15;
-
-    // 3. Completeness: penalità per note mancanti (leggera e progressiva)
-    let completenessPenalty = 0;
-    if (missingCount > 0) {
-      for (let i = 0; i < missingCount; i++) {
-        completenessPenalty += 2 + i;
-      }
-    }
-
-    // Calcola match finale
-    let matchPercentage = coverageScore - purityPenalty - completenessPenalty;
-
-    // BONUS: Perfect match
-    if (coverageScore === 100 && extraCount === 0) {
-      if (missingCount === 0) {
-        matchPercentage = 100;
-      } else {
-        matchPercentage = coverageScore - completenessPenalty * 0.5;
-      }
-    }
-
-    // Clamp tra 0 e 100
-    matchPercentage = Math.max(0, Math.min(100, matchPercentage));
-
-    // Arrotonda a 1 decimale
-    candidate.probability_percent = Math.round(matchPercentage * 10) / 10;
-  });
-
-  const endTime = performance.now();
-
-  return {
-    input_notes_normalized: normalized,
-    input_pitch_classes: Array.from(uniquePitchClasses).sort((a, b) => a - b),
-    candidates: topCandidates,
-    top_guess: topCandidates[0] || null,
-    analysis_metadata: {
-      total_candidates_analyzed: candidates.length,
-      execution_time_ms: Math.round((endTime - startTime) * 100) / 100,
-    },
-  };
-}
-
-/**
- * Riconosce le scale specificando la root note
- * MODALITÀ CON ROOT - dà priorità alle scale con la root specificata
- *
- * @param inputNotes - Array di note
- * @param specifiedRoot - Root note specificata dall'utente
- * @param maxResults - Numero massimo di risultati
- * @returns ScaleRecognitionResult
- */
-export function recognizeScalesWithRoot(inputNotes: string[], specifiedRoot: string, maxResults: number = 10): ScaleRecognitionResult {
-  const startTime = performance.now();
-
-  // Normalizza la root specificata
   const normalizedRoot = specifiedRoot.split('/')[0];
 
-  // STEP 1: Normalizzazione input
   const { normalized, pitchClasses, uniquePitchClasses } = normalizeNotes(inputNotes);
 
   if (uniquePitchClasses.size === 0) {
@@ -487,39 +310,66 @@ export function recognizeScalesWithRoot(inputNotes: string[], specifiedRoot: str
     };
   }
 
-  // STEP 2: Analizza tutte le scale, dividendo per root
   const candidatesWithRoot: ScaleCandidate[] = [];
   const candidatesWithoutRoot: ScaleCandidate[] = [];
+
+  // Input come array ordinato di pitch classes
+  const inputPCsOrdered = pitchClasses;
 
   (scaleData as ScaleData[]).forEach((scale) => {
     const scaleRoot = scale.root.split('/')[0];
     const scaleNotes = scale.notes.split(' ');
     const scaleIntervals = scale.interval_pattern.split(' ').map(Number);
 
-    // Converti note scala in pitch classes
+    // Converti note scala in pitch classes MANTENENDO L'ORDINE
     const scalePitchClasses = new Set<number>();
+    const scalePCsOrdered: number[] = [];
     scaleNotes.forEach((note) => {
       const pc = normalizeToPitchClass(note);
-      if (pc !== null) scalePitchClasses.add(pc);
+      if (pc !== null) {
+        scalePitchClasses.add(pc);
+        scalePCsOrdered.push(pc);
+      }
     });
 
-    // Calcola matching
-    const { matched, matchedNotes, extra, extraNotes, missing, missingNotes } = calculateMatching(
-      uniquePitchClasses,
-      scalePitchClasses,
-      normalized,
-      scaleNotes
-    );
+    // Matching
+    const matched = new Set<number>();
+    const matchedNotes: string[] = [];
+    const extra = new Set<number>();
+    const extraNotes: string[] = [];
+    const missing = new Set<number>();
+    const missingNotes: string[] = [];
 
-    // Calcola metriche
+    uniquePitchClasses.forEach((pc) => {
+      if (scalePitchClasses.has(pc)) {
+        matched.add(pc);
+        const noteIndex = normalized.findIndex((n) => normalizeToPitchClass(n) === pc);
+        if (noteIndex !== -1) matchedNotes.push(normalized[noteIndex]);
+      } else {
+        extra.add(pc);
+        const noteIndex = normalized.findIndex((n) => normalizeToPitchClass(n) === pc);
+        if (noteIndex !== -1) extraNotes.push(normalized[noteIndex]);
+      }
+    });
+
+    scalePitchClasses.forEach((pc) => {
+      if (!uniquePitchClasses.has(pc)) {
+        missing.add(pc);
+        const noteIndex = scaleNotes.findIndex((n) => normalizeToPitchClass(n) === pc);
+        if (noteIndex !== -1) missingNotes.push(scaleNotes[noteIndex]);
+      }
+    });
+
+    // NUOVO: Sequence detection
+    const sequenceResult = findContiguousSequence(inputPCsOrdered, scalePCsOrdered);
+
+    // Metriche
     const coverageRatio = uniquePitchClasses.size > 0 ? matched.size / uniquePitchClasses.size : 0;
     const purityRatio = scalePitchClasses.size > 0 ? matched.size / scalePitchClasses.size : 0;
-
-    // Calcola root pitch class
     const rootPc = normalizeToPitchClass(scale.root.split('/')[0]) || 0;
 
-    // Calcola score
-    let score = calculateScore(
+    // Score V2
+    let score = calculateScoreV2(
       matched.size,
       uniquePitchClasses.size,
       scalePitchClasses.size,
@@ -527,18 +377,32 @@ export function recognizeScalesWithRoot(inputNotes: string[], specifiedRoot: str
       missing.size,
       rootPc,
       uniquePitchClasses,
-      scaleIntervals
+      sequenceResult.found,
+      sequenceResult.position,
+      `${scale.root} ${scale.scale_name}` // DEBUG
     );
 
-    // BONUS ENORME se la root matcha
     const isRootMatch = scaleRoot === normalizedRoot || (scaleRoot.includes('/') && scaleRoot.split('/').includes(normalizedRoot));
 
+    // BONUS ROOT MATCH: Solo se è PERFECT o QUASI-PERFECT
     if (isRootMatch) {
-      score = Math.min(100, score + 30); // Boost di 30 punti!
+      // Perfect match con root specificata = PRIORITÀ ASSOLUTA
+      // DEVE avere: coverage 100%, no extra notes, NO missing notes
+      if (coverageRatio === 1.0 && extra.size === 0 && missing.size === 0) {
+        console.log(`\n🎯 PERFECT MATCH WITH ROOT: ${scale.root} ${scale.scale_name}`);
+        console.log(`   Before boost: score = ${score.toFixed(1)}`);
+        score = 150; // Boost enorme
+        console.log(`   After boost: score = 150 (MAXIMUM PRIORITY)`);
+      } else {
+        const oldScore = score;
+        score = Math.min(100, score + 25);
+        console.log(`\n⚡ Root match (not perfect): ${scale.root} ${scale.scale_name}`);
+        console.log(`   Score: ${oldScore.toFixed(1)} → ${score.toFixed(1)} (+25 bonus)`);
+        console.log(`   Why not perfect: coverage=${coverageRatio}, extra=${extra.size}, missing=${missing.size}`);
+      }
     }
 
-    // Genera explanation
-    const explanation = generateExplanation(coverageRatio, purityRatio, extra.size, missing.size);
+    const explanation = generateExplanationV2(coverageRatio, extra.size, missing.size, sequenceResult.found, sequenceResult.position);
 
     const candidate: ScaleCandidate = {
       scale_name: scale.scale_name,
@@ -553,9 +417,11 @@ export function recognizeScalesWithRoot(inputNotes: string[], specifiedRoot: str
       probability_percent: 0,
       explanation,
       raw_intervals: scaleIntervals,
+      has_contiguous_sequence: sequenceResult.found,
+      sequence_position: sequenceResult.position,
+      sequence_length: sequenceResult.matchLength,
     };
 
-    // Dividi in due gruppi
     if (isRootMatch) {
       candidatesWithRoot.push(candidate);
     } else {
@@ -563,54 +429,275 @@ export function recognizeScalesWithRoot(inputNotes: string[], specifiedRoot: str
     }
   });
 
-  // STEP 3: Ordina entrambi i gruppi
+  // Sort: root prima, poi score
   candidatesWithRoot.sort((a, b) => b.score_0_100 - a.score_0_100);
   candidatesWithoutRoot.sort((a, b) => b.score_0_100 - a.score_0_100);
 
-  // Combina: prima quelli con root, poi gli altri
   const allCandidates = [...candidatesWithRoot, ...candidatesWithoutRoot];
   const topCandidates = allCandidates.slice(0, maxResults);
 
-  // STEP 4: Calcola percentuale (stesso algoritmo)
-  topCandidates.forEach((candidate) => {
-    const inputSize = uniquePitchClasses.size;
-    const matchedCount = candidate.matched_notes.length;
-    const extraCount = candidate.extra_notes.length;
-    const missingCount = candidate.missing_scale_notes.length;
-
-    const coverageScore = (matchedCount / inputSize) * 100;
-    const purityPenalty = extraCount * 15;
-
-    let completenessPenalty = 0;
-    if (missingCount > 0) {
-      for (let i = 0; i < missingCount; i++) {
-        completenessPenalty += 2 + i;
-      }
-    }
-
-    let matchPercentage = coverageScore - purityPenalty - completenessPenalty;
-
-    if (coverageScore === 100 && extraCount === 0) {
-      if (missingCount === 0) {
-        matchPercentage = 100;
-      } else {
-        matchPercentage = coverageScore - completenessPenalty * 0.5;
-      }
-    }
-
-    matchPercentage = Math.max(0, Math.min(100, matchPercentage));
-    candidate.probability_percent = Math.round(matchPercentage * 10) / 10;
+  // DEBUG: Log top candidates prima di probability calculation
+  console.log('\n🔍 DEBUG: Top candidates AFTER sorting (by score):');
+  topCandidates.slice(0, 5).forEach((c, i) => {
+    console.log(`#${i + 1}: ${c.root} ${c.scale_name}`);
+    console.log(
+      `   Score: ${c.score_0_100}, Coverage: ${c.coverage_ratio}, Extra: ${c.extra_notes.length}, Missing: ${c.missing_scale_notes.length}`
+    );
+    console.log(`   Sequence: ${c.has_contiguous_sequence ? c.sequence_position : 'no'}`);
   });
+
+  // Calcola probability = NORMALIZZA score 0-100 basato sui top candidates
+  const maxScore = topCandidates.length > 0 ? topCandidates[0].score_0_100 : 100;
+
+  topCandidates.forEach((candidate) => {
+    // Probability = score normalizzato rispetto al top candidate
+    let probability = (candidate.score_0_100 / maxScore) * 100;
+
+    // Clamp
+    probability = Math.max(0, Math.min(100, probability));
+    candidate.probability_percent = Math.round(probability * 10) / 10;
+  });
+
+  // DEBUG: Log dopo probability calculation
+  console.log('\n✅ DEBUG: After probability calculation:');
+  topCandidates.slice(0, 5).forEach((c, i) => {
+    console.log(`#${i + 1}: ${c.root} ${c.scale_name} - Score: ${c.score_0_100}, Prob: ${c.probability_percent}%`);
+  });
+
+  // FILTRO: Mostra solo scale con probability >= 5%
+  const filteredCandidates = topCandidates.filter((c) => c.probability_percent >= 5);
+
+  console.log(`\n🎯 Risultati finali: ${filteredCandidates.length} scale (probability >= 5%)`);
 
   const endTime = performance.now();
 
   return {
     input_notes_normalized: normalized,
     input_pitch_classes: Array.from(uniquePitchClasses).sort((a, b) => a - b),
-    candidates: topCandidates,
-    top_guess: topCandidates[0] || null,
+    candidates: filteredCandidates,
+    top_guess: filteredCandidates[0] || null,
     analysis_metadata: {
       total_candidates_analyzed: allCandidates.length,
+      execution_time_ms: Math.round((endTime - startTime) * 100) / 100,
+    },
+  };
+}
+
+// ============================================================================
+// MAIN RECOGNITION - WITHOUT ROOT (SEQUENCE MODE)
+// ============================================================================
+
+export function recognizeScales(inputNotes: string[], maxResults: number = 200): ScaleRecognitionResult {
+  const startTime = performance.now();
+
+  const { normalized, pitchClasses, uniquePitchClasses } = normalizeNotes(inputNotes);
+
+  if (uniquePitchClasses.size === 0) {
+    return {
+      input_notes_normalized: [],
+      input_pitch_classes: [],
+      candidates: [],
+      top_guess: null,
+      analysis_metadata: {
+        total_candidates_analyzed: 0,
+        execution_time_ms: performance.now() - startTime,
+      },
+    };
+  }
+
+  let candidates: ScaleCandidate[] = [];
+  const inputPCsOrdered = pitchClasses;
+
+  (scaleData as ScaleData[]).forEach((scale) => {
+    const scaleNotes = scale.notes.split(' ');
+    const scaleIntervals = scale.interval_pattern.split(' ').map(Number);
+
+    const scalePitchClasses = new Set<number>();
+    const scalePCsOrdered: number[] = [];
+    scaleNotes.forEach((note) => {
+      const pc = normalizeToPitchClass(note);
+      if (pc !== null) {
+        scalePitchClasses.add(pc);
+        scalePCsOrdered.push(pc);
+      }
+    });
+
+    // Matching
+    const matched = new Set<number>();
+    const matchedNotes: string[] = [];
+    const extra = new Set<number>();
+    const extraNotes: string[] = [];
+    const missing = new Set<number>();
+    const missingNotes: string[] = [];
+
+    uniquePitchClasses.forEach((pc) => {
+      if (scalePitchClasses.has(pc)) {
+        matched.add(pc);
+        const noteIndex = normalized.findIndex((n) => normalizeToPitchClass(n) === pc);
+        if (noteIndex !== -1) matchedNotes.push(normalized[noteIndex]);
+      } else {
+        extra.add(pc);
+        const noteIndex = normalized.findIndex((n) => normalizeToPitchClass(n) === pc);
+        if (noteIndex !== -1) extraNotes.push(normalized[noteIndex]);
+      }
+    });
+
+    scalePitchClasses.forEach((pc) => {
+      if (!uniquePitchClasses.has(pc)) {
+        missing.add(pc);
+        const noteIndex = scaleNotes.findIndex((n) => normalizeToPitchClass(n) === pc);
+        if (noteIndex !== -1) missingNotes.push(scaleNotes[noteIndex]);
+      }
+    });
+
+    // Sequence detection (CRUCIALE in modalità no-root)
+    const sequenceResult = findContiguousSequence(inputPCsOrdered, scalePCsOrdered);
+
+    const coverageRatio = uniquePitchClasses.size > 0 ? matched.size / uniquePitchClasses.size : 0;
+    const purityRatio = scalePitchClasses.size > 0 ? matched.size / scalePitchClasses.size : 0;
+    const rootPc = normalizeToPitchClass(scale.root.split('/')[0]) || 0;
+
+    const score = calculateScoreV2(
+      matched.size,
+      uniquePitchClasses.size,
+      scalePitchClasses.size,
+      extra.size,
+      missing.size,
+      rootPc,
+      uniquePitchClasses,
+      sequenceResult.found,
+      sequenceResult.position,
+      `${scale.root} ${scale.scale_name}` // DEBUG
+    );
+
+    const explanation = generateExplanationV2(coverageRatio, extra.size, missing.size, sequenceResult.found, sequenceResult.position);
+
+    candidates.push({
+      scale_name: scale.scale_name,
+      root: scale.root,
+      mode_name: extractModeName(scale.scale_name),
+      matched_notes: matchedNotes,
+      missing_scale_notes: missingNotes,
+      extra_notes: extraNotes,
+      coverage_ratio: Math.round(coverageRatio * 1000) / 1000,
+      purity_ratio: Math.round(purityRatio * 1000) / 1000,
+      score_0_100: Math.round(score * 10) / 10,
+      probability_percent: 0,
+      explanation,
+      raw_intervals: scaleIntervals,
+      has_contiguous_sequence: sequenceResult.found,
+      sequence_position: sequenceResult.position,
+      sequence_length: sequenceResult.matchLength,
+    });
+  });
+
+  // FILTRO: Mostra SOLO scale che contengono TUTTE le note input (coverage = 1.0)
+  candidates = candidates.filter((c) => c.coverage_ratio === 1.0);
+
+  console.log(`\n📊 Scale con coverage completo: ${candidates.length}`);
+
+  // Sort: PRIORITÀ ASSOLUTA per sequence position
+  candidates.sort((a, b) => {
+    const aHasSeq = a.has_contiguous_sequence;
+    const bHasSeq = b.has_contiguous_sequence;
+
+    // Se solo A ha sequence → A vince
+    if (aHasSeq && !bHasSeq) return -1;
+    if (!aHasSeq && bHasSeq) return 1;
+
+    // Se entrambi NON hanno sequence → ordina per score
+    if (!aHasSeq && !bHasSeq) {
+      return b.score_0_100 - a.score_0_100;
+    }
+
+    // Se entrambi HANNO sequence → ordina per position
+    const posOrder = { start: 1, middle: 2, end: 3 };
+    const aPos = posOrder[a.sequence_position!] || 999;
+    const bPos = posOrder[b.sequence_position!] || 999;
+
+    if (aPos !== bPos) {
+      return aPos - bPos; // start < middle < end
+    }
+
+    // Stessa position → ordina per score
+    return b.score_0_100 - a.score_0_100;
+  });
+
+  // Calcola probability su TUTTI i candidates (non solo top N)
+  const maxScore = candidates.length > 0 ? candidates[0].score_0_100 : 100;
+
+  candidates.forEach((candidate) => {
+    let probability = (candidate.score_0_100 / maxScore) * 100;
+    probability = Math.max(0, Math.min(100, probability));
+    candidate.probability_percent = Math.round(probability * 10) / 10;
+  });
+
+  // FILTRO: Mostra solo scale con probability >= 5%
+  const filteredCandidates = candidates.filter((c) => c.probability_percent >= 5);
+
+  console.log(`\n🎯 Total candidates after filtering: ${filteredCandidates.length} scale (probability >= 5%)`);
+
+  // DEBUG
+  console.log('\n🔍 DEBUG (no root): Top candidates AFTER sorting:');
+
+  // Raggruppa per sequence position per visualizzazione
+  const withStart = filteredCandidates.filter((c) => c.sequence_position === 'start');
+  const withMiddle = filteredCandidates.filter((c) => c.sequence_position === 'middle');
+  const withEnd = filteredCandidates.filter((c) => c.sequence_position === 'end');
+  const withoutSeq = filteredCandidates.filter((c) => !c.has_contiguous_sequence);
+
+  if (withStart.length > 0) {
+    console.log('\n▶️ SEQUENCE START:');
+    withStart.slice(0, 5).forEach((c, i) => {
+      console.log(`   ${c.root} ${c.scale_name} - Score: ${c.score_0_100.toFixed(1)}`);
+    });
+  }
+
+  if (withMiddle.length > 0) {
+    console.log('\n▶️ SEQUENCE MIDDLE:');
+    withMiddle.slice(0, 5).forEach((c, i) => {
+      console.log(`   ${c.root} ${c.scale_name} - Score: ${c.score_0_100.toFixed(1)}`);
+    });
+  }
+
+  if (withEnd.length > 0) {
+    console.log('\n▶️ SEQUENCE END:');
+    withEnd.slice(0, 5).forEach((c, i) => {
+      console.log(`   ${c.root} ${c.scale_name} - Score: ${c.score_0_100.toFixed(1)}`);
+    });
+  }
+
+  if (withoutSeq.length > 0) {
+    console.log('\n▶️ NO SEQUENCE:');
+    withoutSeq.slice(0, 5).forEach((c, i) => {
+      console.log(`   ${c.root} ${c.scale_name} - Score: ${c.score_0_100.toFixed(1)}`);
+    });
+  }
+
+  console.log('\n📋 Overall Top 10:');
+  filteredCandidates.slice(0, 10).forEach((c, i) => {
+    const seqLabel = c.has_contiguous_sequence ? `[${c.sequence_position}]` : '[no seq]';
+    console.log(`#${i + 1}: ${c.root} ${c.scale_name} ${seqLabel} - Score: ${c.score_0_100.toFixed(1)}`);
+  });
+
+  // Probability già calcolata sopra
+
+  console.log('\n✅ DEBUG (no root): After probability:');
+  filteredCandidates.slice(0, 10).forEach((c, i) => {
+    console.log(`#${i + 1}: ${c.root} ${c.scale_name} - Score: ${c.score_0_100}, Prob: ${c.probability_percent}%`);
+  });
+
+  console.log(`\n🎯 Risultati finali: ${filteredCandidates.length} scale (probability >= 5%)`);
+
+  const endTime = performance.now();
+
+  return {
+    input_notes_normalized: normalized,
+    input_pitch_classes: Array.from(uniquePitchClasses).sort((a, b) => a - b),
+    candidates: filteredCandidates,
+    top_guess: filteredCandidates[0] || null,
+    analysis_metadata: {
+      total_candidates_analyzed: candidates.length,
       execution_time_ms: Math.round((endTime - startTime) * 100) / 100,
     },
   };
