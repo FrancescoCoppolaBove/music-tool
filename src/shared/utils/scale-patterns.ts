@@ -1,21 +1,25 @@
 /**
- * SCALE PATTERNS - DATI CORRETTI
- * Pattern di note per ogni modo in ogni tonalità
+ * SCALE PATTERNS - COMPLETE
+ * Pattern di note per ogni modo (Major + Harmonic Minor + Melodic Minor)
+ * Formula: 1 2 ♭3 4 5 ♭6 7 (Harmonic Minor)
+ * Formula: 1 2 ♭3 4 5 6 7 (Melodic Minor)
  */
 
 export const SCALE_PATTERNS: Record<string, Record<string, string[]>> = {
-  // IONIAN (Major)
+  // ===================================
+  // MAJOR SCALE MODES (DIATONIC)
+  // ===================================
+
+  // IONIAN (Major) - 1 2 3 4 5 6 7
   ionian: {
     C: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
     'C#': ['C#', 'D#', 'E#', 'F#', 'G#', 'A#', 'B#'],
-    Db: ['Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'C'],
     D: ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'],
     'D#': ['D#', 'E#', 'F##', 'G#', 'A#', 'B#', 'C##'],
     Eb: ['Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D'],
     E: ['E', 'F#', 'G#', 'A', 'B', 'C#', 'D#'],
     F: ['F', 'G', 'A', 'Bb', 'C', 'D', 'E'],
     'F#': ['F#', 'G#', 'A#', 'B', 'C#', 'D#', 'E#'],
-    Gb: ['Gb', 'Ab', 'Bb', 'Cb', 'Db', 'Eb', 'F'],
     G: ['G', 'A', 'B', 'C', 'D', 'E', 'F#'],
     'G#': ['G#', 'A#', 'B#', 'C#', 'D#', 'E#', 'F##'],
     Ab: ['Ab', 'Bb', 'C', 'Db', 'Eb', 'F', 'G'],
@@ -25,18 +29,16 @@ export const SCALE_PATTERNS: Record<string, Record<string, string[]>> = {
     B: ['B', 'C#', 'D#', 'E', 'F#', 'G#', 'A#'],
   },
 
-  // DORIAN
+  // DORIAN - 1 2 ♭3 4 5 6 ♭7
   dorian: {
     C: ['C', 'D', 'Eb', 'F', 'G', 'A', 'Bb'],
     'C#': ['C#', 'D#', 'E', 'F#', 'G#', 'A#', 'B'],
-    Db: ['Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bb', 'Cb'],
     D: ['D', 'E', 'F', 'G', 'A', 'B', 'C'],
     'D#': ['D#', 'E#', 'F#', 'G#', 'A#', 'B#', 'C#'],
     Eb: ['Eb', 'F', 'Gb', 'Ab', 'Bb', 'C', 'Db'],
     E: ['E', 'F#', 'G', 'A', 'B', 'C#', 'D'],
     F: ['F', 'G', 'Ab', 'Bb', 'C', 'D', 'Eb'],
     'F#': ['F#', 'G#', 'A', 'B', 'C#', 'D#', 'E'],
-    Gb: ['Gb', 'Ab', 'Bbb', 'Cb', 'Db', 'Eb', 'Fb'],
     G: ['G', 'A', 'Bb', 'C', 'D', 'E', 'F'],
     'G#': ['G#', 'A#', 'B', 'C#', 'D#', 'E#', 'F#'],
     Ab: ['Ab', 'Bb', 'Cb', 'Db', 'Eb', 'F', 'Gb'],
@@ -46,18 +48,16 @@ export const SCALE_PATTERNS: Record<string, Record<string, string[]>> = {
     B: ['B', 'C#', 'D', 'E', 'F#', 'G#', 'A'],
   },
 
-  // PHRYGIAN
+  // PHRYGIAN - 1 ♭2 ♭3 4 5 ♭6 ♭7
   phrygian: {
     C: ['C', 'Db', 'Eb', 'F', 'G', 'Ab', 'Bb'],
     'C#': ['C#', 'D', 'E', 'F#', 'G#', 'A', 'B'],
-    Db: ['Db', 'Ebb', 'Fb', 'Gb', 'Ab', 'Bbb', 'Cb'],
     D: ['D', 'Eb', 'F', 'G', 'A', 'Bb', 'C'],
     'D#': ['D#', 'E', 'F#', 'G#', 'A#', 'B', 'C#'],
     Eb: ['Eb', 'Fb', 'Gb', 'Ab', 'Bb', 'Cb', 'Db'],
     E: ['E', 'F', 'G', 'A', 'B', 'C', 'D'],
     F: ['F', 'Gb', 'Ab', 'Bb', 'C', 'Db', 'Eb'],
     'F#': ['F#', 'G', 'A', 'B', 'C#', 'D', 'E'],
-    Gb: ['Gb', 'Abb', 'Bbb', 'Cb', 'Db', 'Ebb', 'Fb'],
     G: ['G', 'Ab', 'Bb', 'C', 'D', 'Eb', 'F'],
     'G#': ['G#', 'A', 'B', 'C#', 'D#', 'E', 'F#'],
     Ab: ['Ab', 'Bbb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb'],
@@ -67,18 +67,16 @@ export const SCALE_PATTERNS: Record<string, Record<string, string[]>> = {
     B: ['B', 'C', 'D', 'E', 'F#', 'G', 'A'],
   },
 
-  // LYDIAN
+  // LYDIAN - 1 2 3 ♯4 5 6 7
   lydian: {
     C: ['C', 'D', 'E', 'F#', 'G', 'A', 'B'],
     'C#': ['C#', 'D#', 'E#', 'F##', 'G#', 'A#', 'B#'],
-    Db: ['Db', 'Eb', 'F', 'G', 'Ab', 'Bb', 'C'],
     D: ['D', 'E', 'F#', 'G#', 'A', 'B', 'C#'],
     'D#': ['D#', 'E#', 'F##', 'G##', 'A#', 'B#', 'C##'],
     Eb: ['Eb', 'F', 'G', 'A', 'Bb', 'C', 'D'],
     E: ['E', 'F#', 'G#', 'A#', 'B', 'C#', 'D#'],
     F: ['F', 'G', 'A', 'B', 'C', 'D', 'E'],
     'F#': ['F#', 'G#', 'A#', 'B#', 'C#', 'D#', 'E#'],
-    Gb: ['Gb', 'Ab', 'Bb', 'C', 'Db', 'Eb', 'F'],
     G: ['G', 'A', 'B', 'C#', 'D', 'E', 'F#'],
     'G#': ['G#', 'A#', 'B#', 'C##', 'D#', 'E#', 'F##'],
     Ab: ['Ab', 'Bb', 'C', 'D', 'Eb', 'F', 'G'],
@@ -88,18 +86,16 @@ export const SCALE_PATTERNS: Record<string, Record<string, string[]>> = {
     B: ['B', 'C#', 'D#', 'E#', 'F#', 'G#', 'A#'],
   },
 
-  // MIXOLYDIAN
+  // MIXOLYDIAN - 1 2 3 4 5 6 ♭7
   mixolydian: {
     C: ['C', 'D', 'E', 'F', 'G', 'A', 'Bb'],
     'C#': ['C#', 'D#', 'E#', 'F#', 'G#', 'A#', 'B'],
-    Db: ['Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'Cb'],
     D: ['D', 'E', 'F#', 'G', 'A', 'B', 'C'],
     'D#': ['D#', 'E#', 'F##', 'G#', 'A#', 'B#', 'C#'],
     Eb: ['Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'Db'],
     E: ['E', 'F#', 'G#', 'A', 'B', 'C#', 'D'],
     F: ['F', 'G', 'A', 'Bb', 'C', 'D', 'Eb'],
     'F#': ['F#', 'G#', 'A#', 'B', 'C#', 'D#', 'E'],
-    Gb: ['Gb', 'Ab', 'Bb', 'Cb', 'Db', 'Eb', 'Fb'],
     G: ['G', 'A', 'B', 'C', 'D', 'E', 'F'],
     'G#': ['G#', 'A#', 'B#', 'C#', 'D#', 'E#', 'F#'],
     Ab: ['Ab', 'Bb', 'C', 'Db', 'Eb', 'F', 'Gb'],
@@ -109,18 +105,16 @@ export const SCALE_PATTERNS: Record<string, Record<string, string[]>> = {
     B: ['B', 'C#', 'D#', 'E', 'F#', 'G#', 'A'],
   },
 
-  // AEOLIAN (Natural Minor)
+  // AEOLIAN (Natural Minor) - 1 2 ♭3 4 5 ♭6 ♭7
   aeolian: {
     C: ['C', 'D', 'Eb', 'F', 'G', 'Ab', 'Bb'],
     'C#': ['C#', 'D#', 'E', 'F#', 'G#', 'A', 'B'],
-    Db: ['Db', 'Eb', 'Fb', 'Gb', 'Ab', 'A', 'B'],
     D: ['D', 'E', 'F', 'G', 'A', 'Bb', 'C'],
     'D#': ['D#', 'E#', 'F#', 'G#', 'A#', 'B', 'C#'],
     Eb: ['Eb', 'F', 'Gb', 'Ab', 'Bb', 'Cb', 'Db'],
     E: ['E', 'F#', 'G', 'A', 'B', 'C', 'D'],
     F: ['F', 'G', 'Ab', 'Bb', 'C', 'Db', 'Eb'],
     'F#': ['F#', 'G#', 'A', 'B', 'C#', 'D', 'E'],
-    Gb: ['Gb', 'Ab', 'Bbb', 'Cb', 'Db', 'Ebb', 'Fb'],
     G: ['G', 'A', 'Bb', 'C', 'D', 'Eb', 'F'],
     'G#': ['G#', 'A#', 'B', 'C#', 'D#', 'E', 'F#'],
     Ab: ['Ab', 'Bb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb'],
@@ -130,18 +124,16 @@ export const SCALE_PATTERNS: Record<string, Record<string, string[]>> = {
     B: ['B', 'C#', 'D', 'E', 'F#', 'G', 'A'],
   },
 
-  // LOCRIAN
+  // LOCRIAN - 1 ♭2 ♭3 4 ♭5 ♭6 ♭7
   locrian: {
     C: ['C', 'Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb'],
     'C#': ['C#', 'D', 'E', 'F#', 'G', 'A', 'B'],
-    Db: ['Db', 'Ebb', 'Fb', 'Gb', 'Abb', 'Bbb', 'Cb'],
     D: ['D', 'Eb', 'F', 'G', 'Ab', 'Bb', 'C'],
     'D#': ['D#', 'E', 'F#', 'G#', 'A', 'B', 'C#'],
     Eb: ['Eb', 'Fb', 'Gb', 'Ab', 'Bbb', 'Cb', 'Db'],
     E: ['E', 'F', 'G', 'A', 'Bb', 'C', 'D'],
     F: ['F', 'Gb', 'Ab', 'Bb', 'Cb', 'Db', 'Eb'],
     'F#': ['F#', 'G', 'A', 'B', 'C', 'D', 'E'],
-    Gb: ['Gb', 'Abb', 'Bbb', 'Cb', 'Dbb', 'Ebb', 'Fb'],
     G: ['G', 'Ab', 'Bb', 'C', 'Db', 'Eb', 'F'],
     'G#': ['G#', 'A', 'B', 'C#', 'D', 'E', 'F#'],
     Ab: ['Ab', 'Bbb', 'Cb', 'Db', 'Ebb', 'Fb', 'Gb'],
@@ -150,12 +142,282 @@ export const SCALE_PATTERNS: Record<string, Record<string, string[]>> = {
     Bb: ['Bb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb', 'Ab'],
     B: ['B', 'C', 'D', 'E', 'F', 'G', 'A'],
   },
+
+  // ===================================
+  // HARMONIC MINOR MODES
+  // ===================================
+
+  // HARMONIC MINOR (I) - 1 2 ♭3 4 5 ♭6 7
+  'harmonic-minor': {
+    C: ['C', 'D', 'Eb', 'F', 'G', 'Ab', 'B'],
+    'C#': ['C#', 'D#', 'E', 'F#', 'G#', 'A', 'B#'],
+    D: ['D', 'E', 'F', 'G', 'A', 'Bb', 'C#'],
+    'D#': ['D#', 'E#', 'F#', 'G#', 'A#', 'B', 'C##'],
+    Eb: ['Eb', 'F', 'Gb', 'Ab', 'Bb', 'Cb', 'D'],
+    E: ['E', 'F#', 'G', 'A', 'B', 'C', 'D#'],
+    F: ['F', 'G', 'Ab', 'Bb', 'C', 'Db', 'E'],
+    'F#': ['F#', 'G#', 'A', 'B', 'C#', 'D', 'E#'],
+    G: ['G', 'A', 'Bb', 'C', 'D', 'Eb', 'F#'],
+    'G#': ['G#', 'A#', 'B', 'C#', 'D#', 'E', 'F##'],
+    Ab: ['Ab', 'Bb', 'Cb', 'Db', 'Eb', 'Fb', 'G'],
+    A: ['A', 'B', 'C', 'D', 'E', 'F', 'G#'],
+    'A#': ['A#', 'B#', 'C#', 'D#', 'E#', 'F#', 'G##'],
+    Bb: ['Bb', 'C', 'Db', 'Eb', 'F', 'Gb', 'A'],
+    B: ['B', 'C#', 'D', 'E', 'F#', 'G', 'A#'],
+  },
+
+  // LOCRIAN ♯6 (II) - 1 ♭2 ♭3 4 ♭5 6 ♭7
+  'locrian-sharp6': {
+    C: ['C', 'Db', 'Eb', 'F', 'Gb', 'A', 'Bb'],
+    'C#': ['C#', 'D', 'E', 'F#', 'G', 'A#', 'B'],
+    D: ['D', 'Eb', 'F', 'G', 'Ab', 'B', 'C'],
+    'D#': ['D#', 'E', 'F#', 'G#', 'A', 'B#', 'C#'],
+    Eb: ['Eb', 'Fb', 'Gb', 'Ab', 'Bbb', 'C', 'Db'],
+    E: ['E', 'F', 'G', 'A', 'Bb', 'C#', 'D'],
+    F: ['F', 'Gb', 'Ab', 'Bb', 'Cb', 'D', 'Eb'],
+    'F#': ['F#', 'G', 'A', 'B', 'C', 'D#', 'E'],
+    G: ['G', 'Ab', 'Bb', 'C', 'Db', 'E', 'F'],
+    'G#': ['G#', 'A', 'B', 'C#', 'D', 'E#', 'F#'],
+    Ab: ['Ab', 'Bbb', 'Cb', 'Db', 'Ebb', 'F', 'Gb'],
+    A: ['A', 'Bb', 'C', 'D', 'Eb', 'F#', 'G'],
+    'A#': ['A#', 'B', 'C#', 'D#', 'E', 'F##', 'G#'],
+    Bb: ['Bb', 'Cb', 'Db', 'Eb', 'Fb', 'G', 'Ab'],
+    B: ['B', 'C', 'D', 'E', 'F', 'G#', 'A'],
+  },
+
+  // IONIAN ♯5 (III) - 1 2 3 4 ♯5 6 7
+  'ionian-sharp5': {
+    C: ['C', 'D', 'E', 'F', 'G#', 'A', 'B'],
+    'C#': ['C#', 'D#', 'E#', 'F#', 'G##', 'A#', 'B#'],
+    D: ['D', 'E', 'F#', 'G', 'A#', 'B', 'C#'],
+    'D#': ['D#', 'E#', 'F##', 'G#', 'A##', 'B#', 'C##'],
+    Eb: ['Eb', 'F', 'G', 'Ab', 'B', 'C', 'D'],
+    E: ['E', 'F#', 'G#', 'A', 'B#', 'C#', 'D#'],
+    F: ['F', 'G', 'A', 'Bb', 'C#', 'D', 'E'],
+    'F#': ['F#', 'G#', 'A#', 'B', 'C##', 'D#', 'E#'],
+    G: ['G', 'A', 'B', 'C', 'D#', 'E', 'F#'],
+    'G#': ['G#', 'A#', 'B#', 'C#', 'D##', 'E#', 'F##'],
+    Ab: ['Ab', 'Bb', 'C', 'Db', 'E', 'F', 'G'],
+    A: ['A', 'B', 'C#', 'D', 'E#', 'F#', 'G#'],
+    'A#': ['A#', 'B#', 'C##', 'D#', 'E##', 'F##', 'G##'],
+    Bb: ['Bb', 'C', 'D', 'Eb', 'F#', 'G', 'A'],
+    B: ['B', 'C#', 'D#', 'E', 'F##', 'G#', 'A#'],
+  },
+
+  // DORIAN ♯4 (IV) - 1 2 ♭3 ♯4 5 6 ♭7
+  'dorian-sharp4': {
+    C: ['C', 'D', 'Eb', 'F#', 'G', 'A', 'Bb'],
+    'C#': ['C#', 'D#', 'E', 'F##', 'G#', 'A#', 'B'],
+    D: ['D', 'E', 'F', 'G#', 'A', 'B', 'C'],
+    'D#': ['D#', 'E#', 'F#', 'G##', 'A#', 'B#', 'C#'],
+    Eb: ['Eb', 'F', 'Gb', 'A', 'Bb', 'C', 'Db'],
+    E: ['E', 'F#', 'G', 'A#', 'B', 'C#', 'D'],
+    F: ['F', 'G', 'Ab', 'B', 'C', 'D', 'Eb'],
+    'F#': ['F#', 'G#', 'A', 'B#', 'C#', 'D#', 'E'],
+    G: ['G', 'A', 'Bb', 'C#', 'D', 'E', 'F'],
+    'G#': ['G#', 'A#', 'B', 'C##', 'D#', 'E#', 'F#'],
+    Ab: ['Ab', 'Bb', 'Cb', 'D', 'Eb', 'F', 'Gb'],
+    A: ['A', 'B', 'C', 'D#', 'E', 'F#', 'G'],
+    'A#': ['A#', 'B#', 'C#', 'D##', 'E#', 'F##', 'G#'],
+    Bb: ['Bb', 'C', 'Db', 'E', 'F', 'G', 'Ab'],
+    B: ['B', 'C#', 'D', 'E#', 'F#', 'G#', 'A'],
+  },
+
+  // PHRYGIAN DOMINANT (V) - 1 ♭2 3 4 5 ♭6 ♭7
+  'phrygian-dominant': {
+    C: ['C', 'Db', 'E', 'F', 'G', 'Ab', 'Bb'],
+    'C#': ['C#', 'D', 'E#', 'F#', 'G#', 'A', 'B'],
+    D: ['D', 'Eb', 'F#', 'G', 'A', 'Bb', 'C'],
+    'D#': ['D#', 'E', 'F##', 'G#', 'A#', 'B', 'C#'],
+    Eb: ['Eb', 'Fb', 'G', 'Ab', 'Bb', 'Cb', 'Db'],
+    E: ['E', 'F', 'G#', 'A', 'B', 'C', 'D'],
+    F: ['F', 'Gb', 'A', 'Bb', 'C', 'Db', 'Eb'],
+    'F#': ['F#', 'G', 'A#', 'B', 'C#', 'D', 'E'],
+    G: ['G', 'Ab', 'B', 'C', 'D', 'Eb', 'F'],
+    'G#': ['G#', 'A', 'B#', 'C#', 'D#', 'E', 'F#'],
+    Ab: ['Ab', 'Bbb', 'C', 'Db', 'Eb', 'Fb', 'Gb'],
+    A: ['A', 'Bb', 'C#', 'D', 'E', 'F', 'G'],
+    'A#': ['A#', 'B', 'C##', 'D#', 'E#', 'F#', 'G#'],
+    Bb: ['Bb', 'Cb', 'D', 'Eb', 'F', 'Gb', 'Ab'],
+    B: ['B', 'C', 'D#', 'E', 'F#', 'G', 'A'],
+  },
+
+  // LYDIAN ♯2 (VI) - 1 ♯2 3 ♯4 5 6 7
+  'lydian-sharp2': {
+    C: ['C', 'D#', 'E', 'F#', 'G', 'A', 'B'],
+    'C#': ['C#', 'D##', 'E#', 'F##', 'G#', 'A#', 'B#'],
+    D: ['D', 'E#', 'F#', 'G#', 'A', 'B', 'C#'],
+    'D#': ['D#', 'E##', 'F##', 'G##', 'A#', 'B#', 'C##'],
+    Eb: ['Eb', 'F#', 'G', 'A', 'Bb', 'C', 'D'],
+    E: ['E', 'F##', 'G#', 'A#', 'B', 'C#', 'D#'],
+    F: ['F', 'G#', 'A', 'B', 'C', 'D', 'E'],
+    'F#': ['F#', 'G##', 'A#', 'B#', 'C#', 'D#', 'E#'],
+    G: ['G', 'A#', 'B', 'C#', 'D', 'E', 'F#'],
+    'G#': ['G#', 'A##', 'B#', 'C##', 'D#', 'E#', 'F##'],
+    Ab: ['Ab', 'B', 'C', 'D', 'Eb', 'F', 'G'],
+    A: ['A', 'B#', 'C#', 'D#', 'E', 'F#', 'G#'],
+    'A#': ['A#', 'B##', 'C##', 'D##', 'E#', 'F##', 'G##'],
+    Bb: ['Bb', 'C#', 'D', 'E', 'F', 'G', 'A'],
+    B: ['B', 'C##', 'D#', 'E#', 'F#', 'G#', 'A#'],
+  },
+
+  // SUPER LOCRIAN ♭♭7 (VII) - 1 ♭2 ♭3 ♭4 ♭5 ♭6 ♭♭7
+  'super-locrian-bb7': {
+    C: ['C', 'Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bbb'],
+    'C#': ['C#', 'D', 'E', 'F', 'G', 'A', 'Bb'],
+    D: ['D', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'Cb'],
+    'D#': ['D#', 'E', 'F#', 'G', 'A', 'B', 'C'],
+    Eb: ['Eb', 'Fb', 'Gb', 'Abb', 'Bbb', 'Cb', 'Dbb'],
+    E: ['E', 'F', 'G', 'Ab', 'Bb', 'C', 'Db'],
+    F: ['F', 'Gb', 'Ab', 'Bbb', 'Cb', 'Db', 'Ebb'],
+    'F#': ['F#', 'G', 'A', 'Bb', 'C', 'D', 'Eb'],
+    G: ['G', 'Ab', 'Bb', 'Cb', 'Db', 'Eb', 'Fb'],
+    'G#': ['G#', 'A', 'B', 'C', 'D', 'E', 'F'],
+    Ab: ['Ab', 'Bbb', 'Cb', 'Dbb', 'Ebb', 'Fb', 'Gbb'],
+    A: ['A', 'Bb', 'C', 'Db', 'Eb', 'F', 'Gb'],
+    'A#': ['A#', 'B', 'C#', 'D', 'E', 'F#', 'G'],
+    Bb: ['Bb', 'Cb', 'Db', 'Ebb', 'Fb', 'Gb', 'Abb'],
+    B: ['B', 'C', 'D', 'Eb', 'F', 'G', 'Ab'],
+  },
+
+  // ===================================
+  // MELODIC MINOR MODES
+  // ===================================
+
+  // MELODIC MINOR (I) - 1 2 ♭3 4 5 6 7
+  'melodic-minor': {
+    C: ['C', 'D', 'Eb', 'F', 'G', 'A', 'B'],
+    'C#': ['C#', 'D#', 'E', 'F#', 'G#', 'A#', 'B#'],
+    D: ['D', 'E', 'F', 'G', 'A', 'B', 'C#'],
+    'D#': ['D#', 'E#', 'F#', 'G#', 'A#', 'B#', 'C##'],
+    Eb: ['Eb', 'F', 'Gb', 'Ab', 'Bb', 'C', 'D'],
+    E: ['E', 'F#', 'G', 'A', 'B', 'C#', 'D#'],
+    F: ['F', 'G', 'Ab', 'Bb', 'C', 'D', 'E'],
+    'F#': ['F#', 'G#', 'A', 'B', 'C#', 'D#', 'E#'],
+    G: ['G', 'A', 'Bb', 'C', 'D', 'E', 'F#'],
+    'G#': ['G#', 'A#', 'B', 'C#', 'D#', 'E#', 'F##'],
+    Ab: ['Ab', 'Bb', 'Cb', 'Db', 'Eb', 'F', 'G'],
+    A: ['A', 'B', 'C', 'D', 'E', 'F#', 'G#'],
+    'A#': ['A#', 'B#', 'C#', 'D#', 'E#', 'F##', 'G##'],
+    Bb: ['Bb', 'C', 'Db', 'Eb', 'F', 'G', 'A'],
+    B: ['B', 'C#', 'D', 'E', 'F#', 'G#', 'A#'],
+  },
+
+  // DORIAN ♭2 (II) - 1 ♭2 ♭3 4 5 6 ♭7
+  'dorian-b2': {
+    C: ['C', 'Db', 'Eb', 'F', 'G', 'A', 'Bb'],
+    'C#': ['C#', 'D', 'E', 'F#', 'G#', 'A#', 'B'],
+    D: ['D', 'Eb', 'F', 'G', 'A', 'B', 'C'],
+    'D#': ['D#', 'E', 'F#', 'G#', 'A#', 'B#', 'C#'],
+    Eb: ['Eb', 'Fb', 'Gb', 'Ab', 'Bb', 'C', 'Db'],
+    E: ['E', 'F', 'G', 'A', 'B', 'C#', 'D'],
+    F: ['F', 'Gb', 'Ab', 'Bb', 'C', 'D', 'Eb'],
+    'F#': ['F#', 'G', 'A', 'B', 'C#', 'D#', 'E'],
+    G: ['G', 'Ab', 'Bb', 'C', 'D', 'E', 'F'],
+    'G#': ['G#', 'A', 'B', 'C#', 'D#', 'E#', 'F#'],
+    Ab: ['Ab', 'Bbb', 'Cb', 'Db', 'Eb', 'F', 'Gb'],
+    A: ['A', 'Bb', 'C', 'D', 'E', 'F#', 'G'],
+    'A#': ['A#', 'B', 'C#', 'D#', 'E#', 'F##', 'G#'],
+    Bb: ['Bb', 'Cb', 'Db', 'Eb', 'F', 'G', 'Ab'],
+    B: ['B', 'C', 'D', 'E', 'F#', 'G#', 'A'],
+  },
+
+  // LYDIAN AUGMENTED (III) - 1 2 3 ♯4 ♯5 6 7
+  'lydian-augmented': {
+    C: ['C', 'D', 'E', 'F#', 'G#', 'A', 'B'],
+    'C#': ['C#', 'D#', 'E#', 'F##', 'G##', 'A#', 'B#'],
+    D: ['D', 'E', 'F#', 'G#', 'A#', 'B', 'C#'],
+    'D#': ['D#', 'E#', 'F##', 'G##', 'A##', 'B#', 'C##'],
+    Eb: ['Eb', 'F', 'G', 'A', 'B', 'C', 'D'],
+    E: ['E', 'F#', 'G#', 'A#', 'B#', 'C#', 'D#'],
+    F: ['F', 'G', 'A', 'B', 'C#', 'D', 'E'],
+    'F#': ['F#', 'G#', 'A#', 'B#', 'C##', 'D#', 'E#'],
+    G: ['G', 'A', 'B', 'C#', 'D#', 'E', 'F#'],
+    'G#': ['G#', 'A#', 'B#', 'C##', 'D##', 'E#', 'F##'],
+    Ab: ['Ab', 'Bb', 'C', 'D', 'E', 'F', 'G'],
+    A: ['A', 'B', 'C#', 'D#', 'E#', 'F#', 'G#'],
+    'A#': ['A#', 'B#', 'C##', 'D##', 'E##', 'F##', 'G##'],
+    Bb: ['Bb', 'C', 'D', 'E', 'F#', 'G', 'A'],
+    B: ['B', 'C#', 'D#', 'E#', 'F##', 'G#', 'A#'],
+  },
+
+  // LYDIAN DOMINANT (IV) - 1 2 3 ♯4 5 6 ♭7
+  'lydian-dominant-melodic': {
+    C: ['C', 'D', 'E', 'F#', 'G', 'A', 'Bb'],
+    'C#': ['C#', 'D#', 'E#', 'F##', 'G#', 'A#', 'B'],
+    D: ['D', 'E', 'F#', 'G#', 'A', 'B', 'C'],
+    'D#': ['D#', 'E#', 'F##', 'G##', 'A#', 'B#', 'C#'],
+    Eb: ['Eb', 'F', 'G', 'A', 'Bb', 'C', 'Db'],
+    E: ['E', 'F#', 'G#', 'A#', 'B', 'C#', 'D'],
+    F: ['F', 'G', 'A', 'B', 'C', 'D', 'Eb'],
+    'F#': ['F#', 'G#', 'A#', 'B#', 'C#', 'D#', 'E'],
+    G: ['G', 'A', 'B', 'C#', 'D', 'E', 'F'],
+    'G#': ['G#', 'A#', 'B#', 'C##', 'D#', 'E#', 'F#'],
+    Ab: ['Ab', 'Bb', 'C', 'D', 'Eb', 'F', 'Gb'],
+    A: ['A', 'B', 'C#', 'D#', 'E', 'F#', 'G'],
+    'A#': ['A#', 'B#', 'C##', 'D##', 'E#', 'F##', 'G#'],
+    Bb: ['Bb', 'C', 'D', 'E', 'F', 'G', 'Ab'],
+    B: ['B', 'C#', 'D#', 'E#', 'F#', 'G#', 'A'],
+  },
+
+  // MIXOLYDIAN ♭6 (V) - 1 2 3 4 5 ♭6 ♭7
+  'mixolydian-b6': {
+    C: ['C', 'D', 'E', 'F', 'G', 'Ab', 'Bb'],
+    'C#': ['C#', 'D#', 'E#', 'F#', 'G#', 'A', 'B'],
+    D: ['D', 'E', 'F#', 'G', 'A', 'Bb', 'C'],
+    'D#': ['D#', 'E#', 'F##', 'G#', 'A#', 'B', 'C#'],
+    Eb: ['Eb', 'F', 'G', 'Ab', 'Bb', 'Cb', 'Db'],
+    E: ['E', 'F#', 'G#', 'A', 'B', 'C', 'D'],
+    F: ['F', 'G', 'A', 'Bb', 'C', 'Db', 'Eb'],
+    'F#': ['F#', 'G#', 'A#', 'B', 'C#', 'D', 'E'],
+    G: ['G', 'A', 'B', 'C', 'D', 'Eb', 'F'],
+    'G#': ['G#', 'A#', 'B#', 'C#', 'D#', 'E', 'F#'],
+    Ab: ['Ab', 'Bb', 'C', 'Db', 'Eb', 'Fb', 'Gb'],
+    A: ['A', 'B', 'C#', 'D', 'E', 'F', 'G'],
+    'A#': ['A#', 'B#', 'C##', 'D#', 'E#', 'F#', 'G#'],
+    Bb: ['Bb', 'C', 'D', 'Eb', 'F', 'Gb', 'Ab'],
+    B: ['B', 'C#', 'D#', 'E', 'F#', 'G', 'A'],
+  },
+
+  // LOCRIAN ♮2 (VI) - 1 2 ♭3 4 ♭5 ♭6 ♭7
+  'locrian-natural2': {
+    C: ['C', 'D', 'Eb', 'F', 'Gb', 'Ab', 'Bb'],
+    'C#': ['C#', 'D#', 'E', 'F#', 'G', 'A', 'B'],
+    D: ['D', 'E', 'F', 'G', 'Ab', 'Bb', 'C'],
+    'D#': ['D#', 'E#', 'F#', 'G#', 'A', 'B', 'C#'],
+    Eb: ['Eb', 'F', 'Gb', 'Ab', 'Bbb', 'Cb', 'Db'],
+    E: ['E', 'F#', 'G', 'A', 'Bb', 'C', 'D'],
+    F: ['F', 'G', 'Ab', 'Bb', 'Cb', 'Db', 'Eb'],
+    'F#': ['F#', 'G#', 'A', 'B', 'C', 'D', 'E'],
+    G: ['G', 'A', 'Bb', 'C', 'Db', 'Eb', 'F'],
+    'G#': ['G#', 'A#', 'B', 'C#', 'D', 'E', 'F#'],
+    Ab: ['Ab', 'Bb', 'Cb', 'Db', 'Ebb', 'Fb', 'Gb'],
+    A: ['A', 'B', 'C', 'D', 'Eb', 'F', 'G'],
+    'A#': ['A#', 'B#', 'C#', 'D#', 'E', 'F#', 'G#'],
+    Bb: ['Bb', 'C', 'Db', 'Eb', 'Fb', 'Gb', 'Ab'],
+    B: ['B', 'C#', 'D', 'E', 'F', 'G', 'A'],
+  },
+
+  // ALTERED / SUPER LOCRIAN (VII) - 1 ♭2 ♭3 ♭4 ♭5 ♭6 ♭7
+  altered: {
+    C: ['C', 'Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bb'],
+    'C#': ['C#', 'D', 'E', 'F', 'G', 'A', 'B'],
+    D: ['D', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'C'],
+    'D#': ['D#', 'E', 'F#', 'G', 'A', 'B', 'C#'],
+    Eb: ['Eb', 'Fb', 'Gb', 'Abb', 'Bbb', 'Cb', 'Db'],
+    E: ['E', 'F', 'G', 'Ab', 'Bb', 'C', 'D'],
+    F: ['F', 'Gb', 'Ab', 'Bbb', 'Cb', 'Db', 'Eb'],
+    'F#': ['F#', 'G', 'A', 'Bb', 'C', 'D', 'E'],
+    G: ['G', 'Ab', 'Bb', 'Cb', 'Db', 'Eb', 'F'],
+    'G#': ['G#', 'A', 'B', 'C', 'D', 'E', 'F#'],
+    Ab: ['Ab', 'Bbb', 'Cb', 'Dbb', 'Ebb', 'Fb', 'Gb'],
+    A: ['A', 'Bb', 'C', 'Db', 'Eb', 'F', 'G'],
+    'A#': ['A#', 'B', 'C#', 'D', 'E', 'F#', 'G#'],
+    Bb: ['Bb', 'Cb', 'Db', 'Ebb', 'Fb', 'Gb', 'Ab'],
+    B: ['B', 'C', 'D', 'Eb', 'F', 'G', 'A'],
+  },
 };
 
-/**
- * Normalizza key per lookup (C# = Db in alcuni casi)
- */
 export function normalizeKey(key: string): string {
-  // Per ora usa la chiave come specificata
   return key;
 }

@@ -1,6 +1,6 @@
 /**
- * SCALE HARMONIZATION FEATURE
- * Visualizza armonizzazione completa di scale e modi
+ * SCALE HARMONIZATION FEATURE - COMPLETE
+ * Con Major, Harmonic Minor e Melodic Minor modes
  */
 
 import React, { useState, useMemo } from 'react';
@@ -14,14 +14,47 @@ import {
 } from '../scales-harmonizations/utils/scale-harmonization-data.ts';
 import { audioPlayer } from '../ear-training/utils/audio-player';
 
-const MODE_OPTIONS: { value: ScaleMode; label: string; emoji: string }[] = [
-  { value: 'ionian', label: 'Ionian (Major)', emoji: '🌞' },
-  { value: 'dorian', label: 'Dorian', emoji: '🎷' },
-  { value: 'phrygian', label: 'Phrygian', emoji: '🌚' },
-  { value: 'lydian', label: 'Lydian', emoji: '✨' },
-  { value: 'mixolydian', label: 'Mixolydian', emoji: '🎸' },
-  { value: 'aeolian', label: 'Aeolian (Minor)', emoji: '🌙' },
-  { value: 'locrian', label: 'Locrian', emoji: '🌀' },
+// Mode options grouped by family
+const MODE_OPTIONS: {
+  family: string;
+  modes: { value: ScaleMode; label: string; emoji: string }[];
+}[] = [
+  {
+    family: 'Major Scale Modes',
+    modes: [
+      { value: 'ionian', label: 'Ionian (Major)', emoji: '🌞' },
+      { value: 'dorian', label: 'Dorian', emoji: '🎷' },
+      { value: 'phrygian', label: 'Phrygian', emoji: '🌚' },
+      { value: 'lydian', label: 'Lydian', emoji: '✨' },
+      { value: 'mixolydian', label: 'Mixolydian', emoji: '🎸' },
+      { value: 'aeolian', label: 'Aeolian (Minor)', emoji: '🌙' },
+      { value: 'locrian', label: 'Locrian', emoji: '🌀' },
+    ],
+  },
+  {
+    family: 'Harmonic Minor Modes',
+    modes: [
+      { value: 'harmonic-minor', label: 'Harmonic Minor (I)', emoji: '🎻' },
+      { value: 'locrian-sharp6', label: 'Locrian ♯6 (II)', emoji: '⚠️' },
+      { value: 'ionian-sharp5', label: 'Ionian ♯5 (III)', emoji: '☁️' },
+      { value: 'dorian-sharp4', label: 'Dorian ♯4 (IV)', emoji: '🎪' },
+      { value: 'phrygian-dominant', label: 'Phrygian Dominant (V)', emoji: '🔥' },
+      { value: 'lydian-sharp2', label: 'Lydian ♯2 (VI)', emoji: '🌟' },
+      { value: 'super-locrian-bb7', label: 'Super Locrian ♭♭7 (VII)', emoji: '⚡' },
+    ],
+  },
+  {
+    family: 'Melodic Minor Modes',
+    modes: [
+      { value: 'melodic-minor', label: 'Melodic Minor (I)', emoji: '🎺' },
+      { value: 'dorian-b2', label: 'Dorian ♭2 (II)', emoji: '🌐' },
+      { value: 'lydian-augmented', label: 'Lydian Augmented (III)', emoji: '🌈' },
+      { value: 'lydian-dominant-melodic', label: 'Lydian Dominant (IV)', emoji: '🎯' },
+      { value: 'mixolydian-b6', label: 'Mixolydian ♭6 (V)', emoji: '🌃' },
+      { value: 'locrian-natural2', label: 'Locrian ♮2 (VI)', emoji: '🎭' },
+      { value: 'altered', label: 'Altered / Super Locrian (VII)', emoji: '💥' },
+    ],
+  },
 ];
 
 export function ScaleHarmonizationFeature() {
@@ -62,10 +95,8 @@ export function ScaleHarmonizationFeature() {
     let root = match[1];
     const quality = symbol.replace(root, '');
 
-    // Normalize double sharps/flats but KEEP flats (Db, Eb, Bb)
     root = root.replace('##', '#').replace('bb', 'b');
 
-    // Semitone mapping
     const enharmonicValues: Record<string, number> = {
       C: 0,
       'B#': 0,
@@ -96,22 +127,29 @@ export function ScaleHarmonizationFeature() {
       return [`${root}2`];
     }
 
-    // Determine intervals
+    // Determine intervals based on chord quality
     let intervals: number[] = [];
 
-    if (quality.includes('maj7')) {
-      intervals = [0, 4, 7, 11];
+    if (quality.includes('maj7♯5') || quality.includes('maj7#5')) {
+      intervals = [0, 4, 8, 11]; // Augmented major 7
+    } else if (quality.includes('m△7') || quality.includes('mMaj7')) {
+      intervals = [0, 3, 7, 11]; // Minor major 7
+    } else if (quality.includes('°7') || quality.includes('dim7')) {
+      intervals = [0, 3, 6, 9]; // Diminished 7
+    } else if (quality.includes('7alt')) {
+      intervals = [0, 4, 6, 10]; // Altered dominant (example voicing)
+    } else if (quality.includes('maj7')) {
+      intervals = [0, 4, 7, 11]; // Major 7
     } else if (quality.includes('m7♭5') || quality.includes('m7b5')) {
-      intervals = [0, 3, 6, 10];
+      intervals = [0, 3, 6, 10]; // Half-diminished
     } else if (quality.includes('m7')) {
-      intervals = [0, 3, 7, 10];
+      intervals = [0, 3, 7, 10]; // Minor 7
     } else if (quality.includes('7')) {
-      intervals = [0, 4, 7, 10];
+      intervals = [0, 4, 7, 10]; // Dominant 7
     } else {
-      intervals = [0, 4, 7];
+      intervals = [0, 4, 7]; // Major triad fallback
     }
 
-    // Use flats if root has flat
     const useFlats = root.includes('b');
     const chromaticScale = useFlats
       ? ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
@@ -135,7 +173,7 @@ export function ScaleHarmonizationFeature() {
             <Music size={28} style={{ color: 'var(--primary)' }} />
             <div>
               <h2 className='card-title'>Scale Harmonization</h2>
-              <p className='card-description'>Harmonize scales and modes</p>
+              <p className='card-description'>Explore Major, Harmonic Minor & Melodic Minor modes</p>
             </div>
           </div>
         </div>
@@ -143,6 +181,7 @@ export function ScaleHarmonizationFeature() {
         {/* Selectors */}
         <div className='card-content'>
           <div className='harmonization-selectors'>
+            {/* Key Selector */}
             <div className='selector-group'>
               <label className='selector-label'>Key</label>
               <div className='key-selector'>
@@ -154,21 +193,24 @@ export function ScaleHarmonizationFeature() {
               </div>
             </div>
 
-            <div className='selector-group'>
-              <label className='selector-label'>Mode</label>
-              <div className='mode-selector'>
-                {MODE_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => setSelectedMode(option.value)}
-                    className={`mode-button ${selectedMode === option.value ? 'active' : ''}`}
-                  >
-                    <span className='mode-emoji'>{option.emoji}</span>
-                    <span className='mode-label'>{option.label}</span>
-                  </button>
-                ))}
+            {/* Mode Selector - Grouped by Family */}
+            {MODE_OPTIONS.map((group) => (
+              <div key={group.family} className='selector-group'>
+                <label className='selector-label'>{group.family}</label>
+                <div className='mode-selector'>
+                  {group.modes.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setSelectedMode(option.value)}
+                      className={`mode-button ${selectedMode === option.value ? 'active' : ''}`}
+                    >
+                      <span className='mode-emoji'>{option.emoji}</span>
+                      <span className='mode-label'>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
@@ -282,66 +324,59 @@ export function ScaleHarmonizationFeature() {
           <div className='card-content'>
             <div className='theory-content'>
               <div className='theory-section'>
-                <h4>Functional vs Modal Thinking</h4>
+                <h4>Three Modal Families</h4>
                 <p>
-                  <strong>Ionian/Aeolian:</strong> Use functional thinking (Tonic → Pre-dominant → Dominant → Tonic). Look for tension and
-                  resolution.
+                  <strong>Major Scale Modes:</strong> Functional harmony - focus on tension and resolution (I-IV-V-I)
                 </p>
                 <p>
-                  <strong>Other Modes:</strong> Think modally (Center → Color → Contrast → Center). Look for the mode's identity, not
-                  resolution.
+                  <strong>Harmonic Minor Modes:</strong> Exotic dominant sound with augmented 2nd interval - classical, metal, neoclassical
+                </p>
+                <p>
+                  <strong>Melodic Minor Modes:</strong> Jazz sophistication - altered dominants and complex harmonies (bebop, modern jazz)
                 </p>
               </div>
 
               <div className='theory-section'>
-                <h4>Signature Chords</h4>
-                <p>Each mode has 1-2 characteristic chords that define its sound:</p>
+                <h4>Harmonic Minor Applications</h4>
                 <ul>
                   <li>
-                    <strong>Dorian:</strong> IV7 (key chord)
+                    <strong>Phrygian Dominant (V):</strong> THE go-to mode for Spanish/flamenco sound and exotic metal riffs
                   </li>
                   <li>
-                    <strong>Phrygian:</strong> ♭II maj7 (signature)
+                    <strong>Harmonic Minor (I):</strong> Classical minor with strong V7→i resolution (Bach, Vivaldi)
                   </li>
                   <li>
-                    <strong>Lydian:</strong> #IV° (openness)
-                  </li>
-                  <li>
-                    <strong>Mixolydian:</strong> ♭VII maj7 (key chord)
+                    <strong>Lydian ♯2 (VI):</strong> Bright and exotic - use for otherworldly film score textures
                   </li>
                 </ul>
               </div>
 
               <div className='theory-section'>
-                <h4>Modal Interchange Chords</h4>
-                <p>Chords "borrowed" from other modes to add emotional color:</p>
+                <h4>Melodic Minor Applications</h4>
                 <ul>
                   <li>
-                    <strong>iv (minor four):</strong> Melancholic sound - Radiohead "No Surprises", Beatles "In My Life"
+                    <strong>Altered Scale (VII):</strong> Maximum tension for jazz - play over altered dominants (G7♯9♭13 → Cmaj7)
                   </li>
                   <li>
-                    <strong>♭VI ♭VII I:</strong> "Victory" cadence - Super Mario, Beatles "With a Little Help"
+                    <strong>Lydian Dominant (IV):</strong> THE jazz dominant sound - bright ♯11 over dominant 7 chords
                   </li>
                   <li>
-                    <strong>♭II maj7:</strong> Dramatic delay - Radiohead "Everything in Its Right Place"
-                  </li>
-                  <li>
-                    <strong>I III IV iv:</strong> "Creep" progression (use with caution!)
+                    <strong>Melodic Minor (I):</strong> Sophisticated minor - dark yet bright (Bill Evans, Herbie Hancock)
                   </li>
                 </ul>
               </div>
 
               <div className='theory-section'>
-                <h4>How to Write</h4>
+                <h4>Writing Tips</h4>
                 <p>
-                  <strong>❌ You don't need to use all chords!</strong>
+                  <strong>❌ Don't try to use all 7 chords!</strong>
                   <br />
                   <strong>✅ Use: 1 center + 2-3 characteristic chords</strong>
                 </p>
                 <p>
-                  Dorian example: Em7 (center) → A7 (IV7) → Dmaj7 (♭VII)
+                  Harmonic Minor example: Am△7 (i) → E7 (V) → Fmaj7 (♭VI)
                   <br />
-                  Mixolydian example: G7 (center) → Fmaj7 (♭VII) → Cmaj7 (IV)
+                  Melodic Minor example: Cm△7 (i) → F7 (IV lydian dom) → G7alt (V)
                 </p>
               </div>
             </div>
@@ -406,7 +441,15 @@ function getChordNotesHelper(symbol: string): string[] {
 
   let intervals: number[] = [];
 
-  if (quality.includes('maj7')) {
+  if (quality.includes('maj7♯5') || quality.includes('maj7#5')) {
+    intervals = [0, 4, 8, 11];
+  } else if (quality.includes('m△7') || quality.includes('mMaj7')) {
+    intervals = [0, 3, 7, 11];
+  } else if (quality.includes('°7') || quality.includes('dim7')) {
+    intervals = [0, 3, 6, 9];
+  } else if (quality.includes('7alt')) {
+    intervals = [0, 4, 6, 10];
+  } else if (quality.includes('maj7')) {
     intervals = [0, 4, 7, 11];
   } else if (quality.includes('m7♭5') || quality.includes('m7b5')) {
     intervals = [0, 3, 6, 10];
