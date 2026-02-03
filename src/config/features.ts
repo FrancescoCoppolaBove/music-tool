@@ -3,7 +3,7 @@
  * Configurazione centralizzata di tutte le feature dell'app
  */
 
-import { Piano, Search, Book, Music, Headphones, Circle, Grid } from 'lucide-react';
+import { Piano, Search, Book, Music, Headphones, Circle, Grid, Sparkles } from 'lucide-react'; // ✅ Aggiungi Sparkles
 import type { LucideIcon } from 'lucide-react';
 
 export type FeatureId =
@@ -13,6 +13,7 @@ export type FeatureId =
   | 'scale-harmonization'
   | 'ear-training'
   | 'circle-fifths'
+  | 'modal-interchange' // ✅ AGGIUNGI QUESTO
   | 'chord-builder';
 
 export type FeatureLevel = 'beginner' | 'intermediate' | 'advanced' | 'all';
@@ -76,6 +77,15 @@ export const FEATURES: Feature[] = [
     name: 'Scale Harmonization',
     description: 'Harmonize scales and modes',
     icon: Music,
+    level: 'intermediate',
+    status: 'active',
+  },
+  // ✅ AGGIUNGI QUESTA FEATURE
+  {
+    id: 'modal-interchange',
+    name: 'Modal Interchange',
+    description: 'Explore borrowed chords from parallel modes',
+    icon: Sparkles,
     level: 'intermediate',
     status: 'active',
   },

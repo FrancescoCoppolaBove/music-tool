@@ -35,6 +35,7 @@
 @import './features/scales-harmonizations/styles/scales-harmonization.css';
 @import './features/circle-of-fifth/styles/circle-of-fifths.css';
 @import './features/circle-of-fifth/styles/key-signature-trainer.css';
+@import './features/modal-interchange/styles/_modal-interchange.css';
 
 /* ===================================
    APP LAYOUT

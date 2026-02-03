@@ -11,6 +11,7 @@ import { ScaleDictionaryFeature } from './features/scale-dictionary/ScaleDiction
 import { ScaleHarmonizationFeature } from './features/scales-harmonizations/ScalesHarmonizationFeature';
 import { EarTrainingFeature } from './features/ear-training/EarTrainingFeature';
 import { CircleOfFifthsFeature } from './features/circle-of-fifth/CircleOfFifthsFeature';
+import { ModalInterchangeView } from './features/modal-interchange/components/ModalInterchangeView'; // ✅ AGGIUNGI IMPORT
 import { FEATURES, getActiveFeatures } from './config/features';
 import { audioPlayer } from './features/ear-training/utils/audio-player';
 import type { FeatureId } from './config/features';
@@ -63,6 +64,10 @@ function App() {
 
       case 'circle-fifths':
         return <CircleOfFifthsFeature />;
+
+      // ✅ AGGIUNGI QUESTO CASE
+      case 'modal-interchange':
+        return <ModalInterchangeView />;
 
       case 'chord-builder':
         return (
