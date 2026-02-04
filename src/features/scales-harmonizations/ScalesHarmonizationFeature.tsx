@@ -87,7 +87,7 @@ export function ScaleHarmonizationFeature() {
     }
   };
 
-  // Get chord notes from symbol
+  // Get chord notes from symbol - ✅ AGGIORNATO CON NOTAZIONE BEMOLLE
   const getChordNotes = (symbol: string): string[] => {
     const match = symbol.match(/^([A-G][#b]*)/);
     if (!match) return ['C2'];
@@ -97,26 +97,27 @@ export function ScaleHarmonizationFeature() {
 
     root = root.replace('##', '#').replace('bb', 'b');
 
+    // ✅ NOTAZIONE BEMOLLE - Inclusi tutti i flat
     const enharmonicValues: Record<string, number> = {
       C: 0,
       'B#': 0,
-      'C#': 1,
       Db: 1,
+      'C#': 1,
       D: 2,
-      'D#': 3,
       Eb: 3,
+      'D#': 3,
       E: 4,
       Fb: 4,
       F: 5,
       'E#': 5,
-      'F#': 6,
       Gb: 6,
+      'F#': 6,
       G: 7,
-      'G#': 8,
       Ab: 8,
+      'G#': 8,
       A: 9,
-      'A#': 10,
       Bb: 10,
+      'A#': 10,
       B: 11,
       Cb: 11,
     };
@@ -150,10 +151,8 @@ export function ScaleHarmonizationFeature() {
       intervals = [0, 4, 7]; // Major triad fallback
     }
 
-    const useFlats = root.includes('b');
-    const chromaticScale = useFlats
-      ? ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-      : ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    // ✅ USA SEMPRE NOTAZIONE BEMOLLE
+    const chromaticScale = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
     const notes = intervals.map((interval) => {
       const noteSemitone = (rootSemitone + interval) % 12;
@@ -387,7 +386,7 @@ export function ScaleHarmonizationFeature() {
   );
 }
 
-// Play progression helper
+// Play progression helper - ✅ AGGIORNATO CON NOTAZIONE BEMOLLE
 async function playProgression(progression: string[], harmonization: ScaleHarmonization) {
   for (const deg of progression) {
     const chordDegree = harmonization.degrees.find((d) => d.degree === deg);
@@ -399,7 +398,7 @@ async function playProgression(progression: string[], harmonization: ScaleHarmon
   }
 }
 
-// Helper to get chord notes
+// Helper to get chord notes - ✅ AGGIORNATO CON NOTAZIONE BEMOLLE
 function getChordNotesHelper(symbol: string): string[] {
   const match = symbol.match(/^([A-G][#b]*)/);
   if (!match) return ['C2'];
@@ -409,26 +408,27 @@ function getChordNotesHelper(symbol: string): string[] {
 
   root = root.replace('##', '#').replace('bb', 'b');
 
+  // ✅ NOTAZIONE BEMOLLE - Inclusi tutti i flat
   const enharmonicValues: Record<string, number> = {
     C: 0,
     'B#': 0,
-    'C#': 1,
     Db: 1,
+    'C#': 1,
     D: 2,
-    'D#': 3,
     Eb: 3,
+    'D#': 3,
     E: 4,
     Fb: 4,
     F: 5,
     'E#': 5,
-    'F#': 6,
     Gb: 6,
+    'F#': 6,
     G: 7,
-    'G#': 8,
     Ab: 8,
+    'G#': 8,
     A: 9,
-    'A#': 10,
     Bb: 10,
+    'A#': 10,
     B: 11,
     Cb: 11,
   };
@@ -461,10 +461,8 @@ function getChordNotesHelper(symbol: string): string[] {
     intervals = [0, 4, 7];
   }
 
-  const useFlats = root.includes('b');
-  const chromaticScale = useFlats
-    ? ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-    : ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  // ✅ USA SEMPRE NOTAZIONE BEMOLLE
+  const chromaticScale = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
   return intervals.map((interval) => {
     const noteSemitone = (rootSemitone + interval) % 12;

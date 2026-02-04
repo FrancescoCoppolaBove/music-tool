@@ -59,20 +59,22 @@ const MODE_INTERVALS: Record<Mode, number[]> = {
   'melodic-minor': [0, 2, 3, 5, 7, 9, 11],
 };
 
-const CHROMATIC_NOTES: NoteName[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+// ✅ NOTAZIONE BEMOLLE (Db, Eb, Gb, Ab, Bb)
+const CHROMATIC_NOTES: NoteName[] = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 // Helper: Trova la nota a distanza di N semitoni
 function transposeNote(root: NoteName, semitones: number): NoteName {
   const rootIndex = CHROMATIC_NOTES.indexOf(root);
   if (rootIndex === -1) {
-    const enharmonic: Record<string, NoteName> = {
-      Db: 'C#',
-      Eb: 'D#',
-      Gb: 'F#',
-      Ab: 'G#',
-      Bb: 'A#',
+    // Conversione diesis → bemolle (se qualcuno passa C#, lo convertiamo a Db)
+    const sharpToFlat: Record<string, NoteName> = {
+      'C#': 'Db',
+      'D#': 'Eb',
+      'F#': 'Gb',
+      'G#': 'Ab',
+      'A#': 'Bb',
     };
-    const normalizedRoot = enharmonic[root] || root;
+    const normalizedRoot = sharpToFlat[root] || root;
     return transposeNote(normalizedRoot as NoteName, semitones);
   }
   const newIndex = (rootIndex + semitones) % 12;
@@ -286,7 +288,8 @@ function getJazzContext(tonality: 'major' | 'minor', mode: Mode, degree: number)
   return contexts[key] || '';
 }
 
-export const AVAILABLE_KEYS: NoteName[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+// ✅ NOTAZIONE BEMOLLE (Db, Eb, Gb, Ab, Bb)
+export const AVAILABLE_KEYS: NoteName[] = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 // ============================================================
 // TRASPOSIZIONE ACCORDI
@@ -300,7 +303,8 @@ export const AVAILABLE_KEYS: NoteName[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#',
  * @returns Accordo trasposto
  */
 export function transposeChord(chord: string, fromKey: NoteName, toKey: NoteName): string {
-  const chromatic: NoteName[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  // ✅ NOTAZIONE BEMOLLE
+  const chromatic: NoteName[] = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
   // Calcola l'intervallo di trasposizione
   const fromIndex = chromatic.indexOf(fromKey);
@@ -319,7 +323,7 @@ export function transposeChord(chord: string, fromKey: NoteName, toKey: NoteName
   }
 
   // Estrai la root dal chord symbol
-  // Supporta: C, C#, Db, Cmaj7, Fm7, etc.
+  // Supporta: C, Db, D, Cmaj7, Fm7, etc.
   const rootMatch = chord.match(/^([A-G][#b♯♭]?)/);
   if (!rootMatch) {
     console.warn('Cannot parse chord root:', chord);
@@ -331,17 +335,17 @@ export function transposeChord(chord: string, fromKey: NoteName, toKey: NoteName
   // Normalizza accidentals (♯ → #, ♭ → b)
   root = root.replace('♯', '#').replace('♭', 'b');
 
-  // Converti flat a sharp per semplicità (Db → C#)
-  const flatToSharp: Record<string, string> = {
-    Db: 'C#',
-    Eb: 'D#',
-    Gb: 'F#',
-    Ab: 'G#',
-    Bb: 'A#',
+  // Converti sharp a flat per uniformità (C# → Db)
+  const sharpToFlat: Record<string, string> = {
+    'C#': 'Db',
+    'D#': 'Eb',
+    'F#': 'Gb',
+    'G#': 'Ab',
+    'A#': 'Bb',
   };
 
-  if (root in flatToSharp) {
-    root = flatToSharp[root];
+  if (root in sharpToFlat) {
+    root = sharpToFlat[root];
   }
 
   // Trova l'indice della root

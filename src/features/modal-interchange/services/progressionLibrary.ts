@@ -306,7 +306,7 @@ export const COMMON_PROGRESSIONS: ChordProgression[] = [
     id: 'backdoor',
     name: 'Backdoor Resolution (♭VIImaj7 - Imaj7)',
     description: 'Classic jazz ending from Mixolydian',
-    chords: ['Bbmaj7', 'Cmaj7'], // In C major
+    chords: ['Bbmaj7', 'Cmaj7'], // In C major (Bb, non A#)
     numerals: ['♭VIImaj7', 'Imaj7'],
     borrowedDegrees: [7],
     genre: ['Jazz', 'Soul', 'Fusion'],
@@ -317,7 +317,7 @@ export const COMMON_PROGRESSIONS: ChordProgression[] = [
     id: 'soul-descent',
     name: 'Soul Descent (Imaj7 - ♭VImaj7 - ♭VIImaj7 - Imaj7)',
     description: 'Descending from Aeolian - rich, soulful',
-    chords: ['Cmaj7', 'Abmaj7', 'Bbmaj7', 'Cmaj7'], // In C major
+    chords: ['Cmaj7', 'Abmaj7', 'Bbmaj7', 'Cmaj7'], // In C major (Ab, Bb)
     numerals: ['Imaj7', '♭VImaj7', '♭VIImaj7', 'Imaj7'],
     borrowedDegrees: [6, 7],
     genre: ['Neo-Soul', 'R&B', 'Jazz'],
@@ -350,7 +350,7 @@ export const COMMON_PROGRESSIONS: ChordProgression[] = [
     id: 'neapolitan',
     name: 'Neapolitan (♭IImaj7 - V7 - im7)',
     description: 'Phrygian ♭II - exotic, dramatic',
-    chords: ['Dbmaj7', 'G7', 'Cm7'], // In C minor
+    chords: ['Dbmaj7', 'G7', 'Cm7'], // In C minor (Db, non C#)
     numerals: ['♭IImaj7', 'V7', 'im7'],
     borrowedDegrees: [2],
     genre: ['Classical', 'Jazz', 'Film Score'],
@@ -372,7 +372,7 @@ export const COMMON_PROGRESSIONS: ChordProgression[] = [
     id: 'snarky',
     name: 'Snarky Puppy Style (Imaj7 - ♭IIImaj7 - iim7♭5 - V7♭9)',
     description: 'Complex modal colors - fusion/gospel',
-    chords: ['Cmaj7', 'Ebmaj7', 'Dm7b5', 'G7b9', 'Cmaj7'],
+    chords: ['Cmaj7', 'Ebmaj7', 'Dm7b5', 'G7b9', 'Cmaj7'], // Eb, non D#
     numerals: ['Imaj7', '♭IIImaj7', 'iim7♭5', 'V7♭9', 'Imaj7'],
     borrowedDegrees: [3, 2, 5],
     genre: ['Fusion', 'Gospel', 'Neo-Soul'],
