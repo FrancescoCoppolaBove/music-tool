@@ -1,4 +1,41 @@
 /* ===================================
+   EAR TRAINING - CSS VARIABLES
+   Matches the app's GitHub dark theme
+   =================================== */
+:root {
+  --bg:              #0d1117;
+  --bg-secondary:    #161b22;
+  --bg-tertiary:     #21262d;
+  --bg-hover:        #1c2128;
+  --border:          #30363d;
+  --text-primary:    #e6edf3;
+  --text-secondary:  #8b949e;
+  --text-muted:      #6b7280;
+  --primary:         #7c3aed;
+  --primary-dark:    #6d28d9;
+  --success:         #10b981;
+  --success-bg:      #064e3b;
+  --error:           #ef4444;
+  --error-bg:        #7f1d1d;
+  --spacing-xs:      0.5rem;
+  --spacing-sm:      0.75rem;
+  --spacing-md:      1rem;
+  --spacing-lg:      1.5rem;
+  --spacing-xl:      2rem;
+  --radius-sm:       4px;
+  --radius-md:       6px;
+  --radius-lg:       8px;
+  --radius-xl:       12px;
+  --font-size-sm:    0.875rem;
+  --font-size-base:  1rem;
+  --font-size-lg:    1.125rem;
+  --font-size-xl:    1.25rem;
+  --font-size-2xl:   1.5rem;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+}
+
+/* ===================================
    EAR TRAINING - BASE STYLES
    Layout, containers e stili comuni
    =================================== */

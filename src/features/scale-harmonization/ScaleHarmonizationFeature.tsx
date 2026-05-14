@@ -1,22 +1,92 @@
 import { useState, useMemo } from 'react';
-import {
-  SCALE_FORMULAS, noteToSemitone, semitoneToNote, notePreferFlat, getScaleNotes,
-} from '@shared/utils/musicTheory';
+import { SCALE_FORMULAS, noteToSemitone, semitoneToNote, notePreferFlat, getScaleNotes } from '@shared/utils/musicTheory';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
-// Only 7-note scales are harmonizable with stacked thirds
-const HARMONIZABLE_SCALES = Object.entries(SCALE_FORMULAS)
-  .filter(([, f]) => f.intervals.length === 7)
-  .sort(([, a], [, b]) => a.name.localeCompare(b.name));
+// Emoji + mood for harmonizable scales
+const SCALE_VIBE: Record<string, { emoji: string; mood: string }> = {
+  major: { emoji: '☀️', mood: 'Bright & happy' },
+  dorian: { emoji: '🎷', mood: 'Jazzy & soulful' },
+  phrygian: { emoji: '🌊', mood: 'Spanish & tense' },
+  lydian: { emoji: '✨', mood: 'Dreamy & floating' },
+  mixolydian: { emoji: '🎸', mood: 'Bluesy & earthy' },
+  aeolian: { emoji: '🌙', mood: 'Melancholic & dark' },
+  locrian: { emoji: '😈', mood: 'Tense & unstable' },
+  harmonicMinor: { emoji: '🎻', mood: 'Dramatic & Eastern' },
+  melodicMinor: { emoji: '🎺', mood: 'Sophisticated jazz' },
+  harmonicMajor: { emoji: '🏛️', mood: 'Classical & rich' },
+  phrygianDominant: { emoji: '🔥', mood: 'Flamenco & intense' },
+  lydianDominant: { emoji: '🚀', mood: 'Fusion & modern' },
+  lydianAugmented: { emoji: '🌌', mood: 'Ethereal & strange' },
+  superLocrian: { emoji: '💥', mood: 'Maximum tension' },
+  locrianSharp2: { emoji: '🌑', mood: 'Dark half-dim' },
+  dorianFlat9: { emoji: '🌶️', mood: 'Spicy & exotic' },
+  bebopDominant: { emoji: '🎙️', mood: 'Classic bebop' },
+  bebopMajor: { emoji: '🎩', mood: 'Swing era classic' },
+  bebopDorian: { emoji: '🎵', mood: 'Bebop minor' },
+  bebopHarmMinor: { emoji: '🎼', mood: 'Bebop harmonic' },
+  bebopMelMinor: { emoji: '🎶', mood: 'Bebop melodic' },
+  bluesHeptaMinor: { emoji: '🔵', mood: 'Blues heptatonic' },
+  neapolitan: { emoji: '🇮🇹', mood: 'Romantic & lyrical' },
+  hungarianMinor: { emoji: '🏰', mood: 'Mysterious & exotic' },
+  hungarianMajor: { emoji: '🎠', mood: 'Colorful & exotic' },
+  doubleHarmonic: { emoji: '🕌', mood: 'Byzantine & mystical' },
+  enigmatic: { emoji: '🔮', mood: "Verdi's enigma" },
+  persian: { emoji: '🌹', mood: 'Middle-Eastern' },
+  ukrainian: { emoji: '🌾', mood: 'Folk & modal' },
+  romanian: { emoji: '🌺', mood: 'Balkan folk' },
+  algerian: { emoji: '🏜️', mood: 'North African' },
+  spanish8: { emoji: '💃', mood: 'Flamenco eight-tone' },
+};
+
+// Category grouping for display
+const SCALE_CATEGORIES: { label: string; keys: string[] }[] = [
+  { label: 'Major Modes', keys: ['major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'] },
+  {
+    label: 'Minor & Harmonic',
+    keys: [
+      'harmonicMinor',
+      'melodicMinor',
+      'harmonicMajor',
+      'phrygianDominant',
+      'lydianAugmented',
+      'lydianDominant',
+      'superLocrian',
+      'locrianSharp2',
+      'dorianFlat9',
+    ],
+  },
+  { label: 'Bebop', keys: ['bebopDominant', 'bebopMajor', 'bebopDorian', 'bebopHarmMinor', 'bebopMelMinor'] },
+  {
+    label: 'Exotic & World',
+    keys: [
+      'hungarianMinor',
+      'hungarianMajor',
+      'doubleHarmonic',
+      'neapolitan',
+      'enigmatic',
+      'persian',
+      'ukrainian',
+      'romanian',
+      'algerian',
+      'spanish8',
+      'bluesHeptaMinor',
+    ],
+  },
+];
+
+// Only 7-note scales
+const HARMONIZABLE_SCALES = Object.entries(SCALE_FORMULAS).filter(([, f]) => f.intervals.length === 7);
+
+const HARMONIZABLE_KEYS = new Set(HARMONIZABLE_SCALES.map(([k]) => k));
 
 type ChordSize = 'triad' | '7th';
 
 interface DiatonicChord {
-  degreeNum: number;      // 1-7
+  degreeNum: number;
   romanNumeral: string;
   root: string;
-  quality: string;        // maj, m, dim, aug, maj7, m7, etc.
+  quality: string;
   symbol: string;
   notes: string[];
   intervals: number[];
@@ -27,12 +97,12 @@ const ROMAN_UPPER = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 const ROMAN_LOWER = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'];
 
 function detectTriadQuality(t3: number, t5: number): { quality: string; isMinor: boolean } {
-  if (t3 === 4 && t5 === 7)  return { quality: 'maj', isMinor: false };
-  if (t3 === 3 && t5 === 7)  return { quality: 'm', isMinor: true };
-  if (t3 === 3 && t5 === 6)  return { quality: 'dim', isMinor: true };
-  if (t3 === 4 && t5 === 8)  return { quality: 'aug', isMinor: false };
-  if (t3 === 2 && t5 === 7)  return { quality: 'sus2', isMinor: false };
-  if (t3 === 5 && t5 === 7)  return { quality: 'sus4', isMinor: false };
+  if (t3 === 4 && t5 === 7) return { quality: 'maj', isMinor: false };
+  if (t3 === 3 && t5 === 7) return { quality: 'm', isMinor: true };
+  if (t3 === 3 && t5 === 6) return { quality: 'dim', isMinor: true };
+  if (t3 === 4 && t5 === 8) return { quality: 'aug', isMinor: false };
+  if (t3 === 2 && t5 === 7) return { quality: 'sus2', isMinor: false };
+  if (t3 === 5 && t5 === 7) return { quality: 'sus4', isMinor: false };
   return { quality: 'maj', isMinor: false };
 }
 
@@ -42,7 +112,7 @@ function detect7thQuality(t3: number, t5: number, t7: number): { quality: string
   if (t3 === 3 && t5 === 7 && t7 === 10) return { quality: 'm7', isMinor: true };
   if (t3 === 3 && t5 === 7 && t7 === 11) return { quality: 'mMaj7', isMinor: true };
   if (t3 === 3 && t5 === 6 && t7 === 10) return { quality: 'm7b5', isMinor: true };
-  if (t3 === 3 && t5 === 6 && t7 === 9)  return { quality: 'dim7', isMinor: true };
+  if (t3 === 3 && t5 === 6 && t7 === 9) return { quality: 'dim7', isMinor: true };
   if (t3 === 4 && t5 === 8 && t7 === 11) return { quality: 'augMaj7', isMinor: false };
   if (t3 === 4 && t5 === 8 && t7 === 10) return { quality: '7#5', isMinor: false };
   return { quality: 'maj7', isMinor: false };
@@ -58,19 +128,15 @@ function harmonize(key: string, scaleKey: string, size: ChordSize): DiatonicChor
 
   return intervals.map((degInt, di) => {
     const degRoot = semitoneToNote((rootSemitone + degInt) % 12, preferFlat);
-
-    // Build chord tones by stacking thirds from the scale
     const third = intervals[(di + 2) % n];
     const fifth = intervals[(di + 4) % n];
     const seventh = intervals[(di + 6) % n];
-
-    const t3 = ((third - degInt) + 120) % 12;
-    const t5 = ((fifth - degInt) + 120) % 12;
-    const t7 = ((seventh - degInt) + 120) % 12;
+    const t3 = (third - degInt + 120) % 12;
+    const t5 = (fifth - degInt + 120) % 12;
+    const t7 = (seventh - degInt + 120) % 12;
 
     let quality: string;
     let isMinor: boolean;
-
     if (size === 'triad') {
       const det = detectTriadQuality(t3, t5);
       quality = det.quality;
@@ -83,14 +149,17 @@ function harmonize(key: string, scaleKey: string, size: ChordSize): DiatonicChor
 
     const symbol = `${degRoot}${quality === 'maj' ? '' : quality}`;
     const roman = isMinor ? ROMAN_LOWER[di] : ROMAN_UPPER[di];
-    const romanNumeral = quality === 'dim' || quality === 'm7b5' || quality === 'dim7'
-      ? `${roman}°` : quality === 'aug' || quality === 'augMaj7' ? `${roman}+` : roman;
+    const romanNumeral =
+      quality === 'dim' || quality === 'm7b5' || quality === 'dim7'
+        ? `${roman}°`
+        : quality === 'aug' || quality === 'augMaj7'
+          ? `${roman}+`
+          : roman;
 
     const noteIntervals = size === 'triad' ? [0, t3, t5] : [0, t3, t5, t7];
     const degRootSemitone = (rootSemitone + degInt) % 12;
-    const notes = noteIntervals.map(i => semitoneToNote((degRootSemitone + i) % 12, preferFlat));
+    const notes = noteIntervals.map((i) => semitoneToNote((degRootSemitone + i) % 12, preferFlat));
 
-    // Harmonic function
     let fn: DiatonicChord['fn'] = 'Color';
     if (di === 0 || di === 2 || di === 5) fn = 'Tonic';
     else if (di === 1 || di === 3) fn = 'Subdominant';
@@ -112,91 +181,187 @@ export default function ScaleHarmonizationFeature() {
   const [selectedScale, setSelectedScale] = useState('major');
   const [chordSize, setChordSize] = useState<ChordSize>('7th');
   const [selectedDegree, setSelectedDegree] = useState<number | null>(null);
+  const [activeCategory, setActiveCategory] = useState('Major Modes');
 
-  const chords = useMemo(
-    () => harmonize(selectedKey, selectedScale, chordSize),
-    [selectedKey, selectedScale, chordSize]
-  );
-
+  const chords = useMemo(() => harmonize(selectedKey, selectedScale, chordSize), [selectedKey, selectedScale, chordSize]);
   const scaleNotes = useMemo(() => getScaleNotes(selectedKey, selectedScale), [selectedKey, selectedScale]);
   const scaleName = SCALE_FORMULAS[selectedScale]?.name ?? selectedScale;
   const selectedChord = selectedDegree !== null ? chords[selectedDegree] : null;
+
+  // Scales in the active category that are harmonizable
+  const categoryScales = useMemo(() => {
+    const cat = SCALE_CATEGORIES.find((c) => c.label === activeCategory);
+    if (!cat) return [];
+    return cat.keys
+      .filter((k) => HARMONIZABLE_KEYS.has(k))
+      .map((k) => ({
+        key: k,
+        formula: SCALE_FORMULAS[k],
+        vibe: SCALE_VIBE[k] ?? { emoji: '🎵', mood: '' },
+      }));
+  }, [activeCategory]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
         <h2 style={{ margin: '0 0 4px', fontSize: 22, color: '#e6edf3' }}>Scale Harmonization</h2>
         <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>
-          Generate diatonic chords from any scale. Stack thirds to see triads or seventh chords built on each degree.
+          Generate diatonic chords from any scale. Stack thirds to see triads or seventh chords on each degree.
         </p>
       </div>
 
       {/* Controls */}
-      <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div
+        style={{
+          background: '#161b22',
+          border: '1px solid #30363d',
+          borderRadius: 10,
+          padding: 16,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 14,
+        }}
+      >
         {/* Key selector */}
         <div>
           <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>Key</label>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-            {KEYS.map(k => (
-              <button key={k} onClick={() => setSelectedKey(k)} style={{
-                padding: '5px 10px',
-                background: selectedKey === k ? '#1d4ed820' : '#0d1117',
-                border: `1px solid ${selectedKey === k ? '#3b82f6' : '#30363d'}`,
-                borderRadius: 6, color: selectedKey === k ? '#93c5fd' : '#6b7280',
-                fontSize: 12, cursor: 'pointer', fontWeight: selectedKey === k ? 700 : 400, fontFamily: 'monospace',
-              }}>{k}</button>
+            {KEYS.map((k) => (
+              <button
+                key={k}
+                onClick={() => setSelectedKey(k)}
+                style={{
+                  padding: '5px 10px',
+                  background: selectedKey === k ? '#1d4ed820' : '#0d1117',
+                  border: `1px solid ${selectedKey === k ? '#3b82f6' : '#30363d'}`,
+                  borderRadius: 6,
+                  color: selectedKey === k ? '#93c5fd' : '#6b7280',
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  fontWeight: selectedKey === k ? 700 : 400,
+                  fontFamily: 'monospace',
+                }}
+              >
+                {k}
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Scale selector */}
+        {/* Scale selector — category tabs + card grid */}
         <div>
-          <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>Scale</label>
-          <select
-            value={selectedScale}
-            onChange={e => { setSelectedScale(e.target.value); setSelectedDegree(null); }}
-            style={{
-              padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d',
-              borderRadius: 8, color: '#e6edf3', fontSize: 14, outline: 'none', width: '100%', maxWidth: 400,
-            }}
-          >
-            {HARMONIZABLE_SCALES.map(([key, f]) => (
-              <option key={key} value={key}>{f.name}</option>
+          <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 8 }}>Scale</label>
+
+          {/* Category tabs */}
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
+            {SCALE_CATEGORIES.map((cat) => (
+              <button
+                key={cat.label}
+                onClick={() => setActiveCategory(cat.label)}
+                style={{
+                  padding: '4px 12px',
+                  background: activeCategory === cat.label ? '#7c3aed20' : 'none',
+                  border: `1px solid ${activeCategory === cat.label ? '#7c3aed' : '#30363d'}`,
+                  borderRadius: 20,
+                  color: activeCategory === cat.label ? '#a78bfa' : '#6b7280',
+                  fontSize: 11,
+                  cursor: 'pointer',
+                  fontWeight: activeCategory === cat.label ? 600 : 400,
+                  transition: 'all 0.15s',
+                }}
+              >
+                {cat.label}
+              </button>
             ))}
-          </select>
+          </div>
+
+          {/* Scale cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 6 }}>
+            {categoryScales.map(({ key, formula, vibe }) => {
+              const isActive = selectedScale === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setSelectedScale(key);
+                    setSelectedDegree(null);
+                  }}
+                  style={{
+                    padding: '10px 12px',
+                    background: isActive ? '#7c3aed18' : '#0d1117',
+                    border: `1px solid ${isActive ? '#7c3aed' : '#21262d'}`,
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.15s',
+                    boxShadow: isActive ? '0 0 10px #7c3aed30' : 'none',
+                  }}
+                >
+                  <div style={{ fontSize: 18, lineHeight: 1, marginBottom: 4 }}>{vibe.emoji}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: isActive ? '#c4b5fd' : '#e6edf3', lineHeight: 1.2, marginBottom: 2 }}>
+                    {formula?.name ?? key}
+                  </div>
+                  {vibe.mood && <div style={{ fontSize: 10, color: '#4b5563', lineHeight: 1.2 }}>{vibe.mood}</div>}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Chord size */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          {(['triad', '7th'] as ChordSize[]).map(sz => (
-            <button key={sz} onClick={() => setChordSize(sz)} style={{
-              padding: '6px 16px',
-              background: chordSize === sz ? '#1d4ed820' : 'none',
-              border: `1px solid ${chordSize === sz ? '#3b82f6' : '#30363d'}`,
-              borderRadius: 6, color: chordSize === sz ? '#93c5fd' : '#6b7280',
-              fontSize: 13, cursor: 'pointer', fontWeight: chordSize === sz ? 600 : 400,
-            }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <label style={{ fontSize: 12, color: '#8b949e', marginRight: 4 }}>Chord type:</label>
+          {(['triad', '7th'] as ChordSize[]).map((sz) => (
+            <button
+              key={sz}
+              onClick={() => setChordSize(sz)}
+              style={{
+                padding: '6px 16px',
+                background: chordSize === sz ? '#1d4ed820' : 'none',
+                border: `1px solid ${chordSize === sz ? '#3b82f6' : '#30363d'}`,
+                borderRadius: 6,
+                color: chordSize === sz ? '#93c5fd' : '#6b7280',
+                fontSize: 13,
+                cursor: 'pointer',
+                fontWeight: chordSize === sz ? 600 : 400,
+              }}
+            >
               {sz === 'triad' ? 'Triads' : '7th Chords'}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Scale notes */}
+      {/* Selected scale info */}
       <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '12px 16px' }}>
-        <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>
-          {selectedKey} {scaleName} — scale notes:
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <span style={{ fontSize: 20 }}>{SCALE_VIBE[selectedScale]?.emoji ?? '🎵'}</span>
+          <div>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#e6edf3' }}>
+              {selectedKey} {scaleName}
+            </span>
+            {SCALE_VIBE[selectedScale]?.mood && (
+              <span style={{ fontSize: 12, color: '#6b7280', marginLeft: 8 }}>— {SCALE_VIBE[selectedScale].mood}</span>
+            )}
+          </div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {scaleNotes.map((n, i) => (
-            <span key={i} style={{
-              padding: '3px 10px', borderRadius: 5,
-              background: i === 0 ? '#f9731620' : '#1c2128',
-              border: `1px solid ${i === 0 ? '#f97316' : '#30363d'}`,
-              fontSize: 13, fontFamily: 'monospace',
-              color: i === 0 ? '#fb923c' : '#e6edf3',
-              fontWeight: i === 0 ? 700 : 400,
-            }}>{i + 1}. {n}</span>
+            <span
+              key={i}
+              style={{
+                padding: '3px 10px',
+                borderRadius: 5,
+                background: i === 0 ? '#f9731620' : '#1c2128',
+                border: `1px solid ${i === 0 ? '#f97316' : '#30363d'}`,
+                fontSize: 13,
+                fontFamily: 'monospace',
+                color: i === 0 ? '#fb923c' : '#e6edf3',
+                fontWeight: i === 0 ? 700 : 400,
+              }}
+            >
+              {i + 1}. {n}
+            </span>
           ))}
         </div>
       </div>
@@ -215,30 +380,44 @@ export default function ScaleHarmonizationFeature() {
                   style={{
                     background: isSelected ? '#161b22' : '#0d1117',
                     border: `1px solid ${isSelected ? fnColor : '#21262d'}`,
-                    borderRadius: 10, padding: '12px 10px', cursor: 'pointer', textAlign: 'center',
+                    borderRadius: 10,
+                    padding: '12px 10px',
+                    cursor: 'pointer',
+                    textAlign: 'center',
                     transition: 'all 0.1s',
                     boxShadow: isSelected ? `0 0 12px ${fnColor}30` : 'none',
                   }}
                 >
-                  <div style={{ fontSize: 11, color: fnColor, fontWeight: 600, marginBottom: 4 }}>
-                    {chord.romanNumeral}
-                  </div>
+                  <div style={{ fontSize: 11, color: fnColor, fontWeight: 600, marginBottom: 4 }}>{chord.romanNumeral}</div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#e6edf3', fontFamily: 'monospace', lineHeight: 1 }}>
                     {chord.symbol}
                   </div>
-                  <div style={{
-                    marginTop: 6, fontSize: 10, fontWeight: 600,
-                    color: fnColor, padding: '1px 5px', background: `${fnColor}20`,
-                    borderRadius: 3, display: 'inline-block',
-                  }}>
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      color: fnColor,
+                      padding: '1px 5px',
+                      background: `${fnColor}20`,
+                      borderRadius: 3,
+                      display: 'inline-block',
+                    }}
+                  >
                     {chord.fn}
                   </div>
                   <div style={{ marginTop: 6, display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
                     {chord.notes.map((n, j) => (
-                      <span key={j} style={{
-                        fontSize: 10, fontFamily: 'monospace',
-                        color: j === 0 ? '#fb923c' : '#6b7280',
-                      }}>{n}</span>
+                      <span
+                        key={j}
+                        style={{
+                          fontSize: 10,
+                          fontFamily: 'monospace',
+                          color: j === 0 ? '#fb923c' : '#6b7280',
+                        }}
+                      >
+                        {n}
+                      </span>
                     ))}
                   </div>
                 </button>
@@ -258,14 +437,30 @@ export default function ScaleHarmonizationFeature() {
 
           {/* Selected chord detail */}
           {selectedChord && (
-            <div style={{ background: '#161b22', border: `1px solid ${FN_COLORS[selectedChord.fn]}40`, borderRadius: 10, padding: '16px 20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+            <div
+              style={{
+                background: '#161b22',
+                border: `1px solid ${FN_COLORS[selectedChord.fn]}40`,
+                borderRadius: 10,
+                padding: '16px 20px',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                  marginBottom: 12,
+                }}
+              >
                 <div>
                   <div style={{ fontSize: 11, color: FN_COLORS[selectedChord.fn], fontWeight: 600, marginBottom: 2 }}>
                     Degree {selectedChord.degreeNum} — {selectedChord.fn}
                   </div>
                   <div style={{ fontSize: 24, fontWeight: 800, color: '#e6edf3', fontFamily: 'monospace' }}>
-                    {selectedChord.romanNumeral}  {selectedChord.symbol}
+                    {selectedChord.romanNumeral} {selectedChord.symbol}
                   </div>
                   <div style={{ fontSize: 13, color: '#8b949e', marginTop: 2 }}>
                     Quality: {selectedChord.quality} · Root: {selectedChord.root}
@@ -277,12 +472,18 @@ export default function ScaleHarmonizationFeature() {
                   const labels = ['Root', '3rd', '5th', '7th', '9th'][i] ?? '';
                   return (
                     <div key={i} style={{ textAlign: 'center' }}>
-                      <div style={{
-                        padding: '6px 14px', borderRadius: 6, fontFamily: 'monospace', fontSize: 16, fontWeight: 700,
-                        background: i === 0 ? '#f9731620' : '#1c2128',
-                        border: `1px solid ${i === 0 ? '#f97316' : '#30363d'}`,
-                        color: i === 0 ? '#fb923c' : '#e6edf3',
-                      }}>
+                      <div
+                        style={{
+                          padding: '6px 14px',
+                          borderRadius: 6,
+                          fontFamily: 'monospace',
+                          fontSize: 16,
+                          fontWeight: 700,
+                          background: i === 0 ? '#f9731620' : '#1c2128',
+                          border: `1px solid ${i === 0 ? '#f97316' : '#30363d'}`,
+                          color: i === 0 ? '#fb923c' : '#e6edf3',
+                        }}
+                      >
                         {n}
                       </div>
                       <div style={{ fontSize: 10, color: '#4b5563', marginTop: 3 }}>{labels}</div>
@@ -294,9 +495,7 @@ export default function ScaleHarmonizationFeature() {
           )}
         </>
       ) : (
-        <div style={{ textAlign: 'center', padding: 40, color: '#4b5563' }}>
-          Select a 7-note scale to see harmonization.
-        </div>
+        <div style={{ textAlign: 'center', padding: 40, color: '#4b5563' }}>Select a 7-note scale to see harmonization.</div>
       )}
     </div>
   );
