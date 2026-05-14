@@ -1,4 +1,4 @@
-import type { HarmonyStyle, Technique } from '../types/progression.types';
+import type { HarmonyStyle, KeyMode, Technique } from '../types/progression.types';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 const LENGTHS = [2, 3, 4, 5, 6, 7, 8];
@@ -20,6 +20,8 @@ const TECHNIQUE_COLORS: Record<Technique, string> = {
 interface Props {
   keyNote: string;
   setKey: (k: string) => void;
+  mode: KeyMode;
+  setMode: (m: KeyMode) => void;
   length: number;
   setLength: (l: number) => void;
   style: HarmonyStyle | 'both';
@@ -32,12 +34,12 @@ interface Props {
 }
 
 export default function ProgressionSettings({
-  keyNote, setKey, length, setLength, style, setStyle,
+  keyNote, setKey, mode, setMode, length, setLength, style, setStyle,
   techniques, toggleTechnique, availableTechniques, onGenerate, resultCount,
 }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      {/* Row 1: Key + Length + Style */}
+      {/* Row 1: Key + Mode + Length + Style */}
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         {/* Key selector */}
         <div style={{ flex: '1 1 120px' }}>
@@ -53,6 +55,35 @@ export default function ProgressionSettings({
           >
             {KEYS.map(k => <option key={k} value={k}>{k}</option>)}
           </select>
+        </div>
+
+        {/* Mode selector */}
+        <div style={{ flex: '0 0 auto' }}>
+          <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>Mode</label>
+          <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #30363d' }}>
+            {(['major', 'minor'] as const).map(m => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                style={{
+                  padding: '8px 18px',
+                  background: mode === m
+                    ? (m === 'major' ? '#1d4ed820' : '#7c3aed20')
+                    : '#0d1117',
+                  border: 'none',
+                  borderRight: m === 'major' ? '1px solid #30363d' : 'none',
+                  color: mode === m
+                    ? (m === 'major' ? '#60a5fa' : '#a78bfa')
+                    : '#6b7280',
+                  fontSize: 13, cursor: 'pointer',
+                  fontWeight: mode === m ? 700 : 400,
+                  transition: 'all 0.15s',
+                }}
+              >
+                {m === 'major' ? '☀️ Major' : '🌙 Minor'}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Length selector */}

@@ -5,6 +5,7 @@ import {
   getChordNotes,
   DEGREE_SEMITONE,
   MAJOR_DIATONIC_QUALITY,
+  MINOR_DIATONIC_QUALITY,
 } from '@shared/utils/musicTheory';
 import type {
   ProgressionTemplate,
@@ -903,6 +904,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['D\'Angelo', 'Erykah Badu', 'Amy Winehouse', 'SZA', 'H.E.R.'],
     feel: 'Aeolian minor anthem',
     lengths: [4],
+    mode: 'minor',
   },
   {
     id: 'i-bVII-bVI-bVII',
@@ -918,6 +920,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Radiohead', 'Portishead', 'Adele', 'Frank Ocean'],
     feel: 'Descending minor loop',
     lengths: [4],
+    mode: 'minor',
   },
   {
     id: 'i-bIII-bVI-bVII',
@@ -933,6 +936,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['D\'Angelo', 'Frank Ocean', 'Robert Glasper', 'Cory Henry'],
     feel: 'Deep neo-soul minor',
     lengths: [4],
+    mode: 'minor',
   },
   {
     id: 'bVI-bVII-i',
@@ -947,6 +951,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['J Dilla', 'Kendrick Lamar', 'Red Hot Chili Peppers', 'Bilal'],
     feel: 'Hip-hop minor arrival',
     lengths: [3],
+    mode: 'minor',
   },
   {
     id: 'i-iv-bVII-bIII',
@@ -962,6 +967,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Amy Winehouse', 'Ari Lennox', 'Jazmine Sullivan', 'Maxwell'],
     feel: 'Full Aeolian journey',
     lengths: [4],
+    mode: 'minor',
   },
   {
     id: 'i-bVI-bIII-bVII',
@@ -977,6 +983,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Björk', 'Massive Attack', 'Portishead', 'James Blake'],
     feel: 'Dark minor axis',
     lengths: [4],
+    mode: 'minor',
   },
   {
     id: 'i-bVI-bVII-bVI',
@@ -992,6 +999,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['SZA', 'Jhené Aiko', 'Daniel Caesar', 'Ella Mai'],
     feel: 'Unresolved melancholic float',
     lengths: [4],
+    mode: 'minor',
   },
   {
     id: 'i-iv-i-V7',
@@ -1007,6 +1015,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Paco de Lucía', 'Miles Davis', 'Chick Corea', 'Wayne Shorter'],
     feel: 'Harmonic minor vamp',
     lengths: [4],
+    mode: 'minor',
   },
 
   // ── MINOR KEY — HARMONIC MINOR / JAZZ MINOR CADENCES ─────────────────────
@@ -1023,6 +1032,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Bill Evans', 'Miles Davis', 'Charlie Parker', 'John Coltrane'],
     feel: 'Minor jazz resolution',
     lengths: [3],
+    mode: 'minor',
   },
   {
     id: 'iim7b5-V7alt-im-bVI',
@@ -1038,6 +1048,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Bill Evans', 'Keith Jarrett', 'Brad Mehldau', 'Esbjörn Svensson'],
     feel: 'ECM minor ballad',
     lengths: [4],
+    mode: 'minor',
   },
   {
     id: 'bVI-V7-im',
@@ -1052,6 +1063,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Paco de Lucía', 'Miles Davis', 'Chick Corea', 'Herbie Hancock'],
     feel: 'Flamenco / Andalusian minor',
     lengths: [3],
+    mode: 'minor',
   },
   {
     id: 'viidim7-im-bVI-V7',
@@ -1067,6 +1079,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Oscar Peterson', 'Tommy Flanagan', 'Wynton Kelly'],
     feel: 'Classical-jazz minor drama',
     lengths: [4],
+    mode: 'minor',
   },
   {
     id: 'im-bVI-V7-im-iim7b5-V7alt',
@@ -1084,6 +1097,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['John Coltrane', 'Wayne Shorter', 'Joe Henderson', 'Dexter Gordon'],
     feel: 'Complete minor jazz form',
     lengths: [6],
+    mode: 'minor',
   },
 
   // ── JAZZ STANDARD PATTERNS ────────────────────────────────────────────────
@@ -1103,6 +1117,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Bill Evans', 'Miles Davis', 'Chet Baker', 'Cannonball Adderley'],
     feel: 'Dual-key minor/major pivot (Autumn Leaves style)',
     lengths: [6],
+    mode: 'both',
   },
   {
     id: 'there-will-never',
@@ -1120,6 +1135,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Harry Warren', 'Bill Evans', 'Chet Baker', 'Diana Krall'],
     feel: 'Classic Great American Songbook',
     lengths: [6],
+    mode: 'both',
   },
   {
     id: 'dameron-turnaround',
@@ -1136,6 +1152,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Tadd Dameron', 'John Coltrane', 'Clifford Brown', 'Fats Navarro'],
     feel: 'Dameron turnaround — pre-Coltrane reharmonization',
     lengths: [5],
+    mode: 'both',
   },
   {
     id: 'lady-bird-form',
@@ -1153,6 +1170,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Tadd Dameron', 'John Coltrane', 'Woody Herman', 'Lee Morgan'],
     feel: 'Lady Bird / bebop reharmonization',
     lengths: [6],
+    mode: 'both',
   },
   {
     id: 'jazz-bridge-cycle',
@@ -1170,6 +1188,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Charlie Parker', 'Dizzy Gillespie', 'Thelonious Monk'],
     feel: 'Rhythm Changes bridge / cycle-of-5ths pivot',
     lengths: [6],
+    mode: 'both',
   },
 
   // ── COLTRANE CHANGES / REHARMONIZATIONS ──────────────────────────────────
@@ -1189,6 +1208,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['John Coltrane', 'McCoy Tyner', 'Tommy Flanagan', 'Jacob Collier'],
     feel: 'Coltrane Changes — three-center major-third cycle',
     lengths: [6],
+    mode: 'both',
   },
   {
     id: 'coltrane-reharmonized-turnaround',
@@ -1205,6 +1225,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['John Coltrane', 'Herbie Hancock', 'Brad Mehldau', 'Jacob Collier'],
     feel: 'Compact Coltrane reharmonization',
     lengths: [5],
+    mode: 'both',
   },
   {
     id: 'tritone-chain-minor',
@@ -1222,6 +1243,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Herbie Hancock', 'McCoy Tyner', 'Chick Corea', 'Brad Mehldau'],
     feel: 'Advanced multi-technique reharmonization',
     lengths: [6],
+    mode: 'both',
   },
   {
     id: 'descending-major-thirds',
@@ -1237,6 +1259,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Wayne Shorter', 'Herbie Hancock', 'Weather Report', 'Jacob Collier'],
     feel: 'Symmetric equal-division of octave',
     lengths: [4],
+    mode: 'both',
   },
 
   // ── HIP-HOP / CONTEMPORARY HARMONY ───────────────────────────────────────
@@ -1252,6 +1275,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['J Dilla', 'Madlib', 'Flying Lotus', 'Kaytranada'],
     feel: 'Lo-fi / beat tape modal loop',
     lengths: [2],
+    mode: 'both',
   },
   {
     id: 'phrygian-hiphop',
@@ -1266,6 +1290,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Kendrick Lamar', 'Pharrell', 'Kaytranada', 'Flying Lotus'],
     feel: 'Phrygian hip-hop — Kendrick / Pharrell sound',
     lengths: [3],
+    mode: 'both',
   },
   {
     id: 'kendrick-modal-minor',
@@ -1281,6 +1306,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Kendrick Lamar', 'Flying Lotus', 'Thundercat', 'Kamasi Washington'],
     feel: 'TPAB jazz-funk modal',
     lengths: [4],
+    mode: 'both',
   },
   {
     id: 'frank-ocean-mediant',
@@ -1296,6 +1322,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Frank Ocean', 'Bon Iver', 'James Blake', 'Rex Orange County'],
     feel: 'Indie R&B chromatic mediant float',
     lengths: [4],
+    mode: 'both',
   },
   {
     id: 'lofi-chromatic-descent',
@@ -1311,6 +1338,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Nujabes', 'Knxwledge', 'J Dilla', 'Madlib'],
     feel: 'Lo-fi parallel chromatic descent',
     lengths: [4],
+    mode: 'both',
   },
   {
     id: 'thundercat-dorian-fusion',
@@ -1326,6 +1354,7 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Thundercat', 'Kamasi Washington', 'Robert Glasper', 'Flying Lotus'],
     feel: 'Thundercat jazz-funk Dorian fusion',
     lengths: [4],
+    mode: 'both',
   },
   {
     id: 'mixolydian-hiphop-vamp',
@@ -1341,12 +1370,13 @@ const TEMPLATES: ProgressionTemplate[] = [
     artists: ['Pharrell Williams', 'Kendrick Lamar', 'Anderson .Paak', 'Bruno Mars'],
     feel: 'Pharrell / Kendrick Mixolydian funk',
     lengths: [4],
+    mode: 'both',
   },
 ];
 
 // ─── Resolution ──────────────────────────────────────────────────────────────
 
-function resolveDegree(key: string, degree: string, qualityKey: string): { root: string; quality: string; symbol: string; notes: string[] } {
+function resolveDegree(key: string, degree: string, qualityKey: string, mode: 'major' | 'minor' = 'major'): { root: string; quality: string; symbol: string; notes: string[] } {
   const keySemitone = noteToSemitone(key);
   const degreeSemitones = DEGREE_SEMITONE[degree];
   if (degreeSemitones === undefined) {
@@ -1357,10 +1387,11 @@ function resolveDegree(key: string, degree: string, qualityKey: string): { root:
   const preferFlat = notePreferFlat(key) || [1, 3, 6, 8, 10].includes(resolvedSemitone);
   const root = semitoneToNote(resolvedSemitone, preferFlat);
 
-  // Resolve 'diatonic' quality
+  // Resolve 'diatonic' quality using the correct scale quality map
   let quality = qualityKey;
   if (qualityKey === 'diatonic') {
-    quality = MAJOR_DIATONIC_QUALITY[degree] ?? 'maj7';
+    const qualityMap = mode === 'minor' ? MINOR_DIATONIC_QUALITY : MAJOR_DIATONIC_QUALITY;
+    quality = qualityMap[degree] ?? (mode === 'minor' ? 'm7' : 'maj7');
   }
 
   const qualitySuffix = quality === 'maj' ? '' : quality;
@@ -1370,8 +1401,8 @@ function resolveDegree(key: string, degree: string, qualityKey: string): { root:
   return { root, quality, symbol, notes };
 }
 
-function resolveChord(key: string, chord: ProgressionChord): ResolvedChord {
-  const { root, quality, symbol, notes } = resolveDegree(key, chord.degree, chord.quality);
+function resolveChord(key: string, chord: ProgressionChord, mode: 'major' | 'minor' = 'major'): ResolvedChord {
+  const { root, quality, symbol, notes } = resolveDegree(key, chord.degree, chord.quality, mode);
   return {
     degree: chord.degree,
     symbol,
@@ -1389,6 +1420,7 @@ function resolveChord(key: string, chord: ProgressionChord): ResolvedChord {
 
 export interface ProgressionFilter {
   key: string;
+  mode: 'major' | 'minor';
   length: number;
   style: HarmonyStyle | 'both';
   techniques: Technique[];
@@ -1409,7 +1441,7 @@ export function getAvailableTechniques(): { id: Technique; label: string; descri
 }
 
 export function generateProgressions(filter: ProgressionFilter): GeneratedProgression[] {
-  const { key, length, style, techniques } = filter;
+  const { key, mode, length, style, techniques } = filter;
 
   if (noteToSemitone(key) < 0) return [];
 
@@ -1420,6 +1452,10 @@ export function generateProgressions(filter: ProgressionFilter): GeneratedProgre
     // Length filter: allow if template supports this length
     if (!template.lengths.includes(length)) continue;
 
+    // Mode filter: undefined defaults to 'major'
+    const templateMode = template.mode ?? 'major';
+    if (templateMode !== 'both' && templateMode !== mode) continue;
+
     // Style filter
     if (style !== 'both' && template.style !== style) continue;
 
@@ -1429,7 +1465,7 @@ export function generateProgressions(filter: ProgressionFilter): GeneratedProgre
       if (!hasOverlap) continue;
     }
 
-    const chords = template.chords.map(c => resolveChord(key, c));
+    const chords = template.chords.map(c => resolveChord(key, c, mode));
 
     results.push({
       id: String(id++),

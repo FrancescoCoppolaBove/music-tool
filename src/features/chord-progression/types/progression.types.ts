@@ -24,6 +24,8 @@ export interface ProgressionChord {
   annotation?: string;     // e.g. "V/V", "SubV", "bVII borrowed from Mixolydian"
 }
 
+export type KeyMode = 'major' | 'minor';
+
 export interface ProgressionTemplate {
   id: string;
   name: string;
@@ -34,6 +36,7 @@ export interface ProgressionTemplate {
   artists: string[];          // inspired by
   feel: string;               // e.g. "Groovy jazz cadence", "Cinematic"
   lengths: number[];          // valid lengths for this pattern
+  mode?: KeyMode | 'both';    // undefined defaults to 'major'
 }
 
 export interface GeneratedProgression {

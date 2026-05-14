@@ -5,6 +5,7 @@ import { useChordProgression } from './hooks/useChordProgression';
 export default function ChordProgressionFeature() {
   const {
     key, setKey,
+    mode, setMode,
     length, setLength,
     style, setStyle,
     techniques, toggleTechnique,
@@ -31,6 +32,8 @@ export default function ChordProgressionFeature() {
         <ProgressionSettings
           keyNote={key}
           setKey={setKey}
+          mode={mode}
+          setMode={setMode}
           length={length}
           setLength={setLength}
           style={style}

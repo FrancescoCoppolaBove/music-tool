@@ -1,9 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { generateProgressions, getAvailableTechniques, type ProgressionFilter } from '../services/progressionGenerator';
-import type { GeneratedProgression, HarmonyStyle, Technique } from '../types/progression.types';
+import type { GeneratedProgression, HarmonyStyle, KeyMode, Technique } from '../types/progression.types';
 
 export function useChordProgression() {
   const [key, setKey] = useState('C');
+  const [mode, setMode] = useState<KeyMode>('major');
   const [length, setLength] = useState(4);
   const [style, setStyle] = useState<HarmonyStyle | 'both'>('both');
   const [techniques, setTechniques] = useState<Technique[]>([]);
@@ -11,11 +12,11 @@ export function useChordProgression() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const generate = useCallback(() => {
-    const filter: ProgressionFilter = { key, length, style, techniques };
+    const filter: ProgressionFilter = { key, mode, length, style, techniques };
     const r = generateProgressions(filter);
     setResults(r);
     setSelectedId(r[0]?.id ?? null);
-  }, [key, length, style, techniques]);
+  }, [key, mode, length, style, techniques]);
 
   // Auto-generate on mount
   useEffect(() => { generate(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -31,6 +32,7 @@ export function useChordProgression() {
 
   return {
     key, setKey,
+    mode, setMode,
     length, setLength,
     style, setStyle,
     techniques, toggleTechnique,
