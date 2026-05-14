@@ -1,5 +1,16 @@
 import type { HarmonyStyle, KeyMode, Technique } from '../types/progression.types';
 
+const MODE_OPTIONS: { id: KeyMode; label: string; emoji: string; description: string }[] = [
+  { id: 'major',             label: 'Major',          emoji: '☀️',  description: 'Bright, happy — Imaj7–IIm7–V7' },
+  { id: 'minor',             label: 'Minor',          emoji: '🌙',  description: 'Dark, emotional — im7–iim7b5–V7' },
+  { id: 'dorian',            label: 'Dorian',         emoji: '🎷',  description: 'Jazzy, soulful — IV is major/dominant' },
+  { id: 'phrygian',          label: 'Phrygian',       emoji: '🌊',  description: 'Spanish, intense — ♭II is the key chord' },
+  { id: 'lydian',            label: 'Lydian',         emoji: '✨',  description: 'Dreamy, ethereal — II dominant with ♯11' },
+  { id: 'mixolydian',        label: 'Mixolydian',     emoji: '🎸',  description: 'Rock, funky — I7 dominant tonic' },
+  { id: 'phrygian_dominant', label: 'Phryg. Dom.',    emoji: '🔥',  description: 'Flamenco, exotic — ♭II and I7 dominant' },
+  { id: 'lydian_dominant',   label: 'Lydian Dom.',    emoji: '🚀',  description: 'Fusion, mysterious — dual-dominant I7 and II7' },
+];
+
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 const LENGTHS = [2, 3, 4, 5, 6, 7, 8];
 
@@ -58,31 +69,34 @@ export default function ProgressionSettings({
         </div>
 
         {/* Mode selector */}
-        <div style={{ flex: '0 0 auto' }}>
-          <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>Mode</label>
-          <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #30363d' }}>
-            {(['major', 'minor'] as const).map(m => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                style={{
-                  padding: '8px 18px',
-                  background: mode === m
-                    ? (m === 'major' ? '#1d4ed820' : '#7c3aed20')
-                    : '#0d1117',
-                  border: 'none',
-                  borderRight: m === 'major' ? '1px solid #30363d' : 'none',
-                  color: mode === m
-                    ? (m === 'major' ? '#60a5fa' : '#a78bfa')
-                    : '#6b7280',
-                  fontSize: 13, cursor: 'pointer',
-                  fontWeight: mode === m ? 700 : 400,
-                  transition: 'all 0.15s',
-                }}
-              >
-                {m === 'major' ? '☀️ Major' : '🌙 Minor'}
-              </button>
-            ))}
+        <div style={{ flex: '1 1 100%' }}>
+          <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>
+            Mode / Scale
+          </label>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {MODE_OPTIONS.map(m => {
+              const isOn = mode === m.id;
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setMode(m.id)}
+                  title={m.description}
+                  style={{
+                    padding: '6px 14px',
+                    background: isOn ? '#7c3aed30' : '#0d1117',
+                    border: `1px solid ${isOn ? '#7c3aed' : '#30363d'}`,
+                    borderRadius: 20,
+                    color: isOn ? '#c4b5fd' : '#6b7280',
+                    fontSize: 13, cursor: 'pointer',
+                    fontWeight: isOn ? 700 : 400,
+                    transition: 'all 0.15s',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {m.emoji} {m.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 

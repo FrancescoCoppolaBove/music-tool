@@ -256,10 +256,57 @@ export const MAJOR_DIATONIC_QUALITY: Record<string, string> = {
   'V': '7', 'VI': 'm7', 'VII': 'm7b5',
 };
 
-// Default chord qualities for each diatonic degree in natural minor
+// Default chord qualities for each diatonic degree in natural minor (Aeolian)
 export const MINOR_DIATONIC_QUALITY: Record<string, string> = {
   'I': 'm7', 'II': 'm7b5', 'bIII': 'maj7', 'IV': 'm7',
   'V': 'm7', 'bVI': 'maj7', 'bVII': '7',
+};
+
+// Dorian: 1 2 b3 4 5 6 b7 — characteristic: IV is dominant (major), not minor
+export const DORIAN_DIATONIC_QUALITY: Record<string, string> = {
+  'I': 'm7', 'II': 'm7', 'bIII': 'maj7', 'IV': '7',
+  'V': 'm7', 'VI': 'm7b5', 'VII': 'maj7',
+};
+
+// Phrygian: 1 b2 b3 4 5 b6 b7 — characteristic: bII is major
+export const PHRYGIAN_DIATONIC_QUALITY: Record<string, string> = {
+  'I': 'm7', 'bII': 'maj7', 'bIII': 'maj7', 'IV': 'm7',
+  'V': 'm7b5', 'bVI': 'maj7', 'bVII': 'm7',
+};
+
+// Lydian: 1 2 3 #4 5 6 7 — characteristic: II is dominant
+export const LYDIAN_DIATONIC_QUALITY: Record<string, string> = {
+  'I': 'maj7', 'II': '7', 'III': 'm7', '#IV': 'm7b5',
+  'V': 'maj7', 'VI': 'm7', 'VII': 'm7',
+};
+
+// Mixolydian: 1 2 3 4 5 6 b7 — characteristic: I is dominant, bVII is major
+export const MIXOLYDIAN_DIATONIC_QUALITY: Record<string, string> = {
+  'I': '7', 'II': 'm7', 'III': 'm7b5', 'IV': 'maj7',
+  'V': 'm7', 'VI': 'm7', 'bVII': 'maj7',
+};
+
+// Phrygian Dominant (HM mode V): 1 b2 3 4 5 b6 b7 — characteristic: I7, bII major
+export const PHRYGIAN_DOM_DIATONIC_QUALITY: Record<string, string> = {
+  'I': '7', 'bII': 'maj7', 'III': 'dim7', 'IV': 'm7',
+  'V': 'm7b5', 'bVI': 'maj7', 'bVII': 'm7',
+};
+
+// Lydian Dominant (MM mode IV): 1 2 3 #4 5 6 b7 — characteristic: I7, II dominant
+export const LYDIAN_DOM_DIATONIC_QUALITY: Record<string, string> = {
+  'I': '7', 'II': '7', 'III': 'm7b5', '#IV': 'm7b5',
+  'V': 'm7', 'VI': 'm7', 'bVII': 'maj7',
+};
+
+export const MODAL_QUALITY_MAPS: Record<string, Record<string, string>> = {
+  major:             MAJOR_DIATONIC_QUALITY,
+  minor:             MINOR_DIATONIC_QUALITY,
+  dorian:            DORIAN_DIATONIC_QUALITY,
+  phrygian:          PHRYGIAN_DIATONIC_QUALITY,
+  lydian:            LYDIAN_DIATONIC_QUALITY,
+  mixolydian:        MIXOLYDIAN_DIATONIC_QUALITY,
+  phrygian_dominant: PHRYGIAN_DOM_DIATONIC_QUALITY,
+  lydian_dominant:   LYDIAN_DOM_DIATONIC_QUALITY,
 };
 
 export function degreeToChord(key: string, degree: string, qualityOverride?: string): { root: string; quality: string; symbol: string } {

@@ -24,7 +24,15 @@ export interface ProgressionChord {
   annotation?: string;     // e.g. "V/V", "SubV", "bVII borrowed from Mixolydian"
 }
 
-export type KeyMode = 'major' | 'minor';
+export type KeyMode =
+  | 'major'
+  | 'minor'
+  | 'dorian'
+  | 'phrygian'
+  | 'lydian'
+  | 'mixolydian'
+  | 'phrygian_dominant'
+  | 'lydian_dominant';
 
 export interface ProgressionTemplate {
   id: string;

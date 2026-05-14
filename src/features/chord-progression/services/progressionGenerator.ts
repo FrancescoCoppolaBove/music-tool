@@ -4,8 +4,7 @@ import {
   notePreferFlat,
   getChordNotes,
   DEGREE_SEMITONE,
-  MAJOR_DIATONIC_QUALITY,
-  MINOR_DIATONIC_QUALITY,
+  MODAL_QUALITY_MAPS,
 } from '@shared/utils/musicTheory';
 import type {
   ProgressionTemplate,
@@ -13,6 +12,7 @@ import type {
   GeneratedProgression,
   ResolvedChord,
   HarmonyStyle,
+  KeyMode,
   Technique,
 } from '../types/progression.types';
 
@@ -1426,6 +1426,613 @@ const TEMPLATES: ProgressionTemplate[] = [
     mode: 'minor',
   },
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // MODAL PROGRESSIONS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // ── DORIAN ────────────────────────────────────────────────────────────────
+  // Characteristic: IV is dominant (major), not minor. The raised 6th.
+  // Vibe: jazz, soul, funk, progressive rock.
+  {
+    id: 'dorian-im-IV7',
+    name: 'im7–IV7 (Dorian Vamp)',
+    chords: [
+      { degree: 'I',  quality: 'm7', function: 'Tonic',    technique: 'diatonic' },
+      { degree: 'IV', quality: '7',  function: 'Color',    technique: 'diatonic', annotation: 'IV7 — the defining Dorian chord', techniqueLabel: 'Modal Color' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The most iconic Dorian vamp — im7 to IV7. The IV7 is major (not minor like in Aeolian) and defines the Dorian sound. Miles Davis "So What", Santana "Oye Como Va".',
+    artists: ['Miles Davis', 'Santana', 'Herbie Hancock', 'D\'Angelo'],
+    feel: 'Dorian modal vamp',
+    lengths: [2],
+    mode: 'dorian',
+  },
+  {
+    id: 'dorian-IV7-im',
+    name: 'IV7–im7 (Dorian Reverse Vamp)',
+    chords: [
+      { degree: 'IV', quality: '7',  function: 'Color',    technique: 'diatonic', annotation: 'IV7 opens — pure Dorian statement' },
+      { degree: 'I',  quality: 'm7', function: 'Tonic',    technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Opens on the characteristic IV7 before landing on tonic — feels like you\'re dropping into the mode. Very common in funk and Afro-Cuban jazz.',
+    artists: ['Stevie Wonder', 'Herbie Hancock', 'Earth Wind & Fire', 'Snarky Puppy'],
+    feel: 'Funky Dorian drop',
+    lengths: [2],
+    mode: 'dorian',
+  },
+  {
+    id: 'dorian-im-IV7-bVII-bIII',
+    name: 'im7–IV7–♭VII–♭III (Dorian Full Loop)',
+    chords: [
+      { degree: 'I',    quality: 'm7',  function: 'Tonic',    technique: 'diatonic' },
+      { degree: 'IV',   quality: '7',   function: 'Color',    technique: 'diatonic', annotation: 'IV7 — Dorian color chord' },
+      { degree: 'bVII', quality: 'maj7',function: 'Color',    technique: 'diatonic' },
+      { degree: 'bIII', quality: 'maj7',function: 'Color',    technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Full Dorian four-chord loop — all four color zones of the mode. The IV7 declares Dorian identity; ♭VII and ♭III add natural minor flavour before returning to im.',
+    artists: ['Herbie Hancock', 'Chick Corea', 'Weather Report', 'Yellowjackets'],
+    feel: 'Dorian four-chord cycle',
+    lengths: [4],
+    mode: 'dorian',
+  },
+  {
+    id: 'dorian-im-bIII-IV7-im',
+    name: 'im7–♭III–IV7–im7 (Dorian Ascent)',
+    chords: [
+      { degree: 'I',    quality: 'm9',  function: 'Tonic',    technique: 'diatonic' },
+      { degree: 'bIII', quality: 'maj7',function: 'Color',    technique: 'diatonic' },
+      { degree: 'IV',   quality: '9',   function: 'Color',    technique: 'diatonic', annotation: 'IV9 — Dorian major subdominant' },
+      { degree: 'I',    quality: 'm9',  function: 'Tonic',    technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Ascends from im through ♭III to IV9 — the Dorian characteristic — before returning home. Robert Glasper / neo-soul Dorian territory.',
+    artists: ['Robert Glasper', 'Cory Henry', 'Thundercat', 'Mac Ayres'],
+    feel: 'Neo-soul Dorian ascent',
+    lengths: [4],
+    mode: 'dorian',
+  },
+  {
+    id: 'dorian-bIII-IV7-im',
+    name: '♭III–IV7–im7 (Dorian Approach)',
+    chords: [
+      { degree: 'bIII', quality: 'maj7',function: 'Color',    technique: 'diatonic' },
+      { degree: 'IV',   quality: '7',   function: 'Color',    technique: 'diatonic', annotation: 'IV7 — Dorian characteristic' },
+      { degree: 'I',    quality: 'm9',  function: 'Tonic',    technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Starts a third above tonic — ♭III slides into the IV7 (the Dorian badge) then resolves to im. Three chords, completely inside the mode.',
+    artists: ['John Coltrane', 'McCoy Tyner', 'Wayne Shorter', 'Joshua Redman'],
+    feel: 'Dorian three-chord approach',
+    lengths: [3],
+    mode: 'dorian',
+  },
+  {
+    id: 'dorian-II-bIII-IV7-im',
+    name: 'IIm7–♭III–IV7–im7 (Full Dorian Cadence)',
+    chords: [
+      { degree: 'II',   quality: 'm7',  function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'bIII', quality: 'maj7',function: 'Color',       technique: 'diatonic' },
+      { degree: 'IV',   quality: '7',   function: 'Color',       technique: 'diatonic', annotation: 'IV7 — Dorian color' },
+      { degree: 'I',    quality: 'm9',  function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Starts on IIm7 (same as Aeolian) but confirms Dorian identity by landing on IV7 before tonic. The full non-tonic Dorian cadence.',
+    artists: ['Pat Metheny', 'Brad Mehldau', 'Avishai Cohen', 'Tigran Hamasyan'],
+    feel: 'Modern Dorian resolution',
+    lengths: [4],
+    mode: 'dorian',
+  },
+  {
+    id: 'dorian-IV7-bVII-bIII-im',
+    name: 'IV7–♭VII–♭III–im7 (Dorian Descent)',
+    chords: [
+      { degree: 'IV',   quality: '7',   function: 'Color',    technique: 'diatonic', annotation: 'Opens on the Dorian characteristic' },
+      { degree: 'bVII', quality: 'maj7',function: 'Color',    technique: 'diatonic' },
+      { degree: 'bIII', quality: 'maj7',function: 'Color',    technique: 'diatonic' },
+      { degree: 'I',    quality: 'm7',  function: 'Tonic',    technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Opens on the Dorian IV7 — maximum modal impact from beat 1 — then descends through ♭VII and ♭III back to tonic. Cinematic, broad Dorian statement.',
+    artists: ['Quincy Jones', 'David Axelrod', 'Roy Ayers', 'Donald Byrd'],
+    feel: 'Cinematic Dorian descent',
+    lengths: [4],
+    mode: 'dorian',
+  },
+  {
+    id: 'dorian-im-IV7-bVII-float',
+    name: 'im7–IV7–♭VII (Dorian No-Return)',
+    chords: [
+      { degree: 'I',    quality: 'm9',  function: 'Tonic', technique: 'diatonic' },
+      { degree: 'IV',   quality: '9',   function: 'Color', technique: 'diatonic', annotation: 'IV9 — open Dorian suspension' },
+      { degree: 'bVII', quality: 'maj9',function: 'Color', technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Three-chord Dorian loop that ends on ♭VII — intentionally unresolved. The floating quality is modal and hypnotic. Common in meditation, ambient, and lo-fi Dorian.',
+    artists: ['Brian Eno', 'Nils Frahm', 'Ólafur Arnalds', 'Flying Lotus'],
+    feel: 'Floating Dorian suspension',
+    lengths: [3],
+    mode: 'dorian',
+  },
+
+  // ── PHRYGIAN ──────────────────────────────────────────────────────────────
+  // Characteristic: bII major chord — the Phrygian cadence.
+  // Vibe: flamenco, metal, dark electronic, film scores.
+  {
+    id: 'phrygian-im-bII',
+    name: 'im–♭II (Phrygian Vamp)',
+    chords: [
+      { degree: 'I',   quality: 'm7',  function: 'Tonic', technique: 'diatonic' },
+      { degree: 'bII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: '♭II — the defining Phrygian chord' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The most primitive Phrygian statement — im to ♭II. The semitone movement of the bass is unmistakable. Flamenco, metal, and dark electronic.',
+    artists: ['Paco de Lucía', 'Metallica', 'Meshuggah', 'Massive Attack'],
+    feel: 'Primal Phrygian darkness',
+    lengths: [2],
+    mode: 'phrygian',
+  },
+  {
+    id: 'phrygian-bII-im',
+    name: '♭II–im (Phrygian Cadence)',
+    chords: [
+      { degree: 'bII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'The Phrygian half-step above tonic' },
+      { degree: 'I',   quality: 'm7',  function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The Phrygian cadence — ♭II resolves down by semitone to im. Equivalent to a perfect cadence but with a semitone bass drop. Ubiquitous in Spanish and metal.',
+    artists: ['Camarón de la Isla', 'Chick Corea', 'Joe Satriani', 'Gojira'],
+    feel: 'Spanish/metal cadence',
+    lengths: [2],
+    mode: 'phrygian',
+  },
+  {
+    id: 'phrygian-im-bII-bIII-im',
+    name: 'im–♭II–♭III–im (Classic Phrygian)',
+    chords: [
+      { degree: 'I',    quality: 'm7',  function: 'Tonic', technique: 'diatonic' },
+      { degree: 'bII',  quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'Phrygian half-step' },
+      { degree: 'bIII', quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'I',    quality: 'm7',  function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The classic Phrygian four-bar phrase — im–♭II–♭III–im. Used in flamenco, Spanish classical, and virtually every metal progression in this mode.',
+    artists: ['Paco de Lucía', 'Al Di Meola', 'Dream Theater', 'Opeth'],
+    feel: 'Archetypal Phrygian phrase',
+    lengths: [4],
+    mode: 'phrygian',
+  },
+  {
+    id: 'phrygian-bVI-bII-im',
+    name: '♭VI–♭II–im (Phrygian Resolution)',
+    chords: [
+      { degree: 'bVI', quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'bII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'Phrygian dominant approach' },
+      { degree: 'I',   quality: 'm7',  function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: '♭VI slides into ♭II then into im — a double stepwise descent to tonic. Very flamenco. The ♭VI–♭II motion is characteristic of Phrygian harmony.',
+    artists: ['Enrique Morente', 'Vicente Amigo', 'Pepe Romero', 'Rodrigo y Gabriela'],
+    feel: 'Flamenco double approach',
+    lengths: [3],
+    mode: 'phrygian',
+  },
+  {
+    id: 'phrygian-bIII-bII-im',
+    name: '♭III–♭II–im (Phrygian Dark Drop)',
+    chords: [
+      { degree: 'bIII', quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'bII',  quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'Phrygian half-step drop' },
+      { degree: 'I',    quality: 'm7',  function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Two major chords descend by step to tonic — ♭III to ♭II to im. The consecutive semitone in the bass creates an extremely dark, foreboding sound.',
+    artists: ['Black Sabbath', 'Tool', 'Deftones', 'Gojira'],
+    feel: 'Heavy metal Phrygian drop',
+    lengths: [3],
+    mode: 'phrygian',
+  },
+  {
+    id: 'phrygian-im-bVII-bVI-bII',
+    name: 'im–♭VIIm7–♭VI–♭II (Phrygian Descent)',
+    chords: [
+      { degree: 'I',    quality: 'm7',  function: 'Tonic', technique: 'diatonic' },
+      { degree: 'bVII', quality: 'm7',  function: 'Color', technique: 'diatonic' },
+      { degree: 'bVI',  quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'bII',  quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'Phrygian landing zone' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Descends from im through ♭VIIm7 and ♭VI to land on the Phrygian ♭II — the bass walks down by step throughout. Cinematic and dark, stops on ♭II without full resolution.',
+    artists: ['Ennio Morricone', 'Hans Zimmer', 'Jóhann Jóhannsson', 'Max Richter'],
+    feel: 'Cinematic Phrygian descent',
+    lengths: [4],
+    mode: 'phrygian',
+  },
+  {
+    id: 'phrygian-bII-bIII-bVI-im',
+    name: '♭II–♭III–♭VI–im (Phrygian Circle)',
+    chords: [
+      { degree: 'bII',  quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'Phrygian opens on characteristic chord' },
+      { degree: 'bIII', quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'bVI',  quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'I',    quality: 'm7',  function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Opens on ♭II — full Phrygian commitment from bar 1. Three major chords circle back to tonic in an ascending arc. Used in Afrobeat, dark electronic, and progressive metal.',
+    artists: ['Fela Kuti', 'Arca', 'Björk', 'Aphex Twin'],
+    feel: 'Dark Phrygian circle',
+    lengths: [4],
+    mode: 'phrygian',
+  },
+
+  // ── LYDIAN ────────────────────────────────────────────────────────────────
+  // Characteristic: II dominant (#11 tritone color), bright ethereal sound.
+  // Vibe: film scores, dream pop, jazz fusion, game music.
+  {
+    id: 'lydian-Imaj7-II7',
+    name: 'Imaj7–II7 (Lydian Vamp)',
+    chords: [
+      { degree: 'I',  quality: 'maj7',function: 'Tonic', technique: 'diatonic' },
+      { degree: 'II', quality: '7',   function: 'Color', technique: 'diatonic', annotation: 'II7 — the #11 tritone color of Lydian' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The Lydian signature — Imaj7 and the II7 that contains the #11 tritone. Heard in countless film scores and dream sequences. Magical, hovering quality.',
+    artists: ['Joe Satriani', 'Steve Vai', 'John Williams', 'Joe Hisaishi'],
+    feel: 'Dreamy Lydian hover',
+    lengths: [2],
+    mode: 'lydian',
+  },
+  {
+    id: 'lydian-II7-Imaj7',
+    name: 'II7–Imaj7 (Lydian Resolution)',
+    chords: [
+      { degree: 'II', quality: '7',   function: 'Color', technique: 'diatonic', annotation: 'Tritone-color dominant resolves to tonic' },
+      { degree: 'I',  quality: 'maj9',function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The II7 resolves back to Imaj — a whole-tone dominant resolution. The tritone (♯4) in II7 resolves smoothly to the 3rd of Imaj. Luminous.',
+    artists: ['Bill Evans', 'Chick Corea', 'Herbie Hancock', 'Kenny Wheeler'],
+    feel: 'Luminous Lydian resolve',
+    lengths: [2],
+    mode: 'lydian',
+  },
+  {
+    id: 'lydian-Imaj7-II7-IIIm7-Imaj7',
+    name: 'Imaj7–II7–IIIm7–Imaj7 (Lydian Triangle)',
+    chords: [
+      { degree: 'I',   quality: 'maj9',function: 'Tonic',    technique: 'diatonic' },
+      { degree: 'II',  quality: '7',   function: 'Color',    technique: 'diatonic', annotation: 'Lydian II7 — ♯11 color' },
+      { degree: 'III', quality: 'm7',  function: 'Color',    technique: 'diatonic' },
+      { degree: 'I',   quality: 'maj9',function: 'Tonic',    technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Three-step Lydian loop — Imaj9 to the tritone-color II7 to IIIm7 and back. All inside the Lydian scale, all dreamy. Joe Satriani "Flying in a Blue Dream" energy.',
+    artists: ['Joe Satriani', 'Steve Vai', 'Allan Holdsworth', 'Frank Gambale'],
+    feel: 'Guitar-fusion Lydian loop',
+    lengths: [4],
+    mode: 'lydian',
+  },
+  {
+    id: 'lydian-VIm-VIIm-Imaj7-II7',
+    name: 'VIm7–VIIm7–Imaj7–II7 (Ascending Lydian)',
+    chords: [
+      { degree: 'VI',  quality: 'm7',  function: 'Color', technique: 'diatonic' },
+      { degree: 'VII', quality: 'm7',  function: 'Color', technique: 'diatonic' },
+      { degree: 'I',   quality: 'maj9',function: 'Tonic', technique: 'diatonic' },
+      { degree: 'II',  quality: '7',   function: 'Color', technique: 'diatonic', annotation: 'Lydian II7 payoff' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Ascends from VI through VII to the tonic, then lands on the characteristic II7 — the Lydian payoff at the end of the phrase. Otherworldly and cinematic.',
+    artists: ['John Williams', 'Jerry Goldsmith', 'Ennio Morricone', 'Michael Giacchino'],
+    feel: 'Cinematic Lydian ascent',
+    lengths: [4],
+    mode: 'lydian',
+  },
+  {
+    id: 'lydian-II7-IIIm7-VIm7-Imaj7',
+    name: 'II7–IIIm7–VIm7–Imaj7 (Lydian Non-Tonic Start)',
+    chords: [
+      { degree: 'II',  quality: '7',   function: 'Color', technique: 'diatonic', annotation: 'Opens on Lydian characteristic' },
+      { degree: 'III', quality: 'm7',  function: 'Color', technique: 'diatonic' },
+      { degree: 'VI',  quality: 'm7',  function: 'Color', technique: 'diatonic' },
+      { degree: 'I',   quality: 'maj9',function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Opens directly on the Lydian II7 before cycling through the mode and landing on tonic. The phrase builds toward Imaj9 rather than starting there.',
+    artists: ['Pat Metheny', 'John Scofield', 'Kurt Rosenwinkel', 'Ben Monder'],
+    feel: 'Modern jazz Lydian approach',
+    lengths: [4],
+    mode: 'lydian',
+  },
+  {
+    id: 'lydian-Imaj7-Vmaj7-II7-Imaj7',
+    name: 'Imaj7–Vmaj7–II7–Imaj7 (Lydian Cycle)',
+    chords: [
+      { degree: 'I',  quality: 'maj9',function: 'Tonic', technique: 'diatonic' },
+      { degree: 'V',  quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'V is major 7 in Lydian' },
+      { degree: 'II', quality: '7',   function: 'Color', technique: 'diatonic', annotation: 'Lydian II7 arrives' },
+      { degree: 'I',  quality: 'maj9',function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Uses the Lydian Vmaj7 (contrast to Mixolydian where V is minor) alongside II7 — both chords confirm the Lydian identity. Warm and majestic.',
+    artists: ['Keith Jarrett', 'Chick Corea', 'Gonzalo Rubalcaba', 'Brad Mehldau'],
+    feel: 'Majestic Lydian four-chord',
+    lengths: [4],
+    mode: 'lydian',
+  },
+
+  // ── MIXOLYDIAN ────────────────────────────────────────────────────────────
+  // Characteristic: I is dominant (I7), bVII is major.
+  // Vibe: rock, blues, funk, country, Celtic.
+  {
+    id: 'mixo-I7-bVII-IV',
+    name: 'I7–♭VII–IV (Mixolydian Loop)',
+    chords: [
+      { degree: 'I',    quality: '7',   function: 'Tonic', technique: 'diatonic', annotation: 'I7 — dominant tonic, the Mixolydian signature' },
+      { degree: 'bVII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: '♭VII — borrowed from natural minor, confirms Mixo' },
+      { degree: 'IV',   quality: 'maj7',function: 'Color', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The definitive Mixolydian loop — I7 as tonic, ♭VII confirming the mode, IV rounding out. Heard in rock, blues, and Celtic music everywhere.',
+    artists: ['The Beatles', 'Led Zeppelin', 'Carlos Santana', 'Van Morrison'],
+    feel: 'Classic rock Mixolydian',
+    lengths: [3],
+    mode: 'mixolydian',
+  },
+  {
+    id: 'mixo-I7-IV-bVII-I7',
+    name: 'I7–IV–♭VII–I7 (Mixolydian Four-Chord)',
+    chords: [
+      { degree: 'I',    quality: '7',   function: 'Tonic', technique: 'diatonic' },
+      { degree: 'IV',   quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'bVII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: '♭VII confirms Mixolydian' },
+      { degree: 'I',    quality: '7',   function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The Mixolydian four-chord — I7, IV, ♭VII, back to I7. The ♭VII is what separates this from straight blues. Soulful and driving.',
+    artists: ['Stevie Wonder', 'Prince', 'Sly Stone', 'James Brown'],
+    feel: 'Funk/soul Mixolydian groove',
+    lengths: [4],
+    mode: 'mixolydian',
+  },
+  {
+    id: 'mixo-bVII-IV-I7',
+    name: '♭VII–IV–I7 (Mixolydian Approach)',
+    chords: [
+      { degree: 'bVII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'Opens on the Mixolydian color chord' },
+      { degree: 'IV',   quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'I',    quality: '7',   function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Starts on ♭VII — no tonic until the end. The two color chords arrive at the dominant tonic I7. Anthemic and powerful. Huge in stadium rock.',
+    artists: ['Oasis', 'U2', 'Radiohead', 'Coldplay'],
+    feel: 'Anthemic Mixolydian arrival',
+    lengths: [3],
+    mode: 'mixolydian',
+  },
+  {
+    id: 'mixo-bVII-I7',
+    name: '♭VII–I7 (Mixolydian Two-Chord)',
+    chords: [
+      { degree: 'bVII', quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'I',    quality: '7',   function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The essential Mixolydian two-chord — ♭VII to I7. Economical and modal. The whole-step descent in the bass defines the Mixolydian sound in one motion.',
+    artists: ['AC/DC', 'ZZ Top', 'Tom Petty', 'John Lee Hooker'],
+    feel: 'Blues-rock two-chord swagger',
+    lengths: [2],
+    mode: 'mixolydian',
+  },
+  {
+    id: 'mixo-IV-bVII-I7-IV',
+    name: 'IV–♭VII–I7–IV (Mixolydian Rotation)',
+    chords: [
+      { degree: 'IV',   quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'bVII', quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'I',    quality: '7',   function: 'Tonic', technique: 'diatonic' },
+      { degree: 'IV',   quality: 'maj7',function: 'Color', technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Starts on IV and rotates — ♭VII then I7 then back to IV. Never feels settled because the tonic is a dominant 7th. Endless loop feel — great for groove-based music.',
+    artists: ['Snarky Puppy', 'Trombone Shorty', 'Galactic', 'Dirty Dozen Brass Band'],
+    feel: 'New Orleans funk rotation',
+    lengths: [4],
+    mode: 'mixolydian',
+  },
+  {
+    id: 'mixo-I7-IIm7-IV-bVII',
+    name: 'I7–IIm7–IV–♭VII (Mixolydian Jazz)',
+    chords: [
+      { degree: 'I',    quality: '7',   function: 'Tonic',    technique: 'diatonic' },
+      { degree: 'II',   quality: 'm7',  function: 'Color',    technique: 'diatonic' },
+      { degree: 'IV',   quality: 'maj7',function: 'Color',    technique: 'diatonic' },
+      { degree: 'bVII', quality: 'maj7',function: 'Color',    technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Uses all four characteristic Mixolydian chords in a single phrase — I7, IIm7, IV, and ♭VII. Sophisticated, jazz-inflected Mixolydian for musicians who know their modes.',
+    artists: ['Miles Davis', 'John McLaughlin', 'Chick Corea', 'Herbie Hancock'],
+    feel: 'Jazz-fusion Mixolydian',
+    lengths: [4],
+    mode: 'mixolydian',
+  },
+
+  // ── PHRYGIAN DOMINANT ─────────────────────────────────────────────────────
+  // Characteristic: I7 with major 3rd (b2), bII major. Flamenco / Middle Eastern.
+  // Vibe: flamenco, Middle Eastern, film scores, metal.
+  {
+    id: 'phrydom-I7-bII',
+    name: 'I7–♭II (Phrygian Dom. Vamp)',
+    chords: [
+      { degree: 'I',   quality: '7',   function: 'Tonic', technique: 'diatonic', annotation: 'I7 with ♭2 — the exotic dominant tonic' },
+      { degree: 'bII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: '♭II — neighbor from above' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The flamenco vamp — I7 (the Phrygian dominant tonic with major 3rd) oscillates with ♭II. The semitone motion in the bass is the sonic fingerprint of this mode.',
+    artists: ['Paco de Lucía', 'Django Reinhardt', 'Al Di Meola', 'John McLaughlin'],
+    feel: 'Flamenco vamp',
+    lengths: [2],
+    mode: 'phrygian_dominant',
+  },
+  {
+    id: 'phrydom-bII-I7',
+    name: '♭II–I7 (Andalusian Cadence)',
+    chords: [
+      { degree: 'bII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: '♭II resolves down to the dominant tonic' },
+      { degree: 'I',   quality: '7',   function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The defining Andalusian cadence — ♭II resolves down a semitone to I7. The equivalent of a half-step dominant resolution. Deeply embedded in Spanish, Turkish, and Arabic music.',
+    artists: ['Camarón de la Isla', 'Omar Faruk Tekbilek', 'Anouar Brahem', 'Doudou N\'Diaye Rose'],
+    feel: 'Andalusian / Middle Eastern',
+    lengths: [2],
+    mode: 'phrygian_dominant',
+  },
+  {
+    id: 'phrydom-I7-bVI-bII-I7',
+    name: 'I7–♭VI–♭II–I7 (Phrygian Dom. Loop)',
+    chords: [
+      { degree: 'I',   quality: '7',   function: 'Tonic', technique: 'diatonic' },
+      { degree: 'bVI', quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'bII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'Double approach to tonic via ♭VI and ♭II' },
+      { degree: 'I',   quality: '7',   function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The full Phrygian Dominant loop — I7 rests, then ♭VI and ♭II approach from above in two steps before returning to I7. The guitar flamenco pattern.',
+    artists: ['Paco de Lucía', 'Sabicas', 'Tomatito', 'Vicente Amigo'],
+    feel: 'Flamenco full loop',
+    lengths: [4],
+    mode: 'phrygian_dominant',
+  },
+  {
+    id: 'phrydom-bVI-bII-I7',
+    name: '♭VI–♭II–I7 (Double-Step Resolution)',
+    chords: [
+      { degree: 'bVI', quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'bII', quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'Second step — semitone above tonic' },
+      { degree: 'I',   quality: '7',   function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Two major chords descend stepwise to the dominant tonic — ♭VI (a whole step above ♭II) then ♭II (a semitone above I7). The double approach is characteristic of Spanish cadences.',
+    artists: ['Manuel de Falla', 'Isaac Albéniz', 'Enrique Granados', 'Andrés Segovia'],
+    feel: 'Spanish classical double drop',
+    lengths: [3],
+    mode: 'phrygian_dominant',
+  },
+  {
+    id: 'phrydom-I7-IVm7-bVI-bII',
+    name: 'I7–IVm7–♭VI–♭II (Exotic Descent)',
+    chords: [
+      { degree: 'I',   quality: '7',   function: 'Tonic',    technique: 'diatonic' },
+      { degree: 'IV',  quality: 'm7',  function: 'Color',    technique: 'diatonic' },
+      { degree: 'bVI', quality: 'maj7',function: 'Color',    technique: 'diatonic' },
+      { degree: 'bII', quality: 'maj7',function: 'Color',    technique: 'diatonic', annotation: 'Phrygian Dom. characteristic arrival' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Full descending Phrygian Dominant phrase — I7 relaxes through IVm7 and ♭VI before arriving on ♭II. The ♭II at the end suspends without resolution.',
+    artists: ['Anouar Brahem', 'Jan Garbarek', 'Rabih Abou-Khalil', 'Nabil Khemir'],
+    feel: 'Middle Eastern / ECM exotic',
+    lengths: [4],
+    mode: 'phrygian_dominant',
+  },
+  {
+    id: 'phrydom-bVII-bVI-bII-I7',
+    name: '♭VIIm7–♭VI–♭II–I7 (Full Descent)',
+    chords: [
+      { degree: 'bVII', quality: 'm7',  function: 'Color', technique: 'diatonic' },
+      { degree: 'bVI',  quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'bII',  quality: 'maj7',function: 'Color', technique: 'diatonic', annotation: 'Final approach — semitone above tonic' },
+      { degree: 'I',    quality: '7',   function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Full stepwise descent through the Phrygian Dominant mode — four chords, each one step down, arriving at the dominant tonic. Deeply cinematic and hypnotic.',
+    artists: ['Hans Zimmer', 'Nusrat Fateh Ali Khan', 'Dissidenten', 'Lo\'Jo'],
+    feel: 'Epic stepwise descent',
+    lengths: [4],
+    mode: 'phrygian_dominant',
+  },
+
+  // ── LYDIAN DOMINANT ───────────────────────────────────────────────────────
+  // Characteristic: I7 with #11 (tritone color), II also dominant.
+  // Vibe: jazz fusion, Snarky Puppy, Wayne Shorter, mysterious.
+  {
+    id: 'lyddom-I7-II7',
+    name: 'I7–II7 (Lydian Dom. Dual-Dominant)',
+    chords: [
+      { degree: 'I',  quality: '7',  function: 'Tonic', technique: 'diatonic', annotation: 'I7 — Lydian Dom. tonic (has ♯11)' },
+      { degree: 'II', quality: '7',  function: 'Color', technique: 'diatonic', annotation: 'II7 — a second dominant, whole step above' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Two dominant 7th chords a whole step apart — the dual-dominant hallmark of Lydian Dominant. Creates an ambiguous, electric tension. Wayne Shorter and Snarky Puppy territory.',
+    artists: ['Wayne Shorter', 'Snarky Puppy', 'Tigran Hamasyan', 'Chris Potter'],
+    feel: 'Dual-dominant fusion mystery',
+    lengths: [2],
+    mode: 'lydian_dominant',
+  },
+  {
+    id: 'lyddom-II7-I7',
+    name: 'II7–I7 (Lydian Dom. Reverse)',
+    chords: [
+      { degree: 'II', quality: '7',  function: 'Color', technique: 'diatonic', annotation: 'Opens on the upper dominant' },
+      { degree: 'I',  quality: '7',  function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Opens on the upper dominant II7 — the whole-step resolution back to I7 is unusual and creates a floating, non-functional sense. Fusion and modern jazz staple.',
+    artists: ['Snarky Puppy', 'Hiromi', 'Nir Felder', 'Ambrose Akinmusire'],
+    feel: 'Floating fusion drop',
+    lengths: [2],
+    mode: 'lydian_dominant',
+  },
+  {
+    id: 'lyddom-I7-II7-VIm7-I7',
+    name: 'I7–II7–VIm7–I7 (Lydian Dom. Cycle)',
+    chords: [
+      { degree: 'I',  quality: '7',  function: 'Tonic',    technique: 'diatonic' },
+      { degree: 'II', quality: '7',  function: 'Color',    technique: 'diatonic', annotation: 'II7 — dual dominant' },
+      { degree: 'VI', quality: 'm7', function: 'Color',    technique: 'diatonic' },
+      { degree: 'I',  quality: '7',  function: 'Tonic',    technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'The Lydian Dominant cycle — the two dominants separated by a rest on VIm7 before returning to I7. Rich harmonic color with no clear resolution.',
+    artists: ['Snarky Puppy', 'Cory Henry', 'Larnell Lewis', 'Bob Reynolds'],
+    feel: 'Snarky Puppy fusion loop',
+    lengths: [4],
+    mode: 'lydian_dominant',
+  },
+  {
+    id: 'lyddom-I7-sharpIVm7b5-II7-I7',
+    name: 'I7–♯IVm7♭5–II7–I7 (Tritone Web)',
+    chords: [
+      { degree: 'I',    quality: '7',    function: 'Tonic', technique: 'diatonic' },
+      { degree: '#IV',  quality: 'm7b5', function: 'Color', technique: 'diatonic', annotation: '♯IV — the tritone above tonic, Lydian color' },
+      { degree: 'II',   quality: '7',    function: 'Color', technique: 'diatonic', annotation: 'II7 — second dominant layer' },
+      { degree: 'I',    quality: '7',    function: 'Tonic', technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Uses the ♯IVm7♭5 — the tritone pole of the mode — alongside II7 to create a web of tritone relationships all converging on I7. Maximum Lydian Dominant color.',
+    artists: ['Wayne Shorter', 'Herbie Hancock', 'Dave Holland', 'Jack DeJohnette'],
+    feel: 'Tritone-web modern jazz',
+    lengths: [4],
+    mode: 'lydian_dominant',
+  },
+  {
+    id: 'lyddom-bVII-VIm7-II7-I7',
+    name: '♭VII–VIm7–II7–I7 (Lydian Dom. Approach)',
+    chords: [
+      { degree: 'bVII', quality: 'maj7',function: 'Color', technique: 'diatonic' },
+      { degree: 'VI',   quality: 'm7', function: 'Color',  technique: 'diatonic' },
+      { degree: 'II',   quality: '7',  function: 'Color',  technique: 'diatonic', annotation: 'II7 steps into I7' },
+      { degree: 'I',    quality: '7',  function: 'Tonic',  technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'Descends from ♭VII through VIm7 and II7 to I7 — each chord a step closer to tonic. The II7→I7 whole-step resolution at the end is the Lydian Dominant fingerprint.',
+    artists: ['Chick Corea', 'John McLaughlin', 'Mahavishnu Orchestra', 'Return to Forever'],
+    feel: 'Jazz-fusion stepwise arrival',
+    lengths: [4],
+    mode: 'lydian_dominant',
+  },
+
   // ── JAZZ STANDARD PATTERNS ────────────────────────────────────────────────
   {
     id: 'autumn-leaves-inspired',
@@ -1702,7 +2309,7 @@ const TEMPLATES: ProgressionTemplate[] = [
 
 // ─── Resolution ──────────────────────────────────────────────────────────────
 
-function resolveDegree(key: string, degree: string, qualityKey: string, mode: 'major' | 'minor' = 'major'): { root: string; quality: string; symbol: string; notes: string[] } {
+function resolveDegree(key: string, degree: string, qualityKey: string, mode: KeyMode = 'major'): { root: string; quality: string; symbol: string; notes: string[] } {
   const keySemitone = noteToSemitone(key);
   const degreeSemitones = DEGREE_SEMITONE[degree];
   if (degreeSemitones === undefined) {
@@ -1713,11 +2320,14 @@ function resolveDegree(key: string, degree: string, qualityKey: string, mode: 'm
   const preferFlat = notePreferFlat(key) || [1, 3, 6, 8, 10].includes(resolvedSemitone);
   const root = semitoneToNote(resolvedSemitone, preferFlat);
 
-  // Resolve 'diatonic' quality using the correct scale quality map
+  // Resolve 'diatonic' quality using the correct modal quality map
   let quality = qualityKey;
   if (qualityKey === 'diatonic') {
-    const qualityMap = mode === 'minor' ? MINOR_DIATONIC_QUALITY : MAJOR_DIATONIC_QUALITY;
-    quality = qualityMap[degree] ?? (mode === 'minor' ? 'm7' : 'maj7');
+    const qualityMap = MODAL_QUALITY_MAPS[mode] ?? MODAL_QUALITY_MAPS['major'];
+    const tonicDefault = ['minor', 'dorian', 'phrygian', 'phrygian_dominant'].includes(mode) ? 'm7'
+      : ['lydian', 'mixolydian', 'lydian_dominant'].includes(mode) ? (mode === 'lydian' ? 'maj7' : '7')
+      : 'maj7';
+    quality = qualityMap[degree] ?? tonicDefault;
   }
 
   const qualitySuffix = quality === 'maj' ? '' : quality;
@@ -1727,7 +2337,7 @@ function resolveDegree(key: string, degree: string, qualityKey: string, mode: 'm
   return { root, quality, symbol, notes };
 }
 
-function resolveChord(key: string, chord: ProgressionChord, mode: 'major' | 'minor' = 'major'): ResolvedChord {
+function resolveChord(key: string, chord: ProgressionChord, mode: KeyMode = 'major'): ResolvedChord {
   const { root, quality, symbol, notes } = resolveDegree(key, chord.degree, chord.quality, mode);
   return {
     degree: chord.degree,
@@ -1746,7 +2356,7 @@ function resolveChord(key: string, chord: ProgressionChord, mode: 'major' | 'min
 
 export interface ProgressionFilter {
   key: string;
-  mode: 'major' | 'minor';
+  mode: KeyMode;
   length: number;
   style: HarmonyStyle | 'both';
   techniques: Technique[];
