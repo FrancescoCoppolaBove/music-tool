@@ -22,7 +22,7 @@ function categoryColor(cat: string) {
 function ScoreBar({ value, color }: { value: number; color: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <div style={{ width: 60, height: 4, background: '#1c2128', borderRadius: 2, overflow: 'hidden' }}>
+      <div style={{ width: 56, height: 4, background: '#1c2128', borderRadius: 2, overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ width: `${value}%`, height: '100%', background: color, borderRadius: 2 }} />
       </div>
       <span style={{ fontSize: 11, color: '#6b7280', minWidth: 28 }}>{value}%</span>
@@ -36,11 +36,11 @@ interface ScaleResultsProps {
   rootNote: string;
 }
 
-const BATCH_SIZE = 30;
+const BATCH_SIZE = 25;
 
 export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleResultsProps) {
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState<Set<string>>(new Set([results[0]?.id ?? '']));
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = useCallback(() => {
@@ -60,49 +60,54 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
   function toggleExpand(id: string) {
     setExpanded(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }
 
-  // Build a semitone set of parsed notes for highlighting in reference scale
-  const parsedSemitones = new Set(parsedNotes.map(n => {
-    const s = noteToSemitone(n);
-    return s >= 0 ? ((s % 12) + 12) % 12 : -1;
-  }).filter(s => s >= 0));
+  const parsedSemitones = new Set(
+    parsedNotes.map(n => {
+      const s = noteToSemitone(n);
+      return s >= 0 ? ((s % 12) + 12) % 12 : -1;
+    }).filter(s => s >= 0)
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {/* Summary */}
+      {/* Summary bar */}
       <div style={{
         background: '#161b22', border: '1px solid #30363d', borderRadius: 8,
-        padding: '10px 16px', display: 'flex', gap: 20, flexWrap: 'wrap',
+        padding: '10px 16px', display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center',
       }}>
         <div>
-          <div style={{ fontSize: 12, color: '#6b7280' }}>Total matches</div>
+          <div style={{ fontSize: 11, color: '#6b7280' }}>Total matches</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: '#e6edf3' }}>{results.length}</div>
         </div>
         <div>
-          <div style={{ fontSize: 12, color: '#6b7280' }}>Perfect (100% + no extras)</div>
+          <div style={{ fontSize: 11, color: '#6b7280' }}>Exact match</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: '#10b981' }}>{perfect.length}</div>
         </div>
         <div>
-          <div style={{ fontSize: 12, color: '#6b7280' }}>All notes match</div>
+          <div style={{ fontSize: 11, color: '#6b7280' }}>All notes fit</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: '#f59e0b' }}>{allMatch.length}</div>
         </div>
         {!rootNote && (
-          <div style={{ alignSelf: 'center', fontSize: 12, color: '#6b7280', maxWidth: 260 }}>
-            💡 No root note specified — all 12 roots explored. Specify a root to narrow down.
+          <div style={{ flex: 1, fontSize: 12, color: '#6b7280' }}>
+            💡 No root specified — all 12 roots explored. Specify a root to narrow down.
+          </div>
+        )}
+        {rootNote && (
+          <div style={{ flex: 1, fontSize: 12, color: '#8b949e' }}>
+            Showing scales rooted on <span style={{ color: '#f97316', fontWeight: 700 }}>{rootNote}</span>
           </div>
         )}
       </div>
 
-      {/* Results */}
+      {/* Results list */}
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        style={{ maxHeight: 600, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 5 }}
+        style={{ maxHeight: 640, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 5 }}
       >
         {visible.map((result, idx) => {
           const color = categoryColor(result.category);
@@ -113,61 +118,75 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
             <div
               key={result.id}
               style={{
-                background: isPerfect ? '#161b22' : '#0d1117',
-                border: `1px solid ${isPerfect ? '#10b981' : '#30363d'}`,
-                borderRadius: 8,
-                overflow: 'hidden',
+                background: isPerfect ? '#0f1f13' : '#0d1117',
+                border: `1px solid ${isPerfect ? '#10b981' : isOpen ? '#30363d' : '#21262d'}`,
+                borderRadius: 8, overflow: 'hidden',
               }}
             >
+              {/* Collapsed row */}
               <button
                 onClick={() => toggleExpand(result.id)}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                  display: 'flex', alignItems: 'center', gap: 8, width: '100%',
                   padding: '10px 14px', background: 'none', border: 'none',
                   cursor: 'pointer', textAlign: 'left',
                 }}
               >
-                <span style={{ width: 28, fontSize: 11, color: '#4b5563', flexShrink: 0 }}>#{idx + 1}</span>
+                <span style={{ width: 26, fontSize: 11, color: '#4b5563', flexShrink: 0 }}>#{idx + 1}</span>
                 <ScoreBar value={result.matchScore} color={color} />
                 <span style={{
                   padding: '1px 7px', background: `${color}20`, border: `1px solid ${color}`,
                   borderRadius: 4, fontSize: 10, color, fontWeight: 600,
-                  minWidth: 72, textAlign: 'center', flexShrink: 0,
+                  minWidth: 68, textAlign: 'center', flexShrink: 0,
                 }}>
                   {result.category}
                 </span>
-                <span style={{ flex: 1, fontSize: 14, color: '#e6edf3', fontWeight: 600 }}>
-                  <span style={{ color: '#f97316', marginRight: 4 }}>{result.root}</span>
-                  {result.scaleName}
-                </span>
-                <div style={{ textAlign: 'right', flexShrink: 0, minWidth: 48 }}>
-                  <div style={{ fontSize: 10, color: '#6b7280' }}>covers</div>
-                  <div style={{ fontSize: 12, color: '#8b949e' }}>{result.completeness}%</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, color: '#e6edf3', fontWeight: 600 }}>
+                    <span style={{ color: '#f97316', marginRight: 3 }}>{result.root}</span>
+                    {result.scaleName}
+                  </div>
+                  {/* Mini reference scale — always visible */}
+                  <div style={{ display: 'flex', gap: 3, marginTop: 3, flexWrap: 'wrap' }}>
+                    {result.referenceScale.map((n, i) => {
+                      const nSem = noteToSemitone(n);
+                      const inInput = nSem >= 0 && parsedSemitones.has(((nSem % 12) + 12) % 12);
+                      return (
+                        <span key={i} style={{
+                          fontSize: 11, fontFamily: 'monospace',
+                          color: inInput ? color : '#4b5563',
+                          fontWeight: inInput ? 700 : 400,
+                        }}>
+                          {n}{i < result.referenceScale.length - 1 ? ' ·' : ''}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0, minWidth: 40, justifyContent: 'flex-end' }}>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
                   {result.missingNotes.length > 0 && (
-                    <span style={{ fontSize: 11, color: '#6b7280' }}>-{result.missingNotes.length}</span>
+                    <span style={{ fontSize: 11, color: '#6b7280' }}>−{result.missingNotes.length}</span>
                   )}
                   {result.extraNotes.length > 0 && (
                     <span style={{ fontSize: 11, color: '#ef4444' }}>+{result.extraNotes.length}</span>
                   )}
+                  <span style={{ fontSize: 11, color: '#4b5563', marginLeft: 4 }}>{isOpen ? '▲' : '▼'}</span>
                 </div>
-                <span style={{ fontSize: 11, color: '#4b5563' }}>{isOpen ? '▲' : '▼'}</span>
               </button>
 
+              {/* Expanded detail */}
               {isOpen && (
-                <div style={{ padding: '0 14px 14px', borderTop: '1px solid #1c2128', paddingTop: 12 }}>
-                  <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-                    {/* Reference scale */}
-                    <div style={{ flex: 1, minWidth: 220 }}>
-                      <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>
-                        Reference: {result.root} {result.scaleName}
+                <div style={{ padding: '4px 14px 14px', borderTop: '1px solid #1c2128' }}>
+                  <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: 10 }}>
+                    {/* Full reference scale */}
+                    <div style={{ flex: 1, minWidth: 200 }}>
+                      <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6, fontWeight: 600 }}>
+                        Reference Scale: {result.root} {result.scaleName}
                       </div>
                       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                         {result.referenceScale.map((n, i) => {
-                          const nSemitone = noteToSemitone(n);
-                          const nNorm = nSemitone >= 0 ? ((nSemitone % 12) + 12) % 12 : -1;
-                          const inInput = parsedSemitones.has(nNorm);
+                          const nSem = noteToSemitone(n);
+                          const inInput = nSem >= 0 && parsedSemitones.has(((nSem % 12) + 12) % 12);
                           return (
                             <span key={i} style={{
                               padding: '3px 8px',
@@ -175,10 +194,9 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
                               border: `1px solid ${inInput ? color : '#30363d'}`,
                               borderRadius: 4, fontSize: 12,
                               color: inInput ? color : '#4b5563',
-                              fontFamily: 'monospace',
-                              fontWeight: inInput ? 700 : 400,
+                              fontFamily: 'monospace', fontWeight: inInput ? 700 : 400,
                             }}>
-                              {n}
+                              {i + 1}. {n}
                             </span>
                           );
                         })}
@@ -186,14 +204,14 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
                     </div>
 
                     {/* Matched */}
-                    <div style={{ minWidth: 130 }}>
-                      <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>
+                    <div style={{ minWidth: 110 }}>
+                      <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6, fontWeight: 600 }}>
                         ✅ Matched ({result.matchedNotes.length})
                       </div>
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                         {result.matchedNotes.map((n, i) => (
                           <span key={i} style={{
-                            padding: '2px 7px', background: '#10b98120', border: '1px solid #10b981',
+                            padding: '2px 7px', background: '#10b98115', border: '1px solid #10b981',
                             borderRadius: 4, fontSize: 12, color: '#10b981', fontFamily: 'monospace',
                           }}>{n}</span>
                         ))}
@@ -202,8 +220,8 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
 
                     {/* Missing */}
                     {result.missingNotes.length > 0 && (
-                      <div style={{ minWidth: 120 }}>
-                        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>
+                      <div style={{ minWidth: 110 }}>
+                        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6, fontWeight: 600 }}>
                           ⬜ Missing ({result.missingNotes.length})
                         </div>
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -217,22 +235,31 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
                       </div>
                     )}
 
-                    {/* Extra */}
+                    {/* Extra (outside scale) */}
                     {result.extraNotes.length > 0 && (
-                      <div style={{ minWidth: 120 }}>
-                        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>
+                      <div style={{ minWidth: 110 }}>
+                        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6, fontWeight: 600 }}>
                           ⚠️ Outside scale ({result.extraNotes.length})
                         </div>
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                           {result.extraNotes.map((n, i) => (
                             <span key={i} style={{
-                              padding: '2px 7px', background: '#ef444420', border: '1px solid #ef4444',
+                              padding: '2px 7px', background: '#ef444415', border: '1px solid #ef4444',
                               borderRadius: 4, fontSize: 12, color: '#ef4444', fontFamily: 'monospace',
                             }}>{n}</span>
                           ))}
                         </div>
                       </div>
                     )}
+
+                    {/* Coverage */}
+                    <div style={{ minWidth: 80 }}>
+                      <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6, fontWeight: 600 }}>Coverage</div>
+                      <div style={{ fontSize: 13, color: '#8b949e' }}>
+                        {result.completeness}%<br />
+                        <span style={{ fontSize: 11 }}>({result.matchedNotes.length}/{result.referenceScale.length})</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

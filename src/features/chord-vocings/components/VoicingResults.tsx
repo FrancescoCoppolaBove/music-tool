@@ -41,20 +41,25 @@ export default function VoicingResults({ voicings, activeStyles, chordDisplay, c
       {/* Chord summary */}
       <div style={{
         background: '#161b22', border: '1px solid #30363d', borderRadius: 8,
-        padding: '12px 16px', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap',
+        padding: '12px 16px',
+        display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
       }}>
         <div>
-          <span style={{ fontSize: 13, color: '#6b7280' }}>Chord</span>
-          <div style={{ fontSize: 22, fontWeight: 700, color: '#e6edf3', fontFamily: 'monospace' }}>{chordDisplay}</div>
+          <span style={{ fontSize: 12, color: '#6b7280' }}>Chord</span>
+          <div style={{ fontSize: 24, fontWeight: 700, color: '#e6edf3', fontFamily: 'monospace', lineHeight: 1.1 }}>
+            {chordDisplay}
+          </div>
         </div>
-        <div style={{ flex: 1 }}>
-          <span style={{ fontSize: 13, color: '#6b7280' }}>Notes</span>
-          <div style={{ display: 'flex', gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ fontSize: 12, color: '#6b7280' }}>Notes</span>
+          <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
             {chordNotes.map((n, i) => (
               <span key={i} style={{
-                padding: '2px 10px', background: i === 0 ? '#f9731620' : '#1c2128',
+                padding: '2px 10px',
+                background: i === 0 ? '#f9731620' : '#1c2128',
                 border: `1px solid ${i === 0 ? '#f97316' : '#30363d'}`,
-                borderRadius: 20, fontSize: 13, color: i === 0 ? '#fb923c' : '#e6edf3',
+                borderRadius: 20, fontSize: 13,
+                color: i === 0 ? '#fb923c' : '#e6edf3',
                 fontFamily: 'monospace', fontWeight: i === 0 ? 700 : 400,
               }}>
                 {n}
@@ -62,7 +67,7 @@ export default function VoicingResults({ voicings, activeStyles, chordDisplay, c
             ))}
           </div>
         </div>
-        <div style={{ fontSize: 12, color: '#6b7280' }}>
+        <div style={{ fontSize: 12, color: '#6b7280', flexShrink: 0 }}>
           {filtered.length} voicing{filtered.length !== 1 ? 's' : ''}
         </div>
       </div>
@@ -71,21 +76,22 @@ export default function VoicingResults({ voicings, activeStyles, chordDisplay, c
       {selected && (
         <div style={{
           background: '#161b22', border: '1px solid #30363d', borderRadius: 10,
-          padding: '16px 20px',
+          padding: '16px',
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Header: style label + note stack — stack on mobile */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span style={{
-                  padding: '2px 8px',
+                  padding: '3px 10px',
                   background: `${STYLE_COLORS[selected.style]}20`,
                   border: `1px solid ${STYLE_COLORS[selected.style]}`,
-                  borderRadius: 4, fontSize: 11, color: STYLE_COLORS[selected.style], fontWeight: 600,
+                  borderRadius: 4, fontSize: 12, color: STYLE_COLORS[selected.style], fontWeight: 600,
                 }}>{selected.styleLabel}</span>
               </div>
-              <div style={{ marginTop: 6, color: '#8b949e', fontSize: 13 }}>{selected.description}</div>
+              <div style={{ marginTop: 6, color: '#8b949e', fontSize: 13, lineHeight: 1.4 }}>{selected.description}</div>
               {selected.tip && (
-                <div style={{ marginTop: 6, color: '#fbbf24', fontSize: 12, display: 'flex', gap: 6 }}>
+                <div style={{ marginTop: 6, color: '#fbbf24', fontSize: 12, display: 'flex', gap: 6, alignItems: 'flex-start', lineHeight: 1.4 }}>
                   <span>💡</span>
                   <span>{selected.tip}</span>
                 </div>
@@ -93,12 +99,14 @@ export default function VoicingResults({ voicings, activeStyles, chordDisplay, c
             </div>
             <NoteStack notes={selected.notes} />
           </div>
-          <PianoKeyboard highlightedNotes={selected.notes} octaveStart={2} octaveEnd={5} width={680} />
+
+          {/* Responsive piano keyboard */}
+          <PianoKeyboard highlightedNotes={selected.notes} octaveStart={2} octaveEnd={5} />
         </div>
       )}
 
       {/* Voicing list */}
-      <div style={{ display: 'grid', gap: 8 }}>
+      <div style={{ display: 'grid', gap: 6 }}>
         {filtered.map(v => {
           const isActive = v.id === (selectedId ?? filtered[0]?.id);
           return (
@@ -106,24 +114,26 @@ export default function VoicingResults({ voicings, activeStyles, chordDisplay, c
               key={v.id}
               onClick={() => setSelectedId(v.id)}
               style={{
-                display: 'flex', alignItems: 'center', gap: 12,
+                display: 'flex', alignItems: 'center', gap: 10,
                 padding: '10px 14px',
                 background: isActive ? '#1c2128' : '#0d1117',
                 border: `1px solid ${isActive ? STYLE_COLORS[v.style] : '#30363d'}`,
                 borderRadius: 8, cursor: 'pointer', textAlign: 'left',
                 transition: 'all 0.1s',
+                flexWrap: 'wrap',
               }}
             >
               <span style={{
-                padding: '2px 8px', background: `${STYLE_COLORS[v.style]}20`,
-                border: `1px solid ${STYLE_COLORS[v.style]}`, borderRadius: 4,
-                fontSize: 11, color: STYLE_COLORS[v.style], fontWeight: 600,
-                minWidth: 90, textAlign: 'center',
+                padding: '2px 8px',
+                background: `${STYLE_COLORS[v.style]}20`,
+                border: `1px solid ${STYLE_COLORS[v.style]}`,
+                borderRadius: 4, fontSize: 11, color: STYLE_COLORS[v.style], fontWeight: 600,
+                minWidth: 82, textAlign: 'center', flexShrink: 0,
               }}>
                 {v.style === 'upperStructure' ? 'UST' : v.style.charAt(0).toUpperCase() + v.style.slice(1)}
               </span>
-              <span style={{ flex: 1, fontSize: 13, color: '#c9d1d9' }}>{v.styleLabel}</span>
-              <span style={{ fontSize: 12, color: '#8b949e', fontFamily: 'monospace' }}>
+              <span style={{ flex: 1, fontSize: 13, color: '#c9d1d9', minWidth: 80 }}>{v.styleLabel}</span>
+              <span style={{ fontSize: 11, color: '#8b949e', fontFamily: 'monospace', flexShrink: 0 }}>
                 {v.notes.map(n => `${n.note}${n.octave}`).join(' – ')}
               </span>
             </button>
@@ -137,12 +147,12 @@ export default function VoicingResults({ voicings, activeStyles, chordDisplay, c
 function NoteStack({ notes }: { notes: VoicingNote[] }) {
   const sorted = [...notes].sort((a, b) => b.midi - a.midi);
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-end' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-end', flexShrink: 0 }}>
       {sorted.map((n, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 11, color: '#6b7280' }}>{n.interval}</span>
           <span style={{
-            padding: '1px 8px', background: '#1c2128', borderRadius: 4,
+            padding: '2px 8px', background: '#1c2128', borderRadius: 4,
             fontSize: 13, color: '#e6edf3', fontFamily: 'monospace',
             borderLeft: `3px solid ${n.isRoot ? '#f97316' : '#3b82f6'}`,
           }}>

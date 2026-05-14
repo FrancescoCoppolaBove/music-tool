@@ -1,95 +1,107 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import type { VoicingNote } from '../types/chord.types';
 
 interface PianoKeyboardProps {
   highlightedNotes: VoicingNote[];
   octaveStart?: number;
   octaveEnd?: number;
-  width?: number;
 }
 
+const WHITE_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 const WHITE_KEYS_PER_OCTAVE = 7;
-const NOTE_IN_OCTAVE = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
-function noteColor(note: VoicingNote): string {
-  if (note.isRoot) return '#f97316';
-  if (note.interval === '3' || note.interval === '♭3') return '#a78bfa';
-  if (note.interval === '7' || note.interval === '♭7') return '#34d399';
-  if (note.interval === '5') return '#60a5fa';
+const SEMITONE: Record<string, number> = {
+  C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4,
+  F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11,
+};
+
+// Fractional white-key offset for each black key within an octave
+const BLACK_KEY_OFFSETS: Record<string, number> = {
+  'C#': 0.65, 'D#': 1.65, 'F#': 3.67, 'G#': 4.67, 'A#': 5.67,
+};
+const BLACK_NOTES_IN_OCT = ['C#', 'D#', 'F#', 'G#', 'A#'];
+
+function getMidi(note: string, octave: number): number {
+  return (octave + 1) * 12 + (SEMITONE[note] ?? 0);
+}
+
+function noteColor(n: VoicingNote): string {
+  if (n.isRoot) return '#f97316';
+  if (n.interval === '3' || n.interval === '♭3') return '#a78bfa';
+  if (n.interval === '7' || n.interval === '♭7') return '#34d399';
+  if (n.interval === '5') return '#60a5fa';
   return '#fbbf24';
 }
 
-function getMidiForKey(noteName: string, octave: number): number {
-  const semitones: Record<string, number> = {
-    C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4,
-    F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11,
-  };
-  return (octave + 1) * 12 + (semitones[noteName] ?? 0);
-}
+export default function PianoKeyboard({ highlightedNotes, octaveStart = 2, octaveEnd = 5 }: PianoKeyboardProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerW, setContainerW] = useState(600);
 
-export default function PianoKeyboard({
-  highlightedNotes, octaveStart = 2, octaveEnd = 5, width = 700,
-}: PianoKeyboardProps) {
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.getBoundingClientRect().width;
+      if (w > 10) setContainerW(w);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const totalOctaves = octaveEnd - octaveStart + 1;
   const totalWhiteKeys = totalOctaves * WHITE_KEYS_PER_OCTAVE;
-  const whiteKeyWidth = width / totalWhiteKeys;
-  const whiteKeyHeight = 120;
-  const blackKeyWidth = whiteKeyWidth * 0.6;
-  const blackKeyHeight = 72;
+  const MIN_KEY_W = 22;
+  const MIN_WIDTH = totalWhiteKeys * MIN_KEY_W;
+  const svgWidth = Math.max(containerW - 4, MIN_WIDTH);
 
-  const midiToHighlight = useMemo(() => {
-    const map = new Map<number, VoicingNote>();
-    highlightedNotes.forEach(n => map.set(n.midi, n));
-    return map;
+  const wkw = svgWidth / totalWhiteKeys;
+  const wkh = Math.min(140, Math.max(90, wkw * 7));
+  const bkw = wkw * 0.62;
+  const bkh = wkh * 0.62;
+
+  const midiMap = useMemo(() => {
+    const m = new Map<number, VoicingNote>();
+    highlightedNotes.forEach(n => m.set(n.midi, n));
+    return m;
   }, [highlightedNotes]);
 
-  const highlightedMidis = useMemo(
-    () => new Set(highlightedNotes.map(n => n.midi)),
-    [highlightedNotes]
-  );
+  // Scale font/circle sizes with key width
+  const fs = Math.max(6, Math.min(10, wkw * 0.48));
+  const cr = Math.max(7, Math.min(11, wkw * 0.55));
 
-  const whiteKeys: React.ReactNode[] = [];
-  const blackKeys: React.ReactNode[] = [];
+  const whites: React.ReactNode[] = [];
+  const blacks: React.ReactNode[] = [];
 
   for (let oct = octaveStart; oct <= octaveEnd; oct++) {
-    NOTE_IN_OCTAVE.forEach((noteName, noteIdx) => {
-      const midi = getMidiForKey(noteName, oct);
-      const isHighlighted = highlightedMidis.has(midi);
-      const highlightInfo = midiToHighlight.get(midi);
-      const whiteIdx = (oct - octaveStart) * WHITE_KEYS_PER_OCTAVE + noteIdx;
-      const x = whiteIdx * whiteKeyWidth;
+    WHITE_NOTES.forEach((note, ni) => {
+      const midi = getMidi(note, oct);
+      const hi = midiMap.get(midi);
+      const x = ((oct - octaveStart) * WHITE_KEYS_PER_OCTAVE + ni) * wkw;
+      const fill = hi ? noteColor(hi) : '#f0f0f0';
+      const labelY = wkh - cr - 18;
 
-      let fillColor = '#f0f0f0';
-      if (isHighlighted && highlightInfo) {
-        fillColor = noteColor(highlightInfo);
-      }
-
-      const isC = noteName === 'C';
-      whiteKeys.push(
-        <g key={`w-${oct}-${noteName}`}>
+      whites.push(
+        <g key={`w-${oct}-${note}`}>
           <rect
-            x={x + 0.5}
-            y={0.5}
-            width={whiteKeyWidth - 1}
-            height={whiteKeyHeight - 1}
-            rx={isHighlighted ? 3 : 2}
-            fill={fillColor}
-            stroke={isHighlighted ? fillColor : '#9ca3af'}
-            strokeWidth={isHighlighted ? 1.5 : 0.5}
+            x={x + 0.5} y={0.5} width={wkw - 1} height={wkh - 1}
+            rx={2} fill={fill}
+            stroke={hi ? fill : '#9ca3af'} strokeWidth={hi ? 1.5 : 0.5}
           />
-          {isC && (
-            <text x={x + whiteKeyWidth / 2} y={whiteKeyHeight - 10} textAnchor="middle" fontSize={9} fill="#6b7280">
+          {note === 'C' && (
+            <text x={x + wkw / 2} y={wkh - 4} textAnchor="middle" fontSize={fs} fill="#6b7280">
               C{oct}
             </text>
           )}
-          {isHighlighted && highlightInfo && (
+          {hi && (
             <>
-              <circle cx={x + whiteKeyWidth / 2} cy={whiteKeyHeight - 22} r={9} fill={fillColor} stroke="#fff" strokeWidth={1} />
-              <text x={x + whiteKeyWidth / 2} y={whiteKeyHeight - 22 + 3.5} textAnchor="middle" fontSize={7} fill="#fff" fontWeight="bold">
-                {highlightInfo.interval}
+              <circle cx={x + wkw / 2} cy={labelY} r={cr} fill={fill} stroke="#fff" strokeWidth={1} />
+              <text x={x + wkw / 2} y={labelY + fs * 0.42} textAnchor="middle" fontSize={fs} fill="#fff" fontWeight="bold">
+                {hi.interval}
               </text>
-              <text x={x + whiteKeyWidth / 2} y={whiteKeyHeight - 34} textAnchor="middle" fontSize={8} fill={fillColor} fontWeight="bold">
-                {highlightInfo.note}
+              <text x={x + wkw / 2} y={labelY - cr - 2} textAnchor="middle" fontSize={fs + 1} fill={fill} fontWeight="bold">
+                {hi.note}
               </text>
             </>
           )}
@@ -97,29 +109,25 @@ export default function PianoKeyboard({
       );
     });
 
-    // Black keys
-    const blackNoteNames = ['C#', 'D#', 'F#', 'G#', 'A#'];
-    const blackOffsets = [0.6, 1.6, 3.65, 4.65, 5.65];
-    blackNoteNames.forEach((noteName, i) => {
-      const midi = getMidiForKey(noteName, oct);
-      const isHighlighted = highlightedMidis.has(midi);
-      const highlightInfo = midiToHighlight.get(midi);
-      const octaveX = (oct - octaveStart) * WHITE_KEYS_PER_OCTAVE * whiteKeyWidth;
-      const x = octaveX + blackOffsets[i] * whiteKeyWidth;
+    BLACK_NOTES_IN_OCT.forEach(note => {
+      const midi = getMidi(note, oct);
+      const hi = midiMap.get(midi);
+      const offX = ((oct - octaveStart) * WHITE_KEYS_PER_OCTAVE + BLACK_KEY_OFFSETS[note]) * wkw;
+      const fill = hi ? noteColor(hi) : '#1a1a2e';
+      const bCr = Math.min(6, bkw * 0.38);
+      const bLabelY = bkh - bCr - 5;
 
-      let fillColor = '#1a1a2e';
-      if (isHighlighted && highlightInfo) {
-        fillColor = noteColor(highlightInfo);
-      }
-
-      blackKeys.push(
-        <g key={`b-${oct}-${noteName}`}>
-          <rect x={x} y={0} width={blackKeyWidth} height={blackKeyHeight} rx={2} fill={fillColor} stroke="#111" strokeWidth={0.5} />
-          {isHighlighted && highlightInfo && (
+      blacks.push(
+        <g key={`b-${oct}-${note}`}>
+          <rect x={offX} y={0} width={bkw} height={bkh} rx={2} fill={fill} stroke="#111" strokeWidth={0.5} />
+          {hi && (
             <>
-              <circle cx={x + blackKeyWidth / 2} cy={blackKeyHeight - 14} r={7} fill={fillColor} stroke="#fff" strokeWidth={1} />
-              <text x={x + blackKeyWidth / 2} y={blackKeyHeight - 14 + 3} textAnchor="middle" fontSize={6} fill="#fff" fontWeight="bold">
-                {highlightInfo.interval}
+              <circle cx={offX + bkw / 2} cy={bLabelY} r={bCr} fill={fill} stroke="#fff" strokeWidth={0.8} />
+              <text x={offX + bkw / 2} y={bLabelY + (fs - 1) * 0.38} textAnchor="middle" fontSize={Math.max(5, fs - 1)} fill="#fff" fontWeight="bold">
+                {hi.interval}
+              </text>
+              <text x={offX + bkw / 2} y={bLabelY - bCr - 2} textAnchor="middle" fontSize={Math.max(5, fs - 1)} fill={fill} fontWeight="bold">
+                {hi.note}
               </text>
             </>
           )}
@@ -129,12 +137,15 @@ export default function PianoKeyboard({
   }
 
   return (
-    <div style={{ overflowX: 'auto', padding: '4px 0' }}>
-      <svg width={width} height={whiteKeyHeight} style={{ display: 'block', minWidth: width }}>
-        {whiteKeys}
-        {blackKeys}
-      </svg>
-      <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+    <div ref={containerRef} style={{ width: '100%' }}>
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
+        <svg width={svgWidth} height={wkh} style={{ display: 'block', minWidth: MIN_WIDTH }}>
+          {whites}
+          {blacks}
+        </svg>
+      </div>
+      {/* Legend */}
+      <div style={{ display: 'flex', gap: 12, marginTop: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
         {[
           { color: '#f97316', label: 'Root' },
           { color: '#a78bfa', label: '3rd' },
