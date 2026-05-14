@@ -1,5 +1,5 @@
 import { NoteName } from '@shared/types/music.types';
-import { buildChordFromIntervals, noteToMidi } from '@shared/utils/musicTheory';
+import { noteToMidi, transposeNote } from '@shared/utils/musicTheory';
 import { ParsedChord, NoteWithOctave } from '../types/chord.types';
 import type { ChordVoicing, VoicingGeneratorOptions, VoicingStyle } from '../types/chord.types';
 
@@ -230,7 +230,7 @@ function getChordTones(chord: ParsedChord): NoteName[] {
   // ============================================================
 
   const uniqueIntervals = [...new Set(intervals)].sort((a, b) => a - b);
-  return buildChordFromIntervals(root, uniqueIntervals);
+  return uniqueIntervals.map((semitones) => transposeNote(root, semitones)) as NoteName[];
 }
 
 // ============================================================

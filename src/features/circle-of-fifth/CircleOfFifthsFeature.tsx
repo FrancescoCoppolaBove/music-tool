@@ -263,7 +263,7 @@ export default function CircleOfFifthsFeature() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: 8 }}>
                   {diatonicChords.map(({ degree, symbol, quality }) => {
-                    const fnColor = { I: '#10b981', IV: '#3b82f6', V: '#ef4444' }[degree] ?? '#6b7280';
+                    const fnColor = ({ I: '#10b981', IV: '#3b82f6', V: '#ef4444' } as Record<string, string>)[degree] ?? '#6b7280';
                     return (
                       <div key={degree} style={{
                         background: '#0d1117', border: `1px solid ${fnColor}30`,

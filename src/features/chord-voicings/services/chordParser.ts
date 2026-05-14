@@ -26,7 +26,7 @@ export function parseChordSymbol(symbol: string): ParsedChord | null {
     if (afterSlash && /^[A-G][#♯b♭]?$/.test(afterSlash)) {
       // È un vero slash chord
       symbol = parts[0].trim();
-      bass = normalizeNoteName(afterSlash) || undefined;
+      bass = (normalizeNoteName(afterSlash) || undefined) as NoteName | undefined;
     }
     // Altrimenti lascia symbol intatto (es. C6/9 rimane C6/9)
   }
@@ -38,10 +38,11 @@ export function parseChordSymbol(symbol: string): ParsedChord | null {
   }
 
   const rootRaw = rootMatch[1];
-  const root = normalizeNoteName(rootRaw);
-  if (!root) {
+  const rootNormalized = normalizeNoteName(rootRaw);
+  if (!rootNormalized) {
     return null;
   }
+  const root = rootNormalized as NoteName;
 
   // 3. Rimuovi root dal simbolo
   let remainder = symbol.slice(rootRaw.length);

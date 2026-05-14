@@ -32,12 +32,15 @@ export type ScaleMode =
   | 'altered';
 
 export interface ChordDegree {
-  degree: string; // "I", "ii", "iii", etc.
-  name: string; // "Tonica", "Sopratonica", etc.
-  symbol: string; // "Cmaj7", "Dm7", etc.
-  function: string; // "Tonica", "Pre-dominante", "Dominante"
-  role: string; // Descrizione del ruolo
-  icon: string; // Emoji per visualizzazione
+  degree: string;
+  name: string;
+  symbol: string;
+  function: string;
+  role: string;
+  icon: string;
+  modalType?: 'tonic' | 'cadencing' | 'conditioned' | 'movement' | 'avoid';
+  characteristicPosition?: 'root' | '3rd' | '5th' | '7th';
+  warning?: string;
 }
 
 export interface ScaleHarmonization {
@@ -49,6 +52,9 @@ export interface ScaleHarmonization {
   commonProgressions: string[][];
   characteristics: string[];
   family?: 'major' | 'harmonic-minor' | 'melodic-minor';
+  characteristicNote?: string;
+  modalWritingTips?: string[];
+  rhythmicHarmonyTip?: string;
 }
 
 // ===================================

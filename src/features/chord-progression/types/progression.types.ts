@@ -9,7 +9,9 @@ export type Technique =
   | 'chromatic'
   | 'quartal'
   | 'sus'
-  | 'modulation';
+  | 'modulation'
+  | 'altered_dominant'
+  | 'dim_pedal';
 
 export interface ProgressionChord {
   degree: string;          // Roman numeral e.g. "II" "bVII"
