@@ -191,6 +191,15 @@ export const SCALE_FORMULAS: Record<string, ScaleFormula> = {
   'locrianNat2':  { intervals: [0,2,3,5,6,8,10],     name: 'Locrian ♮2 (Half-Dim)',     category: 'Jazz' },
   'altered':      { intervals: [0,1,3,4,6,8,10],     name: 'Altered (Super Locrian)',   category: 'Jazz' },
 
+  // Harmonic minor modes (all 7)
+  // harmonicMinor is already above (Mode I)
+  'locrianNat6':      { intervals: [0,1,3,5,6,9,10],   name: 'Locrian ♮6 (HM II)',      category: 'Harmonic Minor' },
+  'ionianSharp5':     { intervals: [0,2,4,5,8,9,11],   name: 'Ionian ♯5 (HM III)',      category: 'Harmonic Minor' },
+  'dorianSharp4':     { intervals: [0,2,3,6,7,9,10],   name: 'Dorian ♯4 (HM IV)',       category: 'Harmonic Minor' },
+  // phrygianDominant is below (Mode V)
+  'lydianSharp2':     { intervals: [0,3,4,6,7,9,11],   name: 'Lydian ♯2 (HM VI)',       category: 'Harmonic Minor' },
+  'superLocrianBb7':  { intervals: [0,1,3,4,6,8,9],    name: 'Super Locrian ♭♭7 (HM VII)', category: 'Harmonic Minor' },
+
   // Harmonic major modes
   'harmonicMajor':     { intervals: [0,2,4,5,7,8,11],  name: 'Harmonic Major',          category: 'Major' },
   'phrygianDominant':  { intervals: [0,1,4,5,7,8,10],  name: 'Phrygian Dominant',       category: 'Modal' },
