@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "music-tool",
+      "runtimeExecutable": "/Users/astuser/.nvm/versions/node/v20.11.1/bin/node",
+      "runtimeArgs": ["/Users/astuser/Documents/Repos/music-tool/.claude/worktrees/adoring-elgamal-07d7c2/node_modules/vite/bin/vite.js", "--port", "3000"],
+      "port": 3000
+    }
+  ]
+}
