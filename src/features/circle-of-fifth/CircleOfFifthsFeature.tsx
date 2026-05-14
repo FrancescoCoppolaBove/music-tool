@@ -1,347 +1,307 @@
-/**
- * CIRCLE OF FIFTHS FEATURE
- * Interactive circle with key information and relationships
- */
-
-import React, { useState } from 'react';
-import { Music, Info, Zap, TrendingUp, BookOpen } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import {
-  CIRCLE_ORDER,
-  MINOR_CIRCLE_ORDER,
-  MAJOR_KEYS,
-  MINOR_KEYS,
-  getKeyInfo,
-  getNeighbors,
-  type KeyInfo,
-} from '../circle-of-fifth/utils/circle-of-fifths-data';
-import { KeySignaturesTrainer } from '../circle-of-fifth/components/KeySignatureTrainer';
+  noteToSemitone, semitoneToNote, getScaleNotes,
+  MAJOR_DIATONIC_QUALITY, DEGREE_SEMITONE,
+} from '@shared/utils/musicTheory';
 
-type TabView = 'circle' | 'trainer';
+// Clock-wise from C (0 = top, going CW by 5ths)
+const FIFTHS_ORDER = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
+const RELATIVE_MINORS = ['Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'D#m', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm'];
+const SHARPS_FLATS = ['0', '1♯', '2♯', '3♯', '4♯', '5♯', '6♯/6♭', '5♭', '4♭', '3♭', '2♭', '1♭'];
 
-export function CircleOfFifthsFeature() {
-  const [selectedKey, setSelectedKey] = useState<string>('C');
-  const [mode, setMode] = useState<'major' | 'minor'>('major');
-  const [highlightRelations, setHighlightRelations] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabView>('circle');
+const KEY_COLORS = [
+  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e',
+  '#10b981', '#14b8a6', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899',
+];
 
-  const currentKeyInfo = getKeyInfo(selectedKey, mode);
-  const neighbors = getNeighbors(selectedKey);
+const DIATONIC_DEGREES = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'] as const;
+const DIATONIC_SEMITONES = [0, 2, 4, 5, 7, 9, 11];
+
+function getDiatonicChords(key: string) {
+  const ks = noteToSemitone(key);
+  return DIATONIC_DEGREES.map((deg, i) => {
+    const rootSemitone = (ks + DIATONIC_SEMITONES[i]) % 12;
+    const root = semitoneToNote(rootSemitone, ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb'].includes(key));
+    const quality = MAJOR_DIATONIC_QUALITY[deg] ?? 'maj';
+    return { degree: deg, root, quality, symbol: `${root}${quality === 'maj' ? '' : quality}` };
+  });
+}
+
+export default function CircleOfFifthsFeature() {
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(0);
+  const [showMinors, setShowMinors] = useState(true);
+  const [highlightRelated, setHighlightRelated] = useState(true);
+
+  const selectedKey = selectedIdx !== null ? FIFTHS_ORDER[selectedIdx] : null;
+
+  // Keys related to selected: I(self), IV(-1 step), V(+1 step)
+  const relatedIndices = useMemo(() => {
+    if (selectedIdx === null) return new Set<number>();
+    const iv = (selectedIdx - 1 + 12) % 12;
+    const v = (selectedIdx + 1) % 12;
+    return new Set([selectedIdx, iv, v]);
+  }, [selectedIdx]);
+
+  const diatonicChords = useMemo(() => {
+    if (!selectedKey) return [];
+    return getDiatonicChords(selectedKey);
+  }, [selectedKey]);
+
+  const SIZE = 320;
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+  const OUTER_R = 128;
+  const INNER_R = 80;
+  const CENTER_R = 40;
+  const SLICE_ANGLE = (2 * Math.PI) / 12;
+
+  function sectorPath(r1: number, r2: number, idx: number, gap = 0.04) {
+    const start = idx * SLICE_ANGLE - Math.PI / 2 - SLICE_ANGLE / 2 + gap;
+    const end = start + SLICE_ANGLE - gap * 2;
+    const x1 = cx + r1 * Math.cos(start);
+    const y1 = cy + r1 * Math.sin(start);
+    const x2 = cx + r2 * Math.cos(start);
+    const y2 = cy + r2 * Math.sin(start);
+    const x3 = cx + r2 * Math.cos(end);
+    const y3 = cy + r2 * Math.sin(end);
+    const x4 = cx + r1 * Math.cos(end);
+    const y4 = cy + r1 * Math.sin(end);
+    return `M ${x1} ${y1} L ${x2} ${y2} A ${r2} ${r2} 0 0 1 ${x3} ${y3} L ${x4} ${y4} A ${r1} ${r1} 0 0 0 ${x1} ${y1} Z`;
+  }
+
+  function textPos(r: number, idx: number) {
+    const angle = idx * SLICE_ANGLE - Math.PI / 2;
+    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  }
 
   return (
-    <div className='circle-of-fifths-feature'>
-      {/* Header with Tabs */}
-      <div className='card'>
-        <div className='card-header'>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Music size={28} style={{ color: 'var(--primary)' }} />
-            <div>
-              <h2 className='card-title'>Circle of Fifths</h2>
-              <p className='card-description'>Interactive key relationships and trainer</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className='circle-tabs'>
-          <button onClick={() => setActiveTab('circle')} className={`tab-button ${activeTab === 'circle' ? 'active' : ''}`}>
-            <Music size={18} />
-            <span>Interactive Circle</span>
-          </button>
-          <button onClick={() => setActiveTab('trainer')} className={`tab-button ${activeTab === 'trainer' ? 'active' : ''}`}>
-            <BookOpen size={18} />
-            <span>Key Signatures Trainer</span>
-          </button>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div>
+        <h2 style={{ margin: '0 0 4px', fontSize: 22, color: '#e6edf3' }}>Circle of Fifths</h2>
+        <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>
+          Interactive circle of fifths. Click any key to see its diatonic chords, relative minor, and key signature. Adjacent keys share 6 common notes.
+        </p>
       </div>
 
-      {/* Tab Content */}
-      {activeTab === 'circle' && (
-        <>
-          {/* Controls */}
-          <div className='card'>
-            <div className='card-content'>
-              <div className='circle-controls'>
-                <div className='control-group'>
-                  <label className='control-label'>Mode</label>
-                  <div className='mode-toggle'>
-                    <button onClick={() => setMode('major')} className={`toggle-button ${mode === 'major' ? 'active' : ''}`}>
-                      Major
-                    </button>
-                    <button onClick={() => setMode('minor')} className={`toggle-button ${mode === 'minor' ? 'active' : ''}`}>
-                      Minor
-                    </button>
-                  </div>
-                </div>
-
-                <div className='control-group'>
-                  <label className='control-label'>
-                    <input type='checkbox' checked={highlightRelations} onChange={(e) => setHighlightRelations(e.target.checked)} />
-                    Highlight relationships
-                  </label>
-                </div>
-              </div>
-            </div>
+      <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        {/* Circle */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setShowMinors(!showMinors)}
+              style={{
+                padding: '5px 12px', borderRadius: 6,
+                background: showMinors ? '#1c2128' : 'none',
+                border: `1px solid ${showMinors ? '#58a6ff' : '#30363d'}`,
+                color: showMinors ? '#58a6ff' : '#6b7280', fontSize: 12, cursor: 'pointer',
+              }}
+            >
+              {showMinors ? '✓' : ''} Relative minors
+            </button>
+            <button
+              onClick={() => setHighlightRelated(!highlightRelated)}
+              style={{
+                padding: '5px 12px', borderRadius: 6,
+                background: highlightRelated ? '#1c2128' : 'none',
+                border: `1px solid ${highlightRelated ? '#f59e0b' : '#30363d'}`,
+                color: highlightRelated ? '#f59e0b' : '#6b7280', fontSize: 12, cursor: 'pointer',
+              }}
+            >
+              {highlightRelated ? '✓' : ''} Highlight I/IV/V
+            </button>
           </div>
 
-          {/* Circle Layout */}
-          <div className='circle-layout'>
-            <div className='card circle-container'>
-              <CircleSVG
-                selectedKey={selectedKey}
-                onKeySelect={setSelectedKey}
-                mode={mode}
-                highlightRelations={highlightRelations}
-                neighbors={neighbors}
-              />
+          <svg width={SIZE} height={SIZE} style={{ cursor: 'pointer' }}>
+            {/* Outer ring (major keys) */}
+            {FIFTHS_ORDER.map((key, i) => {
+              const color = KEY_COLORS[i];
+              const isSelected = i === selectedIdx;
+              const isRelated = highlightRelated && relatedIndices.has(i) && selectedIdx !== null;
+              const opacity = selectedIdx === null ? 1 : isRelated ? 1 : 0.3;
+              return (
+                <g key={key} onClick={() => setSelectedIdx(i === selectedIdx ? null : i)}>
+                  <path
+                    d={sectorPath(INNER_R + 4, OUTER_R, i)}
+                    fill={isSelected ? color : `${color}60`}
+                    stroke={isSelected ? '#fff' : color}
+                    strokeWidth={isSelected ? 2 : 1}
+                    opacity={opacity}
+                  />
+                  <text
+                    {...textPos((INNER_R + OUTER_R) / 2 + 2, i)}
+                    textAnchor="middle" dominantBaseline="middle"
+                    fontSize={isSelected ? 15 : 13}
+                    fontWeight={isSelected ? 800 : 600}
+                    fill={isSelected ? '#fff' : '#e6edf3'}
+                    opacity={opacity}
+                    style={{ userSelect: 'none' }}
+                  >
+                    {key}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Inner ring (relative minors) */}
+            {showMinors && RELATIVE_MINORS.map((rmin, i) => {
+              const color = KEY_COLORS[i];
+              const isRelated = highlightRelated && relatedIndices.has(i) && selectedIdx !== null;
+              const isSelected = i === selectedIdx;
+              const opacity = selectedIdx === null ? 1 : isRelated ? 1 : 0.25;
+              return (
+                <g key={rmin} onClick={() => setSelectedIdx(i === selectedIdx ? null : i)}>
+                  <path
+                    d={sectorPath(CENTER_R + 2, INNER_R, i, 0.05)}
+                    fill={`${color}30`}
+                    stroke={`${color}80`}
+                    strokeWidth={1}
+                    opacity={opacity}
+                  />
+                  <text
+                    {...textPos((CENTER_R + INNER_R) / 2 + 1, i)}
+                    textAnchor="middle" dominantBaseline="middle"
+                    fontSize={10} fill="#8b949e" opacity={opacity}
+                    style={{ userSelect: 'none' }}
+                  >
+                    {rmin}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Center */}
+            <circle cx={cx} cy={cy} r={CENTER_R - 1} fill="#161b22" stroke="#30363d" strokeWidth={1} />
+            <text x={cx} y={cy - 6} textAnchor="middle" fontSize={11} fill="#8b949e">
+              {selectedKey ?? 'Click'}
+            </text>
+            <text x={cx} y={cy + 8} textAnchor="middle" fontSize={10} fill="#4b5563">
+              {selectedIdx !== null ? SHARPS_FLATS[selectedIdx] : 'a key'}
+            </text>
+          </svg>
+
+          {/* Legend */}
+          <div style={{ display: 'flex', gap: 16, fontSize: 11, color: '#6b7280' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 12, height: 12, borderRadius: 2, background: '#f97316' }} />
+              Major key (outer)
             </div>
-
-            {currentKeyInfo && (
-              <div className='card key-details-panel'>
-                <div className='card-header'>
-                  <h3 className='card-title'>
-                    {currentKeyInfo.key} {mode === 'major' ? 'Major' : 'Minor'}
-                  </h3>
-                </div>
-
-                <div className='card-content'>
-                  {/* Key Signature */}
-                  <div className='detail-section'>
-                    <div className='detail-header'>
-                      <Info size={18} />
-                      <span>Key Signature</span>
-                    </div>
-                    <div className='key-signature'>
-                      {currentKeyInfo.accidentals === 0 ? (
-                        <span className='natural-badge'>No sharps or flats</span>
-                      ) : (
-                        <span className={`accidental-badge ${currentKeyInfo.accidentalType}`}>
-                          {Math.abs(currentKeyInfo.accidentals)} {currentKeyInfo.accidentalType}
-                          {Math.abs(currentKeyInfo.accidentals) > 1 ? 's' : ''}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Scale Notes */}
-                  <div className='detail-section'>
-                    <div className='detail-header'>
-                      <Music size={18} />
-                      <span>Scale Notes</span>
-                    </div>
-                    <div className='scale-notes'>
-                      {currentKeyInfo.notes.map((note, idx) => (
-                        <span key={idx} className='note-badge'>
-                          {note}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Relative Key */}
-                  <div className='detail-section'>
-                    <div className='detail-header'>
-                      <TrendingUp size={18} />
-                      <span>Relative {mode === 'major' ? 'Minor' : 'Major'}</span>
-                    </div>
-                    <div className='relative-key'>
-                      <button
-                        className='relative-key-button'
-                        onClick={() => {
-                          const relativeKey = mode === 'major' ? currentKeyInfo.relativeMinor : currentKeyInfo.relativeMajor;
-                          if (relativeKey) {
-                            setSelectedKey(relativeKey.replace('m', ''));
-                            setMode(mode === 'major' ? 'minor' : 'major');
-                          }
-                        }}
-                      >
-                        {mode === 'major' ? currentKeyInfo.relativeMinor : currentKeyInfo.relativeMajor}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Relationships */}
-                  <div className='detail-section'>
-                    <div className='detail-header'>
-                      <Zap size={18} />
-                      <span>Key Relationships</span>
-                    </div>
-                    <div className='relationships'>
-                      <div className='relationship-item'>
-                        <span className='relationship-label'>Subdominant (IV):</span>
-                        <button className='relationship-button subdominant' onClick={() => setSelectedKey(neighbors.subdominant)}>
-                          {neighbors.subdominant}
-                        </button>
-                      </div>
-                      <div className='relationship-item'>
-                        <span className='relationship-label'>Dominant (V):</span>
-                        <button className='relationship-button dominant' onClick={() => setSelectedKey(neighbors.dominant)}>
-                          {neighbors.dominant}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Diatonic Chords */}
-                  <div className='detail-section'>
-                    <div className='detail-header'>
-                      <Music size={18} />
-                      <span>Diatonic Chords</span>
-                    </div>
-                    <div className='diatonic-chords'>
-                      {currentKeyInfo.diatonicChords.map((chord, idx) => (
-                        <div key={idx} className='chord-item'>
-                          <span className='chord-degree'>{chord.degree}</span>
-                          <span className='chord-symbol'>{chord.symbol}</span>
-                          <span className='chord-quality'>{chord.quality}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+            {showMinors && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 12, height: 12, borderRadius: 2, background: '#f9731630', border: '1px solid #f97316' }} />
+                Relative minor
               </div>
             )}
           </div>
-        </>
-      )}
+        </div>
 
-      {activeTab === 'trainer' && <KeySignaturesTrainer />}
+        {/* Info panel */}
+        <div style={{ flex: 1, minWidth: 280, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {selectedKey ? (
+            <>
+              {/* Key info */}
+              <div style={{ background: '#161b22', border: `1px solid ${KEY_COLORS[selectedIdx!]}40`, borderRadius: 10, padding: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: '50%',
+                    background: KEY_COLORS[selectedIdx!], opacity: 0.8,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 16, fontWeight: 800, color: '#fff',
+                  }}>
+                    {selectedKey[0]}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: '#e6edf3' }}>{selectedKey} Major</div>
+                    <div style={{ fontSize: 13, color: '#8b949e' }}>
+                      Relative minor: <span style={{ color: '#a78bfa' }}>{RELATIVE_MINORS[selectedIdx!]}</span>
+                    </div>
+                  </div>
+                  <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                    <div style={{ fontSize: 11, color: '#6b7280' }}>Key signature</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#f59e0b' }}>{SHARPS_FLATS[selectedIdx!]}</div>
+                  </div>
+                </div>
+
+                {/* Scale notes */}
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>Scale notes</div>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                    {getScaleNotes(selectedKey, 'major').map((n, i) => (
+                      <span key={i} style={{
+                        padding: '3px 9px', borderRadius: 5,
+                        background: i === 0 ? '#f9731620' : '#1c2128',
+                        border: `1px solid ${i === 0 ? '#f97316' : '#30363d'}`,
+                        fontSize: 13, fontFamily: 'monospace',
+                        color: i === 0 ? '#fb923c' : '#e6edf3',
+                        fontWeight: i === 0 ? 700 : 400,
+                      }}>
+                        {n}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Related keys */}
+                <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>Closely related keys</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {[
+                    { label: 'IV (subdominant)', key: FIFTHS_ORDER[(selectedIdx! - 1 + 12) % 12] },
+                    { label: 'V (dominant)', key: FIFTHS_ORDER[(selectedIdx! + 1) % 12] },
+                    { label: 'Relative minor', key: RELATIVE_MINORS[selectedIdx!] },
+                  ].map(({ label, key }) => (
+                    <div key={key} style={{ background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, padding: '5px 10px' }}>
+                      <div style={{ fontSize: 10, color: '#4b5563' }}>{label}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#e6edf3', fontFamily: 'monospace' }}>{key}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Diatonic chords */}
+              <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#8b949e', marginBottom: 12 }}>
+                  Diatonic Chords in {selectedKey} Major
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: 8 }}>
+                  {diatonicChords.map(({ degree, symbol, quality }) => {
+                    const fnColor = { I: '#10b981', IV: '#3b82f6', V: '#ef4444' }[degree] ?? '#6b7280';
+                    return (
+                      <div key={degree} style={{
+                        background: '#0d1117', border: `1px solid ${fnColor}30`,
+                        borderRadius: 8, padding: '8px 10px', textAlign: 'center',
+                      }}>
+                        <div style={{ fontSize: 11, color: fnColor, fontWeight: 600 }}>{degree}</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#e6edf3', fontFamily: 'monospace', margin: '2px 0' }}>
+                          {symbol}
+                        </div>
+                        <div style={{ fontSize: 10, color: '#4b5563' }}>{quality}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div style={{
+              background: '#161b22', border: '1px solid #30363d', borderRadius: 10,
+              padding: 40, textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>🔵</div>
+              <div style={{ color: '#6b7280', fontSize: 14 }}>
+                Click any key on the circle to see its details, diatonic chords, and related keys.
+              </div>
+            </div>
+          )}
+
+          {/* Theory tip */}
+          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '12px 14px' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#f59e0b', marginBottom: 6 }}>💡 Circle of Fifths Theory</div>
+            <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.6 }}>
+              Moving clockwise adds 1 sharp (or removes 1 flat). Adjacent keys differ by only one note — making modulation smooth.
+              The IV (left) and V (right) of any key are its closest harmonic neighbors.
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  );
-}
-
-// ===================================
-// CIRCLE SVG COMPONENT
-// ===================================
-
-interface CircleSVGProps {
-  selectedKey: string;
-  onKeySelect: (key: string) => void;
-  mode: 'major' | 'minor';
-  highlightRelations: boolean;
-  neighbors: { subdominant: string; dominant: string };
-}
-
-function CircleSVG({ selectedKey, onKeySelect, mode, highlightRelations, neighbors }: CircleSVGProps) {
-  const centerX = 250;
-  const centerY = 250;
-  const outerRadius = 180;
-  const innerRadius = 120;
-  const textRadius = 150;
-
-  // Use correct circle order for mode
-  const circleOrder = mode === 'major' ? CIRCLE_ORDER : MINOR_CIRCLE_ORDER;
-  const keyData = mode === 'major' ? MAJOR_KEYS : MINOR_KEYS;
-
-  // Calculate position for each key
-  const getKeyPosition = (index: number) => {
-    // Start at 12 o'clock and go clockwise
-    const angle = (index * 30 - 90) * (Math.PI / 180); // 30° per key, start at top
-    return {
-      x: centerX + textRadius * Math.cos(angle),
-      y: centerY + textRadius * Math.sin(angle),
-    };
-  };
-
-  // Create path for outer ring segment
-  const createSegmentPath = (index: number) => {
-    const startAngle = (index * 30 - 90 - 15) * (Math.PI / 180);
-    const endAngle = (index * 30 - 90 + 15) * (Math.PI / 180);
-
-    const x1 = centerX + outerRadius * Math.cos(startAngle);
-    const y1 = centerY + outerRadius * Math.sin(startAngle);
-    const x2 = centerX + outerRadius * Math.cos(endAngle);
-    const y2 = centerY + outerRadius * Math.sin(endAngle);
-    const x3 = centerX + innerRadius * Math.cos(endAngle);
-    const y3 = centerY + innerRadius * Math.sin(endAngle);
-    const x4 = centerX + innerRadius * Math.cos(startAngle);
-    const y4 = centerY + innerRadius * Math.sin(startAngle);
-
-    return `M ${x1} ${y1} A ${outerRadius} ${outerRadius} 0 0 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 0 0 ${x4} ${y4} Z`;
-  };
-
-  // Determine segment color/style
-  const getSegmentClass = (key: string) => {
-    const displayKey = mode === 'major' ? key : key.replace('m', '');
-    const selectedDisplayKey = mode === 'major' ? selectedKey : selectedKey + 'm';
-
-    if (key === selectedDisplayKey) return 'selected';
-    if (highlightRelations) {
-      const dominantKey = mode === 'major' ? neighbors.dominant : neighbors.dominant + 'm';
-      const subdominantKey = mode === 'major' ? neighbors.subdominant : neighbors.subdominant + 'm';
-
-      if (key === dominantKey) return 'dominant';
-      if (key === subdominantKey) return 'subdominant';
-    }
-    return 'default';
-  };
-
-  return (
-    <svg viewBox='0 0 500 500' className='circle-svg'>
-      {/* Background circle */}
-      <circle cx={centerX} cy={centerY} r={outerRadius} fill='var(--bg-secondary)' />
-
-      {/* Key segments */}
-      {circleOrder.map((key, index) => (
-        <g key={key}>
-          <path
-            d={createSegmentPath(index)}
-            className={`key-segment ${getSegmentClass(key)}`}
-            onClick={() => onKeySelect(mode === 'major' ? key : key.replace('m', ''))}
-            style={{ cursor: 'pointer' }}
-          />
-        </g>
-      ))}
-
-      {/* Center circle */}
-      <circle cx={centerX} cy={centerY} r={innerRadius} fill='var(--bg-primary)' />
-
-      {/* Key labels */}
-      {circleOrder.map((key, index) => {
-        const pos = getKeyPosition(index);
-        const displayKey = mode === 'major' ? key : key.replace('m', '');
-        const keyInfo = keyData[key];
-        const isSelected = mode === 'major' ? key === selectedKey : key === selectedKey + 'm';
-
-        return (
-          <g key={`label-${key}`}>
-            <text
-              x={pos.x}
-              y={pos.y}
-              textAnchor='middle'
-              dominantBaseline='middle'
-              className={`key-label ${isSelected ? 'selected' : ''}`}
-              onClick={() => onKeySelect(displayKey)}
-              style={{ cursor: 'pointer', fontSize: isSelected ? '20px' : '16px', fontWeight: isSelected ? 'bold' : 'normal' }}
-            >
-              {mode === 'major' ? key : key}
-            </text>
-            {/* Accidentals count */}
-            <text
-              x={pos.x}
-              y={pos.y + 18}
-              textAnchor='middle'
-              className='accidental-count'
-              style={{ fontSize: '11px', fill: 'var(--text-tertiary)' }}
-            >
-              {keyInfo.accidentals === 0 ? '♮' : Math.abs(keyInfo.accidentals) + (keyInfo.accidentalType === 'sharp' ? '♯' : '♭')}
-            </text>
-          </g>
-        );
-      })}
-
-      {/* Center text */}
-      <text x={centerX} y={centerY - 10} textAnchor='middle' className='center-label' style={{ fontSize: '24px', fontWeight: 'bold' }}>
-        {mode === 'major' ? selectedKey : selectedKey + 'm'}
-      </text>
-      <text
-        x={centerX}
-        y={centerY + 15}
-        textAnchor='middle'
-        className='center-sublabel'
-        style={{ fontSize: '14px', fill: 'var(--text-secondary)' }}
-      >
-        {mode === 'major' ? 'Major' : 'Minor'}
-      </text>
-    </svg>
   );
 }
