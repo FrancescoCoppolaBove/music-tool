@@ -5,8 +5,10 @@ export type Technique =
   | 'modal_interchange'
   | 'secondary_dominant'
   | 'tritone_sub'
+  | 'altered_dominant'
   | 'backdoor'
   | 'chromatic'
+  | 'dim_pedal'
   | 'quartal'
   | 'sus'
   | 'modulation';
