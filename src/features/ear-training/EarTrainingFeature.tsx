@@ -62,7 +62,7 @@ const EXERCISES = [
   { id: 'bpm' as ExerciseType, name: 'BPM Recognition', icon: Activity, description: 'Identify tempo (BPM)' },
 ];
 
-export function EarTrainingFeature() {
+export default function EarTrainingFeature() {
   const [activeExercise, setActiveExercise] = useState<ExerciseType>('perfect-pitch');
   const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
