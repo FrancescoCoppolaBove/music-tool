@@ -11,16 +11,7 @@ import ScaleAdvisorFeature from './features/scale-advisor/ScaleAdvisorFeature';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Tab =
-  | 'voicings'
-  | 'scales'
-  | 'dictionary'
-  | 'ear'
-  | 'circle'
-  | 'harmonization'
-  | 'modal'
-  | 'progressions'
-  | 'scaleadvisor';
+type Tab = 'voicings' | 'scales' | 'dictionary' | 'ear' | 'circle' | 'harmonization' | 'modal' | 'progressions' | 'scaleadvisor';
 
 interface TabDef {
   id: Tab;
@@ -40,11 +31,11 @@ interface GroupDef {
 const GROUPS: GroupDef[] = [
   {
     id: 'composizione',
-    label: 'Composizione',
+    label: 'Composition',
     icon: '✍️',
     tabs: [
-      { id: 'scaleadvisor',  label: 'Scale Advisor',     icon: '🧭' },
-      { id: 'progressions',  label: 'Chord Progressions', icon: '🎸' },
+      { id: 'scaleadvisor', label: 'Scale Advisor', icon: '🧭' },
+      { id: 'progressions', label: 'Chord Progressions', icon: '🎸' },
     ],
   },
   {
@@ -52,20 +43,20 @@ const GROUPS: GroupDef[] = [
     label: 'Scale',
     icon: '🎼',
     tabs: [
-      { id: 'scales',     label: 'Scale Recognition', icon: '🔍' },
-      { id: 'dictionary', label: 'Scale Dictionary',  icon: '📚' },
+      { id: 'scales', label: 'Scale Recognition', icon: '🔍' },
+      { id: 'dictionary', label: 'Scale Dictionary', icon: '📚' },
     ],
   },
   {
     id: 'teoria',
-    label: 'Teoria',
+    label: 'Theory',
     icon: '📖',
     tabs: [
-      { id: 'harmonization', label: 'Scale Harmony',     icon: '🎶' },
-      { id: 'modal',         label: 'Modal Interchange', icon: '🔄' },
-      { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹' },
-      { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵' },
-      { id: 'ear',           label: 'Ear Training',      icon: '👂' },
+      { id: 'harmonization', label: 'Scale Harmony', icon: '🎶' },
+      { id: 'modal', label: 'Modal Interchange', icon: '🔄' },
+      { id: 'voicings', label: 'Piano Voicings', icon: '🎹' },
+      { id: 'circle', label: 'Circle of Fifths', icon: '🔵' },
+      { id: 'ear', label: 'Ear Training', icon: '👂' },
     ],
   },
 ];
@@ -85,8 +76,7 @@ function NavGroup({
   onToggle: () => void;
   onSelect: (tab: Tab) => void;
 }) {
-  const isGroupActive = group.tabs.some(t => t.id === activeTab);
-  const activeTabInGroup = group.tabs.find(t => t.id === activeTab);
+  const isGroupActive = group.tabs.some((t) => t.id === activeTab);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -110,11 +100,12 @@ function NavGroup({
         }}
       >
         <span style={{ fontSize: 15 }}>{group.icon}</span>
-        <span>
-          {activeTabInGroup ? activeTabInGroup.label : group.label}
-        </span>
+        <span>{group.label}</span>
         <svg
-          width="10" height="10" viewBox="0 0 10 10" fill="none"
+          width='10'
+          height='10'
+          viewBox='0 0 10 10'
+          fill='none'
           style={{
             marginLeft: 2,
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -122,25 +113,27 @@ function NavGroup({
             opacity: 0.6,
           }}
         >
-          <path d="M1 3L5 7L9 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d='M1 3L5 7L9 3' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
         </svg>
       </button>
 
       {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: 'calc(100% + 2px)',
-          left: 0,
-          minWidth: 210,
-          background: '#161b22',
-          border: '1px solid #30363d',
-          borderRadius: 10,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-          zIndex: 200,
-          overflow: 'hidden',
-          padding: '6px',
-        }}>
-          {group.tabs.map(tab => {
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 2px)',
+            left: 0,
+            minWidth: 210,
+            background: '#161b22',
+            border: '1px solid #30363d',
+            borderRadius: 10,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+            zIndex: 200,
+            overflow: 'hidden',
+            padding: '6px',
+          }}
+        >
+          {group.tabs.map((tab) => {
             const isCurrent = tab.id === activeTab;
             return (
               <button
@@ -162,13 +155,13 @@ function NavGroup({
                   textAlign: 'left',
                   transition: 'background 0.1s, color 0.1s',
                 }}
-                onMouseEnter={e => {
+                onMouseEnter={(e) => {
                   if (!isCurrent) {
                     (e.currentTarget as HTMLButtonElement).style.background = '#30363d40';
                     (e.currentTarget as HTMLButtonElement).style.color = '#e6edf3';
                   }
                 }}
-                onMouseLeave={e => {
+                onMouseLeave={(e) => {
                   if (!isCurrent) {
                     (e.currentTarget as HTMLButtonElement).style.background = 'none';
                     (e.currentTarget as HTMLButtonElement).style.color = '#8b949e';
@@ -177,9 +170,7 @@ function NavGroup({
               >
                 <span style={{ fontSize: 15, width: 20, textAlign: 'center' }}>{tab.icon}</span>
                 {tab.label}
-                {isCurrent && (
-                  <span style={{ marginLeft: 'auto', color: '#7c3aed', fontSize: 10 }}>●</span>
-                )}
+                {isCurrent && <span style={{ marginLeft: 'auto', color: '#7c3aed', fontSize: 10 }}>●</span>}
               </button>
             );
           })}
@@ -196,7 +187,7 @@ export default function App() {
   const [openGroup, setOpenGroup] = useState<string | null>(null);
 
   function handleToggleGroup(groupId: string) {
-    setOpenGroup(prev => (prev === groupId ? null : groupId));
+    setOpenGroup((prev) => (prev === groupId ? null : groupId));
   }
 
   function handleSelectTab(tab: Tab) {
@@ -205,38 +196,42 @@ export default function App() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#0d1117',
-      color: '#e6edf3',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#0d1117',
+        color: '#e6edf3',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {/* Overlay — chiude i dropdown se si clicca fuori */}
-      {openGroup && (
-        <div
-          style={{ position: 'fixed', inset: 0, zIndex: 150 }}
-          onClick={() => setOpenGroup(null)}
-        />
-      )}
+      {openGroup && <div style={{ position: 'fixed', inset: 0, zIndex: 150 }} onClick={() => setOpenGroup(null)} />}
 
       {/* Header */}
-      <header style={{
-        borderBottom: '1px solid #21262d',
-        background: '#161b22',
-        position: 'sticky',
-        top: 0,
-        zIndex: 160,
-      }}>
+      <header
+        style={{
+          borderBottom: '1px solid #21262d',
+          background: '#161b22',
+          position: 'sticky',
+          top: 0,
+          zIndex: 160,
+        }}
+      >
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
           {/* Logo + nav — tutto in una riga */}
           <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
             {/* Logo */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              paddingRight: 24, borderRight: '1px solid #21262d',
-              marginRight: 8,
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                paddingRight: 24,
+                borderRight: '1px solid #21262d',
+                marginRight: 8,
+              }}
+            >
               <span style={{ fontSize: 18 }}>🎵</span>
               <span style={{ fontSize: 15, fontWeight: 700, color: '#e6edf3', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>
                 Music Theory Tool
@@ -245,7 +240,7 @@ export default function App() {
 
             {/* Dropdown groups */}
             <nav style={{ display: 'flex', alignItems: 'stretch', position: 'relative', zIndex: 161 }}>
-              {GROUPS.map(group => (
+              {GROUPS.map((group) => (
                 <NavGroup
                   key={group.id}
                   group={group}
@@ -261,34 +256,38 @@ export default function App() {
       </header>
 
       {/* Main content */}
-      <main style={{
-        flex: 1,
-        padding: '24px 16px',
-        maxWidth: 1200,
-        margin: '0 auto',
-        width: '100%',
-        boxSizing: 'border-box',
-      }}>
-        {activeTab === 'voicings'      && <ChordVoicingsFeature />}
-        {activeTab === 'scales'        && <ScaleRecognitionFeature />}
-        {activeTab === 'dictionary'    && <ScaleDictionaryFeature />}
-        {activeTab === 'ear'           && <EarTrainingFeature />}
-        {activeTab === 'circle'        && <CircleOfFifthsFeature />}
+      <main
+        style={{
+          flex: 1,
+          padding: '24px 16px',
+          maxWidth: 1200,
+          margin: '0 auto',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
+        {activeTab === 'voicings' && <ChordVoicingsFeature />}
+        {activeTab === 'scales' && <ScaleRecognitionFeature />}
+        {activeTab === 'dictionary' && <ScaleDictionaryFeature />}
+        {activeTab === 'ear' && <EarTrainingFeature />}
+        {activeTab === 'circle' && <CircleOfFifthsFeature />}
         {activeTab === 'harmonization' && <ScaleHarmonizationFeature />}
-        {activeTab === 'modal'         && <ModalInterchangeFeature />}
-        {activeTab === 'progressions'  && <ChordProgressionFeature />}
-        {activeTab === 'scaleadvisor'  && <ScaleAdvisorFeature />}
+        {activeTab === 'modal' && <ModalInterchangeFeature />}
+        {activeTab === 'progressions' && <ChordProgressionFeature />}
+        {activeTab === 'scaleadvisor' && <ScaleAdvisorFeature />}
       </main>
 
       {/* Footer */}
-      <footer style={{
-        borderTop: '1px solid #21262d',
-        padding: '10px 16px',
-        textAlign: 'center',
-        fontSize: 11,
-        color: '#4b5563',
-      }}>
-        Music Theory Tool · Scale · Accordi · Teoria
+      <footer
+        style={{
+          borderTop: '1px solid #21262d',
+          padding: '10px 16px',
+          textAlign: 'center',
+          fontSize: 11,
+          color: '#4b5563',
+        }}
+      >
+        Music Theory Tool · Composition · Scale · Theory
       </footer>
     </div>
   );
