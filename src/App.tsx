@@ -1,4 +1,57 @@
 import { useState } from 'react';
+
+// ─── Logo SVG ─────────────────────────────────────────────────────────────────
+
+function TonicIcon({ size = 36 }: { size?: number }) {
+  const cx = 20, cy = 20;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const pt = (deg: number, r: number): [number, number] => [
+    parseFloat((cx + r * Math.cos(toRad(deg))).toFixed(3)),
+    parseFloat((cy + r * Math.sin(toRad(deg))).toFixed(3)),
+  ];
+
+  // Three concentric arcs: from 120° to 340° clockwise (220° sweep)
+  const ARC_FROM = 120, ARC_TO = 340;
+  const arcPath = (r: number) => {
+    const [x1, y1] = pt(ARC_FROM, r);
+    const [x2, y2] = pt(ARC_TO, r);
+    return `M ${x1} ${y1} A ${r} ${r} 0 1 1 ${x2} ${y2}`;
+  };
+
+  // 8 radial segments filling the 140° gap (340° → 480°=120° clockwise)
+  const N = 8, GAP_START = 340, GAP_SPAN = 140, STEP = GAP_SPAN / N;
+  const PAD = 1.8, R_OUT = 18;
+  // Segments taper: longer near upper arc end, shorter near lower arc end
+  const rInner = (i: number) => 8 + i * (15 - 8) / (N - 1);
+  const COLORS = ['#7c3aed', '#7040ef', '#4b6ef5', '#2b96f5', '#06b6d4', '#22d3ee', '#67e8f9', '#e0f9ff'];
+
+  const segPath = (i: number) => {
+    const a1 = GAP_START + i * STEP + PAD;
+    const a2 = GAP_START + (i + 1) * STEP - PAD;
+    const ri = rInner(i);
+    const [ox1, oy1] = pt(a1, R_OUT);
+    const [ox2, oy2] = pt(a2, R_OUT);
+    const [ix1, iy1] = pt(a1, ri);
+    const [ix2, iy2] = pt(a2, ri);
+    return `M ${ox1} ${oy1} A ${R_OUT} ${R_OUT} 0 0 1 ${ox2} ${oy2} L ${ix2} ${iy2} A ${ri} ${ri} 0 0 0 ${ix1} ${iy1} Z`;
+  };
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Outer arc */}
+      <path d={arcPath(18)} stroke="#7c3aed" strokeWidth="3.5" strokeLinecap="round" />
+      {/* Middle arc */}
+      <path d={arcPath(13)} stroke="#a78bfa" strokeWidth="3" strokeLinecap="round" />
+      {/* Inner arc */}
+      <path d={arcPath(8)} stroke="#ddd6fe" strokeWidth="2.5" strokeLinecap="round" />
+      {/* Radial segments */}
+      {COLORS.map((color, i) => (
+        <path key={i} d={segPath(i)} fill={color} />
+      ))}
+    </svg>
+  );
+}
+
 import ChordVoicingsFeature from './features/chord-vocings/ChordVoicingsFeature';
 import ScaleRecognitionFeature from './features/scale-recognition/ScaleRecognitionFeature';
 import ScaleDictionaryFeature from './features/scale-dictionary/ScaleDictionaryFeature';
@@ -222,20 +275,22 @@ export default function App() {
           {/* Logo + nav — tutto in una riga */}
           <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
             {/* Logo */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                paddingRight: 24,
-                borderRight: '1px solid #21262d',
-                marginRight: 8,
-              }}
-            >
-              <span style={{ fontSize: 18 }}>🎵</span>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#e6edf3', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>
-                Music Theory Tool
-              </span>
+            <div style={{
+              display: 'flex', flexDirection: 'column', justifyContent: 'center',
+              paddingRight: 24, borderRight: '1px solid #21262d', marginRight: 8,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <TonicIcon size={34} />
+                <span style={{ fontSize: 20, fontWeight: 800, color: '#e6edf3', letterSpacing: '-0.5px' }}>
+                  tonic
+                </span>
+              </div>
+              <div style={{
+                fontSize: 9, color: '#4b5563', letterSpacing: '0.12em',
+                marginTop: 2, paddingLeft: 44, whiteSpace: 'nowrap',
+              }}>
+                EXPLORE · HEAR · CREATE
+              </div>
             </div>
 
             {/* Dropdown groups */}
@@ -287,7 +342,7 @@ export default function App() {
           color: '#4b5563',
         }}
       >
-        Music Theory Tool · Composition · Scale · Theory
+        tonic · Explore. Hear. Create.
       </footer>
     </div>
   );
