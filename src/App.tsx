@@ -10,20 +10,20 @@ function TonicIcon({ size = 36 }: { size?: number }) {
     parseFloat((cy + r * Math.sin(toRad(deg))).toFixed(3)),
   ];
 
-  // Three concentric arcs: from 120° to 340° clockwise (220° sweep)
-  const ARC_FROM = 120, ARC_TO = 340;
+  // Three concentric arcs: 60° → 300° clockwise (240°, C opens to the right)
+  // 60° = lower-right (5 o'clock), 300° = upper-right (1 o'clock)
+  const ARC_FROM = 60, ARC_TO = 300;
   const arcPath = (r: number) => {
     const [x1, y1] = pt(ARC_FROM, r);
     const [x2, y2] = pt(ARC_TO, r);
     return `M ${x1} ${y1} A ${r} ${r} 0 1 1 ${x2} ${y2}`;
   };
 
-  // 8 radial segments filling the 140° gap (340° → 480°=120° clockwise)
-  const N = 8, GAP_START = 340, GAP_SPAN = 140, STEP = GAP_SPAN / N;
-  const PAD = 1.8, R_OUT = 18;
-  // Segments taper: longer near upper arc end, shorter near lower arc end
-  const rInner = (i: number) => 8 + i * (15 - 8) / (N - 1);
-  const COLORS = ['#7c3aed', '#7040ef', '#4b6ef5', '#2b96f5', '#06b6d4', '#22d3ee', '#67e8f9', '#e0f9ff'];
+  // 8 radial segments in the 120° gap (300° → 420°=60°, clockwise)
+  // i=0 at top (300°, white, short) → i=7 at bottom (60°, purple, long)
+  const N = 8, GAP_START = 300, STEP = 120 / N, PAD = 1.5, R_OUT = 18;
+  const rInner = (i: number) => 14 - i; // 14→7: short at top, long at bottom
+  const COLORS = ['#f0f8ff', '#bfecff', '#67e8f9', '#22d3ee', '#3b82f6', '#6366f1', '#7c3aed', '#5b21b6'];
 
   const segPath = (i: number) => {
     const a1 = GAP_START + i * STEP + PAD;
@@ -38,16 +38,10 @@ function TonicIcon({ size = 36 }: { size?: number }) {
 
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Outer arc */}
       <path d={arcPath(18)} stroke="#7c3aed" strokeWidth="3.5" strokeLinecap="round" />
-      {/* Middle arc */}
-      <path d={arcPath(13)} stroke="#a78bfa" strokeWidth="3" strokeLinecap="round" />
-      {/* Inner arc */}
-      <path d={arcPath(8)} stroke="#ddd6fe" strokeWidth="2.5" strokeLinecap="round" />
-      {/* Radial segments */}
-      {COLORS.map((color, i) => (
-        <path key={i} d={segPath(i)} fill={color} />
-      ))}
+      <path d={arcPath(13)} stroke="#a78bfa" strokeWidth="3"   strokeLinecap="round" />
+      <path d={arcPath(8)}  stroke="#ddd6fe" strokeWidth="2.5" strokeLinecap="round" />
+      {COLORS.map((color, i) => <path key={i} d={segPath(i)} fill={color} />)}
     </svg>
   );
 }

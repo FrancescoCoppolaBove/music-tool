@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <!-- Dark background -->
+  <rect width="40" height="40" rx="8" fill="#0d1117"/>
+
+  <!-- Three concentric arcs: 60° → 300° clockwise (C opens to the right) -->
+  <!-- Outer arc (r=18) -->
+  <path d="M 29 35.588 A 18 18 0 1 1 29 4.412" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <!-- Middle arc (r=13) -->
+  <path d="M 26.5 31.258 A 13 13 0 1 1 26.5 8.742" stroke="#a78bfa" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- Inner arc (r=8) -->
+  <path d="M 24 26.928 A 8 8 0 1 1 24 13.072" stroke="#ddd6fe" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+  <!-- 8 radial segments (300°→420°, clockwise, 15° each, 1.5° pad) -->
+  <!-- i=0: 301.5°→313.5°, r_in=14, color=#f0f8ff (white, short) -->
+  <path d="M 29.405 4.653 A 18 18 0 0 1 32.391 6.943 L 29.638 9.844 A 14 14 0 0 0 27.315 8.064 Z" fill="#f0f8ff"/>
+  <!-- i=1: 316.5°→328.5°, r_in=13, color=#bfecff -->
+  <path d="M 33.057 7.609 A 18 18 0 0 1 35.347 10.595 L 31.084 13.207 A 13 13 0 0 0 29.430 10.051 Z" fill="#bfecff"/>
+  <!-- i=2: 331.5°→343.5°, r_in=12, color=#67e8f9 -->
+  <path d="M 35.818 11.410 A 18 18 0 0 1 37.258 14.888 L 31.506 16.592 A 12 12 0 0 0 30.546 14.274 Z" fill="#67e8f9"/>
+  <!-- i=3: 346.5°→358.5°, r_in=11, color=#22d3ee -->
+  <path d="M 37.503 15.799 A 18 18 0 0 1 37.995 19.529 L 30.997 19.712 A 11 11 0 0 0 30.696 17.433 Z" fill="#22d3ee"/>
+  <!-- i=4: 1.5°→13.5°, r_in=10, color=#3b82f6 -->
+  <path d="M 37.995 20.471 A 18 18 0 0 1 37.503 24.201 L 29.724 22.334 A 10 10 0 0 0 29.997 20.262 Z" fill="#3b82f6"/>
+  <!-- i=5: 16.5°→28.5°, r_in=9, color=#6366f1 -->
+  <path d="M 37.258 25.112 A 18 18 0 0 1 35.818 28.590 L 27.909 24.295 A 9 9 0 0 0 28.629 22.556 Z" fill="#6366f1"/>
+  <!-- i=6: 31.5°→43.5°, r_in=8, color=#7c3aed -->
+  <path d="M 35.347 29.405 A 18 18 0 0 1 33.057 32.391 L 25.803 25.507 A 8 8 0 0 0 26.821 24.180 Z" fill="#7c3aed"/>
+  <!-- i=7: 46.5°→58.5°, r_in=7, color=#5b21b6 (dark purple, long) -->
+  <path d="M 32.391 33.057 A 18 18 0 0 1 29.405 35.347 L 23.658 25.968 A 7 7 0 0 0 24.819 25.078 Z" fill="#5b21b6"/>
+</svg>
