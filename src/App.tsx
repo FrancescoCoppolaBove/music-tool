@@ -7,6 +7,7 @@ import CircleOfFifthsFeature from './features/circle-of-fifth/CircleOfFifthsFeat
 import ScaleHarmonizationFeature from './features/scale-harmonization/ScaleHarmonizationFeature';
 import ModalInterchangeFeature from './features/modal-interchange/ModalInterchangeFeature';
 import ChordProgressionFeature from './features/chord-progression/ChordProgressionFeature';
+import ScaleAdvisorFeature from './features/scale-advisor/ScaleAdvisorFeature';
 
 type Tab =
   | 'voicings'
@@ -16,7 +17,8 @@ type Tab =
   | 'circle'
   | 'harmonization'
   | 'modal'
-  | 'progressions';
+  | 'progressions'
+  | 'scaleadvisor';
 
 const TABS: Array<{ id: Tab; label: string; icon: string }> = [
   { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹' },
@@ -27,6 +29,7 @@ const TABS: Array<{ id: Tab; label: string; icon: string }> = [
   { id: 'harmonization', label: 'Scale Harmony',     icon: '🎶' },
   { id: 'modal',         label: 'Modal Interchange', icon: '🔄' },
   { id: 'progressions',  label: 'Chord Progressions',icon: '🎸' },
+  { id: 'scaleadvisor', label: 'Scale Advisor',      icon: '🧭' },
 ];
 
 export default function App() {
@@ -112,6 +115,7 @@ export default function App() {
         {activeTab === 'harmonization' && <ScaleHarmonizationFeature />}
         {activeTab === 'modal'         && <ModalInterchangeFeature />}
         {activeTab === 'progressions'  && <ChordProgressionFeature />}
+        {activeTab === 'scaleadvisor'  && <ScaleAdvisorFeature />}
       </main>
 
       {/* Footer */}
@@ -122,7 +126,7 @@ export default function App() {
         fontSize: 11,
         color: '#4b5563',
       }}>
-        Music Theory Tool · Piano Voicings · Scale Recognition · Scale Dictionary · Ear Training · Circle of Fifths · Scale Harmony · Modal Interchange · Chord Progressions
+        Music Theory Tool · Piano Voicings · Scale Recognition · Scale Dictionary · Ear Training · Circle of Fifths · Scale Harmony · Modal Interchange · Chord Progressions · Scale Advisor
       </footer>
     </div>
   );
