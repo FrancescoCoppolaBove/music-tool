@@ -39,24 +39,21 @@ interface GroupDef {
 
 const GROUPS: GroupDef[] = [
   {
+    id: 'composizione',
+    label: 'Composizione',
+    icon: '✍️',
+    tabs: [
+      { id: 'scaleadvisor',  label: 'Scale Advisor',     icon: '🧭' },
+      { id: 'progressions',  label: 'Chord Progressions', icon: '🎸' },
+    ],
+  },
+  {
     id: 'scale',
     label: 'Scale',
     icon: '🎼',
     tabs: [
-      { id: 'scales',        label: 'Scale Recognition', icon: '🔍' },
-      { id: 'dictionary',    label: 'Scale Dictionary',  icon: '📚' },
-      { id: 'harmonization', label: 'Scale Harmony',     icon: '🎶' },
-      { id: 'scaleadvisor',  label: 'Scale Advisor',     icon: '🧭' },
-    ],
-  },
-  {
-    id: 'accordi',
-    label: 'Accordi',
-    icon: '🎹',
-    tabs: [
-      { id: 'voicings',     label: 'Piano Voicings',     icon: '🎹' },
-      { id: 'progressions', label: 'Chord Progressions', icon: '🎸' },
-      { id: 'modal',        label: 'Modal Interchange',  icon: '🔄' },
+      { id: 'scales',     label: 'Scale Recognition', icon: '🔍' },
+      { id: 'dictionary', label: 'Scale Dictionary',  icon: '📚' },
     ],
   },
   {
@@ -64,8 +61,11 @@ const GROUPS: GroupDef[] = [
     label: 'Teoria',
     icon: '📖',
     tabs: [
-      { id: 'circle', label: 'Circle of Fifths', icon: '🔵' },
-      { id: 'ear',    label: 'Ear Training',     icon: '👂' },
+      { id: 'harmonization', label: 'Scale Harmony',     icon: '🎶' },
+      { id: 'modal',         label: 'Modal Interchange', icon: '🔄' },
+      { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹' },
+      { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵' },
+      { id: 'ear',           label: 'Ear Training',      icon: '👂' },
     ],
   },
 ];
