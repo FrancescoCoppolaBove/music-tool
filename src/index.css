@@ -57,6 +57,18 @@ code, .mono {
   font-size: 0.9em;
 }
 
+/* ── Mobile responsive ──────────────────────────────────────── */
+@media (max-width: 600px) {
+  .nav-label  { display: none; }
+  .nav-arrow  { display: none; }
+  .nav-dropdown { min-width: 180px; }
+}
+
+/* Prevent content overflow on small screens */
+@media (max-width: 768px) {
+  .overflow-x-scroll { overflow-x: auto; }
+}
+
 /* Focus ring */
 button:focus-visible, input:focus-visible, select:focus-visible {
   outline: 2px solid #7c3aed;

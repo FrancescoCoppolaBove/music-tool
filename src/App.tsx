@@ -1,51 +1,4 @@
 import { useState } from 'react';
-
-// ─── Logo SVG ─────────────────────────────────────────────────────────────────
-
-function TonicIcon({ size = 36 }: { size?: number }) {
-  const cx = 20, cy = 20;
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const pt = (deg: number, r: number): [number, number] => [
-    parseFloat((cx + r * Math.cos(toRad(deg))).toFixed(3)),
-    parseFloat((cy + r * Math.sin(toRad(deg))).toFixed(3)),
-  ];
-
-  // Three concentric arcs: 60° → 300° clockwise (240°, C opens to the right)
-  // 60° = lower-right (5 o'clock), 300° = upper-right (1 o'clock)
-  const ARC_FROM = 60, ARC_TO = 300;
-  const arcPath = (r: number) => {
-    const [x1, y1] = pt(ARC_FROM, r);
-    const [x2, y2] = pt(ARC_TO, r);
-    return `M ${x1} ${y1} A ${r} ${r} 0 1 1 ${x2} ${y2}`;
-  };
-
-  // 8 radial segments in the 120° gap (300° → 420°=60°, clockwise)
-  // i=0 at top (300°, white, short) → i=7 at bottom (60°, purple, long)
-  const N = 8, GAP_START = 300, STEP = 120 / N, PAD = 1.5, R_OUT = 18;
-  const rInner = (i: number) => 14 - i; // 14→7: short at top, long at bottom
-  const COLORS = ['#f0f8ff', '#bfecff', '#67e8f9', '#22d3ee', '#3b82f6', '#6366f1', '#7c3aed', '#5b21b6'];
-
-  const segPath = (i: number) => {
-    const a1 = GAP_START + i * STEP + PAD;
-    const a2 = GAP_START + (i + 1) * STEP - PAD;
-    const ri = rInner(i);
-    const [ox1, oy1] = pt(a1, R_OUT);
-    const [ox2, oy2] = pt(a2, R_OUT);
-    const [ix1, iy1] = pt(a1, ri);
-    const [ix2, iy2] = pt(a2, ri);
-    return `M ${ox1} ${oy1} A ${R_OUT} ${R_OUT} 0 0 1 ${ox2} ${oy2} L ${ix2} ${iy2} A ${ri} ${ri} 0 0 0 ${ix1} ${iy1} Z`;
-  };
-
-  return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d={arcPath(18)} stroke="#7c3aed" strokeWidth="3.5" strokeLinecap="round" />
-      <path d={arcPath(13)} stroke="#a78bfa" strokeWidth="3"   strokeLinecap="round" />
-      <path d={arcPath(8)}  stroke="#ddd6fe" strokeWidth="2.5" strokeLinecap="round" />
-      {COLORS.map((color, i) => <path key={i} d={segPath(i)} fill={color} />)}
-    </svg>
-  );
-}
-
 import ChordVoicingsFeature from './features/chord-vocings/ChordVoicingsFeature';
 import ScaleRecognitionFeature from './features/scale-recognition/ScaleRecognitionFeature';
 import ScaleDictionaryFeature from './features/scale-dictionary/ScaleDictionaryFeature';
@@ -55,10 +8,21 @@ import ScaleHarmonizationFeature from './features/scale-harmonization/ScaleHarmo
 import ModalInterchangeFeature from './features/modal-interchange/ModalInterchangeFeature';
 import ChordProgressionFeature from './features/chord-progression/ChordProgressionFeature';
 import ScaleAdvisorFeature from './features/scale-advisor/ScaleAdvisorFeature';
+import HomePage from './features/home/HomePage';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Tab = 'voicings' | 'scales' | 'dictionary' | 'ear' | 'circle' | 'harmonization' | 'modal' | 'progressions' | 'scaleadvisor';
+type Tab =
+  | 'home'
+  | 'voicings'
+  | 'scales'
+  | 'dictionary'
+  | 'ear'
+  | 'circle'
+  | 'harmonization'
+  | 'modal'
+  | 'progressions'
+  | 'scaleadvisor';
 
 interface TabDef {
   id: Tab;
@@ -77,12 +41,12 @@ interface GroupDef {
 
 const GROUPS: GroupDef[] = [
   {
-    id: 'composizione',
+    id: 'composition',
     label: 'Composition',
     icon: '✍️',
     tabs: [
-      { id: 'scaleadvisor', label: 'Scale Advisor', icon: '🧭' },
-      { id: 'progressions', label: 'Chord Progressions', icon: '🎸' },
+      { id: 'scaleadvisor',  label: 'Scale Advisor',      icon: '🧭' },
+      { id: 'progressions',  label: 'Chord Progressions', icon: '🎸' },
     ],
   },
   {
@@ -90,32 +54,28 @@ const GROUPS: GroupDef[] = [
     label: 'Scale',
     icon: '🎼',
     tabs: [
-      { id: 'scales', label: 'Scale Recognition', icon: '🔍' },
-      { id: 'dictionary', label: 'Scale Dictionary', icon: '📚' },
+      { id: 'scales',     label: 'Scale Recognition', icon: '🔍' },
+      { id: 'dictionary', label: 'Scale Dictionary',  icon: '📚' },
     ],
   },
   {
-    id: 'teoria',
+    id: 'theory',
     label: 'Theory',
     icon: '📖',
     tabs: [
-      { id: 'harmonization', label: 'Scale Harmony', icon: '🎶' },
-      { id: 'modal', label: 'Modal Interchange', icon: '🔄' },
-      { id: 'voicings', label: 'Piano Voicings', icon: '🎹' },
-      { id: 'circle', label: 'Circle of Fifths', icon: '🔵' },
-      { id: 'ear', label: 'Ear Training', icon: '👂' },
+      { id: 'harmonization', label: 'Scale Harmony',     icon: '🎶' },
+      { id: 'modal',         label: 'Modal Interchange', icon: '🔄' },
+      { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹' },
+      { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵' },
+      { id: 'ear',           label: 'Ear Training',      icon: '👂' },
     ],
   },
 ];
 
-// ─── NavGroup dropdown component ─────────────────────────────────────────────
+// ─── NavGroup dropdown ───────────────────────────────────────────────────────
 
 function NavGroup({
-  group,
-  activeTab,
-  isOpen,
-  onToggle,
-  onSelect,
+  group, activeTab, isOpen, onToggle, onSelect,
 }: {
   group: GroupDef;
   activeTab: Tab;
@@ -123,92 +83,69 @@ function NavGroup({
   onToggle: () => void;
   onSelect: (tab: Tab) => void;
 }) {
-  const isGroupActive = group.tabs.some((t) => t.id === activeTab);
+  const isGroupActive = group.tabs.some(t => t.id === activeTab);
 
   return (
     <div style={{ position: 'relative' }}>
       <button
         onClick={onToggle}
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '12px 16px',
-          background: 'none',
-          border: 'none',
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '14px 16px',
+          background: 'none', border: 'none',
           borderBottom: `2px solid ${isGroupActive || isOpen ? '#7c3aed' : 'transparent'}`,
           color: isGroupActive || isOpen ? '#e6edf3' : '#8b949e',
-          fontSize: 13,
-          fontWeight: isGroupActive ? 600 : 400,
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-          transition: 'color 0.15s',
-          userSelect: 'none',
+          fontSize: 13, fontWeight: isGroupActive ? 600 : 400,
+          cursor: 'pointer', whiteSpace: 'nowrap',
+          transition: 'color 0.15s', userSelect: 'none',
         }}
       >
         <span style={{ fontSize: 15 }}>{group.icon}</span>
-        <span>{group.label}</span>
+        <span className="nav-label">{group.label}</span>
         <svg
-          width='10'
-          height='10'
-          viewBox='0 0 10 10'
-          fill='none'
+          className="nav-arrow"
+          width="10" height="10" viewBox="0 0 10 10" fill="none"
           style={{
-            marginLeft: 2,
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s',
-            opacity: 0.6,
+            transition: 'transform 0.2s', opacity: 0.5,
           }}
         >
-          <path d='M1 3L5 7L9 3' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
+          <path d="M1 3L5 7L9 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
 
       {isOpen && (
         <div
+          className="nav-dropdown"
           style={{
-            position: 'absolute',
-            top: 'calc(100% + 2px)',
-            left: 0,
-            minWidth: 210,
-            background: '#161b22',
-            border: '1px solid #30363d',
-            borderRadius: 10,
+            position: 'absolute', top: 'calc(100% + 2px)', left: 0,
+            minWidth: 210, background: '#161b22',
+            border: '1px solid #30363d', borderRadius: 10,
             boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-            zIndex: 200,
-            overflow: 'hidden',
-            padding: '6px',
+            zIndex: 200, padding: '6px',
           }}
         >
-          {group.tabs.map((tab) => {
+          {group.tabs.map(tab => {
             const isCurrent = tab.id === activeTab;
             return (
               <button
                 key={tab.id}
                 onClick={() => onSelect(tab.id)}
                 style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '9px 12px',
-                  background: isCurrent ? '#7c3aed20' : 'none',
-                  border: 'none',
-                  borderRadius: 7,
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '9px 12px', background: isCurrent ? '#7c3aed20' : 'none',
+                  border: 'none', borderRadius: 7,
                   color: isCurrent ? '#c4b5fd' : '#8b949e',
-                  fontSize: 13,
-                  fontWeight: isCurrent ? 600 : 400,
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'background 0.1s, color 0.1s',
+                  fontSize: 13, fontWeight: isCurrent ? 600 : 400,
+                  cursor: 'pointer', textAlign: 'left',
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={e => {
                   if (!isCurrent) {
                     (e.currentTarget as HTMLButtonElement).style.background = '#30363d40';
                     (e.currentTarget as HTMLButtonElement).style.color = '#e6edf3';
                   }
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={e => {
                   if (!isCurrent) {
                     (e.currentTarget as HTMLButtonElement).style.background = 'none';
                     (e.currentTarget as HTMLButtonElement).style.color = '#8b949e';
@@ -230,66 +167,59 @@ function NavGroup({
 // ─── App ─────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('voicings');
+  const [activeTab, setActiveTab] = useState<Tab>('home');
   const [openGroup, setOpenGroup] = useState<string | null>(null);
 
   function handleToggleGroup(groupId: string) {
-    setOpenGroup((prev) => (prev === groupId ? null : groupId));
+    setOpenGroup(prev => prev === groupId ? null : groupId);
   }
 
   function handleSelectTab(tab: Tab) {
     setActiveTab(tab);
     setOpenGroup(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#0d1117',
-        color: '#e6edf3',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Overlay — chiude i dropdown se si clicca fuori */}
-      {openGroup && <div style={{ position: 'fixed', inset: 0, zIndex: 150 }} onClick={() => setOpenGroup(null)} />}
+    <div style={{ minHeight: '100vh', background: '#0d1117', color: '#e6edf3', display: 'flex', flexDirection: 'column' }}>
 
-      {/* Header */}
-      <header
-        style={{
-          borderBottom: '1px solid #21262d',
-          background: '#161b22',
-          position: 'sticky',
-          top: 0,
-          zIndex: 160,
-        }}
-      >
+      {/* Overlay — closes dropdowns on outside click */}
+      {openGroup && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 150 }} onClick={() => setOpenGroup(null)} />
+      )}
+
+      {/* ── Header ─────────────────────────────────────────────── */}
+      <header style={{
+        borderBottom: '1px solid #21262d',
+        background: '#161b22',
+        position: 'sticky', top: 0, zIndex: 160,
+      }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
-          {/* Logo + nav — tutto in una riga */}
-          <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
-            {/* Logo */}
-            <div style={{
-              display: 'flex', flexDirection: 'column', justifyContent: 'center',
-              paddingRight: 24, borderRight: '1px solid #21262d', marginRight: 8,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <TonicIcon size={34} />
-                <span style={{ fontSize: 20, fontWeight: 800, color: '#e6edf3', letterSpacing: '-0.5px' }}>
-                  tonic
-                </span>
-              </div>
-              <div style={{
-                fontSize: 9, color: '#4b5563', letterSpacing: '0.12em',
-                marginTop: 2, paddingLeft: 44, whiteSpace: 'nowrap',
-              }}>
-                EXPLORE · HEAR · CREATE
-              </div>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'stretch' }}>
 
-            {/* Dropdown groups */}
+            {/* Logo — click goes home */}
+            <button
+              onClick={() => handleSelectTab('home')}
+              title="tonic — home"
+              style={{
+                display: 'flex', alignItems: 'center',
+                padding: '10px 20px 10px 0',
+                marginRight: 8,
+                background: 'none', border: 'none',
+                borderRight: '1px solid #21262d',
+                cursor: 'pointer',
+              }}
+            >
+              <img
+                src="/logo.svg"
+                alt="tonic"
+                style={{ width: 38, height: 38, display: 'block' }}
+              />
+            </button>
+
+            {/* Nav groups */}
             <nav style={{ display: 'flex', alignItems: 'stretch', position: 'relative', zIndex: 161 }}>
-              {GROUPS.map((group) => (
+              {GROUPS.map(group => (
                 <NavGroup
                   key={group.id}
                   group={group}
@@ -300,42 +230,40 @@ export default function App() {
                 />
               ))}
             </nav>
+
           </div>
         </div>
       </header>
 
-      {/* Main content */}
-      <main
-        style={{
-          flex: 1,
-          padding: '24px 16px',
-          maxWidth: 1200,
-          margin: '0 auto',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      >
-        {activeTab === 'voicings' && <ChordVoicingsFeature />}
-        {activeTab === 'scales' && <ScaleRecognitionFeature />}
-        {activeTab === 'dictionary' && <ScaleDictionaryFeature />}
-        {activeTab === 'ear' && <EarTrainingFeature />}
-        {activeTab === 'circle' && <CircleOfFifthsFeature />}
-        {activeTab === 'harmonization' && <ScaleHarmonizationFeature />}
-        {activeTab === 'modal' && <ModalInterchangeFeature />}
+      {/* ── Main content ────────────────────────────────────────── */}
+      <main style={{
+        flex: 1,
+        maxWidth: activeTab === 'home' ? '100%' : 1200,
+        width: '100%',
+        margin: '0 auto',
+        padding: activeTab === 'home' ? '0' : '24px 16px',
+        boxSizing: 'border-box',
+      }}>
+        {activeTab === 'home'         && <HomePage onNavigate={handleSelectTab} />}
+        {activeTab === 'voicings'     && <ChordVoicingsFeature />}
+        {activeTab === 'scales'       && <ScaleRecognitionFeature />}
+        {activeTab === 'dictionary'   && <ScaleDictionaryFeature />}
+        {activeTab === 'ear'          && <EarTrainingFeature />}
+        {activeTab === 'circle'       && <CircleOfFifthsFeature />}
+        {activeTab === 'harmonization'&& <ScaleHarmonizationFeature />}
+        {activeTab === 'modal'        && <ModalInterchangeFeature />}
         {activeTab === 'progressions' && <ChordProgressionFeature />}
         {activeTab === 'scaleadvisor' && <ScaleAdvisorFeature />}
       </main>
 
-      {/* Footer */}
-      <footer
-        style={{
-          borderTop: '1px solid #21262d',
-          padding: '10px 16px',
-          textAlign: 'center',
-          fontSize: 11,
-          color: '#4b5563',
-        }}
-      >
+      {/* ── Footer ──────────────────────────────────────────────── */}
+      <footer style={{
+        borderTop: '1px solid #21262d',
+        padding: '12px 16px',
+        textAlign: 'center',
+        fontSize: 11,
+        color: '#4b5563',
+      }}>
         tonic · Explore. Hear. Create.
       </footer>
     </div>
