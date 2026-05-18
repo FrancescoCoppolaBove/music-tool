@@ -57,15 +57,20 @@ code, .mono {
   font-size: 0.9em;
 }
 
-/* ── Mobile responsive ──────────────────────────────────────── */
-@media (max-width: 600px) {
-  .nav-label  { display: none; }
-  .nav-arrow  { display: none; }
-  .nav-dropdown { min-width: 180px; }
-}
+/* ── Responsive nav ─────────────────────────────────────────── */
 
-/* Prevent content overflow on small screens */
+/* Desktop: show dropdown nav, hide hamburger */
+.desktop-nav       { display: flex !important; }
+.mobile-menu-btn   { display: none !important; }
+.mobile-breadcrumb { display: none !important; }
+
 @media (max-width: 768px) {
+  /* Mobile: hide dropdown nav, show hamburger */
+  .desktop-nav       { display: none !important; }
+  .mobile-menu-btn   { display: flex !important; }
+  .mobile-breadcrumb { display: flex !important; }
+
+  /* Prevent content overflow */
   .overflow-x-scroll { overflow-x: auto; }
 }
 
