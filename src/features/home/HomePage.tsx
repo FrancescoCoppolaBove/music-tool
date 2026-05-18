@@ -248,7 +248,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
 
         {/* Logo */}
         <div className="hero-fade-1">
-          <img src="/logo.svg" alt="tonic" style={{ width: 88, height: 88, marginBottom: 28, filter: 'drop-shadow(0 0 24px #7c3aed60)' }} />
+          <img src="/logo.png" alt="tonic" style={{ width: 88, height: 88, marginBottom: 28, mixBlendMode: 'screen' }} />
         </div>
 
         {/* Wordmark */}
