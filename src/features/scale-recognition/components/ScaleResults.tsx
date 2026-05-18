@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState } from 'react';
-import { noteToSemitone } from '@shared/utils/musicTheory';
+import { Note } from 'tonal';
 import type { ScaleMatch } from '../types/scale.types';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -13,6 +13,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   Pentatonic: '#84cc16',
   Blues: '#6366f1',
   Exotic: '#ef4444',
+  Other: '#6b7280',
 };
 
 function categoryColor(cat: string) {
@@ -66,11 +67,12 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
     });
   }
 
-  // Build a semitone set of parsed notes for highlighting in reference scale
-  const parsedSemitones = new Set(parsedNotes.map(n => {
-    const s = noteToSemitone(n);
-    return s >= 0 ? ((s % 12) + 12) % 12 : -1;
-  }).filter(s => s >= 0));
+  // Build a pitch-class set of parsed notes for highlighting in reference scale
+  const parsedPcs = new Set<number>(
+    parsedNotes
+      .map(n => Note.get(n).chroma ?? -1)
+      .filter((pc): pc is number => pc >= 0),
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -157,6 +159,32 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
 
               {isOpen && (
                 <div style={{ padding: '0 14px 14px', borderTop: '1px solid #1c2128', paddingTop: 12 }}>
+                  {/* Interval pattern + accidentals */}
+                  {result.intervalPattern && (
+                    <div style={{ marginBottom: 12, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <div>
+                        <span style={{ fontSize: 11, color: '#6b7280', marginRight: 6 }}>Intervals:</span>
+                        <code style={{
+                          fontSize: 12, color: '#8b949e',
+                          background: '#1c2128', padding: '2px 8px', borderRadius: 4,
+                          fontFamily: 'monospace', letterSpacing: '0.04em',
+                        }}>
+                          {result.intervalPattern}
+                        </code>
+                      </div>
+                      {(result.sharps > 0 || result.flats > 0) && (
+                        <div style={{ fontSize: 12, color: '#6b7280' }}>
+                          {result.sharps > 0 && (
+                            <span style={{ color: '#f59e0b', marginRight: 8 }}>{result.sharps}♯</span>
+                          )}
+                          {result.flats > 0 && (
+                            <span style={{ color: '#60a5fa' }}>{result.flats}♭</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
                     {/* Reference scale */}
                     <div style={{ flex: 1, minWidth: 220 }}>
@@ -165,9 +193,8 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
                       </div>
                       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                         {result.referenceScale.map((n, i) => {
-                          const nSemitone = noteToSemitone(n);
-                          const nNorm = nSemitone >= 0 ? ((nSemitone % 12) + 12) % 12 : -1;
-                          const inInput = parsedSemitones.has(nNorm);
+                          const pc = Note.get(n).chroma;
+                          const inInput = pc !== undefined && pc !== null && parsedPcs.has(pc);
                           return (
                             <span key={i} style={{
                               padding: '3px 8px',
