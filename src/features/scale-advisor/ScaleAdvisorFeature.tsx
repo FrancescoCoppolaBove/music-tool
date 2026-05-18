@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Chord, Note } from 'tonal';
 import { transposeNote } from '@shared/utils/musicTheory';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -254,24 +255,54 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
 
 const ROOTS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
-function parseChordSymbol(symbol: string): { root: string; quality: string } | null {
+/**
+ * Map Tonal chord type strings to the app's internal quality keys.
+ * Falls back to dominant ('7') for unrecognised types.
+ */
+function toAppQuality(tonalType: string): string {
+  const map: Record<string, string> = {
+    'major seventh': 'maj7',
+    'major': 'maj7',
+    'minor seventh': 'm7',
+    'minor': 'm7',
+    'dominant seventh': '7',
+    'dominant': '7',
+    'half-diminished': 'm7b5',
+    'diminished seventh': 'dim7',
+    'diminished': 'dim7',
+    'minor/major seventh': 'mMaj7',
+  };
+  return map[tonalType] ?? '7';
+}
+
+/**
+ * Parse a chord symbol using Tonal's Chord.get(), then map to the app's
+ * internal { root, quality } representation.
+ *
+ * Special case: symbols containing "alt" (e.g. "G7alt", "Bbalt") are
+ * handled before Tonal lookup because Tonal may not recognise them.
+ */
+function parseChordSymbol(symbol: string): { root: string; quality: string; displaySymbol: string } | null {
   const trimmed = symbol.trim();
   if (!trimmed) return null;
-  const rootMatch = trimmed.match(/^([A-G][#b]?)/);
-  if (!rootMatch) return null;
-  const root = rootMatch[1];
-  const rest = trimmed.slice(root.length);
-  const restL = rest.toLowerCase();
 
-  if (restL.includes('mmaj')) return { root, quality: 'mMaj7' };
-  if (restL.includes('maj7') || restL.includes('△7') || restL.includes('maj')) return { root, quality: 'maj7' };
-  if (restL.includes('m7b5') || restL.includes('m7♭5') || restL.includes('ø') || restL.includes('hdim')) return { root, quality: 'm7b5' };
-  if (restL.includes('7alt') || restL.includes('alt')) return { root, quality: '7alt' };
-  if (restL.includes('dim7') || restL.includes('°7') || restL.includes('dim')) return { root, quality: 'dim7' };
-  if (restL.includes('m7') || restL.includes('min7')) return { root, quality: 'm7' };
-  if (restL.includes('7')) return { root, quality: '7' };
-  if (restL.includes('m') || restL.includes('min')) return { root, quality: 'm7' };
-  return null;
+  // Handle "alt" dominant before Tonal (e.g. G7alt, Bbalt)
+  const altMatch = trimmed.match(/^([A-G][#b]?)(?:7)?alt$/i);
+  if (altMatch) {
+    const root = altMatch[1];
+    return { root, quality: '7alt', displaySymbol: `${root}7alt` };
+  }
+
+  const chord = Chord.get(trimmed);
+  if (chord.empty || !chord.tonic) return null;
+
+  const root = Note.simplify(chord.tonic) || chord.tonic;
+  const quality = toAppQuality(chord.type);
+
+  // Use Tonal's canonical symbol when available, otherwise reconstruct
+  const displaySymbol = chord.symbol || trimmed;
+
+  return { root, quality, displaySymbol };
 }
 
 function parseProgression(text: string): Array<{ root: string; quality: string; symbol: string }> {
@@ -281,7 +312,7 @@ function parseProgression(text: string): Array<{ root: string; quality: string; 
     .filter(Boolean)
     .map(s => {
       const parsed = parseChordSymbol(s);
-      return parsed ? { ...parsed, symbol: s } : null;
+      return parsed ? { root: parsed.root, quality: parsed.quality, symbol: parsed.displaySymbol } : null;
     })
     .filter((x): x is { root: string; quality: string; symbol: string } => x !== null);
 }
@@ -628,7 +659,9 @@ export default function ScaleAdvisorFeature() {
             borderRadius: 10, padding: '16px',
           }}>
             <div style={{ marginBottom: 16 }}>
-              <span style={{ fontSize: 24, fontWeight: 800, color: '#e6edf3' }}>{root}{quality}</span>
+              <span style={{ fontSize: 24, fontWeight: 800, color: '#e6edf3' }}>
+                {Chord.get(`${root}${quality}`).symbol || `${root}${quality}`}
+              </span>
               <span style={{ marginLeft: 10, fontSize: 14, color: '#6b7280' }}>
                 {CHORD_SCALE_DATA.find(e => e.quality === quality)?.label}
               </span>

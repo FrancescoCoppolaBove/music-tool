@@ -15,7 +15,7 @@ export default function ScaleRecognitionFeature() {
       <div>
         <h2 style={{ margin: '0 0 4px', fontSize: 22, color: '#e6edf3' }}>Scale Recognition</h2>
         <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>
-          Enter a sequence of notes and optionally a root note. The analyzer searches through {Object.keys({}).length + 100}+ scales
+          Enter a sequence of notes and optionally a root note. The analyzer searches through 100+ scales
           and ranks them by how well they match. Without a root note, all 12 possible roots are explored.
         </p>
       </div>
