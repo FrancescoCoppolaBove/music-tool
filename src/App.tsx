@@ -9,6 +9,8 @@ import ModalInterchangeFeature from './features/modal-interchange/ModalInterchan
 import ChordProgressionFeature from './features/chord-progression/ChordProgressionFeature';
 import ScaleAdvisorFeature from './features/scale-advisor/ScaleAdvisorFeature';
 import HarmonicAnalysisFeature from './features/harmonic-analysis/HarmonicAnalysisFeature';
+import RiffArchitectFeature from './features/riff-architect/RiffArchitectFeature';
+import MelodyArchitectFeature from './features/melody-architect/MelodyArchitectFeature';
 import HomePage from './features/home/HomePage';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -131,7 +133,9 @@ type Tab =
   | 'modal'
   | 'progressions'
   | 'scaleadvisor'
-  | 'analysis';
+  | 'analysis'
+  | 'riff'
+  | 'melody';
 
 interface TabDef {
   id: Tab;
@@ -158,6 +162,8 @@ const GROUPS: GroupDef[] = [
       { id: 'scaleadvisor',  label: 'Scale Advisor',      icon: '🧭', desc: 'Find the right scale over any chord' },
       { id: 'progressions',  label: 'Chord Progressions', icon: '🎸', desc: 'Build jazz, modal & cinematic progressions' },
       { id: 'analysis',      label: 'Harmonic Analysis',  icon: '🔬', desc: 'Analyse key, Roman numerals & chord function' },
+      { id: 'riff',          label: 'Riff Architect',     icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees' },
+      { id: 'melody',        label: 'Melody Architect',   icon: '〰️', desc: 'Shape a melody with contour, approach & motif' },
     ],
   },
   {
@@ -557,6 +563,8 @@ export default function App() {
         {activeTab === 'progressions'  && <ChordProgressionFeature />}
         {activeTab === 'scaleadvisor'  && <ScaleAdvisorFeature />}
         {activeTab === 'analysis'      && <HarmonicAnalysisFeature />}
+        {activeTab === 'riff'          && <RiffArchitectFeature />}
+        {activeTab === 'melody'        && <MelodyArchitectFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
