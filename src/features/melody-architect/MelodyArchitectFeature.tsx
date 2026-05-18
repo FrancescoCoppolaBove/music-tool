@@ -649,7 +649,7 @@ export default function MelodyArchitectFeature() {
     padding: '8px 12px',
     cursor: 'pointer',
     outline: 'none',
-    WebkitAppearance: 'none',
+    WebkitAppearance: 'none' as const,
   };
 
   return (
