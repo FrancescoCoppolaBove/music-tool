@@ -8,6 +8,7 @@ import ScaleHarmonizationFeature from './features/scale-harmonization/ScaleHarmo
 import ModalInterchangeFeature from './features/modal-interchange/ModalInterchangeFeature';
 import ChordProgressionFeature from './features/chord-progression/ChordProgressionFeature';
 import ScaleAdvisorFeature from './features/scale-advisor/ScaleAdvisorFeature';
+import HarmonicAnalysisFeature from './features/harmonic-analysis/HarmonicAnalysisFeature';
 import HomePage from './features/home/HomePage';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -129,7 +130,8 @@ type Tab =
   | 'harmonization'
   | 'modal'
   | 'progressions'
-  | 'scaleadvisor';
+  | 'scaleadvisor'
+  | 'analysis';
 
 interface TabDef {
   id: Tab;
@@ -155,6 +157,7 @@ const GROUPS: GroupDef[] = [
     tabs: [
       { id: 'scaleadvisor',  label: 'Scale Advisor',      icon: '🧭', desc: 'Find the right scale over any chord' },
       { id: 'progressions',  label: 'Chord Progressions', icon: '🎸', desc: 'Build jazz, modal & cinematic progressions' },
+      { id: 'analysis',      label: 'Harmonic Analysis',  icon: '🔬', desc: 'Analyse key, Roman numerals & chord function' },
     ],
   },
   {
@@ -553,6 +556,7 @@ export default function App() {
         {activeTab === 'modal'         && <ModalInterchangeFeature />}
         {activeTab === 'progressions'  && <ChordProgressionFeature />}
         {activeTab === 'scaleadvisor'  && <ScaleAdvisorFeature />}
+        {activeTab === 'analysis'      && <HarmonicAnalysisFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
