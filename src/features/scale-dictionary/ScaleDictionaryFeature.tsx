@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { SCALE_FORMULAS, getScaleNotes, noteToSemitone } from '@shared/utils/musicTheory';
+import { ScaleType, Scale, Interval } from 'tonal';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -14,31 +14,64 @@ const CATEGORY_COLORS: Record<string, string> = {
   Pentatonic: '#84cc16',
   Blues: '#6366f1',
   Exotic: '#ef4444',
+  'Pentatonic & Blues': '#84cc16',
+  'Harmonic / Melodic': '#06b6d4',
+  'World / Exotic': '#ef4444',
+  'Modern / Exotic': '#a855f7',
+  Other: '#6b7280',
 };
 
 function catColor(cat: string) {
   return CATEGORY_COLORS[cat] ?? '#6b7280';
 }
 
-// Build interval name from semitone step
-function intervalNames(intervals: number[]): string[] {
-  const names: Record<number, string> = {
-    0: 'R', 1: '♭2', 2: '2', 3: '♭3', 4: '3', 5: '4',
-    6: '♯4/♭5', 7: '5', 8: '♯5/♭6', 9: '6', 10: '♭7', 11: '7',
-  };
-  return intervals.map(i => names[((i % 12) + 12) % 12] ?? String(i));
+// Interval short names for Tonal interval strings
+const INTERVAL_SHORT: Record<string, string> = {
+  '1P': 'R',  '2m': 'b2', '2M': '2',  '3m': 'b3', '3M': '3',
+  '4P': '4',  '4A': '#4', '5d': 'b5', '5P': '5',  '5A': '#5',
+  '6m': 'b6', '6M': '6',  '7m': 'b7', '7M': '7',
+};
+
+// Assign a display category to a scale by name
+function getScaleCategory(name: string): string {
+  if (['major', 'minor', 'ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'].includes(name))
+    return 'Modal';
+  if (name.includes('pentatonic') || name.includes('blues'))
+    return 'Pentatonic & Blues';
+  if (name.includes('bebop'))
+    return 'Bebop';
+  if (name.includes('harmonic') || name.includes('melodic'))
+    return 'Harmonic / Melodic';
+  if (name.includes('whole') || name.includes('diminished') || name.includes('augmented') || name.includes('chromatic'))
+    return 'Symmetric';
+  if (['egyptian', 'hindu', 'romanian', 'hungarian', 'persian', 'arabian', 'japanese', 'balinese', 'pelog', 'iwato', 'in', 'hirajoshi', 'kumoi'].some(k => name.includes(k)))
+    return 'World / Exotic';
+  if (name.includes('prometheus') || name.includes('enigmatic') || name.includes('neapolitan') || name.includes('double harmonic') || name.includes('leading whole tone'))
+    return 'Modern / Exotic';
+  return 'Other';
 }
 
-// Build step pattern (W = whole, H = half, A = augmented, etc.)
-function stepPattern(intervals: number[]): string {
+// Convert Tonal interval strings to display names
+function intervalNames(intervals: string[]): string[] {
+  return intervals.map(iv => INTERVAL_SHORT[iv] ?? iv);
+}
+
+// Convert Tonal interval strings to W/H/WH step pattern
+function stepPattern(intervals: string[]): string {
   const stepNames: Record<number, string> = {
     1: 'H', 2: 'W', 3: 'W+H', 4: '2W',
   };
   const steps: string[] = [];
-  for (let i = 1; i <= intervals.length; i++) {
-    const diff = (intervals[i % intervals.length] - intervals[i - 1] + 12) % 12;
+  for (let i = 1; i < intervals.length; i++) {
+    const prev = Interval.semitones(intervals[i - 1]) ?? 0;
+    const curr = Interval.semitones(intervals[i]) ?? 0;
+    const diff = curr - prev;
     steps.push(stepNames[diff] ?? String(diff));
   }
+  // Wrap-around step from last interval back to octave (12)
+  const lastSemis = Interval.semitones(intervals[intervals.length - 1]) ?? 0;
+  const wrapDiff = 12 - lastSemis;
+  steps.push(stepNames[wrapDiff] ?? String(wrapDiff));
   return steps.join(' – ');
 }
 
@@ -46,7 +79,7 @@ interface ScaleEntry {
   key: string;
   name: string;
   category: string;
-  intervals: number[];
+  intervals: string[];
   notes: string[];
   noteCount: number;
 }
@@ -59,32 +92,42 @@ export default function ScaleDictionaryFeature() {
   const [showSteps, setShowSteps] = useState(false);
   const [selectedScale, setSelectedScale] = useState<ScaleEntry | null>(null);
 
+  // All 92 scale types from Tonal
+  const allScaleTypes = useMemo(() => ScaleType.all().filter(s => !s.empty), []);
+
   const categories = useMemo(() => {
-    const cats = new Set(Object.values(SCALE_FORMULAS).map(f => f.category));
+    const cats = new Set(allScaleTypes.map(s => getScaleCategory(s.name)));
     return ['all', ...Array.from(cats).sort()];
-  }, []);
+  }, [allScaleTypes]);
 
   const scales: ScaleEntry[] = useMemo(() => {
-    return Object.entries(SCALE_FORMULAS)
-      .filter(([, f]) => selectedCategory === 'all' || f.category === selectedCategory)
-      .filter(([, f]) => f.name.toLowerCase().includes(search.toLowerCase()))
-      .map(([key, formula]) => ({
-        key,
-        name: formula.name,
-        category: formula.category,
-        intervals: formula.intervals,
-        notes: getScaleNotes(selectedKey, key),
-        noteCount: formula.intervals.length,
-      }))
+    return allScaleTypes
+      .filter(s => {
+        const cat = getScaleCategory(s.name);
+        return selectedCategory === 'all' || cat === selectedCategory;
+      })
+      .filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
+      .map(s => {
+        const scaleData = Scale.get(`${selectedKey} ${s.name}`);
+        const notes = scaleData.notes.length > 0 ? scaleData.notes : [selectedKey];
+        return {
+          key: s.name,
+          name: s.name,
+          category: getScaleCategory(s.name),
+          intervals: s.intervals,
+          notes,
+          noteCount: s.intervals.length,
+        };
+      })
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [selectedKey, selectedCategory, search]);
+  }, [selectedKey, selectedCategory, search, allScaleTypes]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
         <h2 style={{ margin: '0 0 4px', fontSize: 22, color: '#e6edf3' }}>Scale Dictionary</h2>
         <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>
-          Browse {Object.keys(SCALE_FORMULAS).length}+ scales in any key. Filter by category, search by name, and explore interval structures.
+          Browse {allScaleTypes.length}+ scales in any key. Filter by category, search by name, and explore interval structures.
         </p>
       </div>
 

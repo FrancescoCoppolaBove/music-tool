@@ -1,30 +1,20 @@
 import { useState, useMemo } from 'react';
-import { noteToSemitone, semitoneToNote, notePreferFlat, getScaleNotes } from '@shared/utils/musicTheory';
+import { Scale, Chord, Note } from 'tonal';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
-// The 7 diatonic modes (same root)
-const PARALLEL_MODES = [
-  { id: 'major',      name: 'Ionian (Major)',       intervals: [0,2,4,5,7,9,11],  color: '#10b981' },
-  { id: 'dorian',     name: 'Dorian',               intervals: [0,2,3,5,7,9,10],  color: '#3b82f6' },
-  { id: 'phrygian',   name: 'Phrygian',             intervals: [0,1,3,5,7,8,10],  color: '#8b5cf6' },
-  { id: 'lydian',     name: 'Lydian',               intervals: [0,2,4,6,7,9,11],  color: '#f59e0b' },
-  { id: 'mixolydian', name: 'Mixolydian',           intervals: [0,2,4,5,7,9,10],  color: '#f97316' },
-  { id: 'aeolian',    name: 'Aeolian (Nat. Minor)', intervals: [0,2,3,5,7,8,10],  color: '#06b6d4' },
-  { id: 'locrian',    name: 'Locrian',              intervals: [0,1,3,5,6,8,10],  color: '#ec4899' },
+const MODES = [
+  { name: 'dorian',        label: 'Dorian',      color: '#06b6d4' },
+  { name: 'phrygian',      label: 'Phrygian',    color: '#f59e0b' },
+  { name: 'lydian',        label: 'Lydian',      color: '#10b981' },
+  { name: 'mixolydian',    label: 'Mixolydian',  color: '#8b5cf6' },
+  { name: 'aeolian',       label: 'Aeolian',     color: '#ef4444' },
+  { name: 'locrian',       label: 'Locrian',     color: '#6b7280' },
+  { name: 'harmonic minor', label: 'Harm. Minor', color: '#ec4899' },
+  { name: 'melodic minor',  label: 'Mel. Minor',  color: '#f97316' },
 ];
 
-// Additional commonly borrowed sources
-const EXTRA_SOURCES = [
-  { id: 'harmonicMinor', name: 'Harmonic Minor',    intervals: [0,2,3,5,7,8,11],  color: '#84cc16' },
-  { id: 'melodicMinor',  name: 'Melodic Minor',     intervals: [0,2,3,5,7,9,11],  color: '#6366f1' },
-  { id: 'majorPenta',    name: 'Major Pentatonic',  intervals: [0,2,4,7,9],        color: '#ef4444' },
-  { id: 'minorPenta',    name: 'Minor Pentatonic',  intervals: [0,3,5,7,10],       color: '#a855f7' },
-];
-
-const ALL_SOURCES = [...PARALLEL_MODES, ...EXTRA_SOURCES];
-
-// Well-known borrowed chord annotations
+// Well-known borrowed chord annotations — curated musical knowledge
 const COMMON_BORROWED: Record<string, { from: string; description: string }> = {
   '♭VII_major_Mixolydian': { from: 'Mixolydian / Aeolian', description: '♭VII major — very common borrowed chord in rock/pop (e.g., Bb in C major)' },
   '♭VI_major_Aeolian':     { from: 'Aeolian / Phrygian',   description: '♭VI major — dark, cinematic color (e.g., Ab in C major)' },
@@ -33,77 +23,40 @@ const COMMON_BORROWED: Record<string, { from: string; description: string }> = {
   'II_major_Lydian':       { from: 'Lydian',               description: '♯IV (II of Lydian) — bright Lydian color chord' },
 };
 
-function detectTriadQuality(t3: number, t5: number) {
-  if (t3 === 4 && t5 === 7)  return { q: 'maj', minor: false };
-  if (t3 === 3 && t5 === 7)  return { q: 'm', minor: true };
-  if (t3 === 3 && t5 === 6)  return { q: 'dim', minor: true };
-  if (t3 === 4 && t5 === 8)  return { q: 'aug', minor: false };
-  return { q: 'maj', minor: false };
-}
-
-function detect7thQuality(t3: number, t5: number, t7: number) {
-  if (t3 === 4 && t5 === 7 && t7 === 11) return 'maj7';
-  if (t3 === 4 && t5 === 7 && t7 === 10) return '7';
-  if (t3 === 3 && t5 === 7 && t7 === 10) return 'm7';
-  if (t3 === 3 && t5 === 7 && t7 === 11) return 'mMaj7';
-  if (t3 === 3 && t5 === 6 && t7 === 10) return 'm7b5';
-  if (t3 === 3 && t5 === 6 && t7 === 9)  return 'dim7';
-  if (t3 === 4 && t5 === 8 && t7 === 11) return 'augMaj7';
-  if (t3 === 4 && t5 === 8 && t7 === 10) return '7#5';
-  return 'maj7';
-}
-
 interface ModeChord {
-  degreeNum: number;
+  degree: number;
   root: string;
-  quality: string;
   symbol: string;
   notes: string[];
-  isBorrowed: boolean;  // Not in Ionian (home major scale)
+  isBorrowed: boolean;
 }
 
-function buildModeChords(key: string, modeIntervals: number[], homeIntervals: number[]): ModeChord[] {
-  const n = modeIntervals.length;
-  if (n < 5) return [];
-  const ks = noteToSemitone(key);
-  const pf = notePreferFlat(key);
+function buildModeChords(root: string, modeName: string, homeKey: string): ModeChord[] {
+  const scaleName = `${root} ${modeName}`;
+  const scaleData = Scale.get(scaleName);
+  if (scaleData.empty || scaleData.notes.length < 7) return [];
 
-  // Semitone sets for home key
-  const homeSet = new Set(homeIntervals.map(i => (ks + i) % 12));
+  const notes = scaleData.notes;
 
-  return modeIntervals.map((degInt, di) => {
-    const degRootSem = (ks + degInt) % 12;
-    const degRoot = semitoneToNote(degRootSem, pf);
+  // Get home key diatonic notes for "borrowed" detection
+  const homeScaleData = Scale.get(`${homeKey} major`);
+  const homeNoteSet = new Set(homeScaleData.notes.map(n => Note.pitchClass(n)));
 
-    const thirdInt = n >= 3 ? modeIntervals[(di + 2) % n] : modeIntervals[(di + 1) % n];
-    const fifthInt = n >= 5 ? modeIntervals[(di + 4) % n] : modeIntervals[(di + 2) % n];
-    const seventhInt = n >= 7 ? modeIntervals[(di + 6) % n] : null;
+  return notes.map((chordRoot, i) => {
+    const third   = notes[(i + 2) % notes.length];
+    const fifth   = notes[(i + 4) % notes.length];
+    const seventh = notes[(i + 6) % notes.length];
 
-    const t3 = ((thirdInt - degInt) + 120) % 12;
-    const t5 = ((fifthInt - degInt) + 120) % 12;
+    const chordNotes = [chordRoot, third, fifth, seventh];
+    const detected = Chord.detect(chordNotes);
+    const symbol = detected[0] ?? chordRoot;
 
-    let quality: string;
-    if (seventhInt !== null) {
-      const t7 = ((seventhInt - degInt) + 120) % 12;
-      quality = detect7thQuality(t3, t5, t7);
-    } else {
-      quality = detectTriadQuality(t3, t5).q;
-    }
+    // A chord is "borrowed" if its root is NOT in the home key
+    const isBorrowed = !homeNoteSet.has(Note.pitchClass(chordRoot));
 
-    const symbol = `${degRoot}${quality === 'maj' ? '' : quality}`;
-    const noteInts = seventhInt !== null
-      ? [0, t3, t5, ((seventhInt - degInt) + 120) % 12]
-      : [0, t3, t5];
-    const notes = noteInts.map(i => semitoneToNote((degRootSem + i) % 12, pf));
-
-    // Is this chord "borrowed"? Root not in home key OR chord quality differs from home
-    const isBorrowed = !homeSet.has(degRootSem);
-
-    return { degreeNum: di + 1, root: degRoot, quality, symbol, notes, isBorrowed };
+    return { root: chordRoot, symbol, notes: chordNotes, isBorrowed, degree: i + 1 };
   });
 }
-
-const HOME_MODE = PARALLEL_MODES[0]; // Ionian = home
 
 export default function ModalInterchangeFeature() {
   const [selectedKey, setSelectedKey] = useState('C');
@@ -112,23 +65,22 @@ export default function ModalInterchangeFeature() {
   const [focusedChord, setFocusedChord] = useState<{ symbol: string; mode: string; desc?: string } | null>(null);
 
   const homeChords = useMemo(
-    () => buildModeChords(selectedKey, HOME_MODE.intervals, HOME_MODE.intervals),
+    () => buildModeChords(selectedKey, 'major', selectedKey),
     [selectedKey]
   );
 
   const homeSymbols = useMemo(() => new Set(homeChords.map(c => c.symbol)), [homeChords]);
 
   const modeData = useMemo(() => {
-    const sources = showAll ? ALL_SOURCES : ALL_SOURCES.filter(m => m.id !== 'major' && selectedModes.includes(m.id));
+    const sources = showAll ? MODES : MODES.filter(m => selectedModes.includes(m.name));
     return sources.map(mode => ({
       mode,
-      chords: buildModeChords(selectedKey, mode.intervals, HOME_MODE.intervals),
-      notes: getScaleNotes(selectedKey, mode.id),
+      chords: buildModeChords(selectedKey, mode.name, selectedKey),
     }));
   }, [selectedKey, selectedModes, showAll]);
 
-  function toggleMode(id: string) {
-    setSelectedModes(prev => prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]);
+  function toggleMode(name: string) {
+    setSelectedModes(prev => prev.includes(name) ? prev.filter(m => m !== name) : [...prev, name]);
   }
 
   return (
@@ -163,16 +115,16 @@ export default function ModalInterchangeFeature() {
           <div>
             <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>Show modes</label>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {ALL_SOURCES.filter(m => m.id !== 'major').map(mode => {
-                const isOn = selectedModes.includes(mode.id);
+              {MODES.map(mode => {
+                const isOn = selectedModes.includes(mode.name);
                 return (
-                  <button key={mode.id} onClick={() => toggleMode(mode.id)} style={{
+                  <button key={mode.name} onClick={() => toggleMode(mode.name)} style={{
                     padding: '4px 10px',
                     background: isOn ? `${mode.color}20` : 'none',
                     border: `1px solid ${isOn ? mode.color : '#30363d'}`,
                     borderRadius: 5, color: isOn ? mode.color : '#6b7280',
                     fontSize: 12, cursor: 'pointer',
-                  }}>{mode.name}</button>
+                  }}>{mode.label}</button>
                 );
               })}
             </div>
@@ -231,7 +183,7 @@ export default function ModalInterchangeFeature() {
           const borrowedChords = chords.filter(c => !homeSymbols.has(c.symbol));
           if (chords.length === 0) return null;
           return (
-            <div key={mode.id} style={{
+            <div key={mode.name} style={{
               background: '#0d1117', border: `1px solid ${mode.color}30`,
               borderRadius: 10, padding: '12px 14px',
             }}>
@@ -240,7 +192,7 @@ export default function ModalInterchangeFeature() {
                 <div style={{
                   width: 10, height: 10, borderRadius: '50%', background: mode.color, flexShrink: 0,
                 }} />
-                <span style={{ fontSize: 14, fontWeight: 700, color: mode.color }}>{selectedKey} {mode.name}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: mode.color }}>{selectedKey} {mode.label}</span>
                 {borrowedChords.length > 0 && (
                   <span style={{
                     fontSize: 11, padding: '1px 7px', background: `${mode.color}20`,
@@ -260,15 +212,15 @@ export default function ModalInterchangeFeature() {
                       key={i}
                       onMouseEnter={() => setFocusedChord({
                         symbol: chord.symbol,
-                        mode: mode.name,
-                        desc: isBorrowed ? `Borrowed from ${mode.name} — not in ${selectedKey} major` : `Also in ${selectedKey} major`,
+                        mode: mode.label,
+                        desc: isBorrowed ? `Borrowed from ${mode.label} — not in ${selectedKey} major` : `Also in ${selectedKey} major`,
                       })}
                       onMouseLeave={() => setFocusedChord(null)}
                       onClick={() => setFocusedChord(prev =>
                         prev?.symbol === chord.symbol ? null : {
                           symbol: chord.symbol,
-                          mode: mode.name,
-                          desc: isBorrowed ? `Borrowed from ${mode.name} — not in ${selectedKey} major` : `Also in ${selectedKey} major`,
+                          mode: mode.label,
+                          desc: isBorrowed ? `Borrowed from ${mode.label} — not in ${selectedKey} major` : `Also in ${selectedKey} major`,
                         }
                       )}
                       style={{

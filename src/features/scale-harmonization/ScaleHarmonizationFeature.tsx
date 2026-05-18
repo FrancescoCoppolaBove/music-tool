@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { SCALE_FORMULAS, noteToSemitone, semitoneToNote, notePreferFlat, getScaleNotes } from '@shared/utils/musicTheory';
+import { Scale, Chord } from 'tonal';
+import { SCALE_FORMULAS } from '@shared/utils/musicTheory';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -62,7 +63,39 @@ const SCALE_CATEGORIES: { label: string; keys: string[] }[] = [
   },
 ];
 
-// Only 7-note scales
+// Mapping from internal scale keys to Tonal.js scale names
+const TONAL_SCALE_NAME: Record<string, string> = {
+  major:            'major',
+  dorian:           'dorian',
+  phrygian:         'phrygian',
+  lydian:           'lydian',
+  mixolydian:       'mixolydian',
+  aeolian:          'aeolian',
+  locrian:          'locrian',
+  harmonicMinor:    'harmonic minor',
+  melodicMinor:     'melodic minor',
+  dorianb2:         'dorian b2',
+  lydianAug:        'lydian augmented',
+  lydianDom:        'lydian dominant',
+  mixolydianb6:     'mixolydian b6',
+  locrianNat2:      'locrian #2',
+  altered:          'altered',
+  locrianNat6:      'locrian #6',
+  ionianSharp5:     'ionian #5',
+  dorianSharp4:     'dorian #4',
+  phrygianDominant: 'phrygian dominant',
+  lydianSharp2:     'lydian #2',
+  superLocrianBb7:  'superlocrian bb7',
+  harmonicMajor:    'harmonic major',
+  hungarianMinor:   'hungarian minor',
+  doubleHarmonic:   'double harmonic',
+  neapolitanMaj:    'neapolitan major',
+  neapolitanMin:    'neapolitan minor',
+  enigmatic:        'enigmatic',
+  persian:          'persian',
+};
+
+// Only 7-note scales (also must resolve in Tonal or have a fallback interval set)
 const HARMONIZABLE_SCALES = Object.entries(SCALE_FORMULAS).filter(([, f]) => f.intervals.length === 7);
 
 const HARMONIZABLE_KEYS = new Set(HARMONIZABLE_SCALES.map(([k]) => k));
@@ -76,83 +109,89 @@ interface DiatonicChord {
   quality: string;
   symbol: string;
   notes: string[];
-  intervals: number[];
   fn: 'Tonic' | 'Subdominant' | 'Dominant' | 'Color';
 }
 
-const ROMAN_UPPER = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
-const ROMAN_LOWER = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'];
+const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 
-function detectTriadQuality(t3: number, t5: number): { quality: string; isMinor: boolean } {
-  if (t3 === 4 && t5 === 7) return { quality: 'maj', isMinor: false };
-  if (t3 === 3 && t5 === 7) return { quality: 'm', isMinor: true };
-  if (t3 === 3 && t5 === 6) return { quality: 'dim', isMinor: true };
-  if (t3 === 4 && t5 === 8) return { quality: 'aug', isMinor: false };
-  if (t3 === 2 && t5 === 7) return { quality: 'sus2', isMinor: false };
-  if (t3 === 5 && t5 === 7) return { quality: 'sus4', isMinor: false };
-  return { quality: 'maj', isMinor: false };
+/** Derive harmonic function from scale degree (1-indexed). */
+function getHarmonicFunction(degree: number): DiatonicChord['fn'] {
+  if ([1, 3, 6].includes(degree)) return 'Tonic';
+  if ([2, 4].includes(degree)) return 'Subdominant';
+  if ([5, 7].includes(degree)) return 'Dominant';
+  return 'Color';
 }
 
-function detect7thQuality(t3: number, t5: number, t7: number): { quality: string; isMinor: boolean } {
-  if (t3 === 4 && t5 === 7 && t7 === 11) return { quality: 'maj7', isMinor: false };
-  if (t3 === 4 && t5 === 7 && t7 === 10) return { quality: '7', isMinor: false };
-  if (t3 === 3 && t5 === 7 && t7 === 10) return { quality: 'm7', isMinor: true };
-  if (t3 === 3 && t5 === 7 && t7 === 11) return { quality: 'mMaj7', isMinor: true };
-  if (t3 === 3 && t5 === 6 && t7 === 10) return { quality: 'm7b5', isMinor: true };
-  if (t3 === 3 && t5 === 6 && t7 === 9) return { quality: 'dim7', isMinor: true };
-  if (t3 === 4 && t5 === 8 && t7 === 11) return { quality: 'augMaj7', isMinor: false };
-  if (t3 === 4 && t5 === 8 && t7 === 10) return { quality: '7#5', isMinor: false };
-  return { quality: 'maj7', isMinor: false };
-}
-
-function harmonize(key: string, scaleKey: string, size: ChordSize): DiatonicChord[] {
+/**
+ * Get scale notes using Tonal, falling back to the interval-based computation
+ * from SCALE_FORMULAS when Tonal doesn't know the scale.
+ */
+function getScaleNotesTonal(root: string, scaleKey: string): string[] {
+  const tonalName = TONAL_SCALE_NAME[scaleKey];
+  if (tonalName) {
+    const data = Scale.get(`${root} ${tonalName}`);
+    if (!data.empty && data.notes.length > 0) {
+      return data.notes;
+    }
+  }
+  // Fallback: compute from semitone intervals stored in SCALE_FORMULAS
   const formula = SCALE_FORMULAS[scaleKey];
-  if (!formula || formula.intervals.length !== 7) return [];
-  const intervals = formula.intervals;
-  const n = intervals.length;
-  const rootSemitone = noteToSemitone(key);
-  const preferFlat = notePreferFlat(key);
+  if (!formula) return [];
+  const useFlat = ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb'].includes(root);
+  const sharps = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const flats  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+  const table = useFlat ? flats : sharps;
+  const rIdx = table.indexOf(root);
+  if (rIdx < 0) return [];
+  return formula.intervals.map((iv) => table[(rIdx + iv) % 12]);
+}
 
-  return intervals.map((degInt, di) => {
-    const degRoot = semitoneToNote((rootSemitone + degInt) % 12, preferFlat);
-    const third = intervals[(di + 2) % n];
-    const fifth = intervals[(di + 4) % n];
-    const seventh = intervals[(di + 6) % n];
-    const t3 = (third - degInt + 120) % 12;
-    const t5 = (fifth - degInt + 120) % 12;
-    const t7 = (seventh - degInt + 120) % 12;
+/** Build harmonized chords using Tonal's Chord.detect on stacked scale thirds. */
+function harmonize(root: string, scaleKey: string, size: ChordSize): DiatonicChord[] {
+  const notes = getScaleNotesTonal(root, scaleKey);
+  if (notes.length !== 7) return [];
 
-    let quality: string;
-    let isMinor: boolean;
-    if (size === 'triad') {
-      const det = detectTriadQuality(t3, t5);
-      quality = det.quality;
-      isMinor = det.isMinor;
+  return notes.map((scaleRoot, i) => {
+    const third   = notes[(i + 2) % 7];
+    const fifth   = notes[(i + 4) % 7];
+    const seventh = notes[(i + 6) % 7];
+
+    const chordNotes = size === '7th'
+      ? [scaleRoot, third, fifth, seventh]
+      : [scaleRoot, third, fifth];
+
+    const detected = Chord.detect(chordNotes);
+    // Prefer the result that starts with the scale root note
+    const symbol = detected.find((s) => s.startsWith(scaleRoot)) ?? detected[0] ?? scaleRoot;
+    const chordData = Chord.get(symbol);
+
+    const quality: string = chordData.quality;
+
+    const fn = getHarmonicFunction(i + 1);
+
+    // Build Roman numeral using chord quality
+    const isMinorQuality = ['Minor', 'Diminished'].includes(chordData.quality);
+    const baseRoman = ROMAN_NUMERALS[i] ?? String(i + 1);
+    let romanNumeral: string;
+    if (chordData.quality === 'Diminished') {
+      romanNumeral = `${baseRoman.toLowerCase()}°`;
+    } else if (chordData.quality === 'Augmented') {
+      romanNumeral = `${baseRoman}+`;
+    } else if (isMinorQuality) {
+      romanNumeral = baseRoman.toLowerCase();
     } else {
-      const det = detect7thQuality(t3, t5, t7);
-      quality = det.quality;
-      isMinor = det.isMinor;
+      romanNumeral = baseRoman;
     }
 
-    const symbol = `${degRoot}${quality === 'maj' ? '' : quality}`;
-    const roman = isMinor ? ROMAN_LOWER[di] : ROMAN_UPPER[di];
-    const romanNumeral =
-      quality === 'dim' || quality === 'm7b5' || quality === 'dim7'
-        ? `${roman}°`
-        : quality === 'aug' || quality === 'augMaj7'
-          ? `${roman}+`
-          : roman;
-
-    const noteIntervals = size === 'triad' ? [0, t3, t5] : [0, t3, t5, t7];
-    const degRootSemitone = (rootSemitone + degInt) % 12;
-    const notes = noteIntervals.map((i) => semitoneToNote((degRootSemitone + i) % 12, preferFlat));
-
-    let fn: DiatonicChord['fn'] = 'Color';
-    if (di === 0 || di === 2 || di === 5) fn = 'Tonic';
-    else if (di === 1 || di === 3) fn = 'Subdominant';
-    else if (di === 4 || di === 6) fn = 'Dominant';
-
-    return { degreeNum: di + 1, romanNumeral, root: degRoot, quality, symbol, notes, intervals: noteIntervals, fn };
+    return {
+      degreeNum: i + 1,
+      romanNumeral,
+      root: scaleRoot,
+      quality,
+      symbol,
+      notes: chordNotes,
+      fn,
+    };
   });
 }
 
@@ -168,10 +207,10 @@ export default function ScaleHarmonizationFeature() {
   const [selectedScale, setSelectedScale] = useState('major');
   const [chordSize, setChordSize] = useState<ChordSize>('7th');
   const [selectedDegree, setSelectedDegree] = useState<number | null>(null);
-  const [activeCategory, setActiveCategory] = useState('Major Modes');
+  const [activeCategory, setActiveCategory] = useState('Major Scale Modes');
 
   const chords = useMemo(() => harmonize(selectedKey, selectedScale, chordSize), [selectedKey, selectedScale, chordSize]);
-  const scaleNotes = useMemo(() => getScaleNotes(selectedKey, selectedScale), [selectedKey, selectedScale]);
+  const scaleNotes = useMemo(() => getScaleNotesTonal(selectedKey, selectedScale), [selectedKey, selectedScale]);
   const scaleName = SCALE_FORMULAS[selectedScale]?.name ?? selectedScale;
   const selectedChord = selectedDegree !== null ? chords[selectedDegree] : null;
 
