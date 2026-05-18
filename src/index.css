@@ -64,11 +64,19 @@ code, .mono {
 .mobile-menu-btn   { display: none !important; }
 .mobile-breadcrumb { display: none !important; }
 
+/* Desktop-only elements */
+.desktop-only { display: block; }
+
+/* Header CTA transitions */
+.header-cta { transition: transform 0.15s, box-shadow 0.15s; }
+.header-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(124,58,237,0.5); }
+
 @media (max-width: 768px) {
   /* Mobile: hide dropdown nav, show hamburger */
   .desktop-nav       { display: none !important; }
   .mobile-menu-btn   { display: flex !important; }
   .mobile-breadcrumb { display: flex !important; }
+  .desktop-only      { display: none !important; }
 
   /* Prevent content overflow */
   .overflow-x-scroll { overflow-x: auto; }

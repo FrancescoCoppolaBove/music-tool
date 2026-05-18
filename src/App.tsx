@@ -10,6 +10,113 @@ import ChordProgressionFeature from './features/chord-progression/ChordProgressi
 import ScaleAdvisorFeature from './features/scale-advisor/ScaleAdvisorFeature';
 import HomePage from './features/home/HomePage';
 
+// ─── Theme styles ─────────────────────────────────────────────────────────────
+
+const HEADER_STYLES = `
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap');
+
+:root {
+  --color-bg-base: #0d1117;
+  --color-bg-surface: #161b22;
+  --color-bg-raised: #1c2128;
+  --color-bg-hover: #21262d;
+  --color-border: #30363d;
+  --color-border-subtle: #21262d;
+  --color-text-primary: #e6edf3;
+  --color-text-secondary: #8b949e;
+  --color-text-muted: #6b7280;
+  --color-accent: #7c3aed;
+  --color-accent-dim: #6d28d9;
+  --color-accent-soft: rgba(124,58,237,0.08);
+  --color-accent-glow: rgba(124,58,237,0.3);
+  --color-accent-text: #c4b5fd;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  height: 100%;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  user-select: none;
+}
+
+.nav-item:hover {
+  color: var(--color-accent-text);
+}
+
+.nav-item.active {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-accent);
+}
+
+.nav-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+  transition: background 0.12s;
+}
+
+.nav-dropdown-item:hover {
+  background: #21262d;
+}
+
+.nav-dropdown-item:hover .nav-dropdown-item-name {
+  color: #e6edf3;
+}
+
+.nav-dropdown-item.active {
+  background: rgba(124,58,237,0.08);
+}
+
+.nav-dropdown-item-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e6edf3;
+  transition: color 0.12s;
+}
+
+.nav-dropdown-item.active .nav-dropdown-item-name {
+  color: #c4b5fd;
+}
+
+.nav-dropdown-item-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.header-cta {
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.header-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 24px rgba(124,58,237,0.5);
+}
+`;
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type Tab =
@@ -87,27 +194,18 @@ function NavGroup({
   const isGroupActive = group.tabs.some(t => t.id === activeTab);
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'stretch' }}>
       <button
         onClick={onToggle}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '14px 16px',
-          background: 'none', border: 'none',
-          borderBottom: `2px solid ${isGroupActive || isOpen ? '#7c3aed' : 'transparent'}`,
-          color: isGroupActive || isOpen ? '#e6edf3' : '#8b949e',
-          fontSize: 13, fontWeight: isGroupActive ? 600 : 400,
-          cursor: 'pointer', whiteSpace: 'nowrap',
-          transition: 'color 0.15s', userSelect: 'none',
-        }}
+        className={`nav-item${isGroupActive || isOpen ? ' active' : ''}`}
       >
-        <span style={{ fontSize: 15 }}>{group.icon}</span>
         <span>{group.label}</span>
         <svg
           width="10" height="10" viewBox="0 0 10 10" fill="none"
           style={{
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s', opacity: 0.5,
+            transition: 'transform 0.2s',
+            opacity: 0.5,
           }}
         >
           <path d="M1 3L5 7L9 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -118,10 +216,13 @@ function NavGroup({
         <div
           style={{
             position: 'absolute', top: 'calc(100% + 2px)', left: 0,
-            minWidth: 230, background: '#161b22',
-            border: '1px solid #30363d', borderRadius: 10,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-            zIndex: 200, padding: '6px',
+            minWidth: 260,
+            background: '#1c2128',
+            border: '1px solid #30363d',
+            borderRadius: 12,
+            boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.08)',
+            zIndex: 200,
+            padding: '6px',
           }}
         >
           {group.tabs.map(tab => {
@@ -130,30 +231,26 @@ function NavGroup({
               <button
                 key={tab.id}
                 onClick={() => onSelect(tab.id)}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '9px 12px', background: isCurrent ? '#7c3aed20' : 'none',
-                  border: 'none', borderRadius: 7,
-                  color: isCurrent ? '#c4b5fd' : '#8b949e',
-                  fontSize: 13, fontWeight: isCurrent ? 600 : 400,
-                  cursor: 'pointer', textAlign: 'left',
-                }}
-                onMouseEnter={e => {
-                  if (!isCurrent) {
-                    (e.currentTarget as HTMLButtonElement).style.background = '#30363d40';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#e6edf3';
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isCurrent) {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'none';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#8b949e';
-                  }
-                }}
+                className={`nav-dropdown-item${isCurrent ? ' active' : ''}`}
               >
-                <span style={{ fontSize: 16, width: 22, textAlign: 'center', flexShrink: 0 }}>{tab.icon}</span>
-                <span style={{ flex: 1 }}>{tab.label}</span>
-                {isCurrent && <span style={{ color: '#7c3aed', fontSize: 10 }}>●</span>}
+                {/* Accent bar */}
+                <span style={{
+                  width: 3,
+                  alignSelf: 'stretch',
+                  background: isCurrent ? '#7c3aed' : '#30363d',
+                  borderRadius: '3px 0 0 3px',
+                  flexShrink: 0,
+                  marginRight: 14,
+                }} />
+                {/* Text content */}
+                <span style={{ flex: 1, padding: '12px 16px 12px 0' }}>
+                  <span className="nav-dropdown-item-name" style={{ display: 'block' }}>
+                    {tab.label}
+                  </span>
+                  <span className="nav-dropdown-item-desc" style={{ display: 'block' }}>
+                    {tab.desc}
+                  </span>
+                </span>
               </button>
             );
           })}
@@ -287,6 +384,9 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#e6edf3', display: 'flex', flexDirection: 'column' }}>
 
+      {/* Inject header styles + Google Fonts */}
+      <style>{HEADER_STYLES}</style>
+
       {/* Desktop overlay — closes dropdowns on outside click */}
       {openGroup && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 150 }} onClick={() => setOpenGroup(null)} />
@@ -301,25 +401,46 @@ export default function App() {
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
           <div style={{ display: 'flex', alignItems: 'stretch', height: 58 }}>
 
-            {/* Logo — click goes home */}
+            {/* Logo + wordmark — click goes home */}
             <button
               onClick={() => handleSelectTab('home')}
               title="tonic — home"
               style={{
                 display: 'flex', alignItems: 'center',
-                padding: '10px 16px 10px 0',
-                marginRight: 8,
+                padding: '0',
+                marginRight: 0,
                 background: 'none', border: 'none',
-                borderRight: '1px solid #21262d',
                 cursor: 'pointer', flexShrink: 0,
+                gap: 0,
               }}
             >
               <img
-                src="/logo.svg"
+                src="/logo.png"
                 alt="tonic"
-                style={{ width: 34, height: 34, display: 'block' }}
+                style={{ width: 36, height: 36, display: 'block', mixBlendMode: 'screen' }}
               />
+              <span style={{
+                fontFamily: "'Syne', sans-serif",
+                fontWeight: 800,
+                fontSize: 18,
+                color: '#e6edf3',
+                letterSpacing: '-0.5px',
+                marginLeft: 10,
+                lineHeight: 1,
+              }}>
+                tonic
+              </span>
             </button>
+
+            {/* Divider */}
+            <div style={{
+              width: 1,
+              height: 28,
+              background: '#21262d',
+              alignSelf: 'center',
+              margin: '0 20px',
+              flexShrink: 0,
+            }} />
 
             {/* ── Desktop nav (hidden on mobile via CSS) ── */}
             <nav className="desktop-nav" style={{ display: 'flex', alignItems: 'stretch', position: 'relative', zIndex: 161 }}>
@@ -348,6 +469,30 @@ export default function App() {
               </div>
             )}
 
+            {/* Right spacer */}
+            <div style={{ flex: 1 }} />
+
+            {/* CTA pill — desktop only */}
+            <button
+              className="header-cta desktop-only"
+              onClick={() => handleSelectTab('scaleadvisor')}
+              style={{
+                alignSelf: 'center',
+                background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 600,
+                fontFamily: "'DM Sans', sans-serif",
+                padding: '8px 18px',
+                borderRadius: 100,
+                border: 'none',
+                boxShadow: '0 0 20px rgba(124,58,237,0.3)',
+                cursor: 'pointer',
+              }}
+            >
+              Start Exploring →
+            </button>
+
             {/* ── Mobile: hamburger button (hidden on desktop) ── */}
             <button
               className="mobile-menu-btn"
@@ -356,7 +501,7 @@ export default function App() {
               style={{
                 display: 'none', /* overridden by CSS on mobile */
                 alignItems: 'center', justifyContent: 'center',
-                marginLeft: 'auto',
+                marginLeft: 8,
                 width: 44, height: '100%',
                 background: 'none', border: 'none',
                 cursor: 'pointer', color: '#e6edf3',
