@@ -11,6 +11,7 @@ import ScaleAdvisorFeature from './features/scale-advisor/ScaleAdvisorFeature';
 import HarmonicAnalysisFeature from './features/harmonic-analysis/HarmonicAnalysisFeature';
 import RiffArchitectFeature from './features/riff-architect/RiffArchitectFeature';
 import MelodyArchitectFeature from './features/melody-architect/MelodyArchitectFeature';
+import IntervalQuizFeature from './features/interval-quiz/IntervalQuizFeature';
 import HomePage from './features/home/HomePage';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -135,7 +136,8 @@ type Tab =
   | 'scaleadvisor'
   | 'analysis'
   | 'riff'
-  | 'melody';
+  | 'melody'
+  | 'quiz';
 
 interface TabDef {
   id: Tab;
@@ -185,6 +187,7 @@ const GROUPS: GroupDef[] = [
       { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹', desc: 'Visualize drop 2, quartal & upper structures' },
       { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵', desc: 'Explore key relationships at a glance' },
       { id: 'ear',           label: 'Ear Training',      icon: '👂', desc: 'Train your ear with interval exercises' },
+      { id: 'quiz',          label: 'Quiz sui Gradi',    icon: '🎯', desc: 'Allenati a riconoscere i gradi delle scale' },
     ],
   },
 ];
@@ -565,6 +568,7 @@ export default function App() {
         {activeTab === 'analysis'      && <HarmonicAnalysisFeature />}
         {activeTab === 'riff'          && <RiffArchitectFeature />}
         {activeTab === 'melody'        && <MelodyArchitectFeature />}
+        {activeTab === 'quiz'          && <IntervalQuizFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
