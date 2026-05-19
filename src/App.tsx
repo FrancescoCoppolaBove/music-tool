@@ -187,7 +187,7 @@ const GROUPS: GroupDef[] = [
       { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹', desc: 'Visualize drop 2, quartal & upper structures' },
       { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵', desc: 'Explore key relationships at a glance' },
       { id: 'ear',           label: 'Ear Training',      icon: '👂', desc: 'Train your ear with interval exercises' },
-      { id: 'quiz',          label: 'Quiz sui Gradi',    icon: '🎯', desc: 'Allenati a riconoscere i gradi delle scale' },
+      { id: 'quiz',          label: 'Scale Degree Quiz',  icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
     ],
   },
 ];
