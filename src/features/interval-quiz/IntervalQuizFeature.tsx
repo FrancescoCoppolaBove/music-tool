@@ -89,7 +89,7 @@ function generateQuestion(keyPool: string[], degreePool: Degree[]): Question | n
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MAX_LIVES = 3;
-const QUESTIONS_PER_GAME = 15;
+const QUESTIONS_PER_GAME = 30;
 const SCORE_CORRECT = 10;
 const SCORE_STREAK_BONUS = 5;
 const CHOICE_LABELS = ['A', 'B', 'C', 'D'];
@@ -381,18 +381,36 @@ export default function IntervalQuizFeature() {
             <div style={{
               background: '#161b22',
               border: `1px solid ${gameState === 'feedback' ? (isCorrect ? '#10b98166' : '#ef444466') : '#30363d'}`,
-              borderRadius: 16, padding: '30px 22px', textAlign: 'center', marginBottom: 16,
+              borderRadius: 16, padding: '28px 22px 24px', textAlign: 'center', marginBottom: 16,
               animation: shaking ? 'shake 0.45s ease' : 'none',
               transition: 'border-color 0.2s',
             }}>
-              <div style={{ fontSize: 13, color: '#6b7280', fontWeight: 500, marginBottom: 8, letterSpacing: '0.02em' }}>
-                In <strong style={{ color: '#e6edf3' }}>{question.key} major</strong>
+              {/* Key badge — large and unmissable */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#4b5563', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>
+                  Key
+                </div>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'baseline', gap: 6,
+                  background: `${accent}18`, border: `1px solid ${accent}44`,
+                  borderRadius: 12, padding: '8px 22px',
+                }}>
+                  <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 40, color: '#c4b5fd', letterSpacing: '-1px', lineHeight: 1 }}>
+                    {question.key}
+                  </span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: 15, color: '#7c6cad', letterSpacing: '0.02em' }}>
+                    major
+                  </span>
+                </div>
               </div>
-              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 30, color: '#e6edf3', marginBottom: 6, letterSpacing: '-0.5px' }}>
+
+              <div style={{ width: '100%', height: 1, background: '#21262d', marginBottom: 18 }} />
+
+              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 26, color: '#e6edf3', letterSpacing: '-0.5px' }}>
                 What is the <span style={{ color: accent }}>{question.degree.label}</span>?
               </div>
               {question.degree.altered && (
-                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
+                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 8 }}>
                   Chromatic degree — not part of the natural major scale
                 </div>
               )}
@@ -471,14 +489,14 @@ export default function IntervalQuizFeature() {
         {gameState === 'complete' && (
           <div style={{ animation: 'fadeIn 0.3s ease', textAlign: 'center' }}>
             <div style={{ fontSize: 56, marginBottom: 14 }}>
-              {score >= 120 ? '🏆' : score >= 80 ? '⭐' : '🎯'}
+              {score >= 240 ? '🏆' : score >= 160 ? '⭐' : '🎯'}
             </div>
             <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 26, color: '#e6edf3', margin: '0 0 6px' }}>
               Quiz Complete!
             </h2>
             <p style={{ color: '#6b7280', fontSize: 14, marginBottom: 28 }}>
-              {score >= 130 ? 'Outstanding — you know your intervals cold!'
-               : score >= 90  ? 'Great work! Keep it up.'
+              {score >= 260 ? 'Outstanding — you know your intervals cold!'
+               : score >= 180 ? 'Great work! Keep it up.'
                : 'Good start — practice makes perfect.'}
             </p>
             <ResultStats score={score} results={results} bestStreak={bestStreak} />
