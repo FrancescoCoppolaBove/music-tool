@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChordVoicingsFeature from './features/chord-vocings/ChordVoicingsFeature';
 import ScaleRecognitionFeature from './features/scale-recognition/ScaleRecognitionFeature';
 import ScaleDictionaryFeature from './features/scale-dictionary/ScaleDictionaryFeature';
@@ -295,13 +295,15 @@ function MobileMenu({
       {/* Drawer */}
       <div
         style={{
-          position: 'fixed', top: 59, left: 0, right: 0, zIndex: 300,
+          position: 'fixed', top: 59, left: 0, right: 0, bottom: 0, zIndex: 300,
           background: '#161b22',
-          borderBottom: '1px solid #30363d',
-          overflowY: 'auto',
-          maxHeight: 'calc(100vh - 59px)',
-          padding: '8px 0 24px',
-        }}
+          borderTop: '1px solid #30363d',
+          overflowY: 'scroll',
+          overscrollBehavior: 'contain',
+          WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'],
+          padding: '8px 0 env(safe-area-inset-bottom, 32px)',
+          paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 40px)',
+        } as React.CSSProperties}
       >
         {GROUPS.map(group => (
           <div key={group.id}>
@@ -378,6 +380,12 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileMenuOpen]);
 
   function handleToggleGroup(groupId: string) {
     setOpenGroup(prev => prev === groupId ? null : groupId);

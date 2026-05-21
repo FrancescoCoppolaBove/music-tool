@@ -16,13 +16,12 @@ interface Degree {
 }
 
 const NATURAL_DEGREES: Degree[] = [
-  { label: '1st (Root)',   interval: '1P', altered: false },
-  { label: '2nd',          interval: '2M', altered: false },
-  { label: '3rd',          interval: '3M', altered: false },
-  { label: '4th',          interval: '4P', altered: false },
-  { label: '5th',          interval: '5P', altered: false },
-  { label: '6th',          interval: '6M', altered: false },
-  { label: '7th',          interval: '7M', altered: false },
+  { label: '2nd',  interval: '2M', altered: false },
+  { label: '3rd',  interval: '3M', altered: false },
+  { label: '4th',  interval: '4P', altered: false },
+  { label: '5th',  interval: '5P', altered: false },
+  { label: '6th',  interval: '6M', altered: false },
+  { label: '7th',  interval: '7M', altered: false },
 ];
 
 const ALTERED_DEGREES: Degree[] = [
