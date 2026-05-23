@@ -61,6 +61,30 @@ const CONTOURS: ContourType[] = [
     points: [{ x: 0, y: 70 }, { x: 20, y: 58 }, { x: 40, y: 45 }, { x: 55, y: 35 }, { x: 60, y: 10 }, { x: 75, y: 35 }, { x: 90, y: 55 }, { x: 100, y: 70 }],
     phraseTip: 'Walk stepwise for 3-4 notes, then leap an octave or a 6th. After the leap, step back down — the contrast creates drama.',
   },
+  {
+    id: 'valley',
+    label: 'Valley',
+    description: 'Starts high, dips very low at center, rises to medium',
+    feel: 'Questioning, introspective, unexpected resolution',
+    points: [{ x: 0, y: 10 }, { x: 20, y: 30 }, { x: 50, y: 90 }, { x: 80, y: 40 }, { x: 100, y: 25 }],
+    phraseTip: 'Start on the 5th or 7th, descend past the root into the lower register, then climb back up to a surprising resolution above your starting point.',
+  },
+  {
+    id: 'plateau',
+    label: 'Plateau',
+    description: 'Ascends quickly then sustains at the top, then drops',
+    feel: 'Urgent, sustained tension, dramatic release',
+    points: [{ x: 0, y: 80 }, { x: 25, y: 15 }, { x: 55, y: 15 }, { x: 75, y: 15 }, { x: 85, y: 50 }, { x: 100, y: 75 }],
+    phraseTip: 'Rush to the climax note in the first quarter of the phrase. Hold it (repeating or oscillating) for the middle section. Drop suddenly to end — the drop IS the resolution.',
+  },
+  {
+    id: 'zigzag',
+    label: 'Zigzag',
+    description: 'Alternating large upward and downward leaps',
+    feel: 'Angular, unpredictable, modern jazz',
+    points: [{ x: 0, y: 60 }, { x: 15, y: 10 }, { x: 30, y: 75 }, { x: 45, y: 15 }, { x: 60, y: 70 }, { x: 75, y: 20 }, { x: 90, y: 55 }, { x: 100, y: 30 }],
+    phraseTip: 'Each leap should be at least a 5th. After an upward leap, leap down (and vice versa). This avoids the ear settling — used extensively by John Coltrane and Wayne Shorter.',
+  },
 ];
 
 // ─── Approach Techniques ────────────────────────────────────────────────────
@@ -115,6 +139,30 @@ const APPROACHES: ApproachTechnique[] = [
     sound: 'Ornamental, classical, expressive',
     usage: 'Adds a gentle ornament to any note. Common in lyrical, vocal melodies.',
   },
+  {
+    id: 'tritone',
+    label: 'Tritone Approach',
+    description: 'Approach from exactly a tritone (diminished 5th / augmented 4th) away',
+    example: 'F# → C  (tritone below C, highly dissonant approach)',
+    sound: 'Very outside, modern jazz, angular',
+    usage: 'Used by Coltrane in "Giant Steps" passages. The tritone creates maximum dissonance that resolves explosively to the target chord tone. Use only on strong beats.',
+  },
+  {
+    id: 'bebop_anticipation',
+    label: 'Bebop Anticipation',
+    description: 'Play the target note an 8th note before the beat',
+    example: 'Play the downbeat note on the "and" of beat 4 — arriving early',
+    sound: 'Swinging, forward-propelled, bebop',
+    usage: 'The most common bebop device. Instead of landing exactly on beat 1, place the note on the "and" of 4. This keeps the rhythm propulsive and creates that characteristic bebop lilt.',
+  },
+  {
+    id: 'chromatic_encirclement',
+    label: 'Chromatic Encirclement (Bebop)',
+    description: 'Approach from both a half-step above AND below before landing',
+    example: 'Bb → G# → A  (half-step above, then half-step below, then land on A)',
+    sound: 'Classic bebop, ornamental, sophisticated',
+    usage: 'The signature bebop ornament. Works best on chord tones (root, 3rd, 5th, 7th). The quick above-below motion creates forward momentum into the landing note.',
+  },
 ];
 
 // ─── Phrase Structures ──────────────────────────────────────────────────────
@@ -155,6 +203,27 @@ const PHRASE_STRUCTURES: PhraseStructure[] = [
     description: '8-bar arch: 4 bars of ascent, 4 bars mirroring back down',
     bars: ['Rise: bars 1-2', 'Peak: bars 3-4', 'Mirror: bars 5-6', 'Resolution: bars 7-8'],
     tip: 'The mirror descent does not have to be exact. Vary the rhythm or add a chromatic note to keep the descent fresh.',
+  },
+  {
+    id: 'bar_form',
+    label: 'Bar Form (AAB)',
+    description: 'Two identical opening phrases followed by a contrasting conclusion',
+    bars: ['Phrase A: statement', 'Phrase A: exact repeat', 'Phrase B: contrast + cadence'],
+    tip: 'The two identical A phrases "set expectations" — the B phrase breaks them. The B phrase should reach higher (or lower) than A and end decisively. Common in blues, Bach chorales, and German Lieder.',
+  },
+  {
+    id: 'sentence',
+    label: 'Sentence Form',
+    description: '2-bar presentation → 2-bar fragmentation → 4-bar cadential',
+    bars: ['2 bars: motif (basic idea + response)', '2 bars: fragment × 2 (sequence)', '4 bars: continuation rushing to cadence'],
+    tip: 'Beethoven used this constantly. Present the motif clearly, then immediately fragment it into smaller cells. The fragmentation creates urgency that the long cadential phrase resolves. Think of the first 8 bars of Beethoven\'s Op. 2 No. 1.',
+  },
+  {
+    id: 'rondo',
+    label: 'Rondo Fragment (ABAC)',
+    description: 'Alternates between a recurring theme and contrasting material',
+    bars: ['A: main theme', 'B: contrasting phrase', 'A: main theme return', 'C: new contrast'],
+    tip: 'The recurring A phrase is your "anchor." Keep it identical on each return. The contrast phrases (B and C) create variety while the A keeps grounding the listener in familiar material.',
   },
 ];
 
@@ -211,6 +280,85 @@ const MOTIF_TECHNIQUES: MotifTechnique[] = [
     before: 'C → E → G → E → C',
     after: 'C → E  (just the opening interval, repeated)',
   },
+  {
+    id: 'retrograde',
+    label: 'Retrograde',
+    description: 'Play the entire motif backwards — last note becomes first',
+    before: 'C → E → G → B  (ascending)',
+    after: 'B → G → E → C  (the same notes, reversed)',
+  },
+  {
+    id: 'retrograde_inversion',
+    label: 'Retrograde Inversion',
+    description: 'Flip intervals AND reverse the order simultaneously',
+    before: 'C → E → G  (up 3rd, up 3rd)',
+    after: 'F → Ab → C  (down 3rd, up 3rd — backwards and inverted)',
+  },
+  {
+    id: 'mode_mutation',
+    label: 'Mode Mutation',
+    description: 'Keep exact rhythm and contour, change the mode (major → minor or vice versa)',
+    before: 'C → E → G → F  (C major: R, M3, P5, P4)',
+    after: 'C → Eb → G → F  (C minor: R, m3, P5, P4 — same shape, darker color)',
+  },
+  {
+    id: 'intervallic_compression',
+    label: 'Intervallic Compression',
+    description: 'Shrink all intervals by half while keeping the rhythm identical',
+    before: 'C → G → D → A  (intervals: P5, P5, P5)',
+    after: 'C → E → G → B  (intervals: M3, m3, M3 — compressed version)',
+  },
+];
+
+// ─── Scale Degree Tendencies ─────────────────────────────────────────────────
+
+interface DegreeTendency {
+  degree: string;
+  stability: string;
+  tendency: string;
+  arrow: string | null;
+  color: string;
+}
+
+const DEGREE_TENDENCIES: DegreeTendency[] = [
+  { degree: '1 (Root)',           stability: 'Stable',              tendency: 'No tendency — point of rest',                                          arrow: null,       color: '#f59e0b' },
+  { degree: '2 (Supertonic)',     stability: 'Unstable',            tendency: 'Resolves DOWN to 1 or UP to 3',                                        arrow: '↓1 or ↑3', color: '#6b7280' },
+  { degree: '3 (Mediant)',        stability: 'Semi-stable',         tendency: 'Mostly stable; can resolve down to 2 or 1',                            arrow: null,       color: '#7c3aed' },
+  { degree: '4 (Subdominant)',    stability: 'Unstable',            tendency: 'Strong pull DOWN to 3 — the classic avoid note on maj7',               arrow: '↓3',       color: '#ef4444' },
+  { degree: '5 (Dominant)',       stability: 'Semi-stable',         tendency: 'Stable; can resolve down to root in a drop',                           arrow: null,       color: '#06b6d4' },
+  { degree: '6 (Submediant)',     stability: 'Unstable',            tendency: 'Resolves DOWN to 5 (especially in minor)',                             arrow: '↓5',       color: '#6b7280' },
+  { degree: '7 (Leading Tone)',   stability: 'Highly unstable',     tendency: 'Powerful pull UP to root — the strongest tendency tone',               arrow: '↑1',       color: '#ec4899' },
+  { degree: 'b7 (Subtonic)',      stability: 'Stable in Mixolydian', tendency: 'In Dorian/Mixolydian: stable, no tension. In harmonic minor: still leans up.', arrow: null, color: '#10b981' },
+  { degree: '#4 / b5 (Tritone)',  stability: 'Highly unstable',     tendency: 'Pulls to 5 (up) or to 3 (down) — maximum tension',                    arrow: '↑5 or ↓3', color: '#f97316' },
+];
+
+// ─── Mode Characters ─────────────────────────────────────────────────────────
+
+interface ModeCharacter {
+  id: string;
+  label: string;
+  mood: string;
+  characteristic: string;
+  avoidNote: string | null;
+  examples: string[];
+  color: string;
+}
+
+const MODE_CHARACTERS: ModeCharacter[] = [
+  { id: 'major',               label: 'Ionian',           mood: 'Bright, complete, stable, confident',              characteristic: 'P4 is the avoid note — #4 (Lydian) is safer',                              avoidNote: '4th degree',           examples: ['Most pop/folk', 'Bach preludes', 'Happy Birthday'],                       color: '#f59e0b' },
+  { id: 'dorian',              label: 'Dorian',            mood: 'Bittersweet, hopeful, funky, modal jazz',          characteristic: 'Natural 6th (maj6) is the signature tone — keeps minor from sounding "sad"', avoidNote: null,                   examples: ['"So What" – Miles Davis', 'Snarky Puppy', 'Santana "Oye Como Va"'],       color: '#06b6d4' },
+  { id: 'phrygian',            label: 'Phrygian',          mood: 'Dark, Spanish, flamenco, Middle-Eastern',          characteristic: 'b2 (half-step above root) is the defining sound',                           avoidNote: 'b2 on long notes',     examples: ['Flamenco guitar', 'Metallica "Wherever I May Roam"', 'Carlos Santana'],   color: '#ef4444' },
+  { id: 'lydian',              label: 'Lydian',            mood: 'Floating, cinematic, otherworldly, magical',       characteristic: '#4 (tritone above root) creates tension without aggression',                  avoidNote: null,                   examples: ['John Williams scores', 'Joe Satriani', 'Simpsons theme'],                 color: '#a855f7' },
+  { id: 'mixolydian',          label: 'Mixolydian',        mood: 'Bluesy, rock, funky, dominant groove',             characteristic: 'b7 creates the dominant 7th chord feel — never fully resolves',               avoidNote: '4th degree (P4)',       examples: ['Most rock guitar solos', 'Grateful Dead', '"Norwegian Wood" – Beatles'], color: '#10b981' },
+  { id: 'aeolian',             label: 'Aeolian',           mood: 'Dark, melancholic, classical minor, rock',         characteristic: 'b6 adds darkness compared to Dorian',                                       avoidNote: null,                   examples: ['Most rock ballads', 'Bach minor pieces', 'Radiohead'],                   color: '#8b949e' },
+  { id: 'locrian',             label: 'Locrian',           mood: 'Tense, unstable, extreme, avant-garde',            characteristic: 'b2 AND b5 — the only mode with a diminished tonic triad',                   avoidNote: 'Almost everything',    examples: ['Half-diminished chord passages', 'Metal (rarely)', 'Avant-garde jazz'],  color: '#6b7280' },
+  { id: 'melodic minor',       label: 'Melodic Minor',     mood: 'Cinematic, mysterious, film scoring',              characteristic: 'Minor 3rd + major 6th and 7th — the best of both worlds',                   avoidNote: null,                   examples: ['Ennio Morricone scores', 'Wayne Shorter', 'Jacob Collier'],              color: '#c4b5fd' },
+  { id: 'harmonic minor',      label: 'Harmonic Minor',    mood: 'Classical, dramatic, flamenco, Middle-Eastern',    characteristic: 'Augmented 2nd between b6 and maj7 — the "classical minor" sound',             avoidNote: 'b6 (use carefully)',   examples: ['Baroque music', 'Flamenco', 'Phrygian Dominant passages'],               color: '#fbbf24' },
+  { id: 'whole tone',          label: 'Whole Tone',        mood: 'Dreamy, impressionistic, ambiguous, floating',     characteristic: 'No half-steps anywhere — creates suspended, ungrounded feeling',              avoidNote: 'Every note equally',   examples: ['Debussy', 'Thelonious Monk', 'Film underscore floats'],                  color: '#67e8f9' },
+  { id: 'half-whole diminished', label: 'Diminished (HW)', mood: 'Tense, dark, symmetrical, altered dominant',      characteristic: '8-note scale — symmetrical every minor 3rd. Rich and dense.',                avoidNote: null,                   examples: ['Over dim7 and 7b9 chords', 'Bebop soloists', 'John Coltrane'],           color: '#a16207' },
+  { id: 'major pentatonic',    label: 'Major Pentatonic',  mood: 'Open, folk, universally singable, pure',           characteristic: 'No half-steps — 5 tones only. No tension, all resolution.',                  avoidNote: null,                   examples: ['Country music', 'Blues guitar', 'Most folk melodies'],                   color: '#34d399' },
+  { id: 'minor pentatonic',    label: 'Minor Pentatonic',  mood: 'Bluesy, rock, soulful, direct',                    characteristic: 'The backbone of blues and rock soloing worldwide',                           avoidNote: null,                   examples: ['Eric Clapton', 'B.B. King', 'Jimi Hendrix'],                             color: '#f97316' },
+  { id: 'blues',               label: 'Blues Scale',       mood: 'Gritty, expressive, raw emotion, bent notes',      characteristic: 'b5 (blue note) between 4th and 5th — the defining tension of blues',         avoidNote: null,                   examples: ['All blues guitar', 'Stevie Ray Vaughan', 'Lettuce riffs'],              color: '#dc2626' },
 ];
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -218,19 +366,32 @@ const MOTIF_TECHNIQUES: MotifTechnique[] = [
 const ROOTS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 const MODES = [
-  { id: 'major', label: 'Major' },
-  { id: 'dorian', label: 'Dorian' },
-  { id: 'phrygian', label: 'Phrygian' },
-  { id: 'lydian', label: 'Lydian' },
-  { id: 'mixolydian', label: 'Mixolydian' },
-  { id: 'minor', label: 'Minor (Aeolian)' },
+  { id: 'major',                    label: 'Ionian (Major)' },
+  { id: 'dorian',                   label: 'Dorian' },
+  { id: 'phrygian',                 label: 'Phrygian' },
+  { id: 'lydian',                   label: 'Lydian' },
+  { id: 'mixolydian',               label: 'Mixolydian' },
+  { id: 'aeolian',                  label: 'Aeolian (Nat. Minor)' },
+  { id: 'locrian',                  label: 'Locrian' },
+  { id: 'melodic minor',            label: 'Melodic Minor' },
+  { id: 'harmonic minor',           label: 'Harmonic Minor' },
+  { id: 'harmonic major',           label: 'Harmonic Major' },
+  { id: 'whole tone',               label: 'Whole Tone' },
+  { id: 'half-whole diminished',    label: 'Diminished (HW)' },
+  { id: 'major pentatonic',         label: 'Major Pentatonic' },
+  { id: 'minor pentatonic',         label: 'Minor Pentatonic' },
+  { id: 'blues',                    label: 'Blues' },
 ];
 
 const BEAT_GUIDE = [
-  { beat: 1, strength: 'Strong', color: '#7c3aed', targets: 'Root, 5th, 3rd', sub: 'stable tones' },
-  { beat: 2, strength: 'Medium', color: '#06b6d4', targets: '3rd, 7th', sub: 'color tones' },
-  { beat: 3, strength: 'Med-Strong', color: '#7c3aed', targets: '5th, Root', sub: 'stability' },
-  { beat: 4, strength: 'Weak', color: '#6b7280', targets: 'Leading tone, chromatic', sub: 'create motion' },
+  { beat: '1',   strength: 'Downbeat — Strongest',   color: '#7c3aed', targets: 'Root, 5th, 3rd',              sub: 'Most stable — land here for resolution' },
+  { beat: '1+',  strength: 'Upbeat',                  color: '#6b7280', targets: 'Passing tones, chromatic',    sub: 'Weak — good for approach notes' },
+  { beat: '2',   strength: 'Medium',                   color: '#06b6d4', targets: '3rd, 7th, 9th',              sub: 'Moderate stability — colour tones OK' },
+  { beat: '2+',  strength: 'Upbeat',                   color: '#6b7280', targets: 'Passing, chromatic',         sub: 'Syncopation here sounds "jazzy"' },
+  { beat: '3',   strength: 'Med-Strong (backbeat)',    color: '#7c3aed', targets: '5th, Root',                  sub: 'Stability — accent in groove/rock contexts' },
+  { beat: '3+',  strength: 'Upbeat',                   color: '#6b7280', targets: 'Approach notes',             sub: 'Lead into beat 4 or land on 4' },
+  { beat: '4',   strength: 'Weak — Leading',           color: '#10b981', targets: 'Leading tones, chromatic',  sub: 'Tension into bar 2 — great for 7th degree' },
+  { beat: '4+',  strength: 'Anticipation beat',        color: '#f59e0b', targets: "Anticipate next bar's melody", sub: 'Play next bar\'s note here for bebop swing' },
 ];
 
 // ─── Helper: points to SVG polyline string ──────────────────────────────────
@@ -476,10 +637,11 @@ function BeatGuide() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
               <div style={{
-                width: 24, height: 24, borderRadius: '50%',
+                minWidth: 28, height: 24, borderRadius: 6,
                 background: `${b.color}22`, border: `2px solid ${b.color}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 700, color: b.color, flexShrink: 0,
+                fontSize: 10, fontWeight: 700, color: b.color, flexShrink: 0,
+                padding: '0 4px',
               }}>
                 {b.beat}
               </div>
@@ -489,6 +651,53 @@ function BeatGuide() {
             </div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#e6edf3' }}>{b.targets}</div>
             <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{b.sub}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DegreeTendencyTable() {
+  return (
+    <div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: '#8b949e', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        Scale Degree Tendencies
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {DEGREE_TENDENCIES.map((d, i) => (
+          <div
+            key={i}
+            style={{
+              background: '#0d1117',
+              border: `1px solid ${d.color}33`,
+              borderLeft: `3px solid ${d.color}`,
+              borderRadius: 8,
+              padding: '10px 14px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 12,
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 130 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: d.color }}>{d.degree}</div>
+              <div style={{
+                fontSize: 10, fontWeight: 600, color: '#6b7280',
+                background: '#161b22', borderRadius: 4, padding: '2px 6px', display: 'inline-block',
+              }}>
+                {d.stability}
+              </div>
+            </div>
+            <div style={{ flex: 1, fontSize: 12, color: '#c9d1d9', lineHeight: 1.5 }}>{d.tendency}</div>
+            {d.arrow && (
+              <div style={{
+                fontSize: 16, fontWeight: 700, color: d.color,
+                background: `${d.color}22`, border: `1px solid ${d.color}55`,
+                borderRadius: 6, padding: '2px 8px', flexShrink: 0,
+              }}>
+                {d.arrow}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -527,12 +736,13 @@ function ApproachCard({ approach, isActive, onClick }: { approach: ApproachTechn
 function PhraseTimeline({ bars }: { bars: string[] }) {
   const colors = ['#7c3aed', '#06b6d4', '#7c3aed', '#06b6d4'];
   return (
-    <div style={{ display: 'flex', gap: 4, marginTop: 12, marginBottom: 12 }}>
+    <div style={{ display: 'flex', gap: 4, marginTop: 12, marginBottom: 12, flexWrap: 'wrap' }}>
       {bars.map((bar, i) => (
         <div
           key={i}
           style={{
             flex: 1,
+            minWidth: 80,
             background: `${colors[i % colors.length]}22`,
             border: `1.5px solid ${colors[i % colors.length]}`,
             borderRadius: 6,
@@ -621,6 +831,67 @@ function MotifCard({ technique }: { technique: MotifTechnique }) {
           <div style={{ color: '#6b7280', marginBottom: 4, fontSize: 11 }}>After</div>
           <div style={{ color: '#06b6d4' }}>{technique.after}</div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ModeCharacterGrid() {
+  return (
+    <div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gap: 12,
+      }}>
+        {MODE_CHARACTERS.map(mc => (
+          <div
+            key={mc.id}
+            style={{
+              background: '#0d1117',
+              border: '1px solid #30363d',
+              borderLeft: `4px solid ${mc.color}`,
+              borderRadius: 10,
+              padding: '14px 16px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+              <div>
+                <span style={{ fontSize: 14, fontWeight: 700, color: mc.color }}>{mc.label}</span>
+              </div>
+              {mc.avoidNote && (
+                <span style={{
+                  fontSize: 10, fontWeight: 600, color: '#ef4444',
+                  background: '#2a0a0a', border: '1px solid #ef444444',
+                  borderRadius: 4, padding: '2px 6px', flexShrink: 0, marginLeft: 8,
+                }}>
+                  Avoid: {mc.avoidNote}
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 8, lineHeight: 1.4, fontStyle: 'italic' }}>{mc.mood}</div>
+            <div style={{
+              fontSize: 11, color: '#c9d1d9', marginBottom: 10, lineHeight: 1.5,
+              background: '#161b22', borderRadius: 6, padding: '6px 10px',
+            }}>
+              {mc.characteristic}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {mc.examples.map((ex, i) => (
+                <span
+                  key={i}
+                  style={{
+                    fontSize: 10, color: '#8b949e',
+                    background: '#161b22', border: '1px solid #30363d',
+                    borderRadius: 4, padding: '2px 7px',
+                  }}
+                >
+                  {ex}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -739,17 +1010,28 @@ export default function MelodyArchitectFeature() {
         border: '1px solid #30363d',
         borderRadius: 12,
         padding: '20px 24px',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: 32,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 28,
       }}>
-        <div>
-          <SectionTitle title="Scale Notes" />
-          <ScaleNotes notes={notes} />
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 32,
+        }}>
+          <div>
+            <SectionTitle title="Scale Notes" />
+            <ScaleNotes notes={notes} />
+          </div>
+          <div>
+            <SectionTitle title="Beat Strength Guide" subtitle="8th-note subdivisions included." />
+            <BeatGuide />
+          </div>
         </div>
+
         <div>
-          <SectionTitle title="Beat Strength Guide" />
-          <BeatGuide />
+          <SectionTitle title="Scale Degree Tendencies" subtitle="Where each degree wants to resolve." />
+          <DegreeTendencyTable />
         </div>
       </div>
 
@@ -820,6 +1102,20 @@ export default function MelodyArchitectFeature() {
             <MotifCard key={t.id} technique={t} />
           ))}
         </div>
+      </div>
+
+      {/* Section 6: Mode Character Guide */}
+      <div style={{
+        background: '#161b22',
+        border: '1px solid #30363d',
+        borderRadius: 12,
+        padding: '20px 24px',
+      }}>
+        <SectionTitle
+          title="Mode Character Guide"
+          subtitle="What each mode sounds like, feels like, and where it has been used."
+        />
+        <ModeCharacterGrid />
       </div>
 
     </div>
