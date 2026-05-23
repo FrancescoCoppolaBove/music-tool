@@ -1,5 +1,126 @@
 import type { GeneratedProgression, ResolvedChord, Technique } from '../types/progression.types';
 
+// ─── Scale recommendations ────────────────────────────────────────────────────
+
+interface ScaleSuggestion {
+  name: string;
+  isPrimary: boolean;
+}
+
+/**
+ * Maps chord quality → ordered list of applicable scales.
+ * Based on jazz chord-scale theory (Berklee / George Russell Lydian Chromatic Concept)
+ * enriched with modern jazz / fusion practice.
+ *
+ * Order: primary (most idiomatic) first, then alternatives from inside-out.
+ */
+const QUALITY_SCALES: Record<string, ScaleSuggestion[]> = {
+  // ── Major family ──────────────────────────────────────────────────────────
+  'maj':     [
+    { name: 'Lydian',             isPrimary: true  },
+    { name: 'Ionian (Major)',     isPrimary: false },
+    { name: 'Lydian Augmented',  isPrimary: false },
+  ],
+  'maj7':    [
+    { name: 'Lydian',             isPrimary: true  },
+    { name: 'Ionian (Major)',     isPrimary: false },
+    { name: 'Lydian Augmented',  isPrimary: false },
+  ],
+  'maj9':    [
+    { name: 'Lydian',             isPrimary: true  },
+    { name: 'Ionian (Major)',     isPrimary: false },
+    { name: 'Lydian Augmented',  isPrimary: false },
+  ],
+  'maj7#11': [
+    { name: 'Lydian',             isPrimary: true  },
+    { name: 'Lydian Augmented',  isPrimary: false },
+  ],
+
+  // ── Minor family ──────────────────────────────────────────────────────────
+  'm7':  [
+    { name: 'Dorian',        isPrimary: true  },
+    { name: 'Aeolian',       isPrimary: false },
+    { name: 'Dorian ♭2',    isPrimary: false },
+    { name: 'Phrygian',      isPrimary: false },
+  ],
+  'm9':  [
+    { name: 'Dorian',        isPrimary: true  },
+    { name: 'Dorian ♭2',    isPrimary: false },
+    { name: 'Aeolian',       isPrimary: false },
+  ],
+  'm11': [
+    { name: 'Dorian',        isPrimary: true  },
+    { name: 'Dorian ♭2',    isPrimary: false },
+    { name: 'Aeolian',       isPrimary: false },
+  ],
+
+  // ── Dominant family ───────────────────────────────────────────────────────
+  '7':  [
+    { name: 'Lydian Dominant',    isPrimary: true  },
+    { name: 'Mixolydian',         isPrimary: false },
+    { name: 'Mixolydian ♭6',     isPrimary: false },
+    { name: 'Phryg. Dominant',   isPrimary: false },
+  ],
+  '9':  [
+    { name: 'Mixolydian',         isPrimary: true  },
+    { name: 'Lydian Dominant',    isPrimary: false },
+    { name: 'Mixolydian ♭6',     isPrimary: false },
+  ],
+  '13': [
+    { name: 'Mixolydian',         isPrimary: true  },
+    { name: 'Lydian Dominant',    isPrimary: false },
+    { name: 'Mixolydian ♭6',     isPrimary: false },
+  ],
+
+  // ── Altered dominant ──────────────────────────────────────────────────────
+  '7alt': [
+    { name: 'Altered',          isPrimary: true  },
+    { name: 'HW Diminished',    isPrimary: false },
+    { name: 'Whole Tone',       isPrimary: false },
+  ],
+  '7b9': [
+    { name: 'HW Diminished',    isPrimary: true  },
+    { name: 'Phryg. Dominant',  isPrimary: false },
+    { name: 'Altered',          isPrimary: false },
+  ],
+
+  // ── Suspended ────────────────────────────────────────────────────────────
+  '7sus4': [
+    { name: 'Mixolydian',     isPrimary: true  },
+    { name: 'Dorian',         isPrimary: false },
+    { name: 'Aeolian',        isPrimary: false },
+  ],
+  'sus2': [
+    { name: 'Mixolydian',     isPrimary: true  },
+    { name: 'Lydian',         isPrimary: false },
+    { name: 'Ionian (Major)', isPrimary: false },
+  ],
+
+  // ── Diminished & Half-dim ─────────────────────────────────────────────────
+  'dim7': [
+    { name: 'HW Diminished',    isPrimary: true  },
+    { name: 'WH Diminished',    isPrimary: false },
+  ],
+  'm7b5': [
+    { name: 'Locrian ♯2',      isPrimary: true  },
+    { name: 'Locrian',          isPrimary: false },
+    { name: 'HW Diminished',    isPrimary: false },
+  ],
+
+  // ── Quartal & other colours ───────────────────────────────────────────────
+  'quartal': [
+    { name: 'Dorian',        isPrimary: true  },
+    { name: 'Mixolydian',    isPrimary: false },
+    { name: 'Phrygian',      isPrimary: false },
+  ],
+};
+
+function getScalesForQuality(quality: string): ScaleSuggestion[] {
+  return QUALITY_SCALES[quality] ?? [{ name: 'Dorian / Mixolydian', isPrimary: true }];
+}
+
+// ─── Colour maps ─────────────────────────────────────────────────────────────
+
 const TECHNIQUE_COLORS: Record<Technique, string> = {
   diatonic: '#3b82f6',
   modal_interchange: '#8b5cf6',
@@ -21,11 +142,15 @@ const FUNCTION_COLORS: Record<string, string> = {
   Color: '#8b5cf6',
 };
 
+// ─── Props ───────────────────────────────────────────────────────────────────
+
 interface ProgressionDisplayProps {
   results: GeneratedProgression[];
   selectedId: string | null;
   onSelect: (id: string) => void;
 }
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function ProgressionDisplay({ results, selectedId, onSelect }: ProgressionDisplayProps) {
   if (results.length === 0) return (
@@ -61,7 +186,6 @@ export default function ProgressionDisplay({ results, selectedId, onSelect }: Pr
                 borderRadius: 8, cursor: 'pointer',
               }}
             >
-              {/* Chord symbols */}
               <div style={{ flex: 1, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                 {r.chords.map((c, i) => (
                   <span key={i} style={{
@@ -75,7 +199,6 @@ export default function ProgressionDisplay({ results, selectedId, onSelect }: Pr
                   </span>
                 ))}
               </div>
-              {/* Tags */}
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                 <span style={{
                   fontSize: 10, padding: '1px 6px',
@@ -86,7 +209,6 @@ export default function ProgressionDisplay({ results, selectedId, onSelect }: Pr
                   {r.template.style}
                 </span>
               </div>
-              {/* Name */}
               <span style={{ fontSize: 11, color: '#4b5563', flexShrink: 0, maxWidth: 180, textAlign: 'right' }}>
                 {r.template.name}
               </span>
@@ -97,6 +219,8 @@ export default function ProgressionDisplay({ results, selectedId, onSelect }: Pr
     </div>
   );
 }
+
+// ─── Detail panel ─────────────────────────────────────────────────────────────
 
 function ProgressionDetail({ progression }: { progression: GeneratedProgression }) {
   const { template, chords, key } = progression;
@@ -164,7 +288,10 @@ function ProgressionDetail({ progression }: { progression: GeneratedProgression 
         </div>
       )}
 
-      {/* Notes (per chord) */}
+      {/* ── Scale suggestions ──────────────────────────────────────────────── */}
+      <ScaleMap chords={chords} />
+
+      {/* Chord tones */}
       <div style={{ borderTop: '1px solid #30363d', paddingTop: 12, marginTop: 12 }}>
         <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>Chord tones:</div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -189,9 +316,98 @@ function ProgressionDetail({ progression }: { progression: GeneratedProgression 
   );
 }
 
+// ─── Scale map ────────────────────────────────────────────────────────────────
+
+function ScaleMap({ chords }: { chords: ResolvedChord[] }) {
+  return (
+    <div style={{ borderTop: '1px solid #30363d', paddingTop: 14, marginTop: 12 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#8b949e' }}>🎹 Scale suggestions</span>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            fontSize: 10, color: '#c4b5fd',
+          }}>
+            <span style={{ fontSize: 10 }}>★</span> primary
+          </span>
+          <span style={{ fontSize: 10, color: '#6b7280' }}>· alternatives</span>
+        </div>
+      </div>
+
+      {/* Per-chord columns */}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        {chords.map((chord, i) => {
+          const scales = getScalesForQuality(chord.quality);
+          const primary = scales.find(s => s.isPrimary);
+          const alts = scales.filter(s => !s.isPrimary);
+
+          return (
+            <div key={i} style={{
+              flex: '1 1 110px', minWidth: 100, maxWidth: 180,
+              background: '#0d1117', border: '1px solid #21262d',
+              borderRadius: 8, padding: '10px 10px 8px',
+            }}>
+              {/* Chord symbol */}
+              <div style={{
+                fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
+                color: '#e6edf3', marginBottom: 8,
+                paddingBottom: 6, borderBottom: '1px solid #21262d',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              }}>
+                <span>{chord.symbol}</span>
+                <span style={{
+                  fontSize: 9, fontFamily: 'sans-serif', fontWeight: 600,
+                  color: '#4b5563', background: '#1c2128',
+                  border: '1px solid #30363d', borderRadius: 10,
+                  padding: '1px 5px',
+                }}>
+                  {scales.length} scale{scales.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+
+              {/* Primary scale */}
+              {primary && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '4px 7px', borderRadius: 5, marginBottom: 4,
+                  background: '#7c3aed18', border: '1px solid #7c3aed33',
+                }}>
+                  <span style={{ fontSize: 9, color: '#a78bfa' }}>★</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#c4b5fd', lineHeight: 1.3 }}>
+                    {primary.name}
+                  </span>
+                </div>
+              )}
+
+              {/* Alternatives */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {alts.map((scale, j) => (
+                  <div key={j} style={{
+                    padding: '3px 7px', borderRadius: 5,
+                    background: '#1c2128', border: '1px solid #30363d',
+                  }}>
+                    <span style={{ fontSize: 10, color: '#6b7280', lineHeight: 1.3 }}>
+                      {scale.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Chord block ──────────────────────────────────────────────────────────────
+
 function ChordBlock({ chord, index, total }: { chord: ResolvedChord; index: number; total: number }) {
   const techniqueColor = chord.technique ? TECHNIQUE_COLORS[chord.technique] : undefined;
   const functionColor = FUNCTION_COLORS[chord.function] ?? '#6b7280';
+  const scales = getScalesForQuality(chord.quality);
+  const primaryScale = scales.find(s => s.isPrimary);
 
   return (
     <div style={{
@@ -228,6 +444,29 @@ function ChordBlock({ chord, index, total }: { chord: ResolvedChord; index: numb
           {chord.annotation}
         </div>
       )}
+
+      {/* ── Scale hint ── */}
+      <div style={{
+        marginTop: 4, paddingTop: 6, borderTop: '1px solid #21262d',
+      }}>
+        <div style={{ fontSize: 9, color: '#4b5563', letterSpacing: '0.06em', marginBottom: 2, textTransform: 'uppercase' }}>
+          Scale
+        </div>
+        {primaryScale && (
+          <div style={{ fontSize: 10, fontWeight: 600, color: '#a78bfa', lineHeight: 1.3, marginBottom: 2 }}>
+            ★ {primaryScale.name}
+          </div>
+        )}
+        {scales.length > 1 && (
+          <div style={{
+            display: 'inline-block', fontSize: 9, color: '#4b5563',
+            background: '#1c2128', border: '1px solid #30363d',
+            borderRadius: 8, padding: '1px 5px',
+          }}>
+            +{scales.length - 1} more
+          </div>
+        )}
+      </div>
 
       {/* Arrow to next */}
       {index < total && (
