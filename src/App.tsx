@@ -13,6 +13,7 @@ import RiffArchitectFeature from './features/riff-architect/RiffArchitectFeature
 import MelodyArchitectFeature from './features/melody-architect/MelodyArchitectFeature';
 import IntervalQuizFeature from './features/interval-quiz/IntervalQuizFeature';
 import ScoreToIRealFeature from './features/score-to-ireal/ScoreToIRealFeature';
+import ChordLandingFeature from './features/chord-landing/ChordLandingFeature';
 import HomePage from './features/home/HomePage';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -139,7 +140,8 @@ type Tab =
   | 'riff'
   | 'melody'
   | 'quiz'
-  | 'score';
+  | 'score'
+  | 'landing';
 
 interface TabDef {
   id: Tab;
@@ -169,6 +171,7 @@ const GROUPS: GroupDef[] = [
       { id: 'riff',          label: 'Riff Architect',     icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees' },
       { id: 'melody',        label: 'Melody Architect',   icon: '〰️', desc: 'Shape a melody with contour, approach & motif' },
       { id: 'score',         label: 'Score → iReal Pro',  icon: '📄', desc: 'Import a score photo and export to iReal Pro' },
+      { id: 'landing',       label: 'Chord Landing',      icon: '🎯', desc: 'Find the best way to approach any target chord' },
     ],
   },
   {
@@ -581,6 +584,7 @@ export default function App() {
         {activeTab === 'melody'        && <MelodyArchitectFeature />}
         {activeTab === 'quiz'          && <IntervalQuizFeature />}
         {activeTab === 'score'         && <ScoreToIRealFeature />}
+        {activeTab === 'landing'       && <ChordLandingFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
