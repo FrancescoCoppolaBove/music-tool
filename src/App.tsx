@@ -12,6 +12,7 @@ import HarmonicAnalysisFeature from './features/harmonic-analysis/HarmonicAnalys
 import RiffArchitectFeature from './features/riff-architect/RiffArchitectFeature';
 import MelodyArchitectFeature from './features/melody-architect/MelodyArchitectFeature';
 import IntervalQuizFeature from './features/interval-quiz/IntervalQuizFeature';
+import ScoreToIRealFeature from './features/score-to-ireal/ScoreToIRealFeature';
 import HomePage from './features/home/HomePage';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -137,7 +138,8 @@ type Tab =
   | 'analysis'
   | 'riff'
   | 'melody'
-  | 'quiz';
+  | 'quiz'
+  | 'score';
 
 interface TabDef {
   id: Tab;
@@ -166,6 +168,7 @@ const GROUPS: GroupDef[] = [
       { id: 'analysis',      label: 'Harmonic Analysis',  icon: '🔬', desc: 'Analyse key, Roman numerals & chord function' },
       { id: 'riff',          label: 'Riff Architect',     icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees' },
       { id: 'melody',        label: 'Melody Architect',   icon: '〰️', desc: 'Shape a melody with contour, approach & motif' },
+      { id: 'score',         label: 'Score → iReal Pro',  icon: '📄', desc: 'Import a score photo and export to iReal Pro' },
     ],
   },
   {
@@ -577,6 +580,7 @@ export default function App() {
         {activeTab === 'riff'          && <RiffArchitectFeature />}
         {activeTab === 'melody'        && <MelodyArchitectFeature />}
         {activeTab === 'quiz'          && <IntervalQuizFeature />}
+        {activeTab === 'score'         && <ScoreToIRealFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
