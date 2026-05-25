@@ -54,7 +54,10 @@ const TIME_SIGS: TimeSig[] = ['4/4', '3/4', '6/8', '5/4', '7/4', '2/4'];
 
 const SECTION_TYPES: SectionType[] = ['Intro', 'A', 'B', 'C', 'D', 'Verse', 'Chorus', 'Bridge', 'Outro'];
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// In local dev VITE_API_URL=http://localhost:3001 (from .env).
+// In production (Netlify) it's not set → empty string → relative URL
+// → Netlify redirect rule sends /api/* to the Netlify Function.
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
