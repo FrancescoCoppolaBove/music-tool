@@ -47,6 +47,10 @@ const SCALES: Record<string, { name: string; intervals: number[] }> = {
   locrian:         { name: 'Locrian',               intervals: [0, 1, 3, 5, 6, 8, 10] },
   melodicMinor:    { name: 'Melodic Minor',         intervals: [0, 2, 3, 5, 7, 9, 11] },
   harmonicMinor:   { name: 'Harmonic Minor',        intervals: [0, 2, 3, 5, 7, 8, 11] },
+  // ── Pentatonics & Blues ───────────────────────────────────────────────────
+  minorPenta:      { name: 'Minor Pentatonic',       intervals: [0, 3, 5, 7, 10] },
+  majorPenta:      { name: 'Major Pentatonic',       intervals: [0, 2, 4, 7, 9] },
+  blues:           { name: 'Blues Scale',            intervals: [0, 3, 5, 6, 7, 10] },
 };
 
 // ─── Chord–Scale Data ───────────────────────────────────────────────────────
@@ -90,6 +94,30 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
         trickSemitones: 9,
         trickScaleName: 'Melodic Minor',
         trickInterval: 'maj. 6th above',
+      },
+      {
+        name: SCALES.majorPenta.name,
+        intervals: SCALES.majorPenta.intervals,
+        chordTones: [0, 4, 7, 9],
+        goodExtensions: [2],
+        avoidNotes: [],
+        description: 'Root major pentatonic: R, 9, 3, 5, 13 — a clean, vocal-friendly palette with zero avoid notes. The △7 is absent, which lets the chord\'s major seventh ring clearly underneath without scale-tone conflict. Great for a bright, singable approach (Wes Montgomery, George Benson, bossa nova).',
+        extensionLabel: 'Chord tones: R, 3, 5, 13 · ext: 9',
+        trickSemitones: 0,
+        trickScaleName: 'Major Pentatonic',
+        trickInterval: 'same root',
+      },
+      {
+        name: 'Major Pentatonic (II)',
+        intervals: [2, 4, 6, 9, 11],
+        chordTones: [4, 11],
+        goodExtensions: [2, 6, 9],
+        avoidNotes: [],
+        description: 'II major pentatonic superimposition (e.g., D major penta over Cmaj7): gives 9, 3, ♯11, 13, and △7 — the entire Lydian extension set compressed into 5 notes. The ♯11 is the signature Lydian "floating" tone that makes this unmistakably modern. A signature device of Jacob Collier and Brad Mehldau.',
+        extensionLabel: 'Extensions: 9, ♯11, 13, △7 (Lydian palette)',
+        trickSemitones: 2,
+        trickScaleName: 'Major Pentatonic',
+        trickInterval: 'M2 above (= II)',
       },
     ],
   },
@@ -144,6 +172,42 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
         trickSemitones: 8,
         trickScaleName: 'Major',
         trickInterval: 'min. 6th above',
+      },
+      {
+        name: SCALES.minorPenta.name,
+        intervals: SCALES.minorPenta.intervals,
+        chordTones: [0, 3, 7, 10],
+        goodExtensions: [5],
+        avoidNotes: [],
+        description: 'Root minor pentatonic: the most direct, blues-adjacent choice on m7. Covers R, ♭3, 11, 5, and ♭7 — all chord tones except the ♭7 is partly missing (no ♭3 is wrong — ♭3 IS in the chord). Zero avoid notes, very safe. The 11 (P4) is not an avoid on m7, unlike on dominant chords.',
+        extensionLabel: 'Chord tones: R, ♭3, 5, ♭7 · ext: 11',
+        trickSemitones: 0,
+        trickScaleName: 'Minor Pentatonic',
+        trickInterval: 'same root',
+      },
+      {
+        name: 'Minor Pentatonic (II) — Dorian trick',
+        intervals: [0, 2, 5, 7, 9],
+        chordTones: [0, 7],
+        goodExtensions: [2, 5, 9],
+        avoidNotes: [],
+        description: 'II minor pentatonic superimposition (e.g., D minor penta over Cm7): gives R, 9, 11, 5, and 13 — the same notes as F major pentatonic. The natural 13th (major 6th) is Dorian\'s signature tone, making this the pentatonic equivalent of playing Dorian. Used heavily in jazz-funk (Snarky Puppy, Lettuce, Miles Davis "So What").',
+        extensionLabel: 'Extensions: 9, 11, 13 (Dorian colour)',
+        trickSemitones: 2,
+        trickScaleName: 'Minor Pentatonic',
+        trickInterval: 'M2 above (= II)',
+      },
+      {
+        name: SCALES.blues.name,
+        intervals: SCALES.blues.intervals,
+        chordTones: [0, 3, 7, 10],
+        goodExtensions: [6],
+        avoidNotes: [],
+        description: 'The minor blues scale adds the ♭5 chromatic passing note to the minor pentatonic. The ♭5 (♯11/♭13 area) creates a characteristic blues bend sound — use it as a passing tone between P4 and P5, never held. Adds raw, expressive energy to jazz-funk, soul, and rock contexts.',
+        extensionLabel: 'Chord tones: R, ♭3, 5, ♭7 · passing: ♭5',
+        trickSemitones: 0,
+        trickScaleName: 'Blues Scale',
+        trickInterval: 'same root',
       },
     ],
   },
@@ -202,6 +266,42 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
         trickScaleName: 'Harmonic Minor',
         trickInterval: 'P4 above (= key tonic)',
       },
+      {
+        name: SCALES.majorPenta.name,
+        intervals: SCALES.majorPenta.intervals,
+        chordTones: [0, 4, 7],
+        goodExtensions: [2, 9],
+        avoidNotes: [],
+        description: 'Root major pentatonic over a dominant: R, 9, 3, 5, 13 — clean and tension-free, but missing the ♭7. Best in non-resolving dominant contexts (modal, static dominants) where you want color without tension. The 13 adds warmth. Widely used in gospel, country, and soul playing.',
+        extensionLabel: 'Extensions: 9, 13 (no ♭7 — static dominant)',
+        trickSemitones: 0,
+        trickScaleName: 'Major Pentatonic',
+        trickInterval: 'same root',
+      },
+      {
+        name: SCALES.minorPenta.name,
+        intervals: SCALES.minorPenta.intervals,
+        chordTones: [0, 7, 10],
+        goodExtensions: [3, 6],
+        avoidNotes: [],
+        description: 'Root minor pentatonic over dominant: adds the ♯9 (♭3) — the "blue note" of the blues. Creates a classic blues-dominant sound, essentially treating the dominant chord as a blues tonic. The ♭5 approach (from blues scale) is the traditional blues bend. BB King, SRV, most blues playing.',
+        extensionLabel: 'Extensions: ♯9, ♭7 · blues colour (avoid 11 on long notes)',
+        trickSemitones: 0,
+        trickScaleName: 'Minor Pentatonic',
+        trickInterval: 'same root',
+      },
+      {
+        name: SCALES.blues.name,
+        intervals: SCALES.blues.intervals,
+        chordTones: [0, 7, 10],
+        goodExtensions: [3, 6],
+        avoidNotes: [],
+        description: 'The blues scale is the quintessential dominant sound: R, ♯9, 11, ♭5, 5, ♭7. The ♭5 chromatic passing note between P4 and P5 is the defining blues gesture. Use the ♭5 as a smeared, bent, or slurred passing tone — never held. The entire foundation of blues-jazz from bebop onwards.',
+        extensionLabel: 'R, ♯9, ♭7 · passing: ♭5',
+        trickSemitones: 0,
+        trickScaleName: 'Blues Scale',
+        trickInterval: 'same root',
+      },
     ],
   },
 
@@ -241,6 +341,18 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
         description: 'Fully symmetrical — every note is a whole step apart. Creates a dreamy, unresolved dominant sound with natural 9, ♯11, b13 but NO b9 or ♯9. Debussy-esque, ethereal. Debussy used it to avoid the clichés of functional harmony.',
         extensionLabel: 'Extensions: 9, ♯11, b13 (no b9/♯9)',
       },
+      {
+        name: '♯9 Minor Pentatonic (bIII)',
+        intervals: [1, 3, 6, 8, 10],
+        chordTones: [4, 10],
+        goodExtensions: [1, 3, 6, 8],
+        avoidNotes: [],
+        description: 'The ♯9 minor pentatonic superimposition (e.g., Eb minor penta over C7alt): gives ♭9, ♯9, ♯11, ♭13, and ♭7 — every single altered tension in just 5 notes, with no natural avoid notes. This is the most efficient altered pentatonic choice. The ♭3 of the penta = ♯9 of the chord. A staple of Herbie Hancock, McCoy Tyner, and modern jazz guitarists.',
+        extensionLabel: '♭9, ♯9, ♯11, ♭13, ♭7 (full altered palette)',
+        trickSemitones: 3,
+        trickScaleName: 'Minor Pentatonic',
+        trickInterval: 'min. 3rd above (= ♯9)',
+      },
     ],
   },
 
@@ -279,6 +391,18 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
         avoidNotes: [],
         description: 'An unexpected but valid choice on ø chords in a tense context. The symmetrical nature provides both b9 and ♯9 as well as all the chord tones. Works when the half-diminished is functioning as a passing or pivot chord.',
         extensionLabel: 'Extensions: b9, ♯9, 11, 13',
+      },
+      {
+        name: '♭III Minor Pentatonic',
+        intervals: [1, 3, 6, 8, 10],
+        chordTones: [3, 6, 10],
+        goodExtensions: [1, 8],
+        avoidNotes: [],
+        description: 'bIII minor pentatonic (e.g., Eb minor penta over Cm7♭5): covers ♭3, ♭5, and ♭7 — three of the four chord tones — plus adds ♭9 and ♭13 for tension. The missing root is supplied by the chord itself. Creates a dense, dark colour that suits minor ii–V–i progressions perfectly. Related to the Altered scale from which it is a subset.',
+        extensionLabel: 'Chord tones: ♭3, ♭5, ♭7 · tension: ♭9, ♭13',
+        trickSemitones: 3,
+        trickScaleName: 'Minor Pentatonic',
+        trickInterval: 'min. 3rd above (= bIII)',
       },
     ],
   },
@@ -339,6 +463,171 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
       },
     ],
   },
+
+  // ── 7sus4 ───────────────────────────────────────────────────────────────
+  {
+    quality: '7sus4',
+    label: 'Dominant Sus4',
+    chordTones: [0, 5, 7, 10],
+    primary: {
+      name: SCALES.mixolydian.name,
+      intervals: SCALES.mixolydian.intervals,
+      chordTones: [0, 5, 7, 10],
+      goodExtensions: [2, 9],
+      avoidNotes: [],
+      description: 'Mixolydian is the ideal scale for sus4: the P4 is now a chord tone, not an avoid note. The natural 3rd (degree 3) acts as a "resolution tone" implying the upcoming suspension release. The 9 and 13 add smooth colour. Think Herbie Hancock "Maiden Voyage," Chick Corea, neo-soul.',
+      extensionLabel: 'Extensions: 9, (3 — resolution tone), 13',
+      trickSemitones: 5,
+      trickScaleName: 'Major',
+      trickInterval: 'P4 above (= key tonic)',
+    },
+    alternatives: [
+      {
+        name: SCALES.dorian.name,
+        intervals: SCALES.dorian.intervals,
+        chordTones: [0, 5, 7, 10],
+        goodExtensions: [2, 9],
+        avoidNotes: [],
+        description: 'The ii7 superimposition: G7sus4 = Dm7/G, so play Dorian from the chord root. Creates a smooth, floating quality — the sus chord "contains" the ii7 sound. This is the theoretical basis of the Herbie Hancock "So What" voicing applied to dominants. Standard in jazz-funk and fusion.',
+        extensionLabel: 'Extensions: 9, ♭3 (colour), 11, 13',
+        trickSemitones: 2,
+        trickScaleName: 'Major',
+        trickInterval: 'M2 above (ii parent)',
+      },
+      {
+        name: '♭VII Major Pentatonic',
+        intervals: [0, 2, 5, 7, 10],
+        chordTones: [0, 5, 7, 10],
+        goodExtensions: [2],
+        avoidNotes: [],
+        description: 'bVII major pentatonic superimposition (e.g., Bb major penta over C7sus4): gives ♭7, R, 9, 4, and 5 — all four chord tones covered, with only the 9 as an added extension. Zero avoid notes, ultra-smooth. The quintessential sus-chord pentatonic of gospel, neo-soul, and Stevie Wonder.',
+        extensionLabel: 'All chord tones: R, 4, 5, ♭7 · ext: 9',
+        trickSemitones: 10,
+        trickScaleName: 'Major Pentatonic',
+        trickInterval: 'min. 7th above (= ♭VII)',
+      },
+      {
+        name: SCALES.dorianb2.name,
+        intervals: SCALES.dorianb2.intervals,
+        chordTones: [0, 5, 7, 10],
+        goodExtensions: [5, 9],
+        avoidNotes: [1],
+        description: 'Dorian ♭2 (Melodic Minor mode 2) on a sus chord: adds a half-step tension at the ♭9, giving the suspension an exotic, Eastern quality. Used in contemporary jazz for sus chords with a darker colour. The ♭9 should be treated as a passing/approach note, not sustained.',
+        extensionLabel: 'Extensions: 11, 13 (♭9 as approach)',
+        trickSemitones: 10,
+        trickScaleName: 'Melodic Minor',
+        trickInterval: 'min. 7th above',
+      },
+    ],
+  },
+
+  // ── maj6 ────────────────────────────────────────────────────────────────
+  {
+    quality: 'maj6',
+    label: 'Major 6th',
+    chordTones: [0, 4, 7, 9],
+    primary: {
+      name: SCALES.majorPenta.name,
+      intervals: SCALES.majorPenta.intervals,
+      chordTones: [0, 4, 7, 9],
+      goodExtensions: [2],
+      avoidNotes: [],
+      description: 'The major pentatonic is the perfect scale for a major 6th chord — it contains R, 9, 3, 5, and 6, covering all four chord tones and adding only the sweet 9th. No avoid notes, no tension. The quintessential bossa nova, jazz guitar, and smooth jazz scale. Think Jobim, George Benson, Wes Montgomery.',
+      extensionLabel: 'All chord tones: R, 3, 5, 6 · ext: 9',
+      trickSemitones: 0,
+      trickScaleName: 'Major Pentatonic',
+      trickInterval: 'same root',
+    },
+    alternatives: [
+      {
+        name: SCALES.lydian.name,
+        intervals: SCALES.lydian.intervals,
+        chordTones: [0, 4, 7, 9],
+        goodExtensions: [2, 6, 11],
+        avoidNotes: [],
+        description: 'Lydian on a major 6th chord: the ♯11 brightens the sound and avoids the P4/major-3rd clash. The △7 from Lydian sits on top of the 6, creating a lush Lydian colour. Great for jazz reharmonization, film scoring, and whenever the 6th chord needs lift and openness.',
+        extensionLabel: 'Extensions: 9, ♯11, 13, △7',
+        trickSemitones: 5,
+        trickScaleName: 'Major',
+        trickInterval: 'P4 above',
+      },
+      {
+        name: SCALES.ionian.name,
+        intervals: SCALES.ionian.intervals,
+        chordTones: [0, 4, 7, 9],
+        goodExtensions: [2, 11],
+        avoidNotes: [5],
+        description: 'Standard major scale — the diatonic choice. The P4 (11th) clashes slightly with the major 3rd; treat it as a passing note. The △7 adds a Cmaj7 implication on top of the 6th, which can be used intentionally. Best in tonal, diatonic contexts where the maj6 is a passing chord.',
+        extensionLabel: 'Extensions: 9, △7 (avoid 11)',
+      },
+      {
+        name: 'Major Pentatonic (II)',
+        intervals: [2, 4, 6, 9, 11],
+        chordTones: [4, 9],
+        goodExtensions: [2, 6, 11],
+        avoidNotes: [],
+        description: 'II major pentatonic over a major 6th chord (e.g., D major penta over C6): gives 9, 3, ♯11, 13, and △7 — the Lydian extension palette. The ♯11 elevates the sound into Lydian territory. Best when the maj6 chord functions as a tonic substitution or needs a floating, open quality.',
+        extensionLabel: 'Extensions: 9, ♯11, 13, △7 (Lydian)',
+        trickSemitones: 2,
+        trickScaleName: 'Major Pentatonic',
+        trickInterval: 'M2 above (= II)',
+      },
+    ],
+  },
+
+  // ── m6 ──────────────────────────────────────────────────────────────────
+  {
+    quality: 'm6',
+    label: 'Minor 6th',
+    chordTones: [0, 3, 7, 9],
+    primary: {
+      name: SCALES.dorian.name,
+      intervals: SCALES.dorian.intervals,
+      chordTones: [0, 3, 7, 9],
+      goodExtensions: [2, 5],
+      avoidNotes: [],
+      description: 'Dorian is the natural home of the minor 6th chord — the major 6th (13th) is Dorian\'s defining characteristic tone. A staple of jazz-funk, bossa nova, and neo-soul. "Autumn Leaves" (Cm6), Jobim\'s minor bossa, Nile Rodgers guitar parts. The chord-scale relationship is perfect: no avoid notes, full coverage.',
+      extensionLabel: 'Chord tones: R, ♭3, 5, 13 · ext: 9, 11',
+      trickSemitones: 2,
+      trickScaleName: 'Major',
+      trickInterval: 'M2 above',
+    },
+    alternatives: [
+      {
+        name: SCALES.melodicMinor.name,
+        intervals: SCALES.melodicMinor.intervals,
+        chordTones: [0, 3, 7, 9],
+        goodExtensions: [2, 5, 11],
+        avoidNotes: [],
+        description: 'Melodic Minor ascending adds the major 7th alongside the natural 6th, creating a mMaj7 colour layered on the m6 structure. The combination of ♭3, ♮6, and △7 is exotic and cinematic — characteristic of Wayne Shorter, Ennio Morricone, and tango music. A more sophisticated, mysterious alternative.',
+        extensionLabel: 'Extensions: 9, 11, △7 (adds mMaj7 colour)',
+        trickSemitones: 0,
+        trickScaleName: 'Melodic Minor',
+        trickInterval: 'same root',
+      },
+      {
+        name: 'Minor Pentatonic (II) — Dorian trick',
+        intervals: [0, 2, 5, 7, 9],
+        chordTones: [0, 7, 9],
+        goodExtensions: [2, 5],
+        avoidNotes: [],
+        description: 'II minor pentatonic (e.g., D minor penta over Cm6): R, 9, 11, 5, 13 — highlights the major 6th (the chord tone of m6) without needing the full Dorian scale. Lean, melodic, and highly singable. The 13th (the chord\'s defining tone) lands naturally as the pentatonic\'s top note. Perfect for guitar-based m6 improvisation.',
+        extensionLabel: 'Chord tones: R, 5, 13 · ext: 9, 11',
+        trickSemitones: 2,
+        trickScaleName: 'Minor Pentatonic',
+        trickInterval: 'M2 above (= II)',
+      },
+      {
+        name: SCALES.harmonicMinor.name,
+        intervals: SCALES.harmonicMinor.intervals,
+        chordTones: [0, 3, 7, 9],
+        goodExtensions: [2],
+        avoidNotes: [8],
+        description: 'Harmonic Minor on m6: the ♭6 (♭13) clashes with the natural 6th chord tone — use it only as a chromatic approach. The augmented 2nd between ♭6 and △7 gives a classical, Spanish, or Eastern European flavour. Best for flamenco-influenced minor 6th passages or theatrical tension.',
+        extensionLabel: 'Extensions: 9, 11 (♭13 as chromatic approach only)',
+      },
+    ],
+  },
 ];
 
 // ─── Note Parsing ───────────────────────────────────────────────────────────
@@ -353,10 +642,19 @@ function toAppQuality(tonalType: string): string {
     'minor': 'm7',
     'dominant seventh': '7',
     'dominant': '7',
+    'dominant ninth': '7',
+    'dominant thirteenth': '7',
     'half-diminished': 'm7b5',
     'diminished seventh': 'dim7',
     'diminished': 'dim7',
     'minor/major seventh': 'mMaj7',
+    'major sixth': 'maj6',
+    'sixth': 'maj6',
+    'minor sixth': 'm6',
+    'dominant seventh suspended fourth': '7sus4',
+    'suspended fourth': '7sus4',
+    'major ninth': 'maj7',
+    'minor ninth': 'm7',
   };
   return map[tonalType] ?? '7';
 }
@@ -369,6 +667,24 @@ function parseChordSymbol(symbol: string): { root: string; quality: string; disp
   if (altMatch) {
     const root = altMatch[1];
     return { root, quality: '7alt', displaySymbol: `${root}7alt` };
+  }
+
+  const susMatch = trimmed.match(/^([A-G][#b]?)(?:7)?sus(?:4)?$/i);
+  if (susMatch) {
+    const root = Note.simplify(susMatch[1]) || susMatch[1];
+    return { root, quality: '7sus4', displaySymbol: `${root}7sus4` };
+  }
+
+  const m6Match = trimmed.match(/^([A-G][#b]?)m6$/i);
+  if (m6Match) {
+    const root = Note.simplify(m6Match[1]) || m6Match[1];
+    return { root, quality: 'm6', displaySymbol: `${root}m6` };
+  }
+
+  const maj6Match = trimmed.match(/^([A-G][#b]?)(?:maj)?6$/i);
+  if (maj6Match && !trimmed.toLowerCase().includes('m6')) {
+    const root = Note.simplify(maj6Match[1]) || maj6Match[1];
+    return { root, quality: 'maj6', displaySymbol: `${root}6` };
   }
 
   const chord = Chord.get(trimmed);
