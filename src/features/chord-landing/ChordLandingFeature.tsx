@@ -32,21 +32,41 @@ interface Approach {
 const NOTES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 const QUALITIES = [
-  { value: '',      label: 'Major',    cat: 'major'    },
-  { value: 'maj7',  label: 'Maj7',     cat: 'major'    },
-  { value: 'maj9',  label: 'Maj9',     cat: 'major'    },
-  { value: '6',     label: '6',        cat: 'major'    },
-  { value: 'm',     label: 'Minor',    cat: 'minor'    },
-  { value: 'm7',    label: 'm7',       cat: 'minor'    },
-  { value: 'm9',    label: 'm9',       cat: 'minor'    },
-  { value: 'mM7',   label: 'mMaj7',    cat: 'minor'    },
-  { value: '7',     label: 'Dom7',     cat: 'dominant' },
-  { value: '9',     label: '9',        cat: 'dominant' },
-  { value: '13',    label: '13',       cat: 'dominant' },
-  { value: '7sus4', label: '7sus4',    cat: 'dominant' },
-  { value: 'm7b5',  label: 'm7b5 (ø)', cat: 'halfdiminished' },
-  { value: 'dim7',  label: 'dim7 (°)', cat: 'diminished'     },
-  { value: 'aug',   label: 'Aug (+)',   cat: 'augmented'      },
+  // Major
+  { value: '',        label: 'Major (triad)', cat: 'major'    },
+  { value: 'maj7',    label: 'Maj7',          cat: 'major'    },
+  { value: 'maj9',    label: 'Maj9',          cat: 'major'    },
+  { value: 'maj7#11', label: 'Maj7#11',       cat: 'major'    },
+  { value: '6',       label: '6',             cat: 'major'    },
+  { value: '6/9',     label: '6/9',           cat: 'major'    },
+  { value: 'add9',    label: 'add9',          cat: 'major'    },
+  // Minor
+  { value: 'm',       label: 'Minor (triad)', cat: 'minor'    },
+  { value: 'm7',      label: 'm7',            cat: 'minor'    },
+  { value: 'm9',      label: 'm9',            cat: 'minor'    },
+  { value: 'm6',      label: 'm6',            cat: 'minor'    },
+  { value: 'm6/9',    label: 'm6/9',          cat: 'minor'    },
+  { value: 'mM7',     label: 'mMaj7',         cat: 'minor'    },
+  { value: 'm11',     label: 'm11',           cat: 'minor'    },
+  // Dominant
+  { value: '7',       label: 'Dom7',          cat: 'dominant' },
+  { value: '9',       label: '9',             cat: 'dominant' },
+  { value: '13',      label: '13',            cat: 'dominant' },
+  { value: '7b9',     label: '7b9',           cat: 'dominant' },
+  { value: '7#9',     label: '7#9',           cat: 'dominant' },
+  { value: '7#11',    label: '7#11',          cat: 'dominant' },
+  { value: '7alt',    label: '7alt',          cat: 'dominant' },
+  { value: '7sus4',   label: '7sus4',         cat: 'dominant' },
+  // Suspended
+  { value: 'sus2',    label: 'sus2',          cat: 'suspended' },
+  { value: 'sus4',    label: 'sus4',          cat: 'suspended' },
+  // Half-diminished / Diminished
+  { value: 'm7b5',    label: 'm7b5 (ø)',      cat: 'halfdiminished' },
+  { value: 'dim',     label: 'dim (°)',        cat: 'diminished'     },
+  { value: 'dim7',    label: 'dim7 (°7)',      cat: 'diminished'     },
+  // Augmented
+  { value: 'aug',     label: 'Aug (+)',        cat: 'augmented'      },
+  { value: 'augM7',   label: 'Aug Maj7',       cat: 'augmented'      },
 ];
 
 const ALL_MOODS = ['jazz', 'classical', 'gospel', 'chromatic', 'modal', 'cinematic', 'bluesy', 'experimental'];
@@ -392,22 +412,103 @@ const APPROACHES: Approach[] = [
     tip: 'Only use this with musicians who can hear through the complexity. The final resolution to I should feel like arriving home after a very long journey. Maximum harmonic drama — use sparingly.',
     worksFor: ['major', 'any'],
   },
+
+  // ── Sus-based approaches (from Andrea Saffirio lesson) ────────────────────────
+  {
+    id: 'vsus4-alone',
+    name: 'V7sus4 (Ambiguous Dominant)',
+    complexity: 1,
+    steps: [{ interval: '5P', quality: '7sus4', role: 'V7sus4' }],
+    moods: ['modal', 'jazz', 'gospel', 'cinematic'],
+    genres: ['Modal Jazz', 'Gospel', 'Soul', 'Film Score', 'Fusion'],
+    theory: 'The 7sus4 chord omits the 3rd and replaces it with the 4th. Because there is no 3rd, the chord is neither major nor minor — it\'s harmonically ambiguous. The "magic rule": G7sus4 = Dm7/G (the ii7 chord with the V in the bass). This fusion of ii and V functions in one chord creates a floating, unresolved tension.',
+    tip: 'The ambiguity of sus4 means you can resolve to major OR minor — or even sidestep to an unrelated chord entirely. Use it as a "gateway" before deciding where to go. A sus chord at the end of a phrase opens a door; the next chord walks through it.',
+    worksFor: ['major', 'minor', 'any'],
+  },
+  {
+    id: 'vsus4-then-V7',
+    name: 'V7sus4 → V7 (Suspension Resolution)',
+    complexity: 2,
+    steps: [
+      { interval: '5P', quality: '7sus4', role: 'V7sus4' },
+      { interval: '5P', quality: '7', role: 'V7' },
+    ],
+    moods: ['jazz', 'gospel', 'modal', 'classical'],
+    genres: ['Jazz', 'Gospel', 'Soul', 'Classical', 'Bossa Nova'],
+    theory: 'The suspended 4th delays the tritone of the dominant, creating a "held breath" effect. The sus4 then moves down by a half-step to the major 3rd of V7, releasing the suspension before the final resolution to I. This two-stage dominant is one of the most elegant cadential gestures in jazz.',
+    tip: 'Rhythm matters here: give the sus4 the first half of the bar (or phrase), and resolve to V7 on the last beat. Then land on I on beat 1 of the next bar. G7sus4 | G7 → C is the classic gospel/jazz pattern. Use rootless voicings: Dm7 voicing / G bass → G7 shell.',
+    worksFor: ['major', 'minor', 'any'],
+  },
+  {
+    id: 'vsusb9-then-V7alt',
+    name: 'V7sus4(b9) → V7alt (Colored Sus)',
+    complexity: 3,
+    steps: [
+      { interval: '5P', quality: '7sus4', role: 'V7sus4(b9)' },
+      { interval: '5P', quality: '7alt', role: 'V7alt' },
+    ],
+    moods: ['jazz', 'chromatic', 'experimental'],
+    genres: ['Modern Jazz', 'Post-Bop', 'Fusion', 'Contemporary'],
+    theory: 'The sus4 chord is colored with a b9 (the note a half-step above the root), turning G7sus4 into a chord that contains G, Ab, C, F — essentially a Db/G (Db major triad over G bass). This generates maximum ambiguity: the ear hears both the suspension AND the altered tension before the V7alt then resolves to I.',
+    tip: 'One of the "4 colors of the ii-V" from advanced jazz pedagogy. The sus4(b9) can be voiced as: bass on V, upper structure = bII major triad. G7sus4(b9) = G in bass + Db major triad (Db, F, Ab). Resolves to G7alt (#9, b13) → I.',
+    worksFor: ['major', 'any'],
+  },
+  {
+    id: 'relative-ii-of-subv',
+    name: 'Relative ii of SubV (Abm7–Db7)',
+    complexity: 3,
+    steps: [
+      { interval: '6m', quality: 'm7', role: 'ii of SubV' },
+      { interval: '2m', quality: '7', role: 'SubV (bII7)' },
+    ],
+    moods: ['jazz', 'chromatic'],
+    genres: ['Jazz', 'Bebop', 'Fusion', 'Bossa Nova'],
+    theory: 'The SubV (bII7 = Db7 for target C) can be preceded by its own ii chord — the minor 7th a perfect 4th below it (Abm7). This creates a proper ii–V cadence that resolves via tritone sub rather than a 5th. Compared to the tritone ii-V (Ebm7b5 → Db7), this version uses a regular m7 chord, giving a smoother, less dissonant color.',
+    tip: 'The bass moves: Ab → Db → C (a descending minor 3rd then a half-step). This is less angular than the tritone ii-V version. Use when you want the chromatic bass motion but without the "outside" half-diminished color.',
+    worksFor: ['major', 'any'],
+  },
+  {
+    id: 'ii-V-of-iii-surprise',
+    name: 'ii–V of III → I (Surprise Major)',
+    complexity: 4,
+    steps: [
+      { interval: '4A', quality: 'm7b5', role: '#ivø7 (ii of III)' },
+      { interval: '7M', quality: '7',    role: 'VII7 (V of III)' },
+    ],
+    moods: ['jazz', 'cinematic', 'experimental'],
+    genres: ['Post-Bop', 'Modern Jazz', 'Fusion', 'Contemporary'],
+    theory: 'F#ø7 → B7 is a ii–V cadence that normally resolves to Em (the III of C major). But Em shares three notes with Cmaj7 (E, G, B), so landing on Cmaj instead of Em creates a beautiful "false resolution" — the ear expects minor but gets major. A dramatic deceptive cadence with a happy ending.',
+    tip: 'The surprise works best when you really commit to the "minor arrival" feeling on the B7 (use b9, b13 — Phrygian dominant color), then suddenly land on a bright Cmaj7 or C6/9. The contrast is the whole point. Used in jazz reharmonization to turn "sad" passages into unexpected moments of light.',
+    worksFor: ['major', 'any'],
+  },
 ];
 
 // ─── Helper functions ──────────────────────────────────────────────────────────
 function getTargetCategory(quality: string): string {
-  if (quality === '' || quality === 'maj7' || quality === 'maj9' || quality === '6' || quality === 'add9') return 'major';
-  if (quality === 'm' || quality === 'm7' || quality === 'm9' || quality === 'mM7' || quality === 'm6') return 'minor';
-  if (quality === '7' || quality === '9' || quality === '13' || quality === '7sus4') return 'dominant';
+  const major = ['', 'maj7', 'maj9', 'maj7#11', '6', '6/9', 'add9'];
+  const minor = ['m', 'm7', 'm9', 'm6', 'm6/9', 'mM7', 'm11'];
+  const dominant = ['7', '9', '13', '7b9', '7#9', '7#11', '7alt', '7sus4'];
+  const suspended = ['sus2', 'sus4'];
+  if (major.includes(quality)) return 'major';
+  if (minor.includes(quality)) return 'minor';
+  if (dominant.includes(quality)) return 'dominant';
+  if (suspended.includes(quality)) return 'suspended';
   if (quality === 'm7b5') return 'halfdiminished';
-  if (quality === 'dim7') return 'diminished';
+  if (quality === 'dim' || quality === 'dim7') return 'diminished';
+  if (quality === 'aug' || quality === 'augM7') return 'augmented';
   return 'major';
 }
 
 function approachMatchesTarget(approach: Approach, targetQuality: string): boolean {
   if (approach.worksFor.includes('any')) return true;
   const cat = getTargetCategory(targetQuality);
-  return approach.worksFor.some(w => w === cat || w === 'major' && cat === 'dominant');
+  // suspended targets are neither major nor minor — show 'any' approaches only
+  if (cat === 'suspended') return approach.worksFor.includes('any');
+  return approach.worksFor.some(w =>
+    w === cat ||
+    (w === 'major' && cat === 'dominant') ||
+    (w === 'major' && (cat === 'halfdiminished' || cat === 'diminished' || cat === 'augmented'))
+  );
 }
 
 function getChain(approach: Approach, targetRoot: string, targetQuality: string): { chord: string; role: string; isTarget: boolean }[] {
@@ -757,10 +858,15 @@ export default function ChordLandingFeature() {
         {/* Quality selector */}
         <div>
           <div style={{ fontSize: 11, color: '#4b5563', marginBottom: 8, letterSpacing: '0.5px' }}>QUALITY</div>
-          {(['major', 'minor', 'dominant', 'halfdiminished', 'diminished', 'augmented'] as const).map(cat => {
+          {(['major', 'minor', 'dominant', 'suspended', 'halfdiminished', 'diminished', 'augmented'] as const).map(cat => {
             const catQualities = QUALITIES.filter(q => q.cat === cat);
             if (!catQualities.length) return null;
-            const catColor = cat === 'major' ? '#10b981' : cat === 'minor' ? '#06b6d4' : cat === 'dominant' ? '#f59e0b' : '#ef4444';
+            const catColor =
+              cat === 'major' ? '#10b981' :
+              cat === 'minor' ? '#06b6d4' :
+              cat === 'dominant' ? '#f59e0b' :
+              cat === 'suspended' ? '#a78bfa' :
+              '#ef4444';
             return (
               <div key={cat} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 10, color: catColor, minWidth: 80, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
