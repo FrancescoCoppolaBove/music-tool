@@ -166,16 +166,24 @@ export default function ModalInterchangeFeature() {
         </div>
       </div>
 
-      {/* Focused chord tooltip */}
-      {focusedChord && (
-        <div style={{
-          background: '#1c2128', border: '1px solid #7c3aed', borderRadius: 8,
-          padding: '10px 14px', fontSize: 13, color: '#c4b5fd',
-        }}>
-          <strong>{focusedChord.symbol}</strong> from <em>{focusedChord.mode}</em>
-          {focusedChord.desc && <div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>{focusedChord.desc}</div>}
+      {/* Focused chord tooltip — always rendered to prevent layout shift */}
+      <div style={{
+        background: '#1c2128',
+        border: '1px solid #7c3aed',
+        borderRadius: 8,
+        padding: '10px 14px',
+        fontSize: 13,
+        color: '#c4b5fd',
+        opacity: focusedChord ? 1 : 0,
+        transition: 'opacity 0.15s',
+        pointerEvents: 'none',
+      }}>
+        <strong>{focusedChord?.symbol ?? '—'}</strong>
+        {focusedChord && <> from <em>{focusedChord.mode}</em></>}
+        <div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>
+          {focusedChord?.desc ?? ' '}
         </div>
-      )}
+      </div>
 
       {/* Modal interchange table */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
