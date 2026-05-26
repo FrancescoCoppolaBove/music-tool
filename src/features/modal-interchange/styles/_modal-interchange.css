@@ -94,13 +94,13 @@
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-base);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: border-color var(--transition-base), background-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .key-button:hover {
   border-color: var(--primary-light);
-  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  background: var(--bg-secondary);
 }
 
 .key-button.active {
@@ -124,12 +124,12 @@
   color: var(--text-primary);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: border-color var(--transition-base), background-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .tonality-button:hover {
   border-color: var(--primary-light);
-  transform: translateY(-2px);
+  background: var(--bg-secondary);
 }
 
 .tonality-button.active {
@@ -569,12 +569,12 @@
   border-left-width: 4px;
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
-  transition: all var(--transition-base);
+  transition: box-shadow var(--transition-base), border-color var(--transition-base), background-color var(--transition-base);
 }
 
 .borrowed-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  background: var(--bg-secondary);
 }
 
 /* Colori bordo sinistro per qualità */
@@ -769,7 +769,7 @@
   border: 2px solid var(--border);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
-  transition: all var(--transition-base);
+  transition: box-shadow var(--transition-base), border-color var(--transition-base), background-color var(--transition-base);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
@@ -777,8 +777,8 @@
 
 .progression-card:hover {
   border-color: var(--primary-light);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  background: var(--bg-secondary);
 }
 
 .progression-card-header h4 {
@@ -900,12 +900,12 @@
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-sm);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: border-color var(--transition-base), background-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .action-button:hover {
   border-color: var(--primary-light);
-  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .action-button.primary {
