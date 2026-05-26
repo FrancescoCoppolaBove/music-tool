@@ -122,7 +122,7 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
 
       {/* ── Summary bar ── */}
       <div style={{
@@ -158,7 +158,7 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        style={{ maxHeight: 640, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}
+        style={{ maxHeight: 640, overflowY: 'auto' }}
       >
         {visible.map((result, idx) => {
           const color     = categoryColor(result.category);
@@ -174,6 +174,8 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
                 borderLeft: `3px solid ${color}`,
                 borderRadius: 8,
                 overflow: 'hidden',
+                marginBottom: 4,
+                flexShrink: 0,   /* guard if parent ever becomes flex */
               }}
             >
               {/* ── Collapsed row ── */}
