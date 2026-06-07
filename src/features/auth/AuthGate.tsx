@@ -134,20 +134,10 @@ function GoogleLogo() {
   );
 }
 
-function formatError(code: string): string {
-  if (code === 'auth/unauthorized-domain') return 'Dominio non autorizzato. Aggiungi questo dominio su Firebase Console → Authentication → Authorized domains.';
-  if (code === 'auth/operation-not-allowed' || code === '12') return 'Google sign-in non abilitato. Vai su Firebase Console → Authentication → Sign-in method → Google → Enable.';
-  if (code === 'auth/popup-blocked') return 'Popup bloccato dal browser.';
-  if (code.includes('config') || code.includes('environment')) return "Configurazione Firebase non trovata. Verifica le variabili d'ambiente su Netlify.";
-  return `Errore: ${code}`;
-}
-
 export default function AuthGate() {
-  const { signInWithGoogle, redirectError } = useAuth();
+  const { signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const displayError = error ?? (redirectError ? formatError(redirectError) : null);
 
   async function handleSignIn() {
     setLoading(true);
@@ -155,21 +145,21 @@ export default function AuthGate() {
     try {
       await signInWithGoogle();
     } catch (err: unknown) {
-      const code = String((err as Record<string, unknown>)?.code ?? '');
-      const message = String((err as Record<string, unknown>)?.message ?? 'Sign-in failed');
+      const raw = err as Record<string, unknown>;
+      const code = String(raw?.code ?? '');
+      const message = String(raw?.message ?? 'Sign-in failed');
 
       if (code.includes('popup-closed') || message.includes('popup-closed')) return;
 
       if (code === 'auth/unauthorized-domain') {
         setError('Dominio non autorizzato. Aggiungi questo dominio su Firebase Console → Authentication → Authorized domains.');
-      } else if (code === 'auth/operation-not-allowed' || code === '12') {
+      } else if (code === 'auth/operation-not-allowed') {
         setError('Google sign-in non abilitato. Vai su Firebase Console → Authentication → Sign-in method → Google → Enable.');
       } else if (code === 'auth/popup-blocked') {
         setError('Popup bloccato dal browser. Permetti i popup per questo sito e riprova.');
-      } else if (code.includes('config') || message.includes('environment')) {
-        setError(`Configurazione Firebase non trovata. Verifica le variabili d'ambiente su Netlify.`);
       } else {
-        setError(`Errore: ${code || message}`);
+        // Show raw details for diagnosis
+        setError(`Errore [${code}]: ${message}`);
       }
     } finally {
       setLoading(false);
@@ -195,7 +185,7 @@ export default function AuthGate() {
             Sign in to sync across all your devices.
           </p>
 
-          {displayError && <div className="auth-error">{displayError}</div>}
+          {error && <div className="auth-error">{error}</div>}
 
           <button
             className="auth-google-btn"
