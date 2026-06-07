@@ -134,10 +134,20 @@ function GoogleLogo() {
   );
 }
 
+function formatError(code: string): string {
+  if (code === 'auth/unauthorized-domain') return 'Dominio non autorizzato. Aggiungi questo dominio su Firebase Console → Authentication → Authorized domains.';
+  if (code === 'auth/operation-not-allowed' || code === '12') return 'Google sign-in non abilitato. Vai su Firebase Console → Authentication → Sign-in method → Google → Enable.';
+  if (code === 'auth/popup-blocked') return 'Popup bloccato dal browser.';
+  if (code.includes('config') || code.includes('environment')) return "Configurazione Firebase non trovata. Verifica le variabili d'ambiente su Netlify.";
+  return `Errore: ${code}`;
+}
+
 export default function AuthGate() {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, redirectError } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const displayError = error ?? (redirectError ? formatError(redirectError) : null);
 
   async function handleSignIn() {
     setLoading(true);
@@ -185,7 +195,7 @@ export default function AuthGate() {
             Sign in to sync across all your devices.
           </p>
 
-          {error && <div className="auth-error">{error}</div>}
+          {displayError && <div className="auth-error">{displayError}</div>}
 
           <button
             className="auth-google-btn"

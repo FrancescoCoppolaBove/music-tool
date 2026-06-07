@@ -13,6 +13,7 @@ import { auth } from '../../firebase';
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  redirectError: string | null;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -20,17 +21,30 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
+  redirectError: null,
   signInWithGoogle: async () => {},
   signOut: async () => {},
 });
 
+function isMobile(): boolean {
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [redirectError, setRedirectError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Handle redirect-based sign-in result when user returns to the page
-    getRedirectResult(auth).catch(() => {});
+    getRedirectResult(auth)
+      .then(result => {
+        if (result?.user) setUser(result.user);
+      })
+      .catch(err => {
+        const code = String(err?.code ?? err?.message ?? '');
+        setRedirectError(code);
+        setLoading(false);
+      });
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
@@ -42,11 +56,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signInWithGoogle() {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
+
+    if (isMobile()) {
+      // Mobile browsers block popups — use redirect flow directly
+      await signInWithRedirect(auth, provider);
+      return;
+    }
+
     try {
       await signInWithPopup(auth, provider);
     } catch (err) {
-      const code = (err as { code?: string }).code ?? '';
-      // On mobile, popups are often blocked — fall back to full-page redirect
+      const code = String((err as Record<string, unknown>)?.code ?? '');
       if (code === 'auth/popup-blocked' || code === 'auth/popup-cancelled-by-user') {
         await signInWithRedirect(auth, provider);
         return;
@@ -60,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, redirectError, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );
