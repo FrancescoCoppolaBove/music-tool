@@ -24,6 +24,7 @@ import ScoreToIRealFeature from './features/score-to-ireal/ScoreToIRealFeature';
 import ChordLandingFeature from './features/chord-landing/ChordLandingFeature';
 import SongArchitectFeature from './features/song-architect/SongArchitectFeature';
 import ChordDetectionFeature from './features/chord-detection/ChordDetectionFeature';
+import ModalBuddy from './shared/components/ModalBuddy';
 import HomePage from './features/home/HomePage';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -600,7 +601,7 @@ function UserMenu({ onSignOut }: { onSignOut: () => void }) {
 export default function App() {
   const { user, loading: authLoading, signOut } = useAuth();
   const { stats } = useStats();
-  const { setGlobalKey } = useGlobalKey();
+  const { globalKey, setGlobalKey } = useGlobalKey();
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -645,6 +646,12 @@ export default function App() {
 
   // Find the active tool name for mobile header breadcrumb
   const activeToolLabel = GROUPS.flatMap(g => g.tabs).find(t => t.id === activeTab)?.label ?? null;
+
+  // Build context string for Modal Buddy
+  const buddyContext = activeToolLabel && activeTab !== 'home'
+    ? `${activeToolLabel} — key: ${globalKey}`
+    : undefined;
+
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#e6edf3', display: 'flex', flexDirection: 'column' }}>
@@ -852,6 +859,9 @@ export default function App() {
       }}>
         tonic · Explore. Hear. Create.
       </footer>
+
+      {/* ── Modal Buddy — floating AI chat ── */}
+      <ModalBuddy context={buddyContext} />
     </div>
   );
 }
