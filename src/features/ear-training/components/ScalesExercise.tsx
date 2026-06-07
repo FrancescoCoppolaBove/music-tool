@@ -8,6 +8,7 @@ import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { generateRandomScaleFromData, getAvailableScales } from '../utils/scale-data-loader';
 import { generateRandomScaleWithHistory } from '../utils/random-with-history';
+import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
 
 interface ScaleQuestion {
   scaleName: string;
@@ -31,10 +32,8 @@ export function ScalesExercise() {
   const [wrongAttempts, setWrongAttempts] = useState<Set<string>>(new Set());
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [isFirstTry, setIsFirstTry] = useState<boolean>(true);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const { score, setScore, streak, setStreak, bestStreak, setBestStreak } = useExerciseScore('scales');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
 
   // Preload audio on mount
   useEffect(() => {

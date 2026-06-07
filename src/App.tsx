@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { getPracticeStreak } from './shared/hooks/useExerciseScore';
+import PracticeJournalFeature from './features/practice-journal/PracticeJournalFeature';
 import ChordVoicingsFeature from './features/chord-vocings/ChordVoicingsFeature';
 import ScaleRecognitionFeature from './features/scale-recognition/ScaleRecognitionFeature';
 import ScaleDictionaryFeature from './features/scale-dictionary/ScaleDictionaryFeature';
@@ -143,7 +145,8 @@ type Tab =
   | 'quiz'
   | 'score'
   | 'landing'
-  | 'architect';
+  | 'architect'
+  | 'journal';
 
 interface TabDef {
   id: Tab;
@@ -197,6 +200,14 @@ const GROUPS: GroupDef[] = [
       { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵', desc: 'Explore key relationships at a glance' },
       { id: 'ear',           label: 'Ear Training',      icon: '👂', desc: 'Train your ear with interval exercises' },
       { id: 'quiz',          label: 'Scale Degree Quiz',  icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
+    ],
+  },
+  {
+    id: 'practice',
+    label: 'Practice',
+    icon: '📈',
+    tabs: [
+      { id: 'journal', label: 'Practice Journal', icon: '🔥', desc: 'Track your daily streak and ear training progress' },
     ],
   },
 ];
@@ -389,6 +400,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [practiceStreak, setPracticeStreak] = useState(() => getPracticeStreak());
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -405,6 +417,8 @@ export default function App() {
     setOpenGroup(null);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Refresh streak whenever user navigates (may have just finished practicing)
+    setPracticeStreak(getPracticeStreak());
   }
 
   // Find the active tool name for mobile header breadcrumb
@@ -501,6 +515,32 @@ export default function App() {
             {/* Right spacer */}
             <div style={{ flex: 1 }} />
 
+            {/* Streak badge */}
+            {practiceStreak > 0 && (
+              <button
+                onClick={() => handleSelectTab('journal')}
+                title={`${practiceStreak} day streak — view Practice Journal`}
+                style={{
+                  alignSelf: 'center',
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  background: 'linear-gradient(135deg, #f97316, #dc2626)',
+                  color: '#fff',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  fontFamily: "'DM Sans', sans-serif",
+                  padding: '6px 12px',
+                  borderRadius: 100,
+                  border: 'none',
+                  cursor: 'pointer',
+                  marginRight: 10,
+                  flexShrink: 0,
+                  boxShadow: '0 0 12px rgba(249,115,22,0.3)',
+                }}
+              >
+                🔥 {practiceStreak}
+              </button>
+            )}
+
             {/* CTA pill — desktop only */}
             <button
               className="header-cta desktop-only"
@@ -589,6 +629,7 @@ export default function App() {
         {activeTab === 'score'         && <ScoreToIRealFeature />}
         {activeTab === 'landing'       && <ChordLandingFeature />}
         {activeTab === 'architect'     && <SongArchitectFeature />}
+        {activeTab === 'journal'       && <PracticeJournalFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}

@@ -6,6 +6,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Volume2, Check, X, Trophy, Settings, RotateCcw } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
+import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
 import { generateChordProgressionAudio } from '../utils/interval-data';
 import {
   getMelodicDegreesByDifficulty,
@@ -44,11 +45,9 @@ export function MelodicDictationExercise() {
   const [userAnswer, setUserAnswer] = useState<string[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const { score, setScore, streak, setStreak, bestStreak, setBestStreak } = useExerciseScore('melodic');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPlayingMelodyOnly, setIsPlayingMelodyOnly] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
 
   // Preload audio on mount
   useEffect(() => {

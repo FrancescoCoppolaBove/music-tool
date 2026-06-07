@@ -6,6 +6,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { rhythmRecognitionHistory } from '../utils/history-manager';
+import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
 import {
   getRhythmPatternsByDifficulty,
   generateRandomRhythmPattern,
@@ -35,10 +36,8 @@ export function RhythmRecognitionExercise() {
   const [wrongPatternIds, setWrongPatternIds] = useState<Set<string>>(new Set());
   const [hasAnyWrongAnswer, setHasAnyWrongAnswer] = useState(false);
 
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const { score, setScore, streak, setStreak, bestStreak, setBestStreak } = useExerciseScore('rhythm');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
 
   useEffect(() => {
     generateQuestion();
