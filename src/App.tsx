@@ -5,6 +5,7 @@ import { useStats } from './shared/context/StatsContext';
 import AuthGate from './features/auth/AuthGate';
 import PracticeJournalFeature from './features/practice-journal/PracticeJournalFeature';
 import SongLibraryFeature from './features/song-library/SongLibraryFeature';
+import DailyChallengeFeature from './features/daily-challenge/DailyChallengeFeature';
 import ChordVoicingsFeature from './features/chord-vocings/ChordVoicingsFeature';
 import ScaleRecognitionFeature from './features/scale-recognition/ScaleRecognitionFeature';
 import ScaleDictionaryFeature from './features/scale-dictionary/ScaleDictionaryFeature';
@@ -151,7 +152,8 @@ type Tab =
   | 'landing'
   | 'architect'
   | 'journal'
-  | 'songs';
+  | 'songs'
+  | 'daily';
 
 interface TabDef {
   id: Tab;
@@ -212,6 +214,7 @@ const GROUPS: GroupDef[] = [
     label: 'Practice',
     icon: '📈',
     tabs: [
+      { id: 'daily',   label: 'Daily Challenge',  icon: '🎯', desc: 'One new ear training challenge every day — same for everyone' },
       { id: 'journal', label: 'Practice Journal', icon: '🔥', desc: 'Track your daily streak and ear training progress' },
       { id: 'songs',   label: 'Song Library',     icon: '🎵', desc: 'Your personal repertoire, synced across devices' },
     ],
@@ -693,6 +696,7 @@ export default function App() {
         {activeTab === 'score'         && <ScoreToIRealFeature />}
         {activeTab === 'landing'       && <ChordLandingFeature />}
         {activeTab === 'architect'     && <SongArchitectFeature />}
+        {activeTab === 'daily'         && <DailyChallengeFeature />}
         {activeTab === 'journal'       && <PracticeJournalFeature />}
         {activeTab === 'songs'         && <SongLibraryFeature />}
       </main>
