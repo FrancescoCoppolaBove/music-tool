@@ -33,9 +33,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Call getRedirectResult only if we initiated a redirect — prevents false errors on page load
-    if (sessionStorage.getItem('tonic_auth_redirect')) {
-      sessionStorage.removeItem('tonic_auth_redirect');
+    // On mobile: always call getRedirectResult — iOS Safari clears sessionStorage
+    // during OAuth redirect, so flag-based detection is unreliable.
+    // With the correct authDomain, getRedirectResult returns null cleanly when
+    // no redirect is pending, so calling it unconditionally is safe.
+    //
+    // On desktop: only call it when we actually initiated a redirect (popup fallback),
+    // to avoid unnecessary calls.
+    const mobileRedirect = isMobile();
+    const desktopRedirect = !mobileRedirect && localStorage.getItem('tonic_auth_redirect');
+
+    if (mobileRedirect || desktopRedirect) {
+      if (desktopRedirect) localStorage.removeItem('tonic_auth_redirect');
       getRedirectResult(auth).catch(() => {});
     }
 
@@ -51,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     provider.setCustomParameters({ prompt: 'select_account' });
 
     if (isMobile()) {
-      sessionStorage.setItem('tonic_auth_redirect', '1');
+      // No flag needed — getRedirectResult is called unconditionally on mobile
       await signInWithRedirect(auth, provider);
       return;
     }
@@ -61,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       const code = String((err as Record<string, unknown>)?.code ?? '');
       if (code === 'auth/popup-blocked' || code === 'auth/popup-cancelled-by-user') {
-        sessionStorage.setItem('tonic_auth_redirect', '1');
+        localStorage.setItem('tonic_auth_redirect', '1');
         await signInWithRedirect(auth, provider);
         return;
       }
