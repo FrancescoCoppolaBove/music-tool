@@ -145,8 +145,9 @@ export default function AuthGate() {
     try {
       await signInWithGoogle();
     } catch (err: unknown) {
-      const code = (err as { code?: string }).code ?? '';
-      const message = err instanceof Error ? err.message : 'Sign-in failed';
+      const code = String((err as Record<string, unknown>)?.code ?? '');
+      const message = String((err as Record<string, unknown>)?.message ?? 'Sign-in failed');
+
       if (code.includes('popup-closed') || message.includes('popup-closed')) return;
 
       if (code === 'auth/unauthorized-domain') {
@@ -155,6 +156,8 @@ export default function AuthGate() {
         setError('Google sign-in non abilitato. Vai su Firebase Console → Authentication → Sign-in method → Google.');
       } else if (code === 'auth/popup-blocked') {
         setError('Popup bloccato dal browser. Permetti i popup per questo sito e riprova.');
+      } else if (code.includes('config') || message.includes('environment')) {
+        setError(`Configurazione Firebase non trovata. Verifica le variabili d'ambiente su Netlify.`);
       } else {
         setError(`Errore: ${code || message}`);
       }
