@@ -7,6 +7,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { generateChordProgressionAudio, INTERVALS } from '../utils/interval-data';
+import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
 import {
   getContextDegreesByDifficulty,
   getIntervalsContextProgression,
@@ -58,10 +59,8 @@ export function IntervalsInContextExercise() {
   // Track if ANY answer was wrong (for strict scoring)
   const [hasAnyWrongAnswer, setHasAnyWrongAnswer] = useState(false);
 
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const { score, setScore, streak, setStreak, bestStreak, setBestStreak } = useExerciseScore('intervals-context');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
 
   useEffect(() => {
     audioPlayer.preloadAllNotes();

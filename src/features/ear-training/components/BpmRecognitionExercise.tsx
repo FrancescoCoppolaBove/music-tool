@@ -6,6 +6,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Volume2, Settings, Trophy, Clock } from 'lucide-react';
 import { bpmRecognitionHistory } from '../utils/history-manager';
+import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
 import { generateBPMQuestion, getTempoMarking, type BPMDifficulty, type BPMQuestion } from '../utils/bpm-recognition-data';
 
 type DifficultyLevel = 'slow' | 'medium' | 'fast';
@@ -28,10 +29,8 @@ export function BPMRecognitionExercise() {
   const [wrongBPMs, setWrongBPMs] = useState<Set<number>>(new Set());
   const [hasAnyWrongAnswer, setHasAnyWrongAnswer] = useState(false);
 
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const { score, setScore, streak, setStreak, bestStreak, setBestStreak } = useExerciseScore('bpm');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
   const [currentBeat, setCurrentBeat] = useState(0);
 
   const audioContextRef = useRef<AudioContext | null>(null);

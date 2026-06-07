@@ -7,6 +7,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { generateRandomScaleDegreeWithHistory } from '../utils/random-with-history';
+import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
 import {
   getScaleDegreesByDifficulty,
   generateTargetNoteFromDegree,
@@ -42,10 +43,8 @@ export function ScaleDegreesExercise() {
   const [wrongAttempts, setWrongAttempts] = useState<Set<string>>(new Set());
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [isFirstTry, setIsFirstTry] = useState<boolean>(true);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const { score, setScore, streak, setStreak, bestStreak, setBestStreak } = useExerciseScore('degrees');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
 
   // Preload audio on mount
   useEffect(() => {

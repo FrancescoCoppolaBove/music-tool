@@ -8,6 +8,7 @@ import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { CHORD_PROGRESSIONS, generateRandomProgression, ProgressionDifficulty, ChordProgression } from '../utils/interval-data';
 import { generateRandomProgressionWithHistory } from '../utils/random-with-history';
+import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
 
 interface ProgressionQuestion {
   progression: ChordProgression;
@@ -32,10 +33,8 @@ export function ChordProgressionsExercise() {
   const [wrongAttempts, setWrongAttempts] = useState<Set<string>>(new Set());
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [isFirstTry, setIsFirstTry] = useState<boolean>(true);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const { score, setScore, streak, setStreak, bestStreak, setBestStreak } = useExerciseScore('progressions');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
 
   // Preload audio on mount
   useEffect(() => {

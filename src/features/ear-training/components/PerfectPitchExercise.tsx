@@ -8,6 +8,7 @@ import { Volume2, Check, X, Trophy } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { CHROMATIC_NOTES } from '../utils/interval-data';
 import { getRandomNoteWithHistory } from '../utils/random-with-history';
+import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
 
 export function PerfectPitchExercise() {
   const [currentNote, setCurrentNote] = useState<string>(() => getRandomNoteWithHistory());
@@ -15,10 +16,8 @@ export function PerfectPitchExercise() {
   const [wrongAttempts, setWrongAttempts] = useState<Set<string>>(new Set());
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [isFirstTry, setIsFirstTry] = useState<boolean>(true);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const { score, setScore, streak, setStreak, bestStreak, setBestStreak } = useExerciseScore('perfect-pitch');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
 
   // Preload audio on mount
   useEffect(() => {
