@@ -1,11 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { storageGet, storageSet } from '../utils/storage';
-import { scheduleSyncStats } from '../utils/firestoreSync';
-import { auth } from '../../firebase';
+import { useStats, type PracticeLog } from '../context/StatsContext';
 
-interface Score { correct: number; total: number }
-interface StoredStats { bestStreak: number }
-export interface PracticeLog { [date: string]: { [exerciseId: string]: Score } }
+export type { PracticeLog };
 
 function todayKey(): string {
   return new Date().toISOString().split('T')[0];
@@ -15,7 +11,7 @@ export function computeStreak(log: PracticeLog): number {
   const hasActivity = (date: string) => {
     const day = log[date];
     if (!day) return false;
-    return Object.values(day).some((s: Score) => s.total > 0);
+    return Object.values(day).some(s => s.total > 0);
   };
 
   const today = todayKey();
@@ -36,69 +32,72 @@ export function computeStreak(log: PracticeLog): number {
   return streak;
 }
 
-export function getPracticeLog(): PracticeLog {
-  return storageGet<PracticeLog>('practice_log', {});
-}
-
-export function getPracticeStreak(): number {
-  return computeStreak(getPracticeLog());
-}
-
-function getAllExerciseStats(): Record<string, { bestStreak: number }> {
-  const ids = ['perfect-pitch', 'intervals', 'chords', 'scales', 'progressions', 'degrees', 'melodic', 'intervals-context', 'rhythm', 'bpm'];
-  const result: Record<string, { bestStreak: number }> = {};
-  for (const id of ids) {
-    result[id] = storageGet<{ bestStreak: number }>(`exercise_${id}`, { bestStreak: 0 });
-  }
-  return result;
-}
+interface Score { correct: number; total: number }
 
 export function useExerciseScore(exerciseId: string) {
-  const statsKey = `exercise_${exerciseId}`;
-  const initial = storageGet<StoredStats>(statsKey, { bestStreak: 0 });
+  const { stats, updateStats } = useStats();
 
   const [score, setScore] = useState<Score>({ correct: 0, total: 0 });
   const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState<number>(initial.bestStreak);
+  const [bestStreak, setBestStreakState] = useState(
+    () => stats.exerciseStats[exerciseId]?.bestStreak ?? 0,
+  );
+
+  // Keep bestStreak in sync when Firestore data arrives/updates
+  useEffect(() => {
+    const remote = stats.exerciseStats[exerciseId]?.bestStreak ?? 0;
+    if (remote > bestStreak) setBestStreakState(remote);
+  }, [stats.exerciseStats, exerciseId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Stable ref so effects don't need updateStats in their deps
+  const updateStatsRef = useRef(updateStats);
+  useEffect(() => { updateStatsRef.current = updateStats; }, [updateStats]);
 
   const prevScoreRef = useRef<Score>({ correct: 0, total: 0 });
 
-  // Persist bestStreak locally + trigger Firestore sync
-  useEffect(() => {
-    const saved = storageGet<StoredStats>(statsKey, { bestStreak: 0 });
-    if (bestStreak > saved.bestStreak) {
-      storageSet<StoredStats>(statsKey, { bestStreak });
-      triggerSync();
-    }
-  }, [bestStreak, statsKey]);
-
-  // Record daily practice activity when score increments + trigger Firestore sync
+  // Record daily activity when score increments
   useEffect(() => {
     const prev = prevScoreRef.current;
     if (score.total > prev.total) {
       const totalDiff = score.total - prev.total;
       const correctDiff = Math.max(0, score.correct - prev.correct);
-
-      const log = storageGet<PracticeLog>('practice_log', {});
       const today = todayKey();
-      if (!log[today]) log[today] = {};
-      if (!log[today][exerciseId]) log[today][exerciseId] = { correct: 0, total: 0 };
-      log[today][exerciseId].total += totalDiff;
-      log[today][exerciseId].correct += correctDiff;
-      storageSet('practice_log', log);
 
-      triggerSync();
+      updateStatsRef.current(current => {
+        const dayLog = current.practiceLog[today] ?? {};
+        const existing = dayLog[exerciseId] ?? { correct: 0, total: 0 };
+        return {
+          ...current,
+          practiceLog: {
+            ...current.practiceLog,
+            [today]: {
+              ...dayLog,
+              [exerciseId]: {
+                correct: existing.correct + correctDiff,
+                total: existing.total + totalDiff,
+              },
+            },
+          },
+        };
+      });
     }
     prevScoreRef.current = score;
   }, [score, exerciseId]);
 
-  return { score, setScore, streak, setStreak, bestStreak, setBestStreak };
-}
+  function setBestStreak(newBest: number) {
+    setBestStreakState(newBest);
+    updateStatsRef.current(current => {
+      const stored = current.exerciseStats[exerciseId]?.bestStreak ?? 0;
+      if (newBest <= stored) return current;
+      return {
+        ...current,
+        exerciseStats: {
+          ...current.exerciseStats,
+          [exerciseId]: { bestStreak: newBest },
+        },
+      };
+    });
+  }
 
-function triggerSync() {
-  const uid = auth.currentUser?.uid;
-  if (!uid) return;
-  const practiceLog = getPracticeLog();
-  const exerciseStats = getAllExerciseStats();
-  scheduleSyncStats(uid, { practiceLog, exerciseStats });
+  return { score, setScore, streak, setStreak, bestStreak, setBestStreak };
 }

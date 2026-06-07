@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getPracticeStreak, getPracticeLog, computeStreak } from './shared/hooks/useExerciseScore';
-import { storageGet, storageSet } from './shared/utils/storage';
-import { loadUserStats, mergeStats, type ExerciseStats } from './shared/utils/firestoreSync';
+import { computeStreak } from './shared/hooks/useExerciseScore';
 import { useAuth } from './shared/context/AuthContext';
+import { useStats } from './shared/context/StatsContext';
 import AuthGate from './features/auth/AuthGate';
 import PracticeJournalFeature from './features/practice-journal/PracticeJournalFeature';
 import SongLibraryFeature from './features/song-library/SongLibraryFeature';
@@ -466,34 +465,12 @@ function UserMenu({ onSignOut }: { onSignOut: () => void }) {
 
 export default function App() {
   const { user, loading: authLoading, signOut } = useAuth();
+  const { stats } = useStats();
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [practiceStreak, setPracticeStreak] = useState(() => getPracticeStreak());
 
-  // When user logs in: load Firestore data and merge with localStorage
-  useEffect(() => {
-    if (!user) return;
-    loadUserStats(user.uid).then(remote => {
-      if (!remote) return;
-      const localLog = getPracticeLog();
-      const localExerciseStats: ExerciseStats = {};
-      for (const id of ['perfect-pitch', 'intervals', 'chords', 'scales', 'progressions', 'degrees', 'melodic', 'intervals-context', 'rhythm', 'bpm']) {
-        localExerciseStats[id] = storageGet(`exercise_${id}`, { bestStreak: 0 });
-      }
-      const merged = mergeStats({ practiceLog: localLog, exerciseStats: localExerciseStats }, remote);
-
-      // Write merged data back to localStorage
-      storageSet('practice_log', merged.practiceLog);
-      for (const [id, stat] of Object.entries(merged.exerciseStats)) {
-        const current = storageGet<{ bestStreak: number }>(`exercise_${id}`, { bestStreak: 0 });
-        if (stat.bestStreak > current.bestStreak) {
-          storageSet(`exercise_${id}`, { bestStreak: stat.bestStreak });
-        }
-      }
-      setPracticeStreak(computeStreak(merged.practiceLog));
-    });
-  }, [user]);
+  const practiceStreak = computeStreak(stats.practiceLog);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -510,7 +487,6 @@ export default function App() {
     setOpenGroup(null);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setPracticeStreak(getPracticeStreak());
   }
 
   // Auth loading spinner
