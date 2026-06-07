@@ -145,10 +145,18 @@ export default function AuthGate() {
     try {
       await signInWithGoogle();
     } catch (err: unknown) {
+      const code = (err as { code?: string }).code ?? '';
       const message = err instanceof Error ? err.message : 'Sign-in failed';
-      // Don't show error if user just closed the popup
-      if (!message.includes('popup-closed')) {
-        setError('Sign-in failed. Please try again.');
+      if (code.includes('popup-closed') || message.includes('popup-closed')) return;
+
+      if (code === 'auth/unauthorized-domain') {
+        setError('Dominio non autorizzato. Aggiungi questo dominio su Firebase Console → Authentication → Authorized domains.');
+      } else if (code === 'auth/operation-not-allowed') {
+        setError('Google sign-in non abilitato. Vai su Firebase Console → Authentication → Sign-in method → Google.');
+      } else if (code === 'auth/popup-blocked') {
+        setError('Popup bloccato dal browser. Permetti i popup per questo sito e riprova.');
+      } else {
+        setError(`Errore: ${code || message}`);
       }
     } finally {
       setLoading(false);
