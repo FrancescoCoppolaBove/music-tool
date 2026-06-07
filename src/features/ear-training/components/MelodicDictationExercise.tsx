@@ -7,6 +7,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Volume2, Check, X, Trophy, Settings, RotateCcw } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
+import { useAutoRepeat } from '../hooks/useAutoRepeat';
 import { generateChordProgressionAudio } from '../utils/interval-data';
 import {
   getMelodicDegreesByDifficulty,
@@ -127,6 +128,8 @@ export function MelodicDictationExercise() {
     }
     setIsPlayingMelodyOnly(false);
   }, [currentQuestion]);
+
+  useAutoRepeat(playContextAndMelody, isCorrect || hasSubmitted, isPlaying);
 
   const handleDegreeClick = useCallback(
     (degreeName: string) => {

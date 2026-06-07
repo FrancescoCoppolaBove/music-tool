@@ -9,6 +9,7 @@ import { audioPlayer } from '../utils/audio-player';
 import { CHORD_PROGRESSIONS, generateRandomProgression, ProgressionDifficulty, ChordProgression } from '../utils/interval-data';
 import { generateRandomProgressionWithHistory } from '../utils/random-with-history';
 import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
+import { useAutoRepeat } from '../hooks/useAutoRepeat';
 
 interface ProgressionQuestion {
   progression: ChordProgression;
@@ -88,6 +89,8 @@ export function ChordProgressionsExercise() {
     }
     setIsPlaying(false);
   }, [currentQuestion]);
+
+  useAutoRepeat(playProgression, isCorrect, isPlaying);
 
   const handleAnswer = useCallback(
     (progressionName: string) => {

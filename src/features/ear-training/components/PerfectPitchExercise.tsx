@@ -9,6 +9,7 @@ import { audioPlayer } from '../utils/audio-player';
 import { CHROMATIC_NOTES } from '../utils/interval-data';
 import { getRandomNoteWithHistory } from '../utils/random-with-history';
 import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
+import { useAutoRepeat } from '../hooks/useAutoRepeat';
 
 export function PerfectPitchExercise() {
   const [currentNote, setCurrentNote] = useState<string>(() => getRandomNoteWithHistory());
@@ -62,6 +63,8 @@ export function PerfectPitchExercise() {
     }
     setTimeout(() => setIsPlaying(false), 1000);
   }, [currentNote]);
+
+  useAutoRepeat(playNote, isCorrect, isPlaying);
 
   const handleAnswer = useCallback(
     (note: string) => {

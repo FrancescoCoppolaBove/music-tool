@@ -9,6 +9,7 @@ import { audioPlayer } from '../utils/audio-player';
 import { generateRandomScaleFromData, getAvailableScales } from '../utils/scale-data-loader';
 import { generateRandomScaleWithHistory } from '../utils/random-with-history';
 import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
+import { useAutoRepeat } from '../hooks/useAutoRepeat';
 
 interface ScaleQuestion {
   scaleName: string;
@@ -87,6 +88,8 @@ export function ScalesExercise() {
     }
     setTimeout(() => setIsPlaying(false), currentQuestion.notes.length * 450);
   }, [currentQuestion]);
+
+  useAutoRepeat(playScale, isCorrect, isPlaying);
 
   const handleAnswer = useCallback(
     (scaleName: string) => {

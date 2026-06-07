@@ -1,9 +1,8 @@
 /**
- * AUDIO PLAYER UTILITY - 2 OCTAVES (C2-C3)
- * Supporta C2-B2 e C3-B3 con path assoluti
+ * AUDIO PLAYER — C2-C3 samples with pitch-shift extension to C1-C6
+ * AudioBuffers are decoded once and cached; notes outside C2-B3 are pitch-shifted.
  */
 
-// Import ottava bassa (C2-B2)
 import noteC2 from '/src/assets/audio/C2.mp3';
 import noteCSharp2 from '/src/assets/audio/C-sharp2.mp3';
 import noteD2 from '/src/assets/audio/D2.mp3';
@@ -16,8 +15,6 @@ import noteGSharp2 from '/src/assets/audio/G-sharp2.mp3';
 import noteA2 from '/src/assets/audio/A2.mp3';
 import noteASharp2 from '/src/assets/audio/A-sharp2.mp3';
 import noteB2 from '/src/assets/audio/B2.mp3';
-
-// Import ottava alta (C3-B3)
 import noteC3 from '/src/assets/audio/C3.mp3';
 import noteCSharp3 from '/src/assets/audio/C-sharp3.mp3';
 import noteD3 from '/src/assets/audio/D3.mp3';
@@ -31,88 +28,79 @@ import noteA3 from '/src/assets/audio/A3.mp3';
 import noteASharp3 from '/src/assets/audio/A-sharp3.mp3';
 import noteB3 from '/src/assets/audio/B3.mp3';
 
-// Map note names to imported audio files
 const NOTE_FILES: Record<string, string> = {
-  // Ottava 2 (bassa)
-  C2: noteC2,
-  'C#2': noteCSharp2,
-  Db2: noteCSharp2,
-  D2: noteD2,
-  'D#2': noteDSharp2,
-  Eb2: noteDSharp2,
-  E2: noteE2,
-  F2: noteF2,
-  'F#2': noteFSharp2,
-  Gb2: noteFSharp2,
-  G2: noteG2,
-  'G#2': noteGSharp2,
-  Ab2: noteGSharp2,
-  A2: noteA2,
-  'A#2': noteASharp2,
-  Bb2: noteASharp2,
+  // Octave 2
+  C2: noteC2, 'C#2': noteCSharp2, Db2: noteCSharp2,
+  D2: noteD2, 'D#2': noteDSharp2, Eb2: noteDSharp2,
+  E2: noteE2, F2: noteF2,
+  'F#2': noteFSharp2, Gb2: noteFSharp2,
+  G2: noteG2, 'G#2': noteGSharp2, Ab2: noteGSharp2,
+  A2: noteA2, 'A#2': noteASharp2, Bb2: noteASharp2,
   B2: noteB2,
-
-  // Ottava 3 (alta)
-  C3: noteC3,
-  'C#3': noteCSharp3,
-  Db3: noteCSharp3,
-  D3: noteD3,
-  'D#3': noteDSharp3,
-  Eb3: noteDSharp3,
-  E3: noteE3,
-  F3: noteF3,
-  'F#3': noteFSharp3,
-  Gb3: noteFSharp3,
-  G3: noteG3,
-  'G#3': noteGSharp3,
-  Ab3: noteGSharp3,
-  A3: noteA3,
-  'A#3': noteASharp3,
-  Bb3: noteASharp3,
+  // Octave 3
+  C3: noteC3, 'C#3': noteCSharp3, Db3: noteCSharp3,
+  D3: noteD3, 'D#3': noteDSharp3, Eb3: noteDSharp3,
+  E3: noteE3, F3: noteF3,
+  'F#3': noteFSharp3, Gb3: noteFSharp3,
+  G3: noteG3, 'G#3': noteGSharp3, Ab3: noteGSharp3,
+  A3: noteA3, 'A#3': noteASharp3, Bb3: noteASharp3,
   B3: noteB3,
-
-  // Alias senza ottava (default a ottava 2 per backward compatibility)
-  C: noteC2,
-  'C#': noteCSharp2,
-  Db: noteCSharp2,
-  D: noteD2,
-  'D#': noteDSharp2,
-  Eb: noteDSharp2,
-  E: noteE2,
-  F: noteF2,
-  'F#': noteFSharp2,
-  Gb: noteFSharp2,
-  G: noteG2,
-  'G#': noteGSharp2,
-  Ab: noteGSharp2,
-  A: noteA2,
-  'A#': noteASharp2,
-  Bb: noteASharp2,
+  // No-octave aliases (default to octave 2, backward compat)
+  C: noteC2, 'C#': noteCSharp2, Db: noteCSharp2,
+  D: noteD2, 'D#': noteDSharp2, Eb: noteDSharp2,
+  E: noteE2, F: noteF2,
+  'F#': noteFSharp2, Gb: noteFSharp2,
+  G: noteG2, 'G#': noteGSharp2, Ab: noteGSharp2,
+  A: noteA2, 'A#': noteASharp2, Bb: noteASharp2,
   B: noteB2,
 };
 
-declare global {
-  interface Window {
-    webkitAudioContext?: typeof AudioContext;
+// Enharmonic equivalents that might not be in NOTE_FILES
+const ENHARMONIC: Record<string, string> = {
+  'Cb': 'B', 'Fb': 'E', 'E#': 'F', 'B#': 'C',
+};
+
+/**
+ * Resolve any note (e.g. "C4", "Bb5", "F#1") to a sample file + playbackRate.
+ * Notes outside C2-B3 are pitch-shifted from the nearest available octave.
+ */
+function resolveNote(note: string): { filePath: string; playbackRate: number } | null {
+  if (NOTE_FILES[note]) return { filePath: NOTE_FILES[note], playbackRate: 1.0 };
+
+  const m = note.match(/^([A-G][b#]?)(\d+)$/);
+  if (!m) return null;
+
+  let name = m[1];
+  const targetOctave = parseInt(m[2]);
+
+  // Normalize rare enharmonics (Cb, E#, etc.)
+  if (ENHARMONIC[name]) name = ENHARMONIC[name];
+
+  // Pick nearest sample octave: prefer octave 3 for higher, octave 2 for lower
+  const sampleOctave = targetOctave >= 3 ? 3 : 2;
+  const sampleKey = `${name}${sampleOctave}`;
+
+  if (NOTE_FILES[sampleKey]) {
+    return {
+      filePath: NOTE_FILES[sampleKey],
+      playbackRate: Math.pow(2, targetOctave - sampleOctave),
+    };
   }
+
+  return null;
+}
+
+declare global {
+  interface Window { webkitAudioContext?: typeof AudioContext; }
 }
 
 export class AudioPlayer {
-  private audioElements: Map<string, HTMLAudioElement> = new Map();
   private audioContext: AudioContext | null = null;
   private masterGain: GainNode | null = null;
+  private bufferCache: Map<string, AudioBuffer> = new Map();
 
-  constructor() {
-    // console.log('🎵 Audio Player initialized with 2 octaves (C2-B2, C3-B3)');
-    // console.log('📁 Available notes:', Object.keys(NOTE_FILES).length, 'variations');
-    // Inizializza Web Audio API per controllo gain preciso
-    // this.initAudioContext();
-  }
-
-  /**
-   * Inizializza Audio Context con master gain
-   */
   async initAudioContext(): Promise<void> {
+    if (this.audioContext) return;
     try {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext!;
       this.audioContext = new AudioContextClass();
@@ -123,147 +111,102 @@ export class AudioPlayer {
 
       const unlockAudio = async () => {
         try {
-          if (this.audioContext?.state === 'suspended') {
-            await this.audioContext.resume();
-            console.log('🔓 iOS AudioContext resumed via user gesture');
-          }
-
-          // Riproduci un suono silenzioso (trucco iOS)
+          if (this.audioContext?.state === 'suspended') await this.audioContext.resume();
           if (this.audioContext) {
-            const buffer = this.audioContext.createBuffer(1, 1, 22050);
-            const source = this.audioContext.createBufferSource();
-            source.buffer = buffer;
-            source.connect(this.audioContext.destination);
-            source.start(0);
+            const buf = this.audioContext.createBuffer(1, 1, 22050);
+            const src = this.audioContext.createBufferSource();
+            src.buffer = buf;
+            src.connect(this.audioContext.destination);
+            src.start(0);
           }
-
           window.removeEventListener('touchstart', unlockAudio);
           window.removeEventListener('click', unlockAudio);
-        } catch (err) {
-          console.warn('⚠️ Unlock error:', err);
-        }
+        } catch { /* ignore */ }
       };
 
-      // iOS Safari: necessario tocco utente per sbloccare
       window.addEventListener('touchstart', unlockAudio, { once: true });
       window.addEventListener('click', unlockAudio, { once: true });
-    } catch (err) {
-      console.warn('⚠️ Web Audio API unavailable or locked', err);
+    } catch { /* Web Audio unavailable */ }
+  }
+
+  async resumeAudioContext(): Promise<void> {
+    if (this.audioContext?.state === 'suspended') await this.audioContext.resume();
+  }
+
+  /** Decode an MP3 file into an AudioBuffer and cache it. */
+  private async getBuffer(filePath: string): Promise<AudioBuffer | null> {
+    if (this.bufferCache.has(filePath)) return this.bufferCache.get(filePath)!;
+    if (!this.audioContext) return null;
+    try {
+      const response = await fetch(filePath);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+      this.bufferCache.set(filePath, audioBuffer);
+      return audioBuffer;
+    } catch {
+      return null;
     }
   }
 
-  async resumeAudioContext() {
-    if (this.audioContext && this.audioContext.state === 'suspended') {
-      await this.audioContext.resume();
-    }
-  }
-
-  /**
-   * Precarica tutti i file audio
-   */
+  /** Preload and decode all 24 sample files into the buffer cache. */
   async preloadAllNotes(): Promise<void> {
+    await this.initAudioContext();
     const uniqueFiles = new Set(Object.values(NOTE_FILES));
-
-    // console.log('🔄 Preloading', uniqueFiles.size, 'audio files...');
-
-    const loadPromises = Array.from(uniqueFiles).map(async (filePath) => {
-      try {
-        const audio = new Audio(filePath);
-        audio.preload = 'auto';
-
-        // Attendi che sia pronto
-        await new Promise((resolve, reject) => {
-          audio.addEventListener('canplaythrough', resolve, { once: true });
-          audio.addEventListener('error', reject, { once: true });
-          setTimeout(() => reject(new Error('Timeout')), 5000);
-        });
-
-        this.audioElements.set(filePath, audio);
-        // console.log('✅ Loaded:', filePath.split('/').pop());
-      } catch (error: any) {
-        console.error('❌ Failed to load:', filePath.split('/').pop(), error);
-      }
-    });
-
-    await Promise.allSettled(loadPromises);
-    console.log('✅ Preload complete!', this.audioElements.size, 'files ready');
+    await Promise.allSettled(Array.from(uniqueFiles).map(f => this.getBuffer(f)));
   }
 
   /**
-   * Riproduci una singola nota con Web Audio API per miglior controllo gain
+   * Play any note (C1-C6) at a given volume.
+   * Notes outside C2-B3 are pitch-shifted from the nearest sample.
    */
-  async playNote(note: string, volume: number = 1.0): Promise<void> {
-    if (this.audioContext?.state === 'suspended') {
-      await this.audioContext.resume();
-    }
+  async playNote(note: string, volume = 1.0): Promise<void> {
     await this.resumeAudioContext();
 
-    const filePath = NOTE_FILES[note];
-    if (!filePath) {
-      console.error('❌ Note not found:', note);
+    const resolved = resolveNote(note);
+    if (!resolved) {
+      console.error('Note not found:', note);
       return;
     }
 
-    let audio = this.audioElements.get(filePath);
-    if (!audio) {
-      audio = new Audio(filePath);
-      this.audioElements.set(filePath, audio);
-    }
+    const { filePath, playbackRate } = resolved;
 
-    try {
-      // iOS FIX: collega direttamente l’audio context corrente
-      if (this.audioContext && this.masterGain) {
-        const source = this.audioContext.createBufferSource();
+    if (this.audioContext && this.masterGain) {
+      const buffer = await this.getBuffer(filePath);
+      if (!buffer) return;
 
-        // Decodifica e riproduce il file MP3 come buffer
-        const response = await fetch(filePath);
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+      const source = this.audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.playbackRate.value = playbackRate;
 
-        source.buffer = audioBuffer;
-        const gainNode = this.audioContext.createGain();
-        gainNode.gain.value = Math.max(0, Math.min(1, volume));
-        source.connect(gainNode);
-        gainNode.connect(this.masterGain);
-
-        source.start(0);
-      } else {
-        // fallback (desktop)
-        audio.currentTime = 0;
-        audio.volume = Math.max(0, Math.min(1, volume * 0.7));
-        await audio.play();
-      }
-    } catch (error: any) {
-      console.error('❌ Error playing audio:', error);
+      const gainNode = this.audioContext.createGain();
+      gainNode.gain.value = Math.max(0, Math.min(1, volume));
+      source.connect(gainNode);
+      gainNode.connect(this.masterGain);
+      source.start(0);
+    } else {
+      // HTML5 Audio fallback
+      const audio = new Audio(filePath);
+      audio.volume = Math.max(0, Math.min(1, volume * 0.7));
+      await audio.play();
     }
   }
 
-  /**
-   * Riproduci sequenza di note
-   */
-  async playSequence(notes: string[], delayMs: number = 600, volume: number = 1.0): Promise<void> {
+  /** Play notes sequentially with a delay between each. */
+  async playSequence(notes: string[], delayMs = 600, volume = 1.0): Promise<void> {
     for (const note of notes) {
       await this.playNote(note, volume);
       await this.delay(delayMs);
     }
   }
 
-  /**
-   * Riproduci accordo (simultaneo) con volume ridotto per evitare clipping
-   */
+  /** Play all notes simultaneously (chord). Volume auto-reduced to prevent clipping. */
   async playChord(notes: string[]): Promise<void> {
-    // Formula migliorata: volume più conservativo
-    // Per 3 note: 0.5, per 4 note: 0.43
     const volume = 0.8 / Math.sqrt(notes.length);
-
-    // console.log(`🎼 Playing chord with ${notes.length} notes, volume: ${volume.toFixed(2)}`);
-
-    const promises = notes.map((note) => this.playNote(note, volume));
-    await Promise.all(promises);
+    await Promise.all(notes.map(note => this.playNote(note, volume)));
   }
 
   delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 

@@ -9,6 +9,7 @@ import { audioPlayer } from '../utils/audio-player';
 import { INTERVALS } from '../utils/interval-data';
 import { generateRandomIntervalWithHistory } from '../utils/random-with-history';
 import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
+import { useAutoRepeat } from '../hooks/useAutoRepeat';
 
 interface IntervalQuestion {
   rootNote: string;
@@ -62,13 +63,14 @@ export function IntervalsExercise() {
   const playInterval = useCallback(async () => {
     setIsPlaying(true);
     try {
-      // Volume ridotto per evitare clipping
       await audioPlayer.playSequence([currentQuestion.rootNote, currentQuestion.secondNote], 600, 0.8);
     } catch (error: any) {
       console.error('Error playing interval:', error);
     }
     setTimeout(() => setIsPlaying(false), 1500);
   }, [currentQuestion]);
+
+  useAutoRepeat(playInterval, isCorrect, isPlaying);
 
   const handleAnswer = useCallback(
     (intervalName: string) => {

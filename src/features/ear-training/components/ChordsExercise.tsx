@@ -9,6 +9,7 @@ import { audioPlayer } from '../utils/audio-player';
 import { CHORD_TYPES, generateRandomChord, ChordDifficulty, ChordInversion } from '../utils/interval-data';
 import { generateRandomChordWithHistory } from '../utils/random-with-history';
 import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
+import { useAutoRepeat } from '../hooks/useAutoRepeat';
 
 interface ChordQuestion {
   rootNote: string;
@@ -114,6 +115,8 @@ export function ChordsExercise() {
     }
     setTimeout(() => setIsPlaying(false), 2000);
   }, [currentQuestion]);
+
+  useAutoRepeat(playChord, isCorrect, isPlaying);
 
   const handleAnswer = useCallback(
     (chordName: string) => {

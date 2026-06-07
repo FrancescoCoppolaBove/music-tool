@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { EarTrainingSettingsProvider, useEarTrainingSettings, type RepeatDelay } from './context/EarTrainingSettingsContext';
 import './styles/_ear-training.css';
 import {
   Headphones,
@@ -62,7 +63,69 @@ const EXERCISES = [
   { id: 'bpm' as ExerciseType, name: 'BPM Recognition', icon: Activity, description: 'Identify tempo (BPM)' },
 ];
 
-export default function EarTrainingFeature() {
+// ─── Auto-repeat settings bar ────────────────────────────────────────────────
+
+function AutoRepeatBar() {
+  const { autoRepeat, setAutoRepeat, repeatDelay, setRepeatDelay } = useEarTrainingSettings();
+
+  const delays: { label: string; value: RepeatDelay }[] = [
+    { label: '3s', value: 3000 },
+    { label: '5s', value: 5000 },
+    { label: '8s', value: 8000 },
+  ];
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+      padding: '10px 0 2px',
+      borderTop: '1px solid #21262d',
+      marginTop: 12,
+    }}>
+      <span style={{ fontSize: 12, color: '#4b5563', fontWeight: 600 }}>Auto-repeat:</span>
+      <button
+        onClick={() => setAutoRepeat(!autoRepeat)}
+        style={{
+          padding: '4px 12px', borderRadius: 20,
+          border: `1px solid ${autoRepeat ? '#7c3aed' : '#30363d'}`,
+          background: autoRepeat ? '#7c3aed22' : 'none',
+          color: autoRepeat ? '#c4b5fd' : '#6b7280',
+          fontSize: 12, fontWeight: 600,
+          fontFamily: "'DM Sans', sans-serif",
+          cursor: 'pointer',
+        }}
+      >
+        {autoRepeat ? '● On' : '○ Off'}
+      </button>
+
+      {autoRepeat && (
+        <div style={{ display: 'flex', gap: 6 }}>
+          {delays.map(d => (
+            <button
+              key={d.value}
+              onClick={() => setRepeatDelay(d.value)}
+              style={{
+                padding: '4px 10px', borderRadius: 20,
+                border: `1px solid ${repeatDelay === d.value ? '#7c3aed' : '#30363d'}`,
+                background: repeatDelay === d.value ? '#7c3aed22' : 'none',
+                color: repeatDelay === d.value ? '#c4b5fd' : '#6b7280',
+                fontSize: 12, fontWeight: 600,
+                fontFamily: "'DM Sans', sans-serif",
+                cursor: 'pointer',
+              }}
+            >
+              {d.label}
+            </button>
+          ))}
+          <span style={{ fontSize: 11, color: '#4b5563', alignSelf: 'center' }}>between plays</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Inner feature (inside provider) ─────────────────────────────────────────
+
+function EarTrainingInner() {
   const [activeExercise, setActiveExercise] = useState<ExerciseType>('perfect-pitch');
   const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -175,6 +238,8 @@ export default function EarTrainingFeature() {
               })}
             </div>
           </div>
+
+          <AutoRepeatBar />
         </div>
       </div>
 
@@ -190,5 +255,13 @@ export default function EarTrainingFeature() {
       {activeExercise === 'rhythm' && <RhythmRecognitionExercise />}
       {activeExercise === 'bpm' && <BPMRecognitionExercise />}
     </div>
+  );
+}
+
+export default function EarTrainingFeature() {
+  return (
+    <EarTrainingSettingsProvider>
+      <EarTrainingInner />
+    </EarTrainingSettingsProvider>
   );
 }

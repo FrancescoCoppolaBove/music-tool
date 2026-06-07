@@ -8,6 +8,7 @@ import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { generateChordProgressionAudio, INTERVALS } from '../utils/interval-data';
 import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
+import { useAutoRepeat } from '../hooks/useAutoRepeat';
 import {
   getContextDegreesByDifficulty,
   getIntervalsContextProgression,
@@ -132,6 +133,9 @@ export function IntervalsInContextExercise() {
     }
     setIsPlaying(false);
   }, [currentQuestion]);
+
+  const allAnswered = !!(isFirstCorrect && isSecondCorrect && isIntervalCorrect);
+  useAutoRepeat(playContextAndNotes, allAnswered, isPlaying);
 
   const handleFirstDegreeSelect = useCallback(
     (degreeName: string) => {

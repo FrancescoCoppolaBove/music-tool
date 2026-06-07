@@ -8,6 +8,7 @@ import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { generateRandomScaleDegreeWithHistory } from '../utils/random-with-history';
 import { useExerciseScore } from '../../../shared/hooks/useExerciseScore';
+import { useAutoRepeat } from '../hooks/useAutoRepeat';
 import {
   getScaleDegreesByDifficulty,
   generateTargetNoteFromDegree,
@@ -112,6 +113,8 @@ export function ScaleDegreesExercise() {
     }
     setIsPlaying(false);
   }, [currentQuestion]);
+
+  useAutoRepeat(playContextAndNote, isCorrect, isPlaying);
 
   const handleAnswer = useCallback(
     (degreeName: string) => {
