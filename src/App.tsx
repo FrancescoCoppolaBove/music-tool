@@ -23,6 +23,7 @@ import IntervalQuizFeature from './features/interval-quiz/IntervalQuizFeature';
 import ScoreToIRealFeature from './features/score-to-ireal/ScoreToIRealFeature';
 import ChordLandingFeature from './features/chord-landing/ChordLandingFeature';
 import SongArchitectFeature from './features/song-architect/SongArchitectFeature';
+import ChordDetectionFeature from './features/chord-detection/ChordDetectionFeature';
 import HomePage from './features/home/HomePage';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -154,7 +155,8 @@ type Tab =
   | 'architect'
   | 'journal'
   | 'songs'
-  | 'daily';
+  | 'daily'
+  | 'chorddetect';
 
 interface TabDef {
   id: Tab;
@@ -208,6 +210,7 @@ const GROUPS: GroupDef[] = [
       { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵', desc: 'Explore key relationships at a glance' },
       { id: 'ear',           label: 'Ear Training',      icon: '👂', desc: 'Train your ear with interval exercises' },
       { id: 'quiz',          label: 'Scale Degree Quiz',  icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
+      { id: 'chorddetect',   label: 'Chord Detection',   icon: '🎙️', desc: 'Play a chord — app identifies it in real time' },
     ],
   },
   {
@@ -597,6 +600,7 @@ function UserMenu({ onSignOut }: { onSignOut: () => void }) {
 export default function App() {
   const { user, loading: authLoading, signOut } = useAuth();
   const { stats } = useStats();
+  const { setGlobalKey } = useGlobalKey();
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -618,6 +622,11 @@ export default function App() {
     setOpenGroup(null);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function handleChordDetectToScaleAdvisor(root: string) {
+    setGlobalKey(root);
+    handleSelectTab('scaleadvisor');
   }
 
   // Auth loading spinner
@@ -830,6 +839,7 @@ export default function App() {
         {activeTab === 'daily'         && <DailyChallengeFeature />}
         {activeTab === 'journal'       && <PracticeJournalFeature />}
         {activeTab === 'songs'         && <SongLibraryFeature />}
+        {activeTab === 'chorddetect'   && <ChordDetectionFeature onNavigateToScaleAdvisor={handleChordDetectToScaleAdvisor} />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
