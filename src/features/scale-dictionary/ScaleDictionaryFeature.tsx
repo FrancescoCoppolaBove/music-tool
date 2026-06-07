@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ScaleType, Scale, Interval } from 'tonal';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -85,7 +86,10 @@ interface ScaleEntry {
 }
 
 export default function ScaleDictionaryFeature() {
-  const [selectedKey, setSelectedKey] = useState('C');
+  const { globalKey } = useGlobalKey();
+  const [selectedKey, setSelectedKey] = useState(globalKey);
+
+  useEffect(() => { setSelectedKey(globalKey); }, [globalKey]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [search, setSearch] = useState('');
   const [showIntervals, setShowIntervals] = useState(false);

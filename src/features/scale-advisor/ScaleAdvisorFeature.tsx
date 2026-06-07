@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Chord, Note } from 'tonal';
 import { transposeNote } from '@shared/utils/musicTheory';
 
@@ -935,9 +936,12 @@ function ProgressionChordCard({
 type Mode = 'single' | 'progression';
 
 export default function ScaleAdvisorFeature() {
+  const { globalKey } = useGlobalKey();
   const [mode, setMode] = useState<Mode>('single');
 
-  const [root, setRoot] = useState('C');
+  const [root, setRoot] = useState(globalKey);
+
+  useEffect(() => { setRoot(globalKey); }, [globalKey]);
   const [quality, setQuality] = useState('maj7');
 
   const [progressionText, setProgressionText] = useState('Dm7 G7 Cmaj7');

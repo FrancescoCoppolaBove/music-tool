@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Scale, Chord } from 'tonal';
 import { SCALE_FORMULAS } from '@shared/utils/musicTheory';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -203,7 +204,10 @@ const FN_COLORS = {
 };
 
 export default function ScaleHarmonizationFeature() {
-  const [selectedKey, setSelectedKey] = useState('C');
+  const { globalKey } = useGlobalKey();
+  const [selectedKey, setSelectedKey] = useState(globalKey);
+
+  useEffect(() => { setSelectedKey(globalKey); }, [globalKey]);
   const [selectedScale, setSelectedScale] = useState('major');
   const [chordSize, setChordSize] = useState<ChordSize>('7th');
   const [selectedDegree, setSelectedDegree] = useState<number | null>(null);

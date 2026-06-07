@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Note, Scale } from 'tonal';
 
 // ─── Google Fonts ─────────────────────────────────────────────────────────────
@@ -540,11 +541,14 @@ function SectionLabel({ text, color }: { text: string; color: string }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function RiffArchitectFeature() {
+  const { globalKey } = useGlobalKey();
   const [activeArtistId, setActiveArtistId] = useState('snarkyPuppy');
   const [rhythmMode, setRhythmMode] = useState<'euclidean' | 'polyrhythm' | 'displacement' | 'meters'>('euclidean');
   const [selectedEuclid, setSelectedEuclid] = useState(3);
   const [selectedPoly, setSelectedPoly] = useState(0);
-  const [selectedRoot, setSelectedRoot] = useState('C');
+  const [selectedRoot, setSelectedRoot] = useState(globalKey);
+
+  useEffect(() => { setSelectedRoot(globalKey); }, [globalKey]);
   const [expandedUST, setExpandedUST] = useState<number | null>(null);
   const [expandedPenta, setExpandedPenta] = useState<number | null>(null);
   const [selectedMeterLabel, setSelectedMeterLabel] = useState('5/4');

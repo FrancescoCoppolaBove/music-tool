@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Note, Scale } from 'tonal';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -345,7 +346,10 @@ function buildChordNames(root: string, mode: string, numerals: string[]): string
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function SongArchitectFeature() {
-  const [homeKey, setHomeKey] = useState('C');
+  const { globalKey } = useGlobalKey();
+  const [homeKey, setHomeKey] = useState(globalKey);
+
+  useEffect(() => { setHomeKey(globalKey); }, [globalKey]);
   const [homeMode, setHomeMode] = useState('dorian');
   const [activeStyles, setActiveStyles] = useState<StyleTag[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>('min3-up');

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Scale, Note } from 'tonal';
 
 // ─── Data Structures ────────────────────────────────────────────────────────
@@ -900,7 +901,10 @@ function ModeCharacterGrid() {
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function MelodyArchitectFeature() {
-  const [root, setRoot] = useState('C');
+  const { globalKey } = useGlobalKey();
+  const [root, setRoot] = useState(globalKey);
+
+  useEffect(() => { setRoot(globalKey); }, [globalKey]);
   const [mode, setMode] = useState('major');
   const [contourId, setContourId] = useState('arch');
   const [structureId, setStructureId] = useState('qa');

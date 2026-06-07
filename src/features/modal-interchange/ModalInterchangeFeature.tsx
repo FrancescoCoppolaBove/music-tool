@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Scale, Chord, Note } from 'tonal';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -59,7 +60,10 @@ function buildModeChords(root: string, modeName: string, homeKey: string): ModeC
 }
 
 export default function ModalInterchangeFeature() {
-  const [selectedKey, setSelectedKey] = useState('C');
+  const { globalKey } = useGlobalKey();
+  const [selectedKey, setSelectedKey] = useState(globalKey);
+
+  useEffect(() => { setSelectedKey(globalKey); }, [globalKey]);
   const [selectedModes, setSelectedModes] = useState<string[]>(['aeolian', 'dorian', 'mixolydian']);
   const [showAll, setShowAll] = useState(false);
   const [focusedChord, setFocusedChord] = useState<{ symbol: string; mode: string; desc?: string } | null>(null);

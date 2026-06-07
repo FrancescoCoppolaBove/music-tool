@@ -1,9 +1,13 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { generateProgressions, getAvailableTechniques, type ProgressionFilter } from '../services/progressionGenerator';
 import type { GeneratedProgression, HarmonyStyle, KeyMode, Technique } from '../types/progression.types';
 
 export function useChordProgression() {
-  const [key, setKey] = useState('C');
+  const { globalKey } = useGlobalKey();
+  const [key, setKey] = useState(globalKey);
+
+  useEffect(() => { setKey(globalKey); }, [globalKey]);
   const [mode, setMode] = useState<KeyMode>('major');
   const [length, setLength] = useState(4);
   const [style, setStyle] = useState<HarmonyStyle | 'both'>('both');

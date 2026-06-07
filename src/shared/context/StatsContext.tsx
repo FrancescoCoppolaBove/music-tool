@@ -37,9 +37,13 @@ export function StatsProvider({ children }: { children: React.ReactNode }) {
     const ref = doc(db, 'users', user.uid, 'data', 'stats');
     setStatsLoading(true);
 
+    // Fallback: if snapshot takes more than 8s (e.g. ad blocker), unblock the UI
+    const timeout = setTimeout(() => setStatsLoading(false), 8000);
+
     const unsubscribe = onSnapshot(
       ref,
       (snap) => {
+        clearTimeout(timeout);
         if (snap.exists()) {
           const data = snap.data();
           setStats({
@@ -51,7 +55,7 @@ export function StatsProvider({ children }: { children: React.ReactNode }) {
         }
         setStatsLoading(false);
       },
-      () => { setStatsLoading(false); },
+      () => { clearTimeout(timeout); setStatsLoading(false); },
     );
 
     return unsubscribe;
