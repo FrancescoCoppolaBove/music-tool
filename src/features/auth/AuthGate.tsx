@@ -152,8 +152,8 @@ export default function AuthGate() {
 
       if (code === 'auth/unauthorized-domain') {
         setError('Dominio non autorizzato. Aggiungi questo dominio su Firebase Console → Authentication → Authorized domains.');
-      } else if (code === 'auth/operation-not-allowed') {
-        setError('Google sign-in non abilitato. Vai su Firebase Console → Authentication → Sign-in method → Google.');
+      } else if (code === 'auth/operation-not-allowed' || code === '12') {
+        setError('Google sign-in non abilitato. Vai su Firebase Console → Authentication → Sign-in method → Google → Enable.');
       } else if (code === 'auth/popup-blocked') {
         setError('Popup bloccato dal browser. Permetti i popup per questo sito e riprova.');
       } else if (code.includes('config') || message.includes('environment')) {
