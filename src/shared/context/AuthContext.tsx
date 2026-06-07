@@ -33,18 +33,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // On mobile: always call getRedirectResult — iOS Safari clears sessionStorage
-    // during OAuth redirect, so flag-based detection is unreliable.
-    // With the correct authDomain, getRedirectResult returns null cleanly when
-    // no redirect is pending, so calling it unconditionally is safe.
-    //
-    // On desktop: only call it when we actually initiated a redirect (popup fallback),
-    // to avoid unnecessary calls.
-    const mobileRedirect = isMobile();
-    const desktopRedirect = !mobileRedirect && localStorage.getItem('tonic_auth_redirect');
-
-    if (mobileRedirect || desktopRedirect) {
-      if (desktopRedirect) localStorage.removeItem('tonic_auth_redirect');
+    // Only call getRedirectResult if we actually initiated a redirect (popup-blocked fallback).
+    // signInWithPopup is now the primary method on all platforms, so this is rarely needed.
+    if (localStorage.getItem('tonic_auth_redirect')) {
+      localStorage.removeItem('tonic_auth_redirect');
       getRedirectResult(auth).catch(() => {});
     }
 
@@ -59,12 +51,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
-    if (isMobile()) {
-      // No flag needed — getRedirectResult is called unconditionally on mobile
-      await signInWithRedirect(auth, provider);
-      return;
-    }
-
+    // Use popup on all platforms — on iOS it opens a SFSafariViewController
+    // which maintains state correctly without cross-origin storage issues.
+    // signInWithRedirect on iOS Chrome fails due to storage partitioning.
     try {
       await signInWithPopup(auth, provider);
     } catch (err) {
