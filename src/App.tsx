@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
-import { getPracticeStreak } from './shared/hooks/useExerciseScore';
+import { getPracticeStreak, getPracticeLog, computeStreak } from './shared/hooks/useExerciseScore';
+import { storageGet, storageSet } from './shared/utils/storage';
+import { loadUserStats, mergeStats, type ExerciseStats } from './shared/utils/firestoreSync';
+import { useAuth } from './shared/context/AuthContext';
+import AuthGate from './features/auth/AuthGate';
 import PracticeJournalFeature from './features/practice-journal/PracticeJournalFeature';
+import SongLibraryFeature from './features/song-library/SongLibraryFeature';
 import ChordVoicingsFeature from './features/chord-vocings/ChordVoicingsFeature';
 import ScaleRecognitionFeature from './features/scale-recognition/ScaleRecognitionFeature';
 import ScaleDictionaryFeature from './features/scale-dictionary/ScaleDictionaryFeature';
@@ -146,7 +151,8 @@ type Tab =
   | 'score'
   | 'landing'
   | 'architect'
-  | 'journal';
+  | 'journal'
+  | 'songs';
 
 interface TabDef {
   id: Tab;
@@ -208,6 +214,7 @@ const GROUPS: GroupDef[] = [
     icon: '📈',
     tabs: [
       { id: 'journal', label: 'Practice Journal', icon: '🔥', desc: 'Track your daily streak and ear training progress' },
+      { id: 'songs',   label: 'Song Library',     icon: '🎵', desc: 'Your personal repertoire, synced across devices' },
     ],
   },
 ];
@@ -394,13 +401,99 @@ function MobileMenu({
   );
 }
 
+// ─── User avatar dropdown ──────────────────────────────────────────────────────
+
+function UserMenu({ onSignOut }: { onSignOut: () => void }) {
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+
+  if (!user) return null;
+
+  return (
+    <div style={{ position: 'relative', alignSelf: 'center', flexShrink: 0 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          background: 'none', border: '1px solid #30363d', borderRadius: 100,
+          padding: '4px 10px 4px 4px', cursor: 'pointer',
+          transition: 'border-color 0.15s',
+        }}
+        title={user.displayName ?? 'Account'}
+      >
+        {user.photoURL ? (
+          <img src={user.photoURL} alt="" width={26} height={26} style={{ borderRadius: '50%' }} />
+        ) : (
+          <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#fff' }}>
+            {(user.displayName ?? user.email ?? '?')[0].toUpperCase()}
+          </div>
+        )}
+        <span style={{ fontSize: 13, fontWeight: 500, color: '#8b949e', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {user.displayName?.split(' ')[0] ?? 'Account'}
+        </span>
+      </button>
+
+      {open && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 300 }} onClick={() => setOpen(false)} />
+          <div style={{
+            position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 301,
+            background: '#1c2128', border: '1px solid #30363d', borderRadius: 10,
+            padding: 6, minWidth: 180,
+            boxShadow: '0 12px 36px rgba(0,0,0,0.5)',
+          }}>
+            <div style={{ padding: '8px 12px', fontSize: 12, color: '#4b5563', borderBottom: '1px solid #21262d', marginBottom: 4 }}>
+              {user.email}
+            </div>
+            <button
+              onClick={() => { setOpen(false); onSignOut(); }}
+              style={{
+                width: '100%', textAlign: 'left', padding: '8px 12px',
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: 13, color: '#ef4444', borderRadius: 6,
+              }}
+            >
+              Sign out
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── App ─────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const { user, loading: authLoading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [practiceStreak, setPracticeStreak] = useState(() => getPracticeStreak());
+
+  // When user logs in: load Firestore data and merge with localStorage
+  useEffect(() => {
+    if (!user) return;
+    loadUserStats(user.uid).then(remote => {
+      if (!remote) return;
+      const localLog = getPracticeLog();
+      const localExerciseStats: ExerciseStats = {};
+      for (const id of ['perfect-pitch', 'intervals', 'chords', 'scales', 'progressions', 'degrees', 'melodic', 'intervals-context', 'rhythm', 'bpm']) {
+        localExerciseStats[id] = storageGet(`exercise_${id}`, { bestStreak: 0 });
+      }
+      const merged = mergeStats({ practiceLog: localLog, exerciseStats: localExerciseStats }, remote);
+
+      // Write merged data back to localStorage
+      storageSet('practice_log', merged.practiceLog);
+      for (const [id, stat] of Object.entries(merged.exerciseStats)) {
+        const current = storageGet<{ bestStreak: number }>(`exercise_${id}`, { bestStreak: 0 });
+        if (stat.bestStreak > current.bestStreak) {
+          storageSet(`exercise_${id}`, { bestStreak: stat.bestStreak });
+        }
+      }
+      setPracticeStreak(computeStreak(merged.practiceLog));
+    });
+  }, [user]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -417,8 +510,21 @@ export default function App() {
     setOpenGroup(null);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Refresh streak whenever user navigates (may have just finished practicing)
     setPracticeStreak(getPracticeStreak());
+  }
+
+  // Auth loading spinner
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0d1117', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: 14, color: '#4b5563' }}>Loading…</div>
+      </div>
+    );
+  }
+
+  // Auth gate — no user
+  if (!user) {
+    return <AuthGate />;
   }
 
   // Find the active tool name for mobile header breadcrumb
@@ -541,26 +647,8 @@ export default function App() {
               </button>
             )}
 
-            {/* CTA pill — desktop only */}
-            <button
-              className="header-cta desktop-only"
-              onClick={() => handleSelectTab('scaleadvisor')}
-              style={{
-                alignSelf: 'center',
-                background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-                color: '#fff',
-                fontSize: 13,
-                fontWeight: 600,
-                fontFamily: "'DM Sans', sans-serif",
-                padding: '8px 18px',
-                borderRadius: 100,
-                border: 'none',
-                boxShadow: '0 0 20px rgba(124,58,237,0.3)',
-                cursor: 'pointer',
-              }}
-            >
-              Start Exploring →
-            </button>
+            {/* User avatar + sign out — desktop only */}
+            <UserMenu onSignOut={signOut} />
 
             {/* ── Mobile: hamburger button (hidden on desktop) ── */}
             <button
@@ -630,6 +718,7 @@ export default function App() {
         {activeTab === 'landing'       && <ChordLandingFeature />}
         {activeTab === 'architect'     && <SongArchitectFeature />}
         {activeTab === 'journal'       && <PracticeJournalFeature />}
+        {activeTab === 'songs'         && <SongLibraryFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
