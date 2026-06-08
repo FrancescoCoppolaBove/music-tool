@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Chord, Key, Progression } from 'tonal';
 import { audioPlayer } from '../ear-training/utils/audio-player';
 
@@ -636,6 +636,8 @@ export default function HarmonicAnalysisFeature() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState('');
   const [highlightIndices, setHighlightIndices] = useState<number[]>([]);
+  const [playingAll, setPlayingAll] = useState(false);
+  const stopAllRef = useRef(false);
 
   function handleAnalyse() {
     setError('');
@@ -955,17 +957,47 @@ export default function HarmonicAnalysisFeature() {
               padding: 24,
             }}
           >
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: '#6b7280',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                marginBottom: 16,
-              }}
-            >
-              Chord Analysis
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  flex: 1,
+                }}
+              >
+                Chord Analysis
+              </div>
+              <button
+                onClick={async () => {
+                  if (playingAll) { stopAllRef.current = true; return; }
+                  stopAllRef.current = false;
+                  setPlayingAll(true);
+                  await audioPlayer.preloadAllNotes();
+                  for (const chord of result.chords) {
+                    if (stopAllRef.current) break;
+                    if (chord.notes.length > 0) {
+                      await audioPlayer.playChord(chord.notes.map(n => `${n}3`));
+                    }
+                    await audioPlayer.delay(1100);
+                  }
+                  setPlayingAll(false);
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  padding: '5px 12px',
+                  background: playingAll ? '#1a2e1a' : '#0d1117',
+                  border: `1px solid ${playingAll ? '#22c55e60' : '#30363d'}`,
+                  borderRadius: 7, cursor: 'pointer',
+                  fontSize: 11, fontWeight: 600,
+                  color: playingAll ? '#86efac' : '#6b7280',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {playingAll ? '⏹ Stop' : '▶ Play all'}
+              </button>
             </div>
             <div
               style={{
