@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Voicing, VoicingNote, VoicingStyle } from '../types/chord.types';
 import PianoKeyboard from './PianoKeyboard';
+import { audioPlayer } from '../../ear-training/utils/audio-player';
 
 interface VoicingResultsProps {
   voicings: Voicing[];
@@ -102,31 +103,49 @@ export default function VoicingResults({ voicings, activeStyles, chordDisplay, c
         {filtered.map(v => {
           const isActive = v.id === (selectedId ?? filtered[0]?.id);
           return (
-            <button
-              key={v.id}
-              onClick={() => setSelectedId(v.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '10px 14px',
-                background: isActive ? '#1c2128' : '#0d1117',
-                border: `1px solid ${isActive ? STYLE_COLORS[v.style] : '#30363d'}`,
-                borderRadius: 8, cursor: 'pointer', textAlign: 'left',
-                transition: 'all 0.1s',
-              }}
-            >
-              <span style={{
-                padding: '2px 8px', background: `${STYLE_COLORS[v.style]}20`,
-                border: `1px solid ${STYLE_COLORS[v.style]}`, borderRadius: 4,
-                fontSize: 11, color: STYLE_COLORS[v.style], fontWeight: 600,
-                minWidth: 90, textAlign: 'center',
-              }}>
-                {v.style === 'upperStructure' ? 'UST' : v.style.charAt(0).toUpperCase() + v.style.slice(1)}
-              </span>
-              <span style={{ flex: 1, fontSize: 13, color: '#c9d1d9' }}>{v.styleLabel}</span>
-              <span style={{ fontSize: 12, color: '#8b949e', fontFamily: 'monospace' }}>
-                {v.notes.map(n => `${n.note}${n.octave}`).join(' – ')}
-              </span>
-            </button>
+            <div key={v.id} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <button
+                onClick={() => setSelectedId(v.id)}
+                style={{
+                  flex: 1, display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '10px 14px',
+                  background: isActive ? '#1c2128' : '#0d1117',
+                  border: `1px solid ${isActive ? STYLE_COLORS[v.style] : '#30363d'}`,
+                  borderRadius: 8, cursor: 'pointer', textAlign: 'left',
+                  transition: 'all 0.1s',
+                }}
+              >
+                <span style={{
+                  padding: '2px 8px', background: `${STYLE_COLORS[v.style]}20`,
+                  border: `1px solid ${STYLE_COLORS[v.style]}`, borderRadius: 4,
+                  fontSize: 11, color: STYLE_COLORS[v.style], fontWeight: 600,
+                  minWidth: 90, textAlign: 'center',
+                }}>
+                  {v.style === 'upperStructure' ? 'UST' : v.style.charAt(0).toUpperCase() + v.style.slice(1)}
+                </span>
+                <span style={{ flex: 1, fontSize: 13, color: '#c9d1d9' }}>{v.styleLabel}</span>
+                <span style={{ fontSize: 12, color: '#8b949e', fontFamily: 'monospace' }}>
+                  {v.notes.map(n => `${n.note}${n.octave}`).join(' – ')}
+                </span>
+              </button>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await audioPlayer.preloadAllNotes();
+                  await audioPlayer.playChord(v.notes.map(n => `${n.note}${n.octave}`));
+                }}
+                title="Play this voicing"
+                style={{
+                  width: 32, height: 32, borderRadius: 8,
+                  background: '#1c2128', border: '1px solid #30363d',
+                  cursor: 'pointer', color: '#6b7280', fontSize: 12,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, transition: 'all 0.12s',
+                }}
+              >
+                ▶
+              </button>
+            </div>
           );
         })}
       </div>
