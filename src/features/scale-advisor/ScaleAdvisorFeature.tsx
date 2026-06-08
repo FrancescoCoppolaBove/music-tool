@@ -3,6 +3,7 @@ import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Chord, Note } from 'tonal';
 import { transposeNote } from '@shared/utils/musicTheory';
 import { storageGet, storageSet } from '@shared/utils/storage';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 interface SASession { mode: 'single' | 'progression'; root: string; quality: string; progressionText: string }
 const SA_KEY = 'session_scaleAdvisor';
@@ -772,9 +773,21 @@ function ScaleCard({
   scale: ScaleInfo;
   isPrimary: boolean;
 }) {
+  const [playing, setPlaying] = useState(false);
   const relatedRoot = scale.trickSemitones !== undefined
     ? transposeNote(root, scale.trickSemitones)
     : null;
+
+  async function handlePlay() {
+    if (playing) return;
+    setPlaying(true);
+    await audioPlayer.preloadAllNotes();
+    // Ascending scale then back to root an octave up
+    const notes = scale.intervals.map(s => `${transposeNote(root, s)}3`);
+    notes.push(`${root}4`);
+    await audioPlayer.playSequence(notes, 220, 0.7);
+    setPlaying(false);
+  }
 
   return (
     <div style={{
@@ -784,18 +797,34 @@ function ScaleCard({
       padding: '14px 16px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12, flexWrap: 'wrap', gap: 6 }}>
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: isPrimary ? '#c4b5fd' : '#8b949e' }}>
             {root} {scale.name}
           </span>
           {isPrimary && (
             <span style={{
-              marginLeft: 8, fontSize: 10, background: '#7c3aed30', border: '1px solid #7c3aed',
+              fontSize: 10, background: '#7c3aed30', border: '1px solid #7c3aed',
               borderRadius: 20, padding: '2px 8px', color: '#a78bfa', fontWeight: 600,
             }}>
               PRIMARY
             </span>
           )}
+          <button
+            onClick={handlePlay}
+            disabled={playing}
+            title="Play scale ascending"
+            style={{
+              padding: '3px 8px',
+              background: playing ? '#7c3aed20' : 'none',
+              border: `1px solid ${playing ? '#7c3aed60' : '#30363d'}`,
+              borderRadius: 6, cursor: playing ? 'default' : 'pointer',
+              fontSize: 11, color: playing ? '#c4b5fd' : '#6b7280',
+              fontFamily: "'DM Sans', sans-serif",
+              transition: 'all 0.15s',
+            }}
+          >
+            {playing ? '♩♩♩' : '▶ Play'}
+          </button>
         </div>
         <div style={{
           fontSize: 11, color: '#06b6d4', background: '#06b6d410',
