@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
-import { Note } from 'tonal';
+import { useState, useMemo, useCallback } from 'react';
+import { Note, Chord } from 'tonal';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 // ─── Font injection ────────────────────────────────────────────────────────────
 if (typeof document !== 'undefined' && !document.getElementById('chord-landing-fonts')) {
@@ -591,6 +592,22 @@ function ApproachCard({ approach, targetRoot, targetQuality, isExpanded, onToggl
 }) {
   const chain = getChain(approach, targetRoot, targetQuality);
   const color = COMPLEXITY_COLORS[approach.complexity];
+  const [playing, setPlaying] = useState(false);
+
+  const handlePlay = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (playing) return;
+    setPlaying(true);
+    await audioPlayer.preloadAllNotes();
+    for (const item of chain) {
+      const notes = Chord.get(item.chord).notes;
+      if (notes.length > 0) {
+        await audioPlayer.playChord(notes.map(n => `${n}3`));
+      }
+      await audioPlayer.delay(900);
+    }
+    setPlaying(false);
+  }, [chain, playing]);
 
   return (
     <div style={{
@@ -729,6 +746,22 @@ function ApproachCard({ approach, targetRoot, targetQuality, isExpanded, onToggl
               {approach.tip}
             </p>
           </div>
+
+          {/* Play chord sequence */}
+          <button
+            onClick={handlePlay}
+            style={{
+              marginTop: 14, width: '100%', padding: '11px',
+              background: playing ? `${color}20` : '#1c2128',
+              border: `1px solid ${playing ? color : '#30363d'}`,
+              borderRadius: 8, color: playing ? color : '#8b949e',
+              fontSize: 13, fontWeight: 600,
+              fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            {playing ? '♩♩♩ Playing sequence…' : `▶  Play sequence (${chain.length} chords)`}
+          </button>
         </div>
       )}
     </div>
