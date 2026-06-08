@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { computeStreak } from './shared/hooks/useExerciseScore';
 import { useAuth } from './shared/context/AuthContext';
 import { useStats } from './shared/context/StatsContext';
-import { useGlobalKey, CHROMATIC_KEYS } from './shared/context/GlobalKeyContext';
+import { useGlobalKey, CHROMATIC_KEYS, INSTRUMENT_PRESETS } from './shared/context/GlobalKeyContext';
 import AuthGate from './features/auth/AuthGate';
 import PracticeJournalFeature from './features/practice-journal/PracticeJournalFeature';
 import SongLibraryFeature from './features/song-library/SongLibraryFeature';
@@ -471,14 +471,17 @@ function MobileMenu({
 // ─── Global key picker ────────────────────────────────────────────────────────
 
 function GlobalKeyPicker() {
-  const { globalKey, setGlobalKey } = useGlobalKey();
+  const { globalKey, setGlobalKey, instrumentLabel, setInstrument, writeNote } = useGlobalKey();
   const [open, setOpen] = useState(false);
+
+  const displayKey = writeNote(globalKey);
+  const isTransposed = instrumentLabel !== 'Concert';
 
   return (
     <div style={{ position: 'relative', alignSelf: 'center', flexShrink: 0 }}>
       <button
         onClick={() => setOpen(o => !o)}
-        title="Set preferred key for all features"
+        title="Set key and instrument transposition"
         style={{
           display: 'flex', alignItems: 'center', gap: 5,
           background: open ? '#7c3aed18' : 'none',
@@ -487,14 +490,23 @@ function GlobalKeyPicker() {
           padding: '4px 10px',
           cursor: 'pointer',
           fontSize: 13, fontWeight: 600,
-          color: globalKey !== 'C' ? '#c4b5fd' : '#8b949e',
+          color: (displayKey !== 'C' || isTransposed) ? '#c4b5fd' : '#8b949e',
           fontFamily: "'DM Sans', sans-serif",
           transition: 'all 0.15s',
           marginRight: 6,
         }}
       >
         <span style={{ fontSize: 11, opacity: 0.6 }}>♩</span>
-        {globalKey}
+        {displayKey}
+        {isTransposed && (
+          <span style={{
+            fontSize: 9, fontWeight: 700, letterSpacing: '0.04em',
+            background: '#7c3aed40', color: '#c4b5fd',
+            borderRadius: 4, padding: '1px 4px', marginLeft: 1,
+          }}>
+            {instrumentLabel}
+          </span>
+        )}
       </button>
 
       {open && (
@@ -503,11 +515,12 @@ function GlobalKeyPicker() {
           <div style={{
             position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 301,
             background: '#1c2128', border: '1px solid #30363d', borderRadius: 12,
-            padding: 12, minWidth: 200,
+            padding: 12, minWidth: 220,
             boxShadow: '0 12px 36px rgba(0,0,0,0.5)',
           }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#4b5563', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
-              Global key
+            {/* Concert key */}
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#4b5563', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+              Concert key
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
               {CHROMATIC_KEYS.map(k => (
@@ -530,8 +543,42 @@ function GlobalKeyPicker() {
                 </button>
               ))}
             </div>
-            <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #21262d', fontSize: 11, color: '#4b5563', lineHeight: 1.5 }}>
-              Sets the starting key for all theory tools
+
+            {/* Instrument transposition */}
+            <div style={{ borderTop: '1px solid #21262d', paddingTop: 10, marginTop: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#4b5563', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+                Instrument
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+                {INSTRUMENT_PRESETS.map(p => (
+                  <button
+                    key={p.label}
+                    onClick={() => setInstrument(p.label)}
+                    style={{
+                      padding: '8px 4px',
+                      borderRadius: 8,
+                      border: `1px solid ${instrumentLabel === p.label ? '#7c3aed' : '#30363d'}`,
+                      background: instrumentLabel === p.label ? '#7c3aed22' : 'none',
+                      color: instrumentLabel === p.label ? '#c4b5fd' : '#e6edf3',
+                      fontSize: 12, fontWeight: 600,
+                      fontFamily: "'DM Sans', sans-serif",
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+              {isTransposed ? (
+                <div style={{ marginTop: 8, fontSize: 11, color: '#6b7280', lineHeight: 1.5 }}>
+                  Written key: <span style={{ color: '#c4b5fd', fontWeight: 600 }}>{displayKey}</span>
+                  {' '}· All note names shifted for {instrumentLabel} players
+                </div>
+              ) : (
+                <div style={{ marginTop: 8, fontSize: 11, color: '#4b5563', lineHeight: 1.5 }}>
+                  Concert pitch · No transposition
+                </div>
+              )}
             </div>
           </div>
         </>
@@ -616,7 +663,7 @@ function UserMenu({ onSignOut, onProfile }: { onSignOut: () => void; onProfile: 
 export default function App() {
   const { user, loading: authLoading, signOut } = useAuth();
   const { stats } = useStats();
-  const { globalKey, setGlobalKey } = useGlobalKey();
+  const { globalKey, setGlobalKey, instrumentLabel, writeNote } = useGlobalKey();
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -663,8 +710,9 @@ export default function App() {
   const activeToolLabel = GROUPS.flatMap(g => g.tabs).find(t => t.id === activeTab)?.label ?? null;
 
   // Build context string for Modal Buddy
+  const writtenKey = writeNote(globalKey);
   const buddyContext = activeToolLabel && activeTab !== 'home'
-    ? `${activeToolLabel} — key: ${globalKey}`
+    ? `${activeToolLabel} — concert key: ${globalKey}${instrumentLabel !== 'Concert' ? `, written key: ${writtenKey} (${instrumentLabel} instrument)` : ''}`
     : undefined;
 
 

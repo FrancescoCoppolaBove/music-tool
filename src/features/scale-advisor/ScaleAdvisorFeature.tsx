@@ -940,14 +940,14 @@ function ProgressionChordCard({
 type Mode = 'single' | 'progression';
 
 export default function ScaleAdvisorFeature() {
-  const { globalKey } = useGlobalKey();
+  const { globalKey, writeNote } = useGlobalKey();
 
   const saved = useRef(storageGet<SASession | null>(SA_KEY, null));
 
   const [mode, setMode] = useState<Mode>(saved.current?.mode ?? 'single');
-  const [root, setRoot] = useState(saved.current?.root ?? globalKey);
+  const [root, setRoot] = useState(() => saved.current?.root ?? writeNote(globalKey));
 
-  useEffect(() => { setRoot(globalKey); }, [globalKey]);
+  useEffect(() => { setRoot(writeNote(globalKey)); }, [globalKey, writeNote]);
   const [quality, setQuality] = useState(saved.current?.quality ?? 'maj7');
   const [progressionText, setProgressionText] = useState(saved.current?.progressionText ?? 'Dm7 G7 Cmaj7');
 
@@ -955,7 +955,6 @@ export default function ScaleAdvisorFeature() {
   useEffect(() => {
     storageSet<SASession>(SA_KEY, { mode, root, quality, progressionText });
   }, [mode, root, quality, progressionText]);
-
   const [parsedChords, setParsedChords] = useState<Array<{ root: string; quality: string; symbol: string }>>([]);
   const [parseError, setParseError] = useState('');
 

@@ -8,13 +8,13 @@ interface SessionState { key: string; mode: KeyMode; length: number; style: Harm
 const SESSION_KEY = 'session_chordProgression';
 
 export function useChordProgression() {
-  const { globalKey } = useGlobalKey();
+  const { globalKey, writeNote } = useGlobalKey();
 
   // Restore last session on first mount; fall back to globalKey/defaults.
   const saved = useRef(storageGet<SessionState | null>(SESSION_KEY, null));
 
-  const [key, setKey] = useState(saved.current?.key ?? globalKey);
-  useEffect(() => { setKey(globalKey); }, [globalKey]);
+  const [key, setKey] = useState(() => saved.current?.key ?? writeNote(globalKey));
+  useEffect(() => { setKey(writeNote(globalKey)); }, [globalKey, writeNote]);
 
   const [mode, setMode] = useState<KeyMode>(saved.current?.mode ?? 'major');
   const [length, setLength] = useState(saved.current?.length ?? 4);
