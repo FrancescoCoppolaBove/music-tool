@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Note, Scale } from 'tonal';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 // ─── Google Fonts ─────────────────────────────────────────────────────────────
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');`;
@@ -747,17 +748,34 @@ export default function RiffArchitectFeature() {
                 const notes = ustNotes[i];
                 const open = expandedUST === i;
                 return (
-                  <button key={i} onClick={() => setExpandedUST(open ? null : i)} style={{
-                    background: open ? `${color}12` : '#161b22',
-                    border: `1px solid ${open ? color + '50' : '#30363d'}`,
-                    borderRadius: 8, padding: '13px 14px',
-                    textAlign: 'left', cursor: 'pointer', transition: 'all 0.15s',
-                  }}>
+                  <div key={i} role="button" tabIndex={0}
+                    onClick={() => setExpandedUST(open ? null : i)}
+                    onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setExpandedUST(open ? null : i)}
+                    style={{
+                      background: open ? `${color}12` : '#161b22',
+                      border: `1px solid ${open ? color + '50' : '#30363d'}`,
+                      borderRadius: 8, padding: '13px 14px',
+                      textAlign: 'left', cursor: 'pointer', transition: 'all 0.15s',
+                    }}>
                     <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: open ? color : '#6b7280', fontWeight: 500, marginBottom: 6 }}>
                       {ust.label}
                     </div>
-                    <div style={{ display: 'flex', gap: 4, marginBottom: 6, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 4, marginBottom: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                       {notes.map(n => <NoteChip key={n} note={n} color={color} />)}
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await audioPlayer.preloadAllNotes();
+                          audioPlayer.playChord(notes.map(n => `${n}3`));
+                        }}
+                        style={{
+                          marginLeft: 4, width: 20, height: 20, borderRadius: '50%',
+                          background: '#1c2128', border: `1px solid ${color}40`,
+                          cursor: 'pointer', fontSize: 9, color,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          padding: 0, flexShrink: 0,
+                        }}
+                      >▶</button>
                     </div>
                     <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 10, color: '#4b5563' }}>
                       → {ust.resultingColor}
@@ -776,7 +794,7 @@ export default function RiffArchitectFeature() {
                         </div>
                       </div>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -792,19 +810,36 @@ export default function RiffArchitectFeature() {
                 const notes = pentaNotes[i];
                 const open = expandedPenta === i;
                 return (
-                  <button key={i} onClick={() => setExpandedPenta(open ? null : i)} style={{
-                    background: open ? `${color}0c` : '#161b22',
-                    border: `1px solid ${open ? color + '44' : '#30363d'}`,
-                    borderRadius: 8, padding: '12px 16px',
-                    textAlign: 'left', cursor: 'pointer', transition: 'all 0.15s',
-                    display: 'flex', alignItems: 'flex-start', gap: 14,
-                  }}>
+                  <div key={i} role="button" tabIndex={0}
+                    onClick={() => setExpandedPenta(open ? null : i)}
+                    onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setExpandedPenta(open ? null : i)}
+                    style={{
+                      background: open ? `${color}0c` : '#161b22',
+                      border: `1px solid ${open ? color + '44' : '#30363d'}`,
+                      borderRadius: 8, padding: '12px 16px',
+                      textAlign: 'left', cursor: 'pointer', transition: 'all 0.15s',
+                      display: 'flex', alignItems: 'flex-start', gap: 14,
+                    }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: open ? color : '#8b949e', fontWeight: 500, marginBottom: 6 }}>
                         {ps.label}
                       </div>
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 4 }}>
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 4, alignItems: 'center' }}>
                         {notes.map(n => <NoteChip key={n} note={n} color={color} />)}
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            await audioPlayer.preloadAllNotes();
+                            await audioPlayer.playSequence(notes.map(n => `${n}3`), 180, 0.7);
+                          }}
+                          style={{
+                            marginLeft: 4, width: 20, height: 20, borderRadius: '50%',
+                            background: '#1c2128', border: `1px solid ${color}40`,
+                            cursor: 'pointer', fontSize: 9, color,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            padding: 0, flexShrink: 0,
+                          }}
+                        >▶</button>
                       </div>
                       {open && (
                         <div style={{ marginTop: 8, fontFamily: "'DM Mono', monospace", fontSize: 11, color: '#6b7280', lineHeight: 1.65 }}>
@@ -822,7 +857,7 @@ export default function RiffArchitectFeature() {
                     <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 9, color: '#4b5563', flexShrink: 0, marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       {ps.scaleType}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
