@@ -1,8 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   noteToSemitone, semitoneToNote, getScaleNotes,
   MAJOR_DIATONIC_QUALITY, DEGREE_SEMITONE,
 } from '@shared/utils/musicTheory';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
+import { audioPlayer } from '../ear-training/utils/audio-player';
+
+function keyToFifthsIdx(key: string): number | null {
+  const semitone = noteToSemitone(key);
+  const idx = FIFTHS_ORDER.findIndex(k => noteToSemitone(k) === semitone);
+  return idx >= 0 ? idx : null;
+}
 
 // Clock-wise from C (0 = top, going CW by 5ths)
 const FIFTHS_ORDER = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
@@ -28,9 +36,15 @@ function getDiatonicChords(key: string) {
 }
 
 export default function CircleOfFifthsFeature() {
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(0);
+  const { globalKey, writeNote } = useGlobalKey();
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(() => keyToFifthsIdx(writeNote(globalKey)) ?? 0);
   const [showMinors, setShowMinors] = useState(true);
   const [highlightRelated, setHighlightRelated] = useState(true);
+
+  useEffect(() => {
+    const idx = keyToFifthsIdx(writeNote(globalKey));
+    if (idx !== null) setSelectedIdx(idx);
+  }, [globalKey, writeNote]);
 
   const selectedKey = selectedIdx !== null ? FIFTHS_ORDER[selectedIdx] : null;
 
@@ -119,7 +133,16 @@ export default function CircleOfFifthsFeature() {
               const isRelated = highlightRelated && relatedIndices.has(i) && selectedIdx !== null;
               const opacity = selectedIdx === null ? 1 : isRelated ? 1 : 0.3;
               return (
-                <g key={key} onClick={() => setSelectedIdx(i === selectedIdx ? null : i)}>
+                <g key={key} onClick={async () => {
+                  setSelectedIdx(i === selectedIdx ? null : i);
+                  await audioPlayer.preloadAllNotes();
+                  const semitone = noteToSemitone(key);
+                  const notes = [semitone, semitone + 4, semitone + 7].map(s => {
+                    const n = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][((s % 12) + 12) % 12];
+                    return `${n}3`;
+                  });
+                  audioPlayer.playChord(notes);
+                }}>
                   <path
                     d={sectorPath(INNER_R + 4, OUTER_R, i)}
                     fill={isSelected ? color : `${color}60`}
@@ -262,13 +285,26 @@ export default function CircleOfFifthsFeature() {
                   Diatonic Chords in {selectedKey} Major
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: 8 }}>
-                  {diatonicChords.map(({ degree, symbol, quality }) => {
+                  {diatonicChords.map(({ degree, symbol, root, quality }) => {
                     const fnColor = ({ I: '#10b981', IV: '#3b82f6', V: '#ef4444' } as Record<string, string>)[degree] ?? '#6b7280';
                     return (
-                      <div key={degree} style={{
-                        background: '#0d1117', border: `1px solid ${fnColor}30`,
-                        borderRadius: 8, padding: '8px 10px', textAlign: 'center',
-                      }}>
+                      <div
+                        key={degree}
+                        title="Click to play"
+                        onClick={async () => {
+                          const { Chord } = await import('tonal');
+                          const notes = Chord.get(symbol).notes;
+                          if (notes.length > 0) {
+                            await audioPlayer.preloadAllNotes();
+                            audioPlayer.playChord(notes.map(n => `${n}3`));
+                          }
+                        }}
+                        style={{
+                          background: '#0d1117', border: `1px solid ${fnColor}30`,
+                          borderRadius: 8, padding: '8px 10px', textAlign: 'center',
+                          cursor: 'pointer', transition: 'border-color 0.12s',
+                        }}
+                      >
                         <div style={{ fontSize: 11, color: fnColor, fontWeight: 600 }}>{degree}</div>
                         <div style={{ fontSize: 16, fontWeight: 700, color: '#e6edf3', fontFamily: 'monospace', margin: '2px 0' }}>
                           {symbol}
