@@ -901,10 +901,10 @@ function ModeCharacterGrid() {
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function MelodyArchitectFeature() {
-  const { globalKey } = useGlobalKey();
-  const [root, setRoot] = useState(globalKey);
+  const { globalKey, writeNote } = useGlobalKey();
+  const [root, setRoot] = useState(() => writeNote(globalKey));
 
-  useEffect(() => { setRoot(globalKey); }, [globalKey]);
+  useEffect(() => { setRoot(writeNote(globalKey)); }, [globalKey, writeNote]);
   const [mode, setMode] = useState('major');
   const [contourId, setContourId] = useState('arch');
   const [structureId, setStructureId] = useState('qa');

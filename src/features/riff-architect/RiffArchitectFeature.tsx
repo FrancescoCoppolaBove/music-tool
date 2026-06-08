@@ -541,14 +541,14 @@ function SectionLabel({ text, color }: { text: string; color: string }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function RiffArchitectFeature() {
-  const { globalKey } = useGlobalKey();
+  const { globalKey, writeNote } = useGlobalKey();
   const [activeArtistId, setActiveArtistId] = useState('snarkyPuppy');
   const [rhythmMode, setRhythmMode] = useState<'euclidean' | 'polyrhythm' | 'displacement' | 'meters'>('euclidean');
   const [selectedEuclid, setSelectedEuclid] = useState(3);
   const [selectedPoly, setSelectedPoly] = useState(0);
-  const [selectedRoot, setSelectedRoot] = useState(globalKey);
+  const [selectedRoot, setSelectedRoot] = useState(() => writeNote(globalKey));
 
-  useEffect(() => { setSelectedRoot(globalKey); }, [globalKey]);
+  useEffect(() => { setSelectedRoot(writeNote(globalKey)); }, [globalKey, writeNote]);
   const [expandedUST, setExpandedUST] = useState<number | null>(null);
   const [expandedPenta, setExpandedPenta] = useState<number | null>(null);
   const [selectedMeterLabel, setSelectedMeterLabel] = useState('5/4');

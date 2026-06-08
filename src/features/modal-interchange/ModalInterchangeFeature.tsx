@@ -60,10 +60,10 @@ function buildModeChords(root: string, modeName: string, homeKey: string): ModeC
 }
 
 export default function ModalInterchangeFeature() {
-  const { globalKey } = useGlobalKey();
-  const [selectedKey, setSelectedKey] = useState(globalKey);
+  const { globalKey, writeNote } = useGlobalKey();
+  const [selectedKey, setSelectedKey] = useState(() => writeNote(globalKey));
 
-  useEffect(() => { setSelectedKey(globalKey); }, [globalKey]);
+  useEffect(() => { setSelectedKey(writeNote(globalKey)); }, [globalKey, writeNote]);
   const [selectedModes, setSelectedModes] = useState<string[]>(['aeolian', 'dorian', 'mixolydian']);
   const [showAll, setShowAll] = useState(false);
   const [focusedChord, setFocusedChord] = useState<{ symbol: string; mode: string; desc?: string } | null>(null);

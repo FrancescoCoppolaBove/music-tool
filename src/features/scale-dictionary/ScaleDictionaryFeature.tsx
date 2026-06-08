@@ -86,10 +86,10 @@ interface ScaleEntry {
 }
 
 export default function ScaleDictionaryFeature() {
-  const { globalKey } = useGlobalKey();
-  const [selectedKey, setSelectedKey] = useState(globalKey);
+  const { globalKey, writeNote } = useGlobalKey();
+  const [selectedKey, setSelectedKey] = useState(() => writeNote(globalKey));
 
-  useEffect(() => { setSelectedKey(globalKey); }, [globalKey]);
+  useEffect(() => { setSelectedKey(writeNote(globalKey)); }, [globalKey, writeNote]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [search, setSearch] = useState('');
   const [showIntervals, setShowIntervals] = useState(false);
