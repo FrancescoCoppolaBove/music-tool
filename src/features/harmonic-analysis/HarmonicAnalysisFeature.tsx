@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Chord, Key, Progression } from 'tonal';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 // ─── Data Types ───────────────────────────────────────────────────────────────
 
@@ -531,6 +532,13 @@ function ChordCard({
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={async () => {
+        if (chord.notes.length > 0) {
+          await audioPlayer.preloadAllNotes();
+          audioPlayer.playChord(chord.notes.map(n => `${n}3`));
+        }
+      }}
+      title="Click to play chord"
       style={{
         background: bgColor,
         border: `1px ${chord.fn === 'B' ? 'dashed' : 'solid'} ${borderColor}`,
@@ -543,7 +551,7 @@ function ChordCard({
         flexDirection: 'column',
         alignItems: 'center',
         gap: 4,
-        cursor: 'default',
+        cursor: 'pointer',
         transition: 'border-color 0.15s, background 0.15s',
         boxShadow: hovered ? `0 0 14px ${fnColor.text}30` : 'none',
       }}

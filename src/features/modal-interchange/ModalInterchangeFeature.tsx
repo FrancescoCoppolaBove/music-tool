@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Scale, Chord, Note } from 'tonal';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -228,13 +229,20 @@ export default function ModalInterchangeFeature() {
                         desc: isBorrowed ? `Borrowed from ${mode.label} — not in ${selectedKey} major` : `Also in ${selectedKey} major`,
                       })}
                       onMouseLeave={() => setFocusedChord(null)}
-                      onClick={() => setFocusedChord(prev =>
-                        prev?.symbol === chord.symbol ? null : {
-                          symbol: chord.symbol,
-                          mode: mode.label,
-                          desc: isBorrowed ? `Borrowed from ${mode.label} — not in ${selectedKey} major` : `Also in ${selectedKey} major`,
+                      onClick={async () => {
+                        setFocusedChord(prev =>
+                          prev?.symbol === chord.symbol ? null : {
+                            symbol: chord.symbol,
+                            mode: mode.label,
+                            desc: isBorrowed ? `Borrowed from ${mode.label} — not in ${selectedKey} major` : `Also in ${selectedKey} major`,
+                          }
+                        );
+                        const notes = Chord.get(chord.symbol).notes;
+                        if (notes.length > 0) {
+                          await audioPlayer.preloadAllNotes();
+                          audioPlayer.playChord(notes.map(n => `${n}3`));
                         }
-                      )}
+                      }}
                       style={{
                         padding: '8px 12px', borderRadius: 8, cursor: 'pointer', textAlign: 'center',
                         background: isBorrowed ? `${mode.color}15` : '#161b22',
