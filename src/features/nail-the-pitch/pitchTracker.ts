@@ -60,6 +60,8 @@ export class PitchTracker {
 
   // Light temporal smoothing to tame jitter without killing vibrato.
   private history: number[] = [];
+  // Voiced-frame streak for hysteresis: once voice is detected, accept weaker signals.
+  private voicedStreak = 0;
 
   constructor(threshold = DEFAULT_THRESHOLD) {
     this.threshold = threshold;
@@ -86,7 +88,7 @@ export class PitchTracker {
     let energy = 0;
     for (let i = 0; i < W; i++) energy += buffer[i] * buffer[i];
     const rms = Math.sqrt(energy / W);
-    if (rms < 0.004) { this.history.length = 0; return UNVOICED; }
+    if (rms < 0.002) { this.voicedStreak = 0; this.history.length = 0; return UNVOICED; }
 
     // 1) Difference function d(tau).
     yin[0] = 1;
@@ -123,9 +125,10 @@ export class PitchTracker {
       }
     }
     if (tauEstimate === -1) {
-      // Fallback: accept the global minimum if it's at least moderately periodic.
-      if (globalMinVal < 0.55) tauEstimate = globalMinTau;
-      else { this.history.length = 0; return UNVOICED; }
+      // Fallback with hysteresis: once voiced for >2 frames, accept weaker periodicity.
+      const limit = this.voicedStreak > 2 ? 0.85 : 0.75;
+      if (globalMinVal < limit) tauEstimate = globalMinTau;
+      else { this.voicedStreak = 0; this.history.length = 0; return UNVOICED; }
     }
 
     const clarity = Math.max(0, 1 - yin[tauEstimate]);
@@ -141,7 +144,7 @@ export class PitchTracker {
     }
 
     const frequency = sampleRate / betterTau;
-    if (frequency < MIN_F0 || frequency > MAX_F0) { this.history.length = 0; return UNVOICED; }
+    if (frequency < MIN_F0 || frequency > MAX_F0) { this.voicedStreak = 0; this.history.length = 0; return UNVOICED; }
 
     // 5) Median-of-3 smoothing on frequency to suppress single-frame outliers.
     this.history.push(frequency);
@@ -153,10 +156,11 @@ export class PitchTracker {
     const cents = (midi - rounded) * 100;
     const { note, octave } = midiToNoteName(midi);
 
+    this.voicedStreak = Math.min(this.voicedStreak + 1, 20);
     return { frequency: smoothed, midi, note, octave, cents, clarity, voiced: true };
   }
 
-  reset() { this.history.length = 0; }
+  reset() { this.history.length = 0; this.voicedStreak = 0; }
 }
 
 function median(arr: number[]): number {

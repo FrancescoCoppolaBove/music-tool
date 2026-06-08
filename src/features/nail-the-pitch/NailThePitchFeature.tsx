@@ -13,6 +13,30 @@ const MAJOR = [0, 2, 4, 5, 7, 9, 11];
 
 interface Sample { t: number; midi: number; cents: number; voiced: boolean; }
 
+// Rounded-rect path helper (works everywhere, no roundRect API needed)
+function blobRect(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  const rr = Math.min(r, w / 2, h / 2);
+  g.beginPath();
+  g.moveTo(x + rr, y);
+  g.lineTo(x + w - rr, y);
+  g.arcTo(x + w, y, x + w, y + rr, rr);
+  g.lineTo(x + w, y + h - rr);
+  g.arcTo(x + w, y + h, x + w - rr, y + h, rr);
+  g.lineTo(x + rr, y + h);
+  g.arcTo(x, y + h, x, y + h - rr, rr);
+  g.lineTo(x, y + rr);
+  g.arcTo(x, y, x + rr, y, rr);
+  g.closePath();
+}
+
+// Returns an rgba string for the given cents deviation and opacity
+function centsRgba(cents: number, alpha: number): string {
+  const a = Math.abs(cents);
+  if (a < 15) return `rgba(52,211,153,${alpha})`;
+  if (a < 30) return `rgba(251,191,36,${alpha})`;
+  return `rgba(248,113,113,${alpha})`;
+}
+
 const CSS = `
   .ntp-container { max-width: 760px; margin: 0 auto; }
   .ntp-header { text-align: center; margin-bottom: 20px; }
@@ -157,52 +181,73 @@ export default function NailThePitchFeature() {
 
     const samples = samplesRef.current;
 
-    // Quantized note blocks (the target lane you sang)
-    g.fillStyle = 'rgba(124,58,237,0.45)';
-    let segStart = -1, segMidi = NaN, prevT = 0;
-    const flush = (endT: number) => {
-      if (segStart < 0 || isNaN(segMidi)) return;
-      const x1 = timeToX(segStart), x2 = Math.max(timeToX(endT), x1 + 2);
-      const y = midiToY(segMidi);
-      g.fillStyle = 'rgba(124,58,237,0.4)';
-      g.fillRect(x1, y - rowH * 0.36, x2 - x1, rowH * 0.72);
-    };
+    // ── Melodyne-style note blobs ──────────────────────────────────────────
+    // Group consecutive voiced samples into note segments. A new segment starts
+    // when the quantized MIDI note changes or there's a gap of >150 ms.
+    type Seg = { midiNote: number; startT: number; endT: number; pts: Sample[] };
+    const segs: Seg[] = [];
+    let cur: Seg | null = null;
     for (const s of samples) {
-      if (!s.voiced) { flush(prevT); segStart = -1; segMidi = NaN; prevT = s.t; continue; }
-      const rounded = Math.round(s.midi);
-      if (rounded !== segMidi || s.t - prevT > 120) { flush(prevT); segStart = s.t; segMidi = rounded; }
-      prevT = s.t;
+      if (!s.voiced) { if (cur) { segs.push(cur); cur = null; } continue; }
+      const mn = Math.round(s.midi);
+      if (cur && mn === cur.midiNote && s.t - cur.endT <= 150) {
+        cur.pts.push(s); cur.endT = s.t;
+      } else {
+        if (cur) segs.push(cur);
+        cur = { midiNote: mn, startT: s.t, endT: s.t, pts: [s] };
+      }
     }
-    flush(prevT);
+    if (cur) segs.push(cur);
 
-    // Continuous pitch curve, drawn as independent segments colored by tuning
-    // accuracy (robust: a single voiced frame still shows as a dot).
-    g.lineWidth = 2.5; g.lineCap = 'round'; g.lineJoin = 'round';
-    let lastVoiced: Sample | null = null;
-    for (let i = 0; i < samples.length; i++) {
-      const s = samples[i];
-      if (!s.voiced) { lastVoiced = null; continue; }
-      const x = timeToX(s.t), y = midiToY(s.midi);
-      const col = centsColor(s.cents);
-      if (lastVoiced && s.t - lastVoiced.t <= 120) {
-        g.strokeStyle = col;
+    const blobH = Math.max(rowH * 0.78, 8);
+    for (const seg of segs) {
+      const x1 = timeToX(seg.startT);
+      const x2 = Math.max(timeToX(seg.endT), x1 + 6);
+      const yCenter = midiToY(seg.midiNote);
+      const avgCents = seg.pts.reduce((acc, p) => acc + Math.abs(p.cents), 0) / seg.pts.length;
+
+      // Thick filled blob at the quantized note row
+      g.fillStyle = centsRgba(avgCents, 0.52);
+      blobRect(g, x1, yCenter - blobH / 2, x2 - x1, blobH, 4);
+      g.fill();
+
+      // Crisp border
+      g.strokeStyle = centsRgba(avgCents, 0.82);
+      g.lineWidth = 1;
+      blobRect(g, x1, yCenter - blobH / 2, x2 - x1, blobH, 4);
+      g.stroke();
+
+      // Pitch deviation curve inside blob — shows vibrato and intonation drift
+      if (seg.pts.length >= 2) {
+        g.strokeStyle = 'rgba(255,255,255,0.78)';
+        g.lineWidth = 1.5;
+        g.lineCap = 'round';
+        g.lineJoin = 'round';
         g.beginPath();
-        g.moveTo(timeToX(lastVoiced.t), midiToY(lastVoiced.midi));
-        g.lineTo(x, y);
+        for (let i = 0; i < seg.pts.length; i++) {
+          const p = seg.pts[i];
+          i === 0 ? g.moveTo(timeToX(p.t), midiToY(p.midi))
+                  : g.lineTo(timeToX(p.t), midiToY(p.midi));
+        }
         g.stroke();
       } else {
-        // isolated point — draw a small dot so it's visible
-        g.fillStyle = col;
-        g.beginPath(); g.arc(x, y, 1.8, 0, Math.PI * 2); g.fill();
+        // Single sample — small bright dot
+        const p = seg.pts[0];
+        g.fillStyle = 'rgba(255,255,255,0.85)';
+        g.beginPath();
+        g.arc(timeToX(p.t), midiToY(p.midi), 2.5, 0, Math.PI * 2);
+        g.fill();
       }
-      lastVoiced = s;
     }
-    // Live marker at the most recent voiced sample
-    if (lastVoiced) {
-      const x = timeToX(lastVoiced.t), y = midiToY(lastVoiced.midi);
-      g.fillStyle = centsColor(lastVoiced.cents);
-      g.beginPath(); g.arc(x, y, 4.5, 0, Math.PI * 2); g.fill();
-      g.strokeStyle = '#0d1117'; g.lineWidth = 1.5; g.stroke();
+
+    // Live marker: bright tip at the most-recent voiced sample
+    if (segs.length > 0) {
+      const lastSeg = segs[segs.length - 1];
+      const last = lastSeg.pts[lastSeg.pts.length - 1];
+      const lx = timeToX(last.t), ly = midiToY(last.midi);
+      g.fillStyle = centsColor(last.cents);
+      g.beginPath(); g.arc(lx, ly, 5.5, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#0d1117'; g.lineWidth = 2; g.stroke();
     }
 
     // Now-line (playhead)
@@ -354,8 +399,8 @@ export default function NailThePitchFeature() {
       </div>
 
       <p className="ntp-tip">
-        The white-to-green line is your actual pitch; the purple lane is the nearest note.<br />
-        Green = in tune, amber/red = sharp or flat. In-key rows are tinted for the current global key.
+        Colored blobs = notes you sang. White curve inside = your exact pitch (vibrato visible).<br />
+        Green = in tune · amber/red = sharp or flat · purple tint = in-key rows for current global key.
       </p>
     </div>
   );
