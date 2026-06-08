@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
-import { Note, Scale } from 'tonal';
+import { Note, Scale, Chord } from 'tonal';
 import { storageGet, storageSet } from '@shared/utils/storage';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 const SA_KEY = 'session_songArchitect';
 
@@ -392,6 +393,9 @@ export default function SongArchitectFeature() {
   const targetModeColor = HOME_MODES.find(m => m.name === targetMode)?.color ?? '#06b6d4';
   const targetModeLabel = HOME_MODES.find(m => m.name === targetMode)?.label ?? targetMode;
 
+  const [playingProgId, setPlayingProgId] = useState<string | null>(null);
+  const stopPlayRef = useRef(false);
+
   const progressions = useMemo(() => {
     const progs = PROG_LIBRARY[targetMode] ?? PROG_LIBRARY['major'] ?? [];
     if (activeStyles.length === 0) return progs;
@@ -628,8 +632,36 @@ export default function SongArchitectFeature() {
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#e6edf3' }}>{prog.name}</div>
                         {prog.artistRef && <div style={{ fontSize: 11, color: '#7c3aed', marginTop: 1 }}>{prog.artistRef}</div>}
                       </div>
-                      <div style={{ display: 'flex', gap: 2 }}>
-                        {[1, 2, 3].map(d => <span key={d} style={{ width: 5, height: 5, borderRadius: '50%', background: d <= prog.complexity ? targetModeColor : '#30363d', display: 'inline-block' }} />)}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                          {[1, 2, 3].map(d => <span key={d} style={{ width: 5, height: 5, borderRadius: '50%', background: d <= prog.complexity ? targetModeColor : '#30363d', display: 'inline-block' }} />)}
+                        </div>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (playingProgId === prog.id) { stopPlayRef.current = true; setPlayingProgId(null); return; }
+                            stopPlayRef.current = false;
+                            setPlayingProgId(prog.id);
+                            await audioPlayer.preloadAllNotes();
+                            for (const sym of chords) {
+                              if (stopPlayRef.current) break;
+                              const cn = Chord.get(sym).notes;
+                              if (cn.length > 0) audioPlayer.playChord(cn.map(n => `${n}3`));
+                              await audioPlayer.delay(1100);
+                            }
+                            setPlayingProgId(null);
+                          }}
+                          style={{
+                            width: 22, height: 22, borderRadius: '50%',
+                            background: playingProgId === prog.id ? `${targetModeColor}30` : '#21262d',
+                            border: `1px solid ${playingProgId === prog.id ? targetModeColor : '#30363d'}`,
+                            color: playingProgId === prog.id ? targetModeColor : '#6b7280',
+                            fontSize: 9, cursor: 'pointer', display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', padding: 0, flexShrink: 0,
+                          }}
+                        >
+                          {playingProgId === prog.id ? '⏹' : '▶'}
+                        </button>
                       </div>
                     </div>
 

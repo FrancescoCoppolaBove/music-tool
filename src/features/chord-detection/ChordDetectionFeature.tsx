@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Chord } from 'tonal';
 import { Mic, MicOff, ChevronRight, AlertCircle, Lock } from 'lucide-react';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 import {
   ChordEngine,
   toGlobalKeyName,
@@ -188,6 +190,7 @@ export default function ChordDetectionFeature({ onNavigateToScaleAdvisor }: Prop
   const [listening, setListening] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<AnalysisResult>(EMPTY);
+  const [playingChord, setPlayingChord] = useState(false);
 
   const streamRef = useRef<MediaStream | null>(null);
   const contextRef = useRef<AudioContext | null>(null);
@@ -326,6 +329,26 @@ export default function ChordDetectionFeature({ onNavigateToScaleAdvisor }: Prop
               )}
               {result.stable && <span className="cd-locked"><Lock size={9} /> locked</span>}
             </div>
+            <button
+              onClick={async () => {
+                if (playingChord) return;
+                setPlayingChord(true);
+                await audioPlayer.preloadAllNotes();
+                const cn = Chord.get(primary.symbol).notes;
+                if (cn.length > 0) audioPlayer.playChord(cn.map(n => `${n}3`));
+                await audioPlayer.delay(900);
+                setPlayingChord(false);
+              }}
+              style={{
+                marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '4px 10px', borderRadius: 7,
+                border: '1px solid #7c3aed60', background: '#7c3aed15',
+                color: playingChord ? '#a855f7' : '#c4b5fd',
+                fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
+              }}
+            >
+              {playingChord ? '♩♩♩' : '▶ Play chord'}
+            </button>
           </div>
           {onNavigateToScaleAdvisor && (
             <button className="cd-scales-btn" onClick={() => goToScales(primary)}>
