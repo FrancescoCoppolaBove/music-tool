@@ -1,4 +1,44 @@
+import { useState } from 'react';
 import type { GeneratedProgression, ResolvedChord, Technique } from '../types/progression.types';
+
+// ─── iReal Pro export ─────────────────────────────────────────────────────────
+
+function toIRealChord(sym: string): string {
+  if (!sym.trim()) return 'n';
+  const m = sym.trim().match(/^([A-G][b#]?)(.*)/);
+  if (!m) return sym;
+  const root = m[1];
+  let q = m[2] ?? '';
+  q = q.replace(/m7b5|min7b5|-7b5|ø7?/g, 'h7');
+  q = q.replace(/maj7|Maj7|M7/g, '^7');
+  q = q.replace(/maj9|Maj9/g, '^9');
+  q = q.replace(/maj|Maj/g, '^');
+  q = q.replace(/min7|m7/g, '-7');
+  q = q.replace(/min9|m9/g, '-9');
+  q = q.replace(/minor|min/g, '-');
+  if (q === 'm') q = '-';
+  q = q.replace(/dim7|°7/g, 'o7');
+  q = q.replace(/dim|°/g, 'o');
+  q = q.replace(/aug/g, '+');
+  q = q.replace(/sus4/g, 'sus');
+  q = q.replace(/sus2/g, '2');
+  q = q.replace(/alt/g, 'alt');
+  return root + q;
+}
+
+function buildProgressionIRealURL(prog: GeneratedProgression): string {
+  const style = prog.template.style === 'classic' ? 'Jazz Swing' : 'Pop';
+  const title = encodeURIComponent(prog.template.name);
+  const composer = encodeURIComponent('Tonic');
+  // One chord per bar; all chords in a single *A section
+  const bars = prog.chords.map((c, i) =>
+    i === prog.chords.length - 1
+      ? toIRealChord(c.symbol) + ' Z'
+      : toIRealChord(c.symbol) + ' |'
+  ).join('');
+  const chart = `[*AT44${bars}]`;
+  return `irealbook://${title}=${composer}=${style}=${prog.key}=n=${chart}`;
+}
 
 // ─── Scale recommendations ────────────────────────────────────────────────────
 
@@ -224,10 +264,21 @@ export default function ProgressionDisplay({ results, selectedId, onSelect }: Pr
 
 function ProgressionDetail({ progression }: { progression: GeneratedProgression }) {
   const { template, chords, key } = progression;
+  const [copied, setCopied] = useState(false);
 
   const uniqueTechniques = Array.from(new Set(
     chords.flatMap(c => c.techniqueLabel ? [c.techniqueLabel] : [])
   ));
+
+  function handleIRealExport() {
+    const url = buildProgressionIRealURL(progression);
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }).catch(() => {
+      window.open(url, '_blank');
+    });
+  }
 
   return (
     <div style={{
@@ -241,16 +292,36 @@ function ProgressionDetail({ progression }: { progression: GeneratedProgression 
           <h3 style={{ margin: 0, fontSize: 20, color: '#e6edf3' }}>{template.name}</h3>
           <div style={{ fontSize: 13, color: '#8b949e', marginTop: 4 }}>{template.description}</div>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>Inspired by</div>
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            {template.artists.slice(0, 4).map(a => (
-              <span key={a} style={{
-                padding: '1px 7px', background: '#1c2128', border: '1px solid #30363d',
-                borderRadius: 12, fontSize: 11, color: '#8b949e',
-              }}>{a}</span>
-            ))}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+          <div>
+            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>Inspired by</div>
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              {template.artists.slice(0, 4).map(a => (
+                <span key={a} style={{
+                  padding: '1px 7px', background: '#1c2128', border: '1px solid #30363d',
+                  borderRadius: 12, fontSize: 11, color: '#8b949e',
+                }}>{a}</span>
+              ))}
+            </div>
           </div>
+          {/* iReal Pro export */}
+          <button
+            onClick={handleIRealExport}
+            title="Copy iReal Pro URL — paste in iReal Pro via File > Open URL"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '6px 12px',
+              background: copied ? '#166534' : '#0d1117',
+              border: `1px solid ${copied ? '#22c55e' : '#30363d'}`,
+              borderRadius: 8, cursor: 'pointer',
+              fontSize: 12, fontWeight: 600,
+              color: copied ? '#86efac' : '#8b949e',
+              transition: 'all 0.2s',
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            {copied ? '✓ Copied!' : '⎘ Export to iReal Pro'}
+          </button>
         </div>
       </div>
 
