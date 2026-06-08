@@ -1,6 +1,7 @@
 import { useRef, useCallback, useState } from 'react';
 import { Note } from 'tonal';
 import type { ScaleMatch } from '../types/scale.types';
+import { audioPlayer } from '../../ear-training/utils/audio-player';
 
 const CATEGORY_COLORS: Record<string, string> = {
   Diatonic:   '#3b82f6',
@@ -90,6 +91,7 @@ const BATCH_SIZE = 30;
 export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleResultsProps) {
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [playingId, setPlayingId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = useCallback(() => {
@@ -374,6 +376,37 @@ export default function ScaleResults({ results, parsedNotes, rootNote }: ScaleRe
                         </div>
                       </div>
                     )}
+                  </div>
+
+                  {/* Play scale button */}
+                  <div>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (playingId === result.id) return;
+                        setPlayingId(result.id);
+                        await audioPlayer.preloadAllNotes();
+                        const notes = result.referenceScale.map(n => `${n}3`);
+                        notes.push(`${result.root}4`);
+                        await audioPlayer.playSequence(notes, 200, 0.7);
+                        setPlayingId(null);
+                      }}
+                      style={{
+                        background: playingId === result.id ? `${color}30` : `${color}15`,
+                        border: `1px solid ${color}60`,
+                        borderRadius: 6,
+                        color,
+                        fontSize: 12,
+                        padding: '5px 14px',
+                        cursor: playingId === result.id ? 'default' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        transition: 'background 0.2s',
+                      }}
+                    >
+                      {playingId === result.id ? '♩♩♩' : '▶ Play scale'}
+                    </button>
                   </div>
                 </div>
               )}
