@@ -1,17 +1,25 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { generateProgressions, getAvailableTechniques, type ProgressionFilter } from '../services/progressionGenerator';
 import type { GeneratedProgression, HarmonyStyle, KeyMode, Technique } from '../types/progression.types';
+import { storageGet, storageSet } from '@shared/utils/storage';
+
+interface SessionState { key: string; mode: KeyMode; length: number; style: HarmonyStyle | 'both'; techniques: Technique[] }
+const SESSION_KEY = 'session_chordProgression';
 
 export function useChordProgression() {
   const { globalKey } = useGlobalKey();
-  const [key, setKey] = useState(globalKey);
 
+  // Restore last session on first mount; fall back to globalKey/defaults.
+  const saved = useRef(storageGet<SessionState | null>(SESSION_KEY, null));
+
+  const [key, setKey] = useState(saved.current?.key ?? globalKey);
   useEffect(() => { setKey(globalKey); }, [globalKey]);
-  const [mode, setMode] = useState<KeyMode>('major');
-  const [length, setLength] = useState(4);
-  const [style, setStyle] = useState<HarmonyStyle | 'both'>('both');
-  const [techniques, setTechniques] = useState<Technique[]>([]);
+
+  const [mode, setMode] = useState<KeyMode>(saved.current?.mode ?? 'major');
+  const [length, setLength] = useState(saved.current?.length ?? 4);
+  const [style, setStyle] = useState<HarmonyStyle | 'both'>(saved.current?.style ?? 'both');
+  const [techniques, setTechniques] = useState<Technique[]>(saved.current?.techniques ?? []);
   const [results, setResults] = useState<GeneratedProgression[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -24,6 +32,11 @@ export function useChordProgression() {
 
   // Auto-generate on mount
   useEffect(() => { generate(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist settings whenever they change (not results, which are deterministic)
+  useEffect(() => {
+    storageSet<SessionState>(SESSION_KEY, { key, mode, length, style, techniques });
+  }, [key, mode, length, style, techniques]);
 
   function toggleTechnique(t: Technique) {
     setTechniques(prev =>

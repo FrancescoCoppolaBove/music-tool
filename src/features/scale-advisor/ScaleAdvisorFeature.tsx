@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Chord, Note } from 'tonal';
 import { transposeNote } from '@shared/utils/musicTheory';
+import { storageGet, storageSet } from '@shared/utils/storage';
+
+interface SASession { mode: 'single' | 'progression'; root: string; quality: string; progressionText: string }
+const SA_KEY = 'session_scaleAdvisor';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -937,14 +941,21 @@ type Mode = 'single' | 'progression';
 
 export default function ScaleAdvisorFeature() {
   const { globalKey } = useGlobalKey();
-  const [mode, setMode] = useState<Mode>('single');
 
-  const [root, setRoot] = useState(globalKey);
+  const saved = useRef(storageGet<SASession | null>(SA_KEY, null));
+
+  const [mode, setMode] = useState<Mode>(saved.current?.mode ?? 'single');
+  const [root, setRoot] = useState(saved.current?.root ?? globalKey);
 
   useEffect(() => { setRoot(globalKey); }, [globalKey]);
-  const [quality, setQuality] = useState('maj7');
+  const [quality, setQuality] = useState(saved.current?.quality ?? 'maj7');
+  const [progressionText, setProgressionText] = useState(saved.current?.progressionText ?? 'Dm7 G7 Cmaj7');
 
-  const [progressionText, setProgressionText] = useState('Dm7 G7 Cmaj7');
+  // Persist settings on change
+  useEffect(() => {
+    storageSet<SASession>(SA_KEY, { mode, root, quality, progressionText });
+  }, [mode, root, quality, progressionText]);
+
   const [parsedChords, setParsedChords] = useState<Array<{ root: string; quality: string; symbol: string }>>([]);
   const [parseError, setParseError] = useState('');
 

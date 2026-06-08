@@ -25,6 +25,7 @@ import ChordLandingFeature from './features/chord-landing/ChordLandingFeature';
 import SongArchitectFeature from './features/song-architect/SongArchitectFeature';
 import ChordDetectionFeature from './features/chord-detection/ChordDetectionFeature';
 import NailThePitchFeature from './features/nail-the-pitch/NailThePitchFeature';
+import ProfileFeature from './features/profile/ProfileFeature';
 import ModalBuddy from './shared/components/ModalBuddy';
 import HomePage from './features/home/HomePage';
 
@@ -159,7 +160,8 @@ type Tab =
   | 'songs'
   | 'daily'
   | 'chorddetect'
-  | 'nailpitch';
+  | 'nailpitch'
+  | 'profile';
 
 interface TabDef {
   id: Tab;
@@ -540,7 +542,7 @@ function GlobalKeyPicker() {
 
 // ─── User avatar dropdown ──────────────────────────────────────────────────────
 
-function UserMenu({ onSignOut }: { onSignOut: () => void }) {
+function UserMenu({ onSignOut, onProfile }: { onSignOut: () => void; onProfile: () => void }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
@@ -582,6 +584,16 @@ function UserMenu({ onSignOut }: { onSignOut: () => void }) {
             <div style={{ padding: '8px 12px', fontSize: 12, color: '#4b5563', borderBottom: '1px solid #21262d', marginBottom: 4 }}>
               {user.email}
             </div>
+            <button
+              onClick={() => { setOpen(false); onProfile(); }}
+              style={{
+                width: '100%', textAlign: 'left', padding: '8px 12px',
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: 13, color: '#e6edf3', borderRadius: 6,
+              }}
+            >
+              👤 Il mio profilo
+            </button>
             <button
               onClick={() => { setOpen(false); onSignOut(); }}
               style={{
@@ -777,7 +789,7 @@ export default function App() {
             )}
 
             {/* User avatar + sign out — desktop only */}
-            <UserMenu onSignOut={signOut} />
+            <UserMenu onSignOut={signOut} onProfile={() => handleSelectTab('profile')} />
 
             {/* ── Mobile: hamburger button (hidden on desktop) ── */}
             <button
@@ -851,6 +863,7 @@ export default function App() {
         {activeTab === 'songs'         && <SongLibraryFeature />}
         {activeTab === 'chorddetect'   && <ChordDetectionFeature onNavigateToScaleAdvisor={handleChordDetectToScaleAdvisor} />}
         {activeTab === 'nailpitch'     && <NailThePitchFeature />}
+        {activeTab === 'profile'       && <ProfileFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}

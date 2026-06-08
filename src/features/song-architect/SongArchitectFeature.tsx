@@ -1,11 +1,15 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Note, Scale } from 'tonal';
+import { storageGet, storageSet } from '@shared/utils/storage';
+
+const SA_KEY = 'session_songArchitect';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Category = 'thirds' | 'fourths' | 'step' | 'tritone' | 'modal' | 'relative';
 type StyleTag = 'funk' | 'soul' | 'jazz-funk' | 'nu-jazz' | 'advanced' | 'art-rock' | 'world' | 'gospel' | 'blues';
+interface SASession { homeKey: string; homeMode: string; activeStyles: StyleTag[]; selectedId: string | null }
 
 interface Movement {
   id: string;
@@ -347,12 +351,20 @@ function buildChordNames(root: string, mode: string, numerals: string[]): string
 
 export default function SongArchitectFeature() {
   const { globalKey } = useGlobalKey();
-  const [homeKey, setHomeKey] = useState(globalKey);
 
+  const saved = useRef(storageGet<SASession | null>(SA_KEY, null));
+
+  const [homeKey, setHomeKey] = useState(saved.current?.homeKey ?? globalKey);
   useEffect(() => { setHomeKey(globalKey); }, [globalKey]);
-  const [homeMode, setHomeMode] = useState('dorian');
-  const [activeStyles, setActiveStyles] = useState<StyleTag[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>('min3-up');
+
+  const [homeMode, setHomeMode] = useState(saved.current?.homeMode ?? 'dorian');
+  const [activeStyles, setActiveStyles] = useState<StyleTag[]>(saved.current?.activeStyles ?? []);
+  const [selectedId, setSelectedId] = useState<string | null>(saved.current?.selectedId ?? 'min3-up');
+
+  // Persist on change
+  useEffect(() => {
+    storageSet<SASession>(SA_KEY, { homeKey, homeMode, activeStyles, selectedId });
+  }, [homeKey, homeMode, activeStyles, selectedId]);
 
   const homeModeColor = HOME_MODES.find(m => m.name === homeMode)?.color ?? '#7c3aed';
 
