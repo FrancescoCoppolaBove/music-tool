@@ -350,12 +350,12 @@ function buildChordNames(root: string, mode: string, numerals: string[]): string
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function SongArchitectFeature() {
-  const { globalKey } = useGlobalKey();
+  const { globalKey, writeNote } = useGlobalKey();
 
   const saved = useRef(storageGet<SASession | null>(SA_KEY, null));
 
-  const [homeKey, setHomeKey] = useState(saved.current?.homeKey ?? globalKey);
-  useEffect(() => { setHomeKey(globalKey); }, [globalKey]);
+  const [homeKey, setHomeKey] = useState(() => saved.current?.homeKey ?? writeNote(globalKey));
+  useEffect(() => { setHomeKey(writeNote(globalKey)); }, [globalKey, writeNote]);
 
   const [homeMode, setHomeMode] = useState(saved.current?.homeMode ?? 'dorian');
   const [activeStyles, setActiveStyles] = useState<StyleTag[]>(saved.current?.activeStyles ?? []);

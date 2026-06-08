@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Scale, Chord } from 'tonal';
 import { SCALE_FORMULAS } from '@shared/utils/musicTheory';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -204,14 +205,15 @@ const FN_COLORS = {
 };
 
 export default function ScaleHarmonizationFeature() {
-  const { globalKey } = useGlobalKey();
-  const [selectedKey, setSelectedKey] = useState(globalKey);
+  const { globalKey, writeNote } = useGlobalKey();
+  const [selectedKey, setSelectedKey] = useState(() => writeNote(globalKey));
 
-  useEffect(() => { setSelectedKey(globalKey); }, [globalKey]);
+  useEffect(() => { setSelectedKey(writeNote(globalKey)); }, [globalKey, writeNote]);
   const [selectedScale, setSelectedScale] = useState('major');
   const [chordSize, setChordSize] = useState<ChordSize>('7th');
   const [selectedDegree, setSelectedDegree] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState('Major Scale Modes');
+  const [playingDegree, setPlayingDegree] = useState<number | null>(null);
 
   const chords = useMemo(() => harmonize(selectedKey, selectedScale, chordSize), [selectedKey, selectedScale, chordSize]);
   const scaleNotes = useMemo(() => getScaleNotesTonal(selectedKey, selectedScale), [selectedKey, selectedScale]);
@@ -403,54 +405,79 @@ export default function ScaleHarmonizationFeature() {
             {chords.map((chord, i) => {
               const fnColor = FN_COLORS[chord.fn];
               const isSelected = selectedDegree === i;
+              const isPlaying = playingDegree === i;
               return (
-                <button
+                <div
                   key={i}
-                  onClick={() => setSelectedDegree(isSelected ? null : i)}
                   style={{
                     background: isSelected ? '#161b22' : '#0d1117',
                     border: `1px solid ${isSelected ? fnColor : '#21262d'}`,
                     borderRadius: 10,
-                    padding: '12px 10px',
-                    cursor: 'pointer',
                     textAlign: 'center',
                     transition: 'all 0.1s',
                     boxShadow: isSelected ? `0 0 12px ${fnColor}30` : 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
                   }}
                 >
-                  <div style={{ fontSize: 11, color: fnColor, fontWeight: 600, marginBottom: 4 }}>{chord.romanNumeral}</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#e6edf3', fontFamily: 'monospace', lineHeight: 1 }}>
-                    {chord.symbol}
-                  </div>
                   <div
+                    onClick={() => setSelectedDegree(isSelected ? null : i)}
+                    style={{ padding: '12px 10px', flex: 1, cursor: 'pointer' }}
+                  >
+                    <div style={{ fontSize: 11, color: fnColor, fontWeight: 600, marginBottom: 4 }}>{chord.romanNumeral}</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#e6edf3', fontFamily: 'monospace', lineHeight: 1 }}>
+                      {chord.symbol}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 6,
+                        fontSize: 10,
+                        fontWeight: 600,
+                        color: fnColor,
+                        padding: '1px 5px',
+                        background: `${fnColor}20`,
+                        borderRadius: 3,
+                        display: 'inline-block',
+                      }}
+                    >
+                      {chord.fn}
+                    </div>
+                    <div style={{ marginTop: 6, display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
+                      {chord.notes.map((n, j) => (
+                        <span
+                          key={j}
+                          style={{
+                            fontSize: 10,
+                            fontFamily: 'monospace',
+                            color: j === 0 ? '#fb923c' : '#6b7280',
+                          }}
+                        >
+                          {n}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (playingDegree !== null) return;
+                      setPlayingDegree(i);
+                      await audioPlayer.preloadAllNotes();
+                      await audioPlayer.playChord(chord.notes.map(n => `${n}3`));
+                      setPlayingDegree(null);
+                    }}
                     style={{
-                      marginTop: 6,
-                      fontSize: 10,
-                      fontWeight: 600,
-                      color: fnColor,
-                      padding: '1px 5px',
-                      background: `${fnColor}20`,
-                      borderRadius: 3,
-                      display: 'inline-block',
+                      width: '100%', padding: '4px 0',
+                      background: isPlaying ? `${fnColor}20` : 'transparent',
+                      border: 'none', borderTop: `1px solid #21262d`,
+                      color: isPlaying ? fnColor : '#4b5563',
+                      fontSize: 11, cursor: 'pointer', transition: 'all 0.1s',
                     }}
                   >
-                    {chord.fn}
-                  </div>
-                  <div style={{ marginTop: 6, display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
-                    {chord.notes.map((n, j) => (
-                      <span
-                        key={j}
-                        style={{
-                          fontSize: 10,
-                          fontFamily: 'monospace',
-                          color: j === 0 ? '#fb923c' : '#6b7280',
-                        }}
-                      >
-                        {n}
-                      </span>
-                    ))}
-                  </div>
-                </button>
+                    {isPlaying ? '♩♩♩' : '▶'}
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -496,6 +523,25 @@ export default function ScaleHarmonizationFeature() {
                     Quality: {selectedChord.quality} · Root: {selectedChord.root}
                   </div>
                 </div>
+                <button
+                  onClick={async () => {
+                    if (playingDegree !== null) return;
+                    const deg = selectedDegree!;
+                    setPlayingDegree(deg);
+                    await audioPlayer.preloadAllNotes();
+                    await audioPlayer.playChord(selectedChord.notes.map(n => `${n}3`));
+                    setPlayingDegree(null);
+                  }}
+                  style={{
+                    padding: '8px 18px', borderRadius: 8,
+                    background: playingDegree === selectedDegree ? `${FN_COLORS[selectedChord.fn]}30` : '#1c2128',
+                    border: `1px solid ${FN_COLORS[selectedChord.fn]}`,
+                    color: FN_COLORS[selectedChord.fn],
+                    fontSize: 14, cursor: 'pointer', fontWeight: 600,
+                  }}
+                >
+                  {playingDegree === selectedDegree ? '♩♩♩' : '▶ Play'}
+                </button>
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {selectedChord.notes.map((n, i) => {
