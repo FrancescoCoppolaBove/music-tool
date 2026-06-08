@@ -24,6 +24,7 @@ import ScoreToIRealFeature from './features/score-to-ireal/ScoreToIRealFeature';
 import ChordLandingFeature from './features/chord-landing/ChordLandingFeature';
 import SongArchitectFeature from './features/song-architect/SongArchitectFeature';
 import ChordDetectionFeature from './features/chord-detection/ChordDetectionFeature';
+import NailThePitchFeature from './features/nail-the-pitch/NailThePitchFeature';
 import ModalBuddy from './shared/components/ModalBuddy';
 import HomePage from './features/home/HomePage';
 
@@ -157,7 +158,8 @@ type Tab =
   | 'journal'
   | 'songs'
   | 'daily'
-  | 'chorddetect';
+  | 'chorddetect'
+  | 'nailpitch';
 
 interface TabDef {
   id: Tab;
@@ -212,6 +214,7 @@ const GROUPS: GroupDef[] = [
       { id: 'ear',           label: 'Ear Training',      icon: '👂', desc: 'Train your ear with interval exercises' },
       { id: 'quiz',          label: 'Scale Degree Quiz',  icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
       { id: 'chorddetect',   label: 'Chord Detection',   icon: '🎙️', desc: 'Play a chord — app identifies it in real time' },
+      { id: 'nailpitch',     label: 'Nail the Pitch',    icon: '🎤', desc: 'Sing and see which notes you hit, Melodyne-style' },
     ],
   },
   {
@@ -847,6 +850,7 @@ export default function App() {
         {activeTab === 'journal'       && <PracticeJournalFeature />}
         {activeTab === 'songs'         && <SongLibraryFeature />}
         {activeTab === 'chorddetect'   && <ChordDetectionFeature onNavigateToScaleAdvisor={handleChordDetectToScaleAdvisor} />}
+        {activeTab === 'nailpitch'     && <NailThePitchFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}

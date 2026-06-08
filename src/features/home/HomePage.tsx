@@ -1,7 +1,8 @@
 type Tab =
   | 'home' | 'voicings' | 'scales' | 'dictionary' | 'ear'
   | 'circle' | 'harmonization' | 'modal' | 'progressions' | 'scaleadvisor'
-  | 'analysis' | 'riff' | 'melody' | 'score' | 'landing' | 'quiz';
+  | 'analysis' | 'riff' | 'melody' | 'score' | 'landing' | 'quiz'
+  | 'chorddetect' | 'nailpitch';
 
 interface HomePageProps { onNavigate: (tab: Tab) => void; }
 
@@ -327,6 +328,8 @@ const ALL_TOOLS: Array<{ tab: Tab; icon: string; label: string; desc: string; gr
   { tab: 'circle',        icon: '🔵', label: 'Circle of Fifths',   desc: 'Explore key relationships at a glance',      group: 'Theory' },
   { tab: 'ear',           icon: '👂', label: 'Ear Training',       desc: 'Train your ear with interval exercises',     group: 'Training' },
   { tab: 'quiz',          icon: '🎯', label: 'Scale Degree Quiz',  desc: 'Master major scale degree knowledge',        group: 'Training' },
+  { tab: 'chorddetect',   icon: '🎙️', label: 'Chord Detection',    desc: 'Play a chord — it\'s identified in real time', group: 'Training' },
+  { tab: 'nailpitch',     icon: '🎤', label: 'Nail the Pitch',     desc: 'Sing and see which notes you hit, in tune',  group: 'Training' },
 ];
 
 const GROUP_COLORS: Record<string, string> = {
