@@ -146,9 +146,10 @@ export class PitchTracker {
     const frequency = sampleRate / betterTau;
     if (frequency < MIN_F0 || frequency > MAX_F0) { this.voicedStreak = 0; this.history.length = 0; return UNVOICED; }
 
-    // 5) Median-of-3 smoothing on frequency to suppress single-frame outliers.
+    // 5) Median-of-5 smoothing on frequency to suppress outliers and stabilize
+    //    the note read at semitone boundaries, without smearing real vibrato.
     this.history.push(frequency);
-    if (this.history.length > 3) this.history.shift();
+    if (this.history.length > 5) this.history.shift();
     const smoothed = median(this.history);
 
     const midi = freqToMidi(smoothed);

@@ -3,10 +3,11 @@ import { Mic, MicOff, Trash2, AlertCircle } from 'lucide-react';
 import { PitchTracker, type PitchReading, UNVOICED } from './pitchTracker';
 import { useGlobalKey, CHROMATIC_KEYS } from '../../shared/context/GlobalKeyContext';
 
-const VIEW_SEMITONES = 25;     // vertical range of rows shown
-const TIME_WINDOW_MS = 6000;   // horizontal history shown
+const VIEW_SEMITONES = 17;     // vertical range of rows shown (fewer = taller, bigger notes)
+const TIME_WINDOW_MS = 5000;   // horizontal history shown in the live window
 const GUTTER = 46;             // left label column (px)
 const FFT_SIZE = 4096;         // ~85ms window — good for voice F0
+const MAX_HISTORY_MS = 300000; // keep up to 5 min of session history for scroll-back
 const BLACK_PCS = new Set([1, 3, 6, 8, 10]);
 const NATURAL_NAMES: Record<number, string> = { 0: 'C', 2: 'D', 4: 'E', 5: 'F', 7: 'G', 9: 'A', 11: 'B' };
 const MAJOR = [0, 2, 4, 5, 7, 9, 11];
@@ -70,9 +71,16 @@ const CSS = `
 
   .ntp-canvas-card {
     background: #0d1117; border: 1px solid #21262d; border-radius: 16px;
-    padding: 6px; margin-bottom: 14px; overflow: hidden;
+    padding: 6px; margin-bottom: 14px; overflow: hidden; position: relative;
   }
-  .ntp-canvas { display: block; width: 100%; border-radius: 11px; }
+  .ntp-canvas { display: block; width: 100%; border-radius: 11px; touch-action: none; }
+  .ntp-canvas.scrollable { cursor: grab; }
+  .ntp-canvas.grabbing { cursor: grabbing; }
+  .ntp-scrub-hint {
+    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+    font-size: 11px; font-weight: 600; color: #6b7280; pointer-events: none;
+    background: #0d1117cc; padding: 4px 12px; border-radius: 8px; border: 1px solid #21262d;
+  }
 
   .ntp-controls { display: flex; gap: 10px; justify-content: center; align-items: center; }
   .ntp-btn {
@@ -116,6 +124,13 @@ export default function NailThePitchFeature() {
   const viewCenterRef = useRef(60); // start centered on C4
   const lastReadoutRef = useRef(0);
 
+  // Scroll-back: when stopped, the right edge of the window is frozen here and
+  // can be dragged through the session history.
+  const viewEndRef = useRef(performance.now());
+  const listeningRef = useRef(false);
+  const dragRef = useRef<{ startX: number; startEnd: number } | null>(null);
+  const [scrubbing, setScrubbing] = useState(false);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scaleSetRef = useRef<Set<number>>(new Set());
@@ -126,7 +141,9 @@ export default function NailThePitchFeature() {
     scaleSetRef.current = new Set(MAJOR.map(i => (rootPc + i) % 12));
   }, [globalKey]);
 
-  const draw = useCallback((now: number) => {
+  // viewEnd = time at the right edge of the window; liveNow = playhead time when
+  // recording (null when scrolling back through frozen history).
+  const draw = useCallback((viewEnd: number, liveNow: number | null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const g = canvas.getContext('2d');
@@ -146,7 +163,7 @@ export default function NailThePitchFeature() {
     const midiToY = (m: number) => H * (1 - (m - bottomEdge) / VIEW_SEMITONES);
 
     const plotW = W - GUTTER;
-    const t0 = now - TIME_WINDOW_MS;
+    const t0 = viewEnd - TIME_WINDOW_MS;
     const timeToX = (t: number) => GUTTER + ((t - t0) / TIME_WINDOW_MS) * plotW;
 
     const scaleSet = scaleSetRef.current;
@@ -182,45 +199,54 @@ export default function NailThePitchFeature() {
     const samples = samplesRef.current;
 
     // ── Melodyne-style note blobs ──────────────────────────────────────────
-    // Group consecutive voiced samples into note segments. A new segment starts
-    // when the quantized MIDI note changes or there's a gap of >150 ms.
+    // Group consecutive voiced samples into note segments. Boundary hysteresis:
+    // stay on the current note unless the pitch moves clearly (>0.62 semitone)
+    // past the boundary — this kills the flicker between adjacent semitones.
     type Seg = { midiNote: number; startT: number; endT: number; pts: Sample[] };
     const segs: Seg[] = [];
     let cur: Seg | null = null;
     for (const s of samples) {
       if (!s.voiced) { if (cur) { segs.push(cur); cur = null; } continue; }
-      const mn = Math.round(s.midi);
-      if (cur && mn === cur.midiNote && s.t - cur.endT <= 150) {
+      const gap = cur ? s.t - cur.endT : Infinity;
+      const stay = cur && gap <= 150 && Math.abs(s.midi - cur.midiNote) < 0.62;
+      if (stay && cur) {
         cur.pts.push(s); cur.endT = s.t;
       } else {
         if (cur) segs.push(cur);
-        cur = { midiNote: mn, startT: s.t, endT: s.t, pts: [s] };
+        cur = { midiNote: Math.round(s.midi), startT: s.t, endT: s.t, pts: [s] };
       }
     }
     if (cur) segs.push(cur);
 
-    const blobH = Math.max(rowH * 0.78, 8);
+    // Confine note rendering to the plot area so blobs never spill into the
+    // left-hand label gutter.
+    g.save();
+    g.beginPath(); g.rect(GUTTER, 0, plotW, H); g.clip();
+
+    const blobH = Math.max(rowH * 0.86, 10);
+    const blobR = Math.min(6, blobH / 2);
     for (const seg of segs) {
       const x1 = timeToX(seg.startT);
-      const x2 = Math.max(timeToX(seg.endT), x1 + 6);
+      const x2 = Math.max(timeToX(seg.endT), x1 + 7);
+      if (x2 < GUTTER || x1 > W) continue; // outside view, skip
       const yCenter = midiToY(seg.midiNote);
       const avgCents = seg.pts.reduce((acc, p) => acc + Math.abs(p.cents), 0) / seg.pts.length;
 
       // Thick filled blob at the quantized note row
-      g.fillStyle = centsRgba(avgCents, 0.52);
-      blobRect(g, x1, yCenter - blobH / 2, x2 - x1, blobH, 4);
+      g.fillStyle = centsRgba(avgCents, 0.55);
+      blobRect(g, x1, yCenter - blobH / 2, x2 - x1, blobH, blobR);
       g.fill();
 
       // Crisp border
-      g.strokeStyle = centsRgba(avgCents, 0.82);
-      g.lineWidth = 1;
-      blobRect(g, x1, yCenter - blobH / 2, x2 - x1, blobH, 4);
+      g.strokeStyle = centsRgba(avgCents, 0.9);
+      g.lineWidth = 1.5;
+      blobRect(g, x1, yCenter - blobH / 2, x2 - x1, blobH, blobR);
       g.stroke();
 
       // Pitch deviation curve inside blob — shows vibrato and intonation drift
       if (seg.pts.length >= 2) {
-        g.strokeStyle = 'rgba(255,255,255,0.78)';
-        g.lineWidth = 1.5;
+        g.strokeStyle = 'rgba(255,255,255,0.82)';
+        g.lineWidth = 1.75;
         g.lineCap = 'round';
         g.lineJoin = 'round';
         g.beginPath();
@@ -240,20 +266,23 @@ export default function NailThePitchFeature() {
       }
     }
 
-    // Live marker: bright tip at the most-recent voiced sample
-    if (segs.length > 0) {
+    // Live marker: bright tip at the most-recent voiced sample (only while live)
+    if (liveNow !== null && segs.length > 0) {
       const lastSeg = segs[segs.length - 1];
       const last = lastSeg.pts[lastSeg.pts.length - 1];
       const lx = timeToX(last.t), ly = midiToY(last.midi);
       g.fillStyle = centsColor(last.cents);
-      g.beginPath(); g.arc(lx, ly, 5.5, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(lx, ly, 6, 0, Math.PI * 2); g.fill();
       g.strokeStyle = '#0d1117'; g.lineWidth = 2; g.stroke();
     }
+    g.restore();
 
-    // Now-line (playhead)
-    const nx = timeToX(now);
-    g.strokeStyle = '#7c3aed'; g.lineWidth = 1.5;
-    g.beginPath(); g.moveTo(nx, 0); g.lineTo(nx, H); g.stroke();
+    // Playhead — solid now-line while live, dashed scrub-line when reviewing
+    if (liveNow !== null) {
+      const nx = timeToX(liveNow);
+      g.strokeStyle = '#7c3aed'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(nx, 0); g.lineTo(nx, H); g.stroke();
+    }
   }, []);
 
   const loop = useCallback(() => {
@@ -266,7 +295,8 @@ export default function NailThePitchFeature() {
     const r = trackerRef.current.detect(buf, ctx.sampleRate);
 
     samplesRef.current.push({ t: now, midi: r.midi, cents: r.cents, voiced: r.voiced });
-    const cutoff = now - TIME_WINDOW_MS - 400;
+    // Keep the whole session (bounded) so it can be reviewed after stopping.
+    const cutoff = now - MAX_HISTORY_MS;
     const s = samplesRef.current;
     let drop = 0; while (drop < s.length && s[drop].t < cutoff) drop++;
     if (drop) s.splice(0, drop);
@@ -278,7 +308,8 @@ export default function NailThePitchFeature() {
       viewCenterRef.current = c + (r.midi - c) * factor;
     }
 
-    draw(now);
+    viewEndRef.current = now;
+    draw(now, now);
 
     if (now - lastReadoutRef.current > 60) { lastReadoutRef.current = now; setReading(r); }
   }, [draw]);
@@ -292,8 +323,17 @@ export default function NailThePitchFeature() {
     canvas.style.height = `${cssH}px`;
     canvas.width = Math.round(cssW * dpr);
     canvas.height = Math.round(cssH * dpr);
-    draw(performance.now());
+    draw(viewEndRef.current, listeningRef.current ? performance.now() : null);
   }, [draw]);
+
+  // Recenter the vertical view on the notes currently visible in the window.
+  const recenterToVisible = useCallback(() => {
+    const t1 = viewEndRef.current, t0 = t1 - TIME_WINDOW_MS;
+    const mids = samplesRef.current.filter(s => s.voiced && s.t >= t0 && s.t <= t1).map(s => s.midi);
+    if (!mids.length) return;
+    mids.sort((a, b) => a - b);
+    viewCenterRef.current = mids[mids.length >> 1];
+  }, []);
 
   useEffect(() => {
     sizeCanvas();
@@ -320,6 +360,7 @@ export default function NailThePitchFeature() {
 
       trackerRef.current.reset();
       lastReadoutRef.current = 0;
+      listeningRef.current = true;
       setListening(true);
       rafRef.current = requestAnimationFrame(loop);
     } catch (err) {
@@ -339,14 +380,51 @@ export default function NailThePitchFeature() {
     streamRef.current?.getTracks().forEach(t => t.stop());
     ctxRef.current?.close().catch(() => {});
     streamRef.current = null; ctxRef.current = null; analyserRef.current = null; bufRef.current = null;
+    listeningRef.current = false;
     setListening(false);
     setReading(UNVOICED);
-  }, []);
+    // Freeze the view on the end of the session so it can be reviewed/scrolled.
+    const s = samplesRef.current;
+    if (s.length) {
+      viewEndRef.current = s[s.length - 1].t;
+      recenterToVisible();
+    }
+    draw(viewEndRef.current, null);
+  }, [draw, recenterToVisible]);
 
   const clear = useCallback(() => {
     samplesRef.current = [];
-    draw(performance.now());
+    viewEndRef.current = performance.now();
+    draw(viewEndRef.current, listeningRef.current ? performance.now() : null);
   }, [draw]);
+
+  // ── Scroll-back: drag horizontally across the frozen session (mouse + touch).
+  const onPointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (listeningRef.current || samplesRef.current.length === 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { startX: e.clientX, startEnd: viewEndRef.current };
+    setScrubbing(true);
+  }, []);
+
+  const onPointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const plotW = canvas.width / dpr - GUTTER;
+    const dt = ((e.clientX - d.startX) / plotW) * TIME_WINDOW_MS;
+    const s = samplesRef.current;
+    const firstT = s[0].t, lastT = s[s.length - 1].t;
+    // Drag right → go back in time (window end decreases).
+    viewEndRef.current = Math.max(firstT, Math.min(lastT, d.startEnd - dt));
+    recenterToVisible();
+    draw(viewEndRef.current, null);
+  }, [draw, recenterToVisible]);
+
+  const endDrag = useCallback(() => {
+    if (dragRef.current) { dragRef.current = null; setScrubbing(false); }
+  }, []);
 
   useEffect(() => () => { stop(); }, [stop]);
 
@@ -387,7 +465,17 @@ export default function NailThePitchFeature() {
 
       {/* Piano-roll canvas */}
       <div className="ntp-canvas-card">
-        <canvas ref={canvasRef} className="ntp-canvas" />
+        <canvas
+          ref={canvasRef}
+          className={`ntp-canvas${!listening && samplesRef.current.length ? ' scrollable' : ''}${scrubbing ? ' grabbing' : ''}`}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+        />
+        {!listening && samplesRef.current.length > 0 && (
+          <div className="ntp-scrub-hint">← drag to scroll through your session →</div>
+        )}
       </div>
 
       {/* Controls */}
@@ -400,7 +488,7 @@ export default function NailThePitchFeature() {
 
       <p className="ntp-tip">
         Colored blobs = notes you sang. White curve inside = your exact pitch (vibrato visible).<br />
-        Green = in tune · amber/red = sharp or flat · purple tint = in-key rows for current global key.
+        Green = in tune · amber/red = sharp or flat · purple tint = in-key rows. Stop, then drag the grid to review your session.
       </p>
     </div>
   );
