@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { GeneratedProgression, ResolvedChord, Technique } from '../types/progression.types';
+import { audioPlayer } from '../../ear-training/utils/audio-player';
 
 // ─── iReal Pro export ─────────────────────────────────────────────────────────
 
@@ -265,6 +266,8 @@ export default function ProgressionDisplay({ results, selectedId, onSelect }: Pr
 function ProgressionDetail({ progression }: { progression: GeneratedProgression }) {
   const { template, chords, key } = progression;
   const [copied, setCopied] = useState(false);
+  const [playingIdx, setPlayingIdx] = useState<number | null>(null);
+  const stopRef = useRef(false);
 
   const uniqueTechniques = Array.from(new Set(
     chords.flatMap(c => c.techniqueLabel ? [c.techniqueLabel] : [])
@@ -279,6 +282,20 @@ function ProgressionDetail({ progression }: { progression: GeneratedProgression 
       window.open(url, '_blank');
     });
   }
+
+  const playProgression = useCallback(async () => {
+    if (playingIdx !== null) { stopRef.current = true; return; }
+    stopRef.current = false;
+    await audioPlayer.preloadAllNotes();
+    for (let i = 0; i < chords.length; i++) {
+      if (stopRef.current) break;
+      setPlayingIdx(i);
+      const notes = chords[i].notes.map(n => `${n}3`);
+      await audioPlayer.playChord(notes);
+      await audioPlayer.delay(1200);
+    }
+    setPlayingIdx(null);
+  }, [chords, playingIdx]);
 
   return (
     <div style={{
@@ -304,24 +321,45 @@ function ProgressionDetail({ progression }: { progression: GeneratedProgression 
               ))}
             </div>
           </div>
-          {/* iReal Pro export */}
-          <button
-            onClick={handleIRealExport}
-            title="Copy iReal Pro URL — paste in iReal Pro via File > Open URL"
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '6px 12px',
-              background: copied ? '#166534' : '#0d1117',
-              border: `1px solid ${copied ? '#22c55e' : '#30363d'}`,
-              borderRadius: 8, cursor: 'pointer',
-              fontSize: 12, fontWeight: 600,
-              color: copied ? '#86efac' : '#8b949e',
-              transition: 'all 0.2s',
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            {copied ? '✓ Copied!' : '⎘ Export to iReal Pro'}
-          </button>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {/* Play progression */}
+            <button
+              onClick={playProgression}
+              title={playingIdx !== null ? 'Stop playback' : 'Play progression (one chord per bar)'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '6px 12px',
+                background: playingIdx !== null ? '#1a2e1a' : '#0d1117',
+                border: `1px solid ${playingIdx !== null ? '#22c55e60' : '#30363d'}`,
+                borderRadius: 8, cursor: 'pointer',
+                fontSize: 12, fontWeight: 600,
+                color: playingIdx !== null ? '#86efac' : '#8b949e',
+                transition: 'all 0.2s',
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              {playingIdx !== null ? '⏹' : '▶'} {playingIdx !== null ? `${playingIdx + 1}/${chords.length}` : 'Play'}
+            </button>
+
+            {/* iReal Pro export */}
+            <button
+              onClick={handleIRealExport}
+              title="Copy iReal Pro URL — paste in iReal Pro via File > Open URL"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '6px 12px',
+                background: copied ? '#166534' : '#0d1117',
+                border: `1px solid ${copied ? '#22c55e' : '#30363d'}`,
+                borderRadius: 8, cursor: 'pointer',
+                fontSize: 12, fontWeight: 600,
+                color: copied ? '#86efac' : '#8b949e',
+                transition: 'all 0.2s',
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            >
+              {copied ? '✓ Copied!' : '⎘ iReal Pro'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -338,7 +376,7 @@ function ProgressionDetail({ progression }: { progression: GeneratedProgression 
       {/* Chord blocks */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
         {chords.map((chord, i) => (
-          <ChordBlock key={i} chord={chord} index={i + 1} total={chords.length} />
+          <ChordBlock key={i} chord={chord} index={i + 1} total={chords.length} isPlaying={playingIdx === i} />
         ))}
       </div>
 
@@ -474,18 +512,29 @@ function ScaleMap({ chords }: { chords: ResolvedChord[] }) {
 
 // ─── Chord block ──────────────────────────────────────────────────────────────
 
-function ChordBlock({ chord, index, total }: { chord: ResolvedChord; index: number; total: number }) {
+function ChordBlock({ chord, index, total, isPlaying }: {
+  chord: ResolvedChord; index: number; total: number; isPlaying?: boolean;
+}) {
   const techniqueColor = chord.technique ? TECHNIQUE_COLORS[chord.technique] : undefined;
   const functionColor = FUNCTION_COLORS[chord.function] ?? '#6b7280';
   const scales = getScalesForQuality(chord.quality);
   const primaryScale = scales.find(s => s.isPrimary);
 
+  async function handlePlay(e: React.MouseEvent) {
+    e.stopPropagation();
+    await audioPlayer.preloadAllNotes();
+    await audioPlayer.playChord(chord.notes.map(n => `${n}3`));
+  }
+
   return (
     <div style={{
       flex: '1 1 100px', minWidth: 90, maxWidth: 160,
-      background: '#0d1117', border: `1px solid ${techniqueColor ?? '#30363d'}`,
+      background: isPlaying ? '#1a1040' : '#0d1117',
+      border: `1px solid ${isPlaying ? '#7c3aed' : (techniqueColor ?? '#30363d')}`,
       borderRadius: 10, padding: '12px 12px 10px',
       position: 'relative', display: 'flex', flexDirection: 'column', gap: 6,
+      boxShadow: isPlaying ? '0 0 16px #7c3aed40' : 'none',
+      transition: 'all 0.15s',
     }}>
       {/* Index */}
       <div style={{ position: 'absolute', top: 6, left: 9, fontSize: 10, color: '#4b5563' }}>
@@ -495,9 +544,26 @@ function ChordBlock({ chord, index, total }: { chord: ResolvedChord; index: numb
       {/* Degree */}
       <div style={{ fontSize: 11, color: '#6b7280', marginTop: 10 }}>{chord.degree}</div>
 
-      {/* Chord symbol */}
-      <div style={{ fontSize: 20, fontWeight: 700, color: '#e6edf3', fontFamily: 'monospace', lineHeight: 1 }}>
-        {chord.symbol}
+      {/* Chord symbol + play button */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'space-between' }}>
+        <div style={{ fontSize: 20, fontWeight: 700, color: '#e6edf3', fontFamily: 'monospace', lineHeight: 1 }}>
+          {chord.symbol}
+        </div>
+        <button
+          onClick={handlePlay}
+          title={`Play ${chord.symbol}`}
+          style={{
+            width: 22, height: 22, borderRadius: '50%',
+            background: '#1c2128', border: '1px solid #30363d',
+            cursor: 'pointer', fontSize: 10, color: '#6b7280',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+            padding: 0,
+            transition: 'all 0.12s',
+          }}
+        >
+          ▶
+        </button>
       </div>
 
       {/* Harmonic function badge */}
