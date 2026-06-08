@@ -25,6 +25,7 @@ import ChordLandingFeature from './features/chord-landing/ChordLandingFeature';
 import SongArchitectFeature from './features/song-architect/SongArchitectFeature';
 import ChordDetectionFeature from './features/chord-detection/ChordDetectionFeature';
 import NailThePitchFeature from './features/nail-the-pitch/NailThePitchFeature';
+import MetronomeFeature from './features/metronome/MetronomeFeature';
 import ProfileFeature from './features/profile/ProfileFeature';
 import ModalBuddy from './shared/components/ModalBuddy';
 import HomePage from './features/home/HomePage';
@@ -161,6 +162,7 @@ type Tab =
   | 'daily'
   | 'chorddetect'
   | 'nailpitch'
+  | 'metronome'
   | 'profile';
 
 interface TabDef {
@@ -224,6 +226,7 @@ const GROUPS: GroupDef[] = [
     label: 'Practice',
     icon: '📈',
     tabs: [
+      { id: 'metronome', label: 'Metronome',        icon: '🎚️', desc: 'Precise Web Audio metronome with tap tempo and time signatures' },
       { id: 'daily',   label: 'Daily Challenge',  icon: '🎯', desc: 'One new ear training challenge every day — same for everyone' },
       { id: 'journal', label: 'Practice Journal', icon: '🔥', desc: 'Track your daily streak and ear training progress' },
       { id: 'songs',   label: 'Song Library',     icon: '🎵', desc: 'Your personal repertoire, synced across devices' },
@@ -911,6 +914,7 @@ export default function App() {
         {activeTab === 'songs'         && <SongLibraryFeature />}
         {activeTab === 'chorddetect'   && <ChordDetectionFeature onNavigateToScaleAdvisor={handleChordDetectToScaleAdvisor} />}
         {activeTab === 'nailpitch'     && <NailThePitchFeature />}
+        {activeTab === 'metronome'     && <MetronomeFeature />}
         {activeTab === 'profile'       && <ProfileFeature />}
       </main>
 

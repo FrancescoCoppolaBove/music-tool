@@ -2,7 +2,7 @@ type Tab =
   | 'home' | 'voicings' | 'scales' | 'dictionary' | 'ear'
   | 'circle' | 'harmonization' | 'modal' | 'progressions' | 'scaleadvisor'
   | 'analysis' | 'riff' | 'melody' | 'score' | 'landing' | 'quiz'
-  | 'chorddetect' | 'nailpitch' | 'profile' | 'journal' | 'daily' | 'songs';
+  | 'chorddetect' | 'nailpitch' | 'metronome' | 'profile' | 'journal' | 'daily' | 'songs';
 
 interface HomePageProps { onNavigate: (tab: Tab) => void; }
 
@@ -330,6 +330,7 @@ const ALL_TOOLS: Array<{ tab: Tab; icon: string; label: string; desc: string; gr
   { tab: 'quiz',          icon: '🎯', label: 'Scale Degree Quiz',  desc: 'Master major scale degree knowledge',        group: 'Training' },
   { tab: 'chorddetect',   icon: '🎙️', label: 'Chord Detection',    desc: 'Play a chord — it\'s identified in real time', group: 'Training' },
   { tab: 'nailpitch',     icon: '🎤', label: 'Nail the Pitch',     desc: 'Sing and see which notes you hit, in tune',  group: 'Training' },
+  { tab: 'metronome',     icon: '🎚️', label: 'Metronome',           desc: 'Precise click with tap tempo and time signatures', group: 'Practice' },
   { tab: 'daily',         icon: '🎯', label: 'Daily Challenge',    desc: 'One ear training challenge every day — same for everyone', group: 'Practice' },
   { tab: 'journal',       icon: '🔥', label: 'Practice Journal',   desc: 'Your daily streak, accuracy and progress',  group: 'Practice' },
   { tab: 'songs',         icon: '🎵', label: 'Song Library',       desc: 'Your personal repertoire, synced',           group: 'Practice' },
