@@ -1,14 +1,18 @@
 /**
  * MONOPHONIC PITCH TRACKER (voice / single instrument)
  * ----------------------------------------------------
- * Time-domain F0 estimation with the YIN algorithm
- * (de Cheveigné & Kawahara, 2002) — the standard for accurate,
- * octave-robust pitch tracking of a single voice.
+ * F0 estimation via the McLeod Pitch Method (MPM), using the `pitchy` library.
+ * MPM (McLeod & Wyvill, "A Smarter Way to Find Pitch") is more octave-robust
+ * on real voice than plain YIN and gives a well-calibrated clarity score we use
+ * for voiced/unvoiced decisions.
  *
- * Steps: difference function -> cumulative mean normalized difference
- *        -> absolute threshold -> local-minimum refinement
- *        -> parabolic interpolation for sub-sample (sub-cent) accuracy.
+ * We keep the same PitchReading interface and detect() signature as before, so
+ * the visualization layer is untouched. On top of pitchy we add: a range gate,
+ * voiced-clarity hysteresis (so sustained notes don't drop out), and median
+ * smoothing to suppress single-frame outliers without smearing vibrato.
  */
+
+import { PitchDetector } from 'pitchy';
 
 export const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -24,8 +28,12 @@ export interface PitchReading {
 
 const A4 = 440;
 const MIN_F0 = 65;     // ~C2 — covers low male voices / bass
-const MAX_F0 = 1200;   // ~D6 — covers high female / whistle is excluded
-const DEFAULT_THRESHOLD = 0.12;
+const MAX_F0 = 1200;   // ~D6 — covers high female voices
+
+// Voiced decision: require solid clarity to start, but once we're already
+// tracking a note accept weaker frames so sustained notes don't flicker out.
+const CLARITY_START = 0.68;
+const CLARITY_HOLD = 0.50;
 
 export const UNVOICED: PitchReading = {
   frequency: 0, midi: -1, note: '', octave: 0, cents: 0, clarity: 0, voiced: false,
@@ -45,110 +53,45 @@ export function midiToNoteName(midi: number): { note: string; octave: number } {
   return { note: NOTE_NAMES[pc], octave: Math.floor(rounded / 12) - 1 };
 }
 
-/**
- * Estimate the fundamental frequency of a time-domain buffer using YIN.
- * @param buffer    Float32 PCM samples (e.g. from getFloatTimeDomainData)
- * @param sampleRate AudioContext sample rate
- * @param threshold YIN absolute threshold (lower = stricter voicing)
- */
 export class PitchTracker {
-  private readonly threshold: number;
-  private yinBuffer: Float32Array;
-  private maxTau: number;
-  private minTau: number;
-  private sampleRate = 44100;
+  private detector: PitchDetector<Float32Array> | null = null;
+  private detectorLen = 0;
 
-  // Light temporal smoothing to tame jitter without killing vibrato.
+  // Median smoothing on the output frequency to tame jitter without killing vibrato.
   private history: number[] = [];
-  // Voiced-frame streak for hysteresis: once voice is detected, accept weaker signals.
+  // Voiced-frame streak for hysteresis on the clarity gate.
   private voicedStreak = 0;
 
-  constructor(threshold = DEFAULT_THRESHOLD) {
-    this.threshold = threshold;
-    this.maxTau = 1;
-    this.minTau = 1;
-    this.yinBuffer = new Float32Array(1);
-  }
-
-  private configure(sampleRate: number, windowSize: number) {
-    if (this.sampleRate === sampleRate && this.yinBuffer.length === windowSize >> 1) return;
-    this.sampleRate = sampleRate;
-    this.maxTau = Math.min(windowSize >> 1, Math.ceil(sampleRate / MIN_F0));
-    this.minTau = Math.max(2, Math.floor(sampleRate / MAX_F0));
-    this.yinBuffer = new Float32Array(windowSize >> 1);
+  private ensureDetector(windowSize: number) {
+    if (this.detector && this.detectorLen === windowSize) return;
+    const d = PitchDetector.forFloat32Array(windowSize);
+    // RMS gate handled by pitchy: ignore very quiet input (-55 dB ≈ near silence).
+    d.minVolumeDecibels = -55;
+    // MPM peak-picking constant k; 0.8–1.0 is the useful range. Slightly relaxed
+    // from the 0.9 default so a real (imperfect) voice resolves more readily.
+    d.clarityThreshold = 0.85;
+    this.detector = d;
+    this.detectorLen = windowSize;
   }
 
   detect(buffer: Float32Array, sampleRate: number): PitchReading {
-    const W = buffer.length;
-    this.configure(sampleRate, W);
-    const half = W >> 1;
-    const yin = this.yinBuffer;
+    this.ensureDetector(buffer.length);
+    const detector = this.detector!;
 
-    // Signal energy gate (RMS) — reject near-silence early.
-    let energy = 0;
-    for (let i = 0; i < W; i++) energy += buffer[i] * buffer[i];
-    const rms = Math.sqrt(energy / W);
-    if (rms < 0.002) { this.voicedStreak = 0; this.history.length = 0; return UNVOICED; }
+    const [pitch, clarity] = detector.findPitch(buffer, sampleRate);
 
-    // 1) Difference function d(tau).
-    yin[0] = 1;
-    for (let tau = 1; tau < half; tau++) {
-      let sum = 0;
-      for (let i = 0; i < half; i++) {
-        const delta = buffer[i] - buffer[i + tau];
-        sum += delta * delta;
-      }
-      yin[tau] = sum;
+    // Voicing decision with hysteresis: easier to stay voiced than to start.
+    const gate = this.voicedStreak > 2 ? CLARITY_HOLD : CLARITY_START;
+    const inRange = pitch >= MIN_F0 && pitch <= MAX_F0;
+    if (pitch <= 0 || clarity < gate || !inRange) {
+      this.voicedStreak = 0;
+      this.history.length = 0;
+      return UNVOICED;
     }
 
-    // 2) Cumulative mean normalized difference d'(tau).
-    let running = 0;
-    for (let tau = 1; tau < half; tau++) {
-      running += yin[tau];
-      yin[tau] = running > 0 ? (yin[tau] * tau) / running : 1;
-    }
-
-    // 3) Absolute threshold: first tau below threshold within the F0 range,
-    //    then descend to its local minimum. Track the global minimum too, so
-    //    a real (imperfectly periodic) voice still resolves when nothing dips
-    //    below the strict threshold — without this, live voice reads UNVOICED.
-    const searchEnd = Math.min(this.maxTau, half - 1);
-    let tauEstimate = -1;
-    let globalMinTau = this.minTau;
-    let globalMinVal = Infinity;
-    for (let tau = this.minTau; tau < searchEnd; tau++) {
-      if (yin[tau] < globalMinVal) { globalMinVal = yin[tau]; globalMinTau = tau; }
-      if (yin[tau] < this.threshold) {
-        while (tau + 1 < half && yin[tau + 1] < yin[tau]) tau++;
-        tauEstimate = tau;
-        break;
-      }
-    }
-    if (tauEstimate === -1) {
-      // Fallback with hysteresis: once voiced for >2 frames, accept weaker periodicity.
-      const limit = this.voicedStreak > 2 ? 0.85 : 0.75;
-      if (globalMinVal < limit) tauEstimate = globalMinTau;
-      else { this.voicedStreak = 0; this.history.length = 0; return UNVOICED; }
-    }
-
-    const clarity = Math.max(0, 1 - yin[tauEstimate]);
-
-    // 4) Parabolic interpolation around the chosen tau.
-    const x0 = tauEstimate > 0 ? tauEstimate - 1 : tauEstimate;
-    const x2 = tauEstimate + 1 < half ? tauEstimate + 1 : tauEstimate;
-    let betterTau = tauEstimate;
-    if (x0 !== tauEstimate && x2 !== tauEstimate) {
-      const s0 = yin[x0], s1 = yin[tauEstimate], s2 = yin[x2];
-      const denom = 2 * (2 * s1 - s2 - s0);
-      if (denom !== 0) betterTau = tauEstimate + (s2 - s0) / denom;
-    }
-
-    const frequency = sampleRate / betterTau;
-    if (frequency < MIN_F0 || frequency > MAX_F0) { this.voicedStreak = 0; this.history.length = 0; return UNVOICED; }
-
-    // 5) Median-of-5 smoothing on frequency to suppress outliers and stabilize
-    //    the note read at semitone boundaries, without smearing real vibrato.
-    this.history.push(frequency);
+    // Median-of-5 smoothing on frequency to suppress outliers and stabilize the
+    // note read at semitone boundaries, without smearing real vibrato.
+    this.history.push(pitch);
     if (this.history.length > 5) this.history.shift();
     const smoothed = median(this.history);
 
