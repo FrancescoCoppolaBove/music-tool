@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit3, Music, Save, X, Tag } from 'lucide-react';
 import { useAuth } from '../../shared/context/AuthContext';
+import { useGlobalKey } from '../../shared/context/GlobalKeyContext';
 import { loadSongs, addSong, updateSong, deleteSong, type Song } from '../../shared/utils/firestoreSync';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'A#', 'Bb', 'B'];
@@ -196,6 +197,7 @@ function SongForm({
 
 export default function SongLibraryFeature() {
   const { user } = useAuth();
+  const { setGlobalKey } = useGlobalKey();
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -293,6 +295,15 @@ export default function SongLibraryFeature() {
                     )}
                   </div>
                   <div className="sl-song-actions">
+                    <button
+                      className="sl-icon-btn"
+                      onClick={() => setGlobalKey(song.key)}
+                      title={`Set global key to ${song.key}`}
+                      style={{ fontSize: 11, width: 'auto', padding: '0 8px', gap: 4, display: 'flex', alignItems: 'center' }}
+                    >
+                      <span style={{ fontSize: 10, opacity: 0.7 }}>♩</span>
+                      {song.key}
+                    </button>
                     <button className="sl-icon-btn" onClick={() => setEditingId(song.id!)} title="Edit">
                       <Edit3 size={14} />
                     </button>
