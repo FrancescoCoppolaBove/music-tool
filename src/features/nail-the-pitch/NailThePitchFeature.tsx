@@ -175,24 +175,35 @@ export default function NailThePitchFeature() {
     }
     flush(prevT);
 
-    // Continuous pitch curve, colored by tuning accuracy
-    let drawing = false;
-    let lastColor = '';
+    // Continuous pitch curve, drawn as independent segments colored by tuning
+    // accuracy (robust: a single voiced frame still shows as a dot).
+    g.lineWidth = 2.5; g.lineCap = 'round'; g.lineJoin = 'round';
+    let lastVoiced: Sample | null = null;
     for (let i = 0; i < samples.length; i++) {
       const s = samples[i];
-      if (!s.voiced) { if (drawing) { g.stroke(); drawing = false; } continue; }
+      if (!s.voiced) { lastVoiced = null; continue; }
       const x = timeToX(s.t), y = midiToY(s.midi);
       const col = centsColor(s.cents);
-      if (!drawing || col !== lastColor) {
-        if (drawing) g.stroke();
-        g.beginPath(); g.moveTo(x, y);
-        g.strokeStyle = col; g.lineWidth = 2.5; g.lineJoin = 'round'; g.lineCap = 'round';
-        drawing = true; lastColor = col;
-      } else {
+      if (lastVoiced && s.t - lastVoiced.t <= 120) {
+        g.strokeStyle = col;
+        g.beginPath();
+        g.moveTo(timeToX(lastVoiced.t), midiToY(lastVoiced.midi));
         g.lineTo(x, y);
+        g.stroke();
+      } else {
+        // isolated point — draw a small dot so it's visible
+        g.fillStyle = col;
+        g.beginPath(); g.arc(x, y, 1.8, 0, Math.PI * 2); g.fill();
       }
+      lastVoiced = s;
     }
-    if (drawing) g.stroke();
+    // Live marker at the most recent voiced sample
+    if (lastVoiced) {
+      const x = timeToX(lastVoiced.t), y = midiToY(lastVoiced.midi);
+      g.fillStyle = centsColor(lastVoiced.cents);
+      g.beginPath(); g.arc(x, y, 4.5, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#0d1117'; g.lineWidth = 1.5; g.stroke();
+    }
 
     // Now-line (playhead)
     const nx = timeToX(now);
@@ -215,7 +226,12 @@ export default function NailThePitchFeature() {
     let drop = 0; while (drop < s.length && s[drop].t < cutoff) drop++;
     if (drop) s.splice(0, drop);
 
-    if (r.voiced) viewCenterRef.current += (r.midi - viewCenterRef.current) * 0.06;
+    if (r.voiced) {
+      const c = viewCenterRef.current;
+      // Snap quickly when the note is out of view, ease gently otherwise.
+      const factor = Math.abs(r.midi - c) > VIEW_SEMITONES / 2 - 2 ? 0.4 : 0.06;
+      viewCenterRef.current = c + (r.midi - c) * factor;
+    }
 
     draw(now);
 

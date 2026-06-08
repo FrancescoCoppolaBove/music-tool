@@ -86,7 +86,7 @@ export class PitchTracker {
     let energy = 0;
     for (let i = 0; i < W; i++) energy += buffer[i] * buffer[i];
     const rms = Math.sqrt(energy / W);
-    if (rms < 0.008) { this.history.length = 0; return UNVOICED; }
+    if (rms < 0.004) { this.history.length = 0; return UNVOICED; }
 
     // 1) Difference function d(tau).
     yin[0] = 1;
@@ -107,18 +107,28 @@ export class PitchTracker {
     }
 
     // 3) Absolute threshold: first tau below threshold within the F0 range,
-    //    then descend to its local minimum.
+    //    then descend to its local minimum. Track the global minimum too, so
+    //    a real (imperfectly periodic) voice still resolves when nothing dips
+    //    below the strict threshold — without this, live voice reads UNVOICED.
+    const searchEnd = Math.min(this.maxTau, half - 1);
     let tauEstimate = -1;
-    for (let tau = this.minTau; tau < Math.min(this.maxTau, half - 1); tau++) {
+    let globalMinTau = this.minTau;
+    let globalMinVal = Infinity;
+    for (let tau = this.minTau; tau < searchEnd; tau++) {
+      if (yin[tau] < globalMinVal) { globalMinVal = yin[tau]; globalMinTau = tau; }
       if (yin[tau] < this.threshold) {
         while (tau + 1 < half && yin[tau + 1] < yin[tau]) tau++;
         tauEstimate = tau;
         break;
       }
     }
-    if (tauEstimate === -1) { this.history.length = 0; return UNVOICED; }
+    if (tauEstimate === -1) {
+      // Fallback: accept the global minimum if it's at least moderately periodic.
+      if (globalMinVal < 0.55) tauEstimate = globalMinTau;
+      else { this.history.length = 0; return UNVOICED; }
+    }
 
-    const clarity = 1 - yin[tauEstimate];
+    const clarity = Math.max(0, 1 - yin[tauEstimate]);
 
     // 4) Parabolic interpolation around the chosen tau.
     const x0 = tauEstimate > 0 ? tauEstimate - 1 : tauEstimate;
