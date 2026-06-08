@@ -1,6 +1,7 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Note, Chord } from 'tonal';
 import { audioPlayer } from '../ear-training/utils/audio-player';
+import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 
 // ─── Font injection ────────────────────────────────────────────────────────────
 if (typeof document !== 'undefined' && !document.getElementById('chord-landing-fonts')) {
@@ -770,8 +771,11 @@ function ApproachCard({ approach, targetRoot, targetQuality, isExpanded, onToggl
 
 // ─── Main component ────────────────────────────────────────────────────────────
 export default function ChordLandingFeature() {
-  const [targetRoot, setTargetRoot] = useState('G');
+  const { globalKey, writeNote } = useGlobalKey();
+  const [targetRoot, setTargetRoot] = useState(() => writeNote(globalKey));
   const [targetQuality, setTargetQuality] = useState('maj7');
+
+  useEffect(() => { setTargetRoot(writeNote(globalKey)); }, [globalKey, writeNote]);
   const [maxSteps, setMaxSteps] = useState(5);
   const [maxComplexity, setMaxComplexity] = useState(5);
   const [activeMood, setActiveMood] = useState<string | null>(null);
