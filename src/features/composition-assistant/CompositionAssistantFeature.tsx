@@ -5,6 +5,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { Music, Lightbulb, GitBranch, Sparkles, Play, ChevronDown, ChevronUp } from 'lucide-react';
+import { Chord } from 'tonal';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 import { analyzeProgression, parseChord, type ProgressionAnalysis } from './utils/chord-analysis';
 import { getScaleMatches, type ChordScaleAnalysis } from './utils/scale-matching';
 import { getAllPassingChords, type PassingChordSuggestion } from './utils/passing-chord-logic';
@@ -179,7 +181,26 @@ export function CompositionAssistantFeature() {
                 <div className='chord-analysis-grid'>
                   {analysis.chords.map((ca, idx) => (
                     <div key={idx} className='chord-analysis-card'>
-                      <div className='chord-symbol'>{ca.chord.original}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'space-between' }}>
+                        <div className='chord-symbol'>{ca.chord.original}</div>
+                        <button
+                          onClick={async () => {
+                            const notes = Chord.get(ca.chord.original).notes;
+                            if (notes.length > 0) {
+                              await audioPlayer.preloadAllNotes();
+                              audioPlayer.playChord(notes.map(n => `${n}3`));
+                            }
+                          }}
+                          title={`Play ${ca.chord.original}`}
+                          style={{
+                            width: 22, height: 22, borderRadius: '50%',
+                            background: '#1c2128', border: '1px solid #30363d',
+                            cursor: 'pointer', fontSize: 9, color: '#6b7280',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            padding: 0, flexShrink: 0,
+                          }}
+                        >▶</button>
+                      </div>
 
                       {ca.romanNumeral && <div className='roman-numeral'>{ca.romanNumeral}</div>}
 
