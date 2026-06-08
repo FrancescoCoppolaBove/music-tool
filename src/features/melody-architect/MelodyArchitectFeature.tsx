@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Scale, Note } from 'tonal';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 // ─── Data Structures ────────────────────────────────────────────────────────
 
@@ -577,11 +578,38 @@ function ContourDetail({ contour }: { contour: ContourType }) {
   );
 }
 
-function ScaleNotes({ notes }: { notes: string[] }) {
+function ScaleNotes({ notes, root }: { notes: string[]; root: string }) {
+  const [playing, setPlaying] = useState(false);
+
+  async function handlePlay() {
+    if (playing) return;
+    setPlaying(true);
+    await audioPlayer.preloadAllNotes();
+    const playNotes = notes.map(n => `${Note.simplify(n) || n}3`);
+    playNotes.push(`${Note.simplify(root) || root}4`);
+    await audioPlayer.playSequence(playNotes, 200, 0.7);
+    setPlaying(false);
+  }
+
   return (
     <div>
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#8b949e', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        Scale Degrees
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Scale Degrees
+        </div>
+        <button
+          onClick={handlePlay}
+          style={{
+            padding: '2px 10px',
+            background: playing ? '#7c3aed20' : 'none',
+            border: `1px solid ${playing ? '#7c3aed60' : '#30363d'}`,
+            borderRadius: 6, cursor: playing ? 'default' : 'pointer',
+            fontSize: 11, color: playing ? '#c4b5fd' : '#6b7280',
+            fontFamily: 'inherit', transition: 'all 0.15s',
+          }}
+        >
+          {playing ? '♩♩♩' : '▶ Play'}
+        </button>
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {notes.map((note, i) => {
@@ -1025,7 +1053,7 @@ export default function MelodyArchitectFeature() {
         }}>
           <div>
             <SectionTitle title="Scale Notes" />
-            <ScaleNotes notes={notes} />
+            <ScaleNotes notes={notes} root={root} />
           </div>
           <div>
             <SectionTitle title="Beat Strength Guide" subtitle="8th-note subdivisions included." />
