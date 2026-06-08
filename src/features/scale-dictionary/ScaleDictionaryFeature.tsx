@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ScaleType, Scale, Interval } from 'tonal';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -95,6 +96,7 @@ export default function ScaleDictionaryFeature() {
   const [showIntervals, setShowIntervals] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
   const [selectedScale, setSelectedScale] = useState<ScaleEntry | null>(null);
+  const [playingScale, setPlayingScale] = useState(false);
 
   // All 92 scale types from Tonal
   const allScaleTypes = useMemo(() => ScaleType.all().filter(s => !s.empty), []);
@@ -251,12 +253,34 @@ export default function ScaleDictionaryFeature() {
                 {selectedKey} {selectedScale.name}
               </h3>
             </div>
-            <button
-              onClick={() => setSelectedScale(null)}
-              style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: 18, padding: 4 }}
-            >
-              ✕
-            </button>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button
+                onClick={async () => {
+                  if (playingScale) return;
+                  setPlayingScale(true);
+                  await audioPlayer.preloadAllNotes();
+                  const notes = selectedScale.notes.map(n => `${n}3`);
+                  notes.push(`${selectedScale.notes[0]}4`);
+                  await audioPlayer.playSequence(notes, 200, 0.7);
+                  setPlayingScale(false);
+                }}
+                style={{
+                  padding: '7px 16px', borderRadius: 8,
+                  background: playingScale ? `${catColor(selectedScale.category)}20` : '#1c2128',
+                  border: `1px solid ${catColor(selectedScale.category)}`,
+                  color: catColor(selectedScale.category),
+                  fontSize: 13, cursor: 'pointer', fontWeight: 600,
+                }}
+              >
+                {playingScale ? '♩♩♩' : '▶ Play'}
+              </button>
+              <button
+                onClick={() => setSelectedScale(null)}
+                style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: 18, padding: 4 }}
+              >
+                ✕
+              </button>
+            </div>
           </div>
           {/* Notes */}
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
