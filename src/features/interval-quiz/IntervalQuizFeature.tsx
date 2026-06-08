@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Note, Scale } from 'tonal';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -153,8 +154,9 @@ export default function IntervalQuizFeature() {
   const [results, setResults]       = useState<RoundResult[]>([]);
   const [selected, setSelected]     = useState<string | null>(null);
   const [isCorrect, setIsCorrect]   = useState<boolean | null>(null);
-  const [scoreFlash, setScoreFlash] = useState(0);
-  const [shaking, setShaking]       = useState(false);
+  const [scoreFlash, setScoreFlash]       = useState(0);
+  const [shaking, setShaking]             = useState(false);
+  const [playingInterval, setPlayingInterval] = useState(false);
 
   const keyPool    = keyMode === 'all' ? CHROMATIC_ROOTS : [pickedKey];
   const degreePool = quizMode === 'natural' ? NATURAL_DEGREES
@@ -456,6 +458,30 @@ export default function IntervalQuizFeature() {
                       {!isCorrect && <> — you answered <span style={{ color: '#fca5a5' }}>{selected}</span></>}
                     </div>
                   </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                  <button
+                    onClick={async () => {
+                      if (playingInterval || !question) return;
+                      setPlayingInterval(true);
+                      await audioPlayer.preloadAllNotes();
+                      await audioPlayer.playSequence(
+                        [`${question.key}3`, `${question.correctAnswer}3`],
+                        500, 0.7,
+                      );
+                      setPlayingInterval(false);
+                    }}
+                    style={{
+                      flex: 1, padding: '11px 0', borderRadius: 10,
+                      background: playingInterval ? '#7c3aed20' : 'transparent',
+                      border: `1px solid ${playingInterval ? '#7c3aed60' : '#30363d'}`,
+                      color: playingInterval ? '#c4b5fd' : '#6b7280',
+                      fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
+                      cursor: playingInterval ? 'default' : 'pointer',
+                    }}
+                  >
+                    {playingInterval ? '♩♩♩' : '▶ Hear interval'}
+                  </button>
                 </div>
                 <button onClick={advance} style={{ width: '100%', padding: '13px 0', borderRadius: 10, background: accent, border: 'none', color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                   Next question →
