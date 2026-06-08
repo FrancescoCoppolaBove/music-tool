@@ -28,6 +28,7 @@ import NailThePitchFeature from './features/nail-the-pitch/NailThePitchFeature';
 import MetronomeFeature from './features/metronome/MetronomeFeature';
 import ProfileFeature from './features/profile/ProfileFeature';
 import ModalBuddy from './shared/components/ModalBuddy';
+import { CompositionAssistantFeature } from './features/composition-assistant/CompositionAssistantFeature';
 import HomePage from './features/home/HomePage';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -157,6 +158,7 @@ type Tab =
   | 'score'
   | 'landing'
   | 'architect'
+  | 'compositionassist'
   | 'journal'
   | 'songs'
   | 'daily'
@@ -192,9 +194,10 @@ const GROUPS: GroupDef[] = [
       { id: 'analysis',      label: 'Harmonic Analysis',  icon: '🔬', desc: 'Analyse key, Roman numerals & chord function' },
       { id: 'riff',          label: 'Riff Architect',     icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees' },
       { id: 'melody',        label: 'Melody Architect',   icon: '〰️', desc: 'Shape a melody with contour, approach & motif' },
-      { id: 'score',         label: 'Score → iReal Pro',  icon: '📄', desc: 'Import a score photo and export to iReal Pro' },
-      { id: 'landing',       label: 'Chord Landing',      icon: '🎯', desc: 'Find the best way to approach any target chord' },
-      { id: 'architect',     label: 'Song Architect',     icon: '🏗️', desc: 'Develop harmonic sections B and C from your A section' },
+      { id: 'score',              label: 'Score → iReal Pro',      icon: '📄', desc: 'Import a score photo and export to iReal Pro' },
+      { id: 'landing',            label: 'Chord Landing',          icon: '🎯', desc: 'Find the best way to approach any target chord' },
+      { id: 'architect',          label: 'Song Architect',         icon: '🏗️', desc: 'Develop harmonic sections B and C from your A section' },
+      { id: 'compositionassist',  label: 'Composition Assistant',  icon: '✍️', desc: 'Analyze progressions, get scale suggestions and passing chords' },
     ],
   },
   {
@@ -908,7 +911,8 @@ export default function App() {
         {activeTab === 'quiz'          && <IntervalQuizFeature />}
         {activeTab === 'score'         && <ScoreToIRealFeature />}
         {activeTab === 'landing'       && <ChordLandingFeature />}
-        {activeTab === 'architect'     && <SongArchitectFeature />}
+        {activeTab === 'architect'         && <SongArchitectFeature />}
+        {activeTab === 'compositionassist' && <CompositionAssistantFeature />}
         {activeTab === 'daily'         && <DailyChallengeFeature />}
         {activeTab === 'journal'       && <PracticeJournalFeature />}
         {activeTab === 'songs'         && <SongLibraryFeature />}
