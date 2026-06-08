@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
+import { Chord } from 'tonal';
+import { audioPlayer } from '../ear-training/utils/audio-player';
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');`;
@@ -530,6 +532,8 @@ export default function ScoreToIRealFeature() {
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [song, setSong] = useState<SongData>({ ...DEFAULT_SONG });
   const [copied, setCopied] = useState(false);
+  const [playingProg, setPlayingProg] = useState(false);
+  const stopPlayRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const COLOR = '#7c3aed';
@@ -989,7 +993,35 @@ export default function ScoreToIRealFeature() {
               + Add Section
             </button>
 
-            <div style={{ marginTop: 22, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <div style={{ marginTop: 22, display: 'flex', gap: 10, justifyContent: 'flex-end', flexWrap: 'wrap', alignItems: 'center' }}>
+              <button
+                onClick={async () => {
+                  if (playingProg) { stopPlayRef.current = true; return; }
+                  stopPlayRef.current = false;
+                  setPlayingProg(true);
+                  const allChords = song.sections.flatMap(s =>
+                    s.bars.flatMap(b => b.isRest || b.isRepeatBar ? [] : b.chords)
+                  );
+                  await audioPlayer.preloadAllNotes();
+                  for (const sym of allChords) {
+                    if (stopPlayRef.current) break;
+                    const notes = Chord.get(sym).notes;
+                    if (notes.length > 0) {
+                      await audioPlayer.playChord(notes.map(n => `${n}3`));
+                    }
+                    await audioPlayer.delay(1100);
+                  }
+                  setPlayingProg(false);
+                }}
+                style={{
+                  ...btnSecondary,
+                  color: playingProg ? '#86efac' : COLOR,
+                  borderColor: playingProg ? '#22c55e60' : `${COLOR}55`,
+                  background: playingProg ? '#1a2e1a' : 'transparent',
+                }}
+              >
+                {playingProg ? '⏹ Stop' : '▶ Play progression'}
+              </button>
               <button onClick={() => setTab('export')} style={btnPrimary}>
                 Continue to Export →
               </button>
