@@ -1,83 +1,74 @@
-import { Music2, Layers, Sparkles, Circle, Boxes, Move, Maximize2, type LucideIcon } from 'lucide-react';
 import type { VoicingStyle } from '../types/chord.types';
 
-interface VoicingStyleSelectorProps {
-  selectedStyle: VoicingStyle;
-  onStyleChange: (style: VoicingStyle) => void;
-  disabled?: boolean;
+const STYLE_DESCRIPTIONS: Record<VoicingStyle, string> = {
+  closed: 'Compact, close-position voicings and inversions',
+  drop2: 'Classic jazz spread — 2nd highest note dropped an octave',
+  drop3: 'Wide jazz spread — 3rd highest note dropped an octave',
+  shell: 'Minimal guide-tone voicings (root, 3rd, 7th)',
+  rootless: 'No root — color tones only, for piano in a jazz combo',
+  open: 'Root + 5th low, 3rd + 7th high — resonant spread',
+  quartal: 'Stacked perfect 4ths — modal, ambiguous sound',
+  spread: 'Very wide voicings across 2–3 octaves',
+  upperStructure: 'Shell voicing + upper structure triad on top',
+};
+
+interface Props {
+  selected: VoicingStyle[];
+  onChange: (styles: VoicingStyle[]) => void;
 }
 
-interface StyleOption {
-  value: VoicingStyle;
-  label: string;
-  description: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  icon: LucideIcon;
-}
+const ALL_STYLES: VoicingStyle[] = ['closed', 'drop2', 'drop3', 'shell', 'rootless', 'open', 'quartal', 'spread', 'upperStructure'];
 
-const VOICING_STYLES: StyleOption[] = [
-  { value: 'basic', label: 'Triads', description: 'Basic 3-note triads and inversions (1-3-5)', difficulty: 'easy', icon: Music2 },
-  {
-    value: 'quadriads',
-    label: 'Seventh Chords',
-    description: '4-note chords (7ths, 6ths) with all inversions',
-    difficulty: 'easy',
-    icon: Layers,
-  },
-  {
-    value: 'extensions',
-    label: 'Extensions',
-    description: 'Extended chords (9ths, 11ths, 13ths) with modern voicings',
-    difficulty: 'medium',
-    icon: Sparkles,
-  },
-  { value: 'shell', label: 'Shell', description: 'Essential tones only (root, 3rd, 7th)', difficulty: 'easy', icon: Circle },
-  { value: 'jazz-rootless', label: 'Jazz Rootless', description: 'Modern jazz voicings without root', difficulty: 'medium', icon: Boxes },
-  { value: 'drop-2', label: 'Drop-2', description: 'Second voice dropped an octave', difficulty: 'medium', icon: Move },
-  { value: 'drop-3', label: 'Drop-3', description: 'Third voice dropped an octave', difficulty: 'hard', icon: Maximize2 },
-];
+export default function VoicingStyleSelector({ selected, onChange }: Props) {
+  function toggle(style: VoicingStyle) {
+    if (selected.includes(style)) {
+      if (selected.length === 1) return; // always keep at least one
+      onChange(selected.filter(s => s !== style));
+    } else {
+      onChange([...selected, style]);
+    }
+  }
 
-function getDifficultyLabel(difficulty: 'easy' | 'medium' | 'hard'): string {
-  return difficulty === 'hard' ? 'Advanced' : difficulty === 'medium' ? 'Medium' : 'Easy';
-}
-
-function getDifficultyClass(difficulty: 'easy' | 'medium' | 'hard'): string {
-  return difficulty === 'hard' ? 'difficulty-hard' : difficulty === 'medium' ? 'difficulty-medium' : 'difficulty-easy';
-}
-
-export function VoicingStyleSelector({ selectedStyle, onStyleChange, disabled = false }: VoicingStyleSelectorProps) {
   return (
-    <div className='voicing-style-selector'>
-      <label className='selector-label'>
-        <Music2 size={18} className='selector-label-icon' />
-        Voicing Style
-      </label>
-
-      <div className='style-options'>
-        {VOICING_STYLES.map((style) => {
-          const isActive = selectedStyle === style.value;
-          const Icon = style.icon;
-
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <span style={{ fontSize: 13, color: '#8b949e', fontWeight: 500 }}>Filter by voicing style</span>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => onChange([...ALL_STYLES])}
+            style={{ padding: '3px 10px', background: 'none', border: '1px solid #30363d', borderRadius: 5, color: '#8b949e', fontSize: 12, cursor: 'pointer' }}
+          >
+            All
+          </button>
+          <button
+            onClick={() => onChange(['drop2', 'rootless', 'shell'])}
+            style={{ padding: '3px 10px', background: 'none', border: '1px solid #30363d', borderRadius: 5, color: '#8b949e', fontSize: 12, cursor: 'pointer' }}
+          >
+            Jazz Essentials
+          </button>
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {ALL_STYLES.map(style => {
+          const isOn = selected.includes(style);
           return (
             <button
-              key={style.value}
-              type='button'
-              onClick={() => onStyleChange(style.value)}
-              className={`style-option ${isActive ? 'active' : ''}`}
-              aria-pressed={isActive}
-              aria-label={`Select ${style.label} voicing style`}
-              disabled={disabled}
+              key={style}
+              onClick={() => toggle(style)}
+              title={STYLE_DESCRIPTIONS[style]}
+              style={{
+                padding: '5px 12px',
+                background: isOn ? '#1d4ed820' : 'none',
+                border: `1px solid ${isOn ? '#3b82f6' : '#30363d'}`,
+                borderRadius: 6,
+                color: isOn ? '#93c5fd' : '#6b7280',
+                fontSize: 12,
+                cursor: 'pointer',
+                fontWeight: isOn ? 600 : 400,
+                transition: 'all 0.15s',
+              }}
             >
-              <div className='style-label'>
-                <Icon size={20} className='style-icon' />
-                {style.label}
-              </div>
-
-              <p className='style-description'>{style.description}</p>
-
-              <div className='style-difficulty'>
-                <span className={`difficulty-badge ${getDifficultyClass(style.difficulty)}`}>{getDifficultyLabel(style.difficulty)}</span>
-              </div>
+              {style === 'upperStructure' ? 'Upper Structure' : style.charAt(0).toUpperCase() + style.slice(1)}
             </button>
           );
         })}

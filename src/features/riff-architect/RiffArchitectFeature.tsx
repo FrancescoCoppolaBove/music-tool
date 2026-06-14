@@ -175,6 +175,62 @@ const ARTISTS: Artist[] = [
     scalePreferences: ['phrygian', 'locrian', 'dorian', 'minor pentatonic'],
     exampleApproach: 'Choose 7/8 time. Think of it as 3+2+2. Write a 3-note cluster for the first 3 eighth-notes, then 2 staccato notes for each remaining group. The final "2" group should have a rest on the last eighth — creating the forward lurch into the next bar.',
   },
+  {
+    id: 'vulfpeck',
+    name: 'Vulfpeck',
+    color: '#f97316',
+    tagline: 'Minimal funk, tight pocket, counterpoint bass/melody, subtraction as art',
+    harmonicDNA: [
+      'Major and Mixolydian are home — harmony is a backdrop, not the story',
+      'Progressions rarely go beyond maj7/m7 — no extensions unless deeply intentional',
+      'I–IV and I–IV–V are the backbone; ii–V–I occasionally for "jazz lift"',
+      'Voicings are open and transparent — leave room for the bass to function melodically',
+    ],
+    rhythmicDNA: [
+      'The tightest pocket in modern funk — every hit is exactly where it should be',
+      '16th-note subdivision feel à la Motown, but sparse: most of the grid is empty',
+      'Ghost notes as the invisible skeleton — felt but barely heard between main hits',
+      '"Dead notes" and palm mutes as rhythmic texture, not decoration',
+    ],
+    keyTechniques: [
+      'Write the bass line first — it is the melody. Everything else fills around it.',
+      'Remove one instrument from the arrangement every time it sounds "full enough"',
+      'The interplay between bass and keys/voice IS the composition (Woody Goss vs. Joe Dart)',
+      'Never fill every beat — long rests create anticipation and make hits land harder',
+      'When in doubt, repeat the groove for 4 more bars before moving on',
+      'Jack Stratton\'s rule: if it sounds too simple, it\'s probably just right',
+    ],
+    scalePreferences: ['major', 'mixolydian', 'blues scale (occasional)', 'pentatonic major'],
+    exampleApproach: 'Write a 2-bar bass line using only root, 5th, and b7 (one note per beat, 4/4). Add a keyboard chord on beats 2 and 4 only (stab). Add a melody that uses 3 notes maximum over 4 bars. Remove the keyboard from bars 3–4. That space is now the arrangement.',
+  },
+  {
+    id: 'yussefDayes',
+    name: 'Yussef Dayes',
+    color: '#38bdf8',
+    tagline: 'UK jazz modal trio, floating time, drum-first composition, spiritual groove',
+    harmonicDNA: [
+      'Dorian and Phrygian as emotional centers — modal, not functional harmonic movement',
+      'Rhodes/electric piano as harmonic texture, not chord machine — sparse, evocative',
+      'Pentatonic minor as primary melodic language, with chromatic passing tones',
+      'North African scale colors: augmented 2nds (b2–3, b6–7) create Middle Eastern tension',
+    ],
+    rhythmicDNA: [
+      'Floating, behind-the-beat feel — the groove breathes rather than locks',
+      'Drum kit as compositional anchor: the rhythm section writes from percussion outward',
+      'Polyrhythmic cross-rhythms between kick and hi-hat (e.g., 3 against 4 feel inside 4/4)',
+      'Sudden metric shifts: groove accelerates or doubles mid-phrase without warning',
+    ],
+    keyTechniques: [
+      'Record the drum groove FIRST — let it dictate the tempo feel and phrase lengths',
+      'Build bass around a pedal point, then slowly move it once every 4–8 bars',
+      'Rhodes comping: play 2–3 note voicings only on strong rhythmic hits, leave silence',
+      'Melody as rhythmic event — 4-note theme repeated with micro-variations in timing',
+      'Use the b2 (flat 9) as a sustained color tone for Middle Eastern/Phrygian texture',
+      'Let the track breathe: a 2-minute track can have 1 minute of just drums + bass',
+    ],
+    scalePreferences: ['dorian', 'phrygian', 'minor pentatonic', 'phrygian dominant', 'blues scale'],
+    exampleApproach: 'Set a 92–108 BPM groove and record drums with a floating, slightly behind-the-beat 16th feel. Add a bass pedal on D for 8 bars. Drop a Rhodes voicing (D minor 9, no 3rd) on beat 2 of every 2nd bar. Sing or play a 4-note phrase starting on the b7 (C). Loop it all for 4 minutes, varying only the Rhodes comping rhythm.',
+  },
 ];
 
 const UST_FOR_DOMINANT: UST[] = [

@@ -2749,6 +2749,97 @@ const TEMPLATES: ProgressionTemplate[] = [
     lengths: [4],
     mode: 'both',
   },
+
+  // ── VULFPECK — MINIMALIST FUNK ────────────────────────────────────────────
+  {
+    id: 'vulf-I-IV',
+    name: 'I–IV (Vulfpeck Minimal)',
+    chords: [
+      { degree: 'I',  quality: 'diatonic', function: 'Tonic',       technique: 'diatonic', annotation: 'I — tonic, let the bass melody do the work' },
+      { degree: 'IV', quality: 'diatonic', function: 'Subdominant', technique: 'diatonic', annotation: 'IV — the only harmony needed. Pocket is everything.' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'The Vulfpeck signature: two chords, infinite groove. "Wait for the Moment", "Funky Duck" — the entire composition lives in the rhythmic relationship between bass, keys, and voice. Simplicity IS the technique.',
+    artists: ['Vulfpeck', 'Joe Dart', 'Jack Stratton', 'Stevie Wonder'],
+    feel: 'Minimal Motown pocket',
+    lengths: [2],
+    mode: 'both',
+  },
+  {
+    id: 'vulf-I-IV-V',
+    name: 'I–IV–V (Vulfpeck Classic)',
+    chords: [
+      { degree: 'I',  quality: 'diatonic', function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'IV', quality: 'diatonic', function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'V',  quality: 'diatonic', function: 'Dominant',    technique: 'diatonic', annotation: 'V — only used to set up the return to I. Never over-play it.' },
+    ],
+    style: 'classic', techniques: ['diatonic'],
+    description: 'Three chords, perfect execution. The Vulfpeck philosophy: every note is intentional, every space is musical. "Beastly", "Back Pocket" energy — the pocket and the bass melody are the arrangement.',
+    artists: ['Vulfpeck', 'James Brown', 'Motown', 'Joe Dart'],
+    feel: 'Deep funk pocket',
+    lengths: [3],
+    mode: 'both',
+  },
+  {
+    id: 'vulf-I7-IV',
+    name: 'I7–IV (Mixolydian Vulfpeck)',
+    chords: [
+      { degree: 'I',  quality: '7',    function: 'Tonic',       technique: 'modal_interchange', annotation: 'I7 — Mixolydian tonic: the ♭7 adds the "loose" funk quality', techniqueLabel: 'Mixolydian' },
+      { degree: 'IV', quality: 'maj7', function: 'Subdominant', technique: 'diatonic',          annotation: 'IVmaj7 — bright and open, contrast to the dominant I7' },
+    ],
+    style: 'modern', techniques: ['diatonic', 'modal_interchange'],
+    description: 'Vulfpeck with a Mixolydian twist: using I7 (dominant on the tonic) gives the groove a "never resolves" floating quality. Common in their more extended vamps. The ♭7 makes the I sound perpetually incomplete — perfect for looping.',
+    artists: ['Vulfpeck', 'Cory Henry', 'Thundercat', 'D\'Angelo'],
+    feel: 'Floating Mixolydian vamp',
+    lengths: [2],
+    mode: 'both',
+  },
+
+  // ── YUSSEF DAYES — UK JAZZ MODAL ─────────────────────────────────────────
+  {
+    id: 'yussef-dorian-vamp',
+    name: 'Im7–IV7 (Yussef Dorian Vamp)',
+    chords: [
+      { degree: 'I',  quality: 'm7', function: 'Tonic',       technique: 'diatonic', annotation: 'im7 — Dorian home. Rhodes or piano, sparse voicing.' },
+      { degree: 'IV', quality: '7',  function: 'Subdominant', technique: 'diatonic', annotation: 'IV7 — the Dorian IV is major/dominant (not minor). This is the characteristic Dorian sound.' },
+    ],
+    style: 'modern', techniques: ['diatonic'],
+    description: 'The Dorian vamp at the heart of Yussef Dayes\' sound: Im7–IV7. The IV7 is the Dorian signature chord (Dm7→G7 in D Dorian). Rhodes comps sparsely, bass pedals on the root. "Love Is Everywhere", "Tioga Pass" energy — spiritual, floating, inevitable.',
+    artists: ['Yussef Dayes', 'Tom Misch', 'Alfa Mist', 'Robert Glasper'],
+    feel: 'Spiritual UK jazz groove',
+    lengths: [2],
+    mode: 'dorian',
+  },
+  {
+    id: 'yussef-phrygian-drift',
+    name: 'Im–♭VII–♭VI (Phrygian Drift)',
+    chords: [
+      { degree: 'I',    quality: 'm',    function: 'Tonic',  technique: 'diatonic',          annotation: 'im — bare minor triad or m7. Phrygian home.' },
+      { degree: 'bVII', quality: 'maj7', function: 'Color',  technique: 'modal_interchange', annotation: '♭VII — Phrygian: the step below the tonic', techniqueLabel: 'Phrygian' },
+      { degree: 'bVI',  quality: 'maj7', function: 'Color',  technique: 'modal_interchange', annotation: '♭VI — North African/Middle Eastern quality. Creates the "ancient" color.', techniqueLabel: 'Modal Color' },
+    ],
+    style: 'modern', techniques: ['diatonic', 'modal_interchange'],
+    description: 'Descending Phrygian movement from tonic through ♭VII to ♭VI — gives that North African, spiritual-ancient quality that appears throughout Yussef Dayes\' more modal pieces. The ♭2 interval between ♭VII and ♭VI is the signature color.',
+    artists: ['Yussef Dayes', 'Tigran Hamasyan', 'Anouar Brahem', 'Rabih Abou-Khalil'],
+    feel: 'North African spiritual jazz',
+    lengths: [3],
+    mode: 'phrygian',
+  },
+  {
+    id: 'yussef-minor-pentatonic-vamp',
+    name: 'Im7–♭VII7–♭VI (Minor Modal Vamp)',
+    chords: [
+      { degree: 'I',    quality: 'm7',   function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'bVII', quality: '7',    function: 'Color',       technique: 'modal_interchange', annotation: '♭VII7 — borrowed from Mixolydian/Dorian. Keeps movement inside the minor pentatonic box.', techniqueLabel: 'Modal Color' },
+      { degree: 'bVI',  quality: 'maj7', function: 'Subdominant', technique: 'modal_interchange', annotation: '♭VI — Aeolian/modal. The three chords together outline the minor pentatonic scale root–♭7–♭6.', techniqueLabel: 'Aeolian Color' },
+    ],
+    style: 'modern', techniques: ['diatonic', 'modal_interchange'],
+    description: 'Three-chord modal vamp that stays inside the minor pentatonic world: Im7–♭VII7–♭VImaj7. No dominant resolution, no ii–V tension — pure modal drift. Drum-led composition: the groove IS the track, harmony follows the rhythm.',
+    artists: ['Yussef Dayes', 'Tom Misch', 'Hiatus Kaiyote', 'Masego'],
+    feel: 'Modal pentatonic drift',
+    lengths: [3],
+    mode: 'minor',
+  },
 ];
 
 // ─── Resolution ──────────────────────────────────────────────────────────────

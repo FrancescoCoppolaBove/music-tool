@@ -1,57 +1,35 @@
-import { NoteName, ChordQuality } from '@shared/types/music.types';
-
 export interface ParsedChord {
-  root: NoteName;
-  bass?: NoteName;
-  quality: ChordQuality;
-  hasSeventh: boolean;
-  hasNinth: boolean;
-  extensions: string[];
-  alterations: string[];
-  addedTones: string[];
-  suspensions: string[];
-  rawSymbol: string;
-}
-
-// NUOVO: Nota con ottava specifica
-export interface NoteWithOctave {
-  note: NoteName;
-  octave: number;
-  midiNumber: number;
-}
-
-export interface ChordVoicing {
-  id: string;
-  label: string;
-  description: string;
-  leftHand: VoicingHand;
-  rightHand: VoicingHand;
-  fullChord: NoteName[];
-  // NUOVO: note specifiche con ottave
-  specificNotes: NoteWithOctave[];
-  difficulty: 'easy' | 'medium' | 'hard';
-  style: VoicingStyle;
-}
-
-export interface VoicingHand {
-  notes: NoteName[];
-  midiNumbers: number[];
-  octaves: number[];
+  root: string;
+  chordType: string;       // key into CHORD_FORMULAS
+  bassNote?: string;       // for slash chords like C/E
+  displayName: string;     // e.g. "Cmaj7", "Dm7b5"
+  notes: string[];         // chord tones
 }
 
 export type VoicingStyle =
-  | 'basic' // Solo triadi
-  | 'quadriads' // Accordi a 4 note (7ths, 6ths)
-  | 'extensions' // Estensioni (9, 11, 13)
-  | 'jazz-rootless' // Jazz rootless
-  | 'drop-2' // Drop-2
-  | 'drop-3' // Drop-3
-  | 'shell'; // Shell voicings
+  | 'closed'
+  | 'drop2'
+  | 'drop3'
+  | 'shell'
+  | 'rootless'
+  | 'open'
+  | 'quartal'
+  | 'spread'
+  | 'upperStructure';
 
-export interface VoicingGeneratorOptions {
+export interface VoicingNote {
+  midi: number;
+  note: string;
+  octave: number;
+  isRoot: boolean;
+  interval: string;    // e.g. "R", "3", "5", "7", "9"
+}
+
+export interface Voicing {
+  id: string;
   style: VoicingStyle;
-  includeRoot: boolean;
-  leftHandOctave: number;
-  rightHandOctave: number;
-  maxStretch: number;
+  styleLabel: string;
+  notes: VoicingNote[];
+  description: string;
+  tip?: string;       // performance tip or musical context
 }

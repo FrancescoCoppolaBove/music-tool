@@ -7,7 +7,7 @@ import AuthGate from './features/auth/AuthGate';
 import PracticeJournalFeature from './features/practice-journal/PracticeJournalFeature';
 import SongLibraryFeature from './features/song-library/SongLibraryFeature';
 import DailyChallengeFeature from './features/daily-challenge/DailyChallengeFeature';
-import ChordVoicingsFeature from './features/chord-vocings/ChordVoicingsFeature';
+import ChordVoicingsFeature from './features/chord-voicings/ChordVoicingsFeature';
 import ScaleRecognitionFeature from './features/scale-recognition/ScaleRecognitionFeature';
 import ScaleDictionaryFeature from './features/scale-dictionary/ScaleDictionaryFeature';
 import EarTrainingFeature from './features/ear-training/EarTrainingFeature';
@@ -27,6 +27,9 @@ import ChordDetectionFeature from './features/chord-detection/ChordDetectionFeat
 import NailThePitchFeature from './features/nail-the-pitch/NailThePitchFeature';
 import ProfileFeature from './features/profile/ProfileFeature';
 import ModalBuddy from './shared/components/ModalBuddy';
+import VoiceLeadingFeature from './features/voice-leading/VoiceLeadingFeature';
+import GrooveKitchenFeature from './features/groove-kitchen/GrooveKitchenFeature';
+import ArrangementBlueprintFeature from './features/arrangement-blueprint/ArrangementBlueprintFeature';
 import HomePage from './features/home/HomePage';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -161,7 +164,10 @@ type Tab =
   | 'daily'
   | 'chorddetect'
   | 'nailpitch'
-  | 'profile';
+  | 'profile'
+  | 'voiceleading'
+  | 'groove'
+  | 'arrangement';
 
 interface TabDef {
   id: Tab;
@@ -191,8 +197,11 @@ const GROUPS: GroupDef[] = [
       { id: 'riff',          label: 'Riff Architect',     icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees' },
       { id: 'melody',        label: 'Melody Architect',   icon: '〰️', desc: 'Shape a melody with contour, approach & motif' },
       { id: 'score',         label: 'Score → iReal Pro',  icon: '📄', desc: 'Import a score photo and export to iReal Pro' },
-      { id: 'landing',       label: 'Chord Landing',      icon: '🎯', desc: 'Find the best way to approach any target chord' },
-      { id: 'architect',     label: 'Song Architect',     icon: '🏗️', desc: 'Develop harmonic sections B and C from your A section' },
+      { id: 'landing',       label: 'Chord Landing',        icon: '🎯', desc: 'Find the best way to approach any target chord' },
+      { id: 'architect',     label: 'Song Architect',       icon: '🏗️', desc: 'Develop harmonic sections B and C from your A section' },
+      { id: 'voiceleading',  label: 'Voice Leading Lab',    icon: '↔️', desc: 'How to move voices smoothly between any two chords' },
+      { id: 'groove',        label: 'Groove Kitchen',       icon: '🥁', desc: 'Drum + bass patterns for Snarky Puppy, Ghost Note, Vulfpeck, Yussef Dayes' },
+      { id: 'arrangement',   label: 'Arrangement Blueprint', icon: '🎼', desc: 'What each instrument plays — from idea to complete arrangement' },
     ],
   },
   {
@@ -864,6 +873,9 @@ export default function App() {
         {activeTab === 'chorddetect'   && <ChordDetectionFeature onNavigateToScaleAdvisor={handleChordDetectToScaleAdvisor} />}
         {activeTab === 'nailpitch'     && <NailThePitchFeature />}
         {activeTab === 'profile'       && <ProfileFeature />}
+        {activeTab === 'voiceleading'  && <VoiceLeadingFeature />}
+        {activeTab === 'groove'        && <GrooveKitchenFeature />}
+        {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}

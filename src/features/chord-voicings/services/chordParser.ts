@@ -1,323 +1,131 @@
-import { NoteName, MUSIC_SYMBOLS } from '@shared/types/music.types';
-import { normalizeNoteName } from '@shared/utils/musicTheory';
-import { ParsedChord } from '../types/chord.types';
+import {
+  NOTE_TO_SEMITONE,
+  CHORD_FORMULAS,
+  CHORD_ALIASES,
+  getChordNotes,
+} from '@shared/utils/musicTheory';
+import type { ParsedChord } from '../types/chord.types';
 
-/**
- * Parser completo per simboli di accordi in notazione internazionale
- */
-export function parseChordSymbol(symbol: string): ParsedChord | null {
-  if (!symbol || symbol.trim().length === 0) {
-    return null;
-  }
+// Ordered from longest to shortest so greedy match works correctly
+const CHORD_TYPE_KEYS = [
+  'augMaj7','mMaj7','m7b5','dim7','maj9#11','maj7#11','7b5b9','7#5#9',
+  '9#11','maj13','m13','maj11','m11','maj9','m6/9','6/9','m9','7#11',
+  '7sus4','7b9','7#9','7b5','7#5','7alt',
+  '13','11','maj7','m7','m6','aug7','dim','aug','sus2','sus4','add9','madd9',
+  'm11','m13','maj','m','6','9','7','5',
+  'quartal4','quartal',
+];
 
-  const original = symbol;
-  symbol = symbol.trim();
+// Alias map (applied before CHORD_TYPE_KEYS search)
+const ALIAS_PAIRS: Array<[RegExp, string]> = [
+  [/^(Δ7|△7|M7|maj7)/,    'maj7'],
+  [/^(Δ|△)/,              'maj7'],
+  [/^(ø7)/,               'm7b5'],
+  [/^(ø)/,                'm7b5'],
+  [/^(°7)/,               'dim7'],
+  [/^(°)/,                'dim'],
+  [/^(\+7)/,              '7#5'],
+  [/^(\+)/,               'aug'],
+  [/^(-7)/,               'm7'],
+  [/^(-)/,                'm'],
+  [/^(min7)/,             'm7'],
+  [/^(min)/,              'm'],
+  [/^(dom7)/,             '7'],
+  [/^(dom)/,              '7'],
+  [/^(major)/,            'maj'],
+  [/^(minor)/,            'm'],
+];
 
-  // 1. Gestisci slash chords (es. C7/G, F#m7/A)
-  // FIX CRITICO: Non interpretare 6/9 come slash chord!
-  let bass: NoteName | undefined;
-  if (symbol.includes('/')) {
-    const parts = symbol.split('/');
-    const afterSlash = parts[1]?.trim();
+// Valid root note names, ordered longest-first
+const ROOT_REGEX = /^([A-G][b#]?)/;
 
-    // Controlla se dopo lo slash c'è una nota valida (A-G con optional #/b)
-    // 6/9 ha "9" dopo slash (numero) → NON è slash chord
-    // C/E ha "E" dopo slash (nota) → È slash chord
-    if (afterSlash && /^[A-G][#♯b♭]?$/.test(afterSlash)) {
-      // È un vero slash chord
-      symbol = parts[0].trim();
-      bass = (normalizeNoteName(afterSlash) || undefined) as NoteName | undefined;
-    }
-    // Altrimenti lascia symbol intatto (es. C6/9 rimane C6/9)
-  }
+export function parseChord(input: string): ParsedChord | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
 
-  // 2. Estrai la root note (può essere C, C#, Db, Gb, ecc.)
-  const rootMatch = symbol.match(/^([A-G][#♯b♭]?)/);
-  if (!rootMatch) {
-    return null;
-  }
+  // Extract root
+  const rootMatch = trimmed.match(ROOT_REGEX);
+  if (!rootMatch) return null;
+  const root = rootMatch[1];
+  if (NOTE_TO_SEMITONE[root] === undefined) return null;
 
-  const rootRaw = rootMatch[1];
-  const rootNormalized = normalizeNoteName(rootRaw);
-  if (!rootNormalized) {
-    return null;
-  }
-  const root = rootNormalized as NoteName;
+  let remainder = trimmed.slice(root.length);
 
-  // 3. Rimuovi root dal simbolo
-  let remainder = symbol.slice(rootRaw.length);
-
-  // 4. Parsing del quality e extensions
-  const result: ParsedChord = {
-    root,
-    bass,
-    quality: 'major', // default
-    hasSeventh: false,
-    hasNinth: false,
-    extensions: [],
-    alterations: [],
-    addedTones: [],
-    suspensions: [],
-    rawSymbol: original,
-  };
-
-  // --- DIMINISHED ---
-  if (matchAny(remainder, MUSIC_SYMBOLS.diminished)) {
-    result.quality = 'diminished';
-    remainder = removeFirst(remainder, [...MUSIC_SYMBOLS.diminished, '7']);
-
-    // dim7 o ° implica 7th diminished
-    if (remainder.startsWith('7') || original.includes('dim7') || original.includes('°7')) {
-      result.hasSeventh = true;
-      remainder = remainder.replace(/^7/, '');
-    }
-
-    return finalizeChord(result, remainder);
-  }
-
-  // --- HALF-DIMINISHED (ø, m7b5) ---
-  if (remainder.match(/^(ø7?|m7b5)/)) {
-    result.quality = 'half-diminished';
-    result.hasSeventh = true;
-    remainder = remainder.replace(/^(ø7?|m7b5)/, '');
-    return finalizeChord(result, remainder);
-  }
-
-  // --- AUGMENTED ---
-  if (matchAny(remainder, MUSIC_SYMBOLS.augmented)) {
-    result.quality = 'augmented';
-    remainder = removeFirst(remainder, MUSIC_SYMBOLS.augmented);
-
-    // aug7, +7
-    if (remainder.startsWith('7')) {
-      result.hasSeventh = true;
-      remainder = remainder.replace(/^7/, '');
-    }
-
-    return finalizeChord(result, remainder);
-  }
-
-  // --- SUSPENDED (sus2, sus4, 7sus4) ---
-  const susMatch = remainder.match(/^(sus2|sus4|7sus4)/);
-  if (susMatch) {
-    const susType = susMatch[1];
-    result.suspensions.push(susType);
-    remainder = remainder.replace(/^(sus2|sus4|7sus4)/, '');
-
-    if (susType === '7sus4') {
-      result.hasSeventh = true;
-      result.quality = 'sus4';
-    } else if (susType === 'sus2') {
-      result.quality = 'sus2';
-    } else {
-      result.quality = 'sus4';
-    }
-
-    return finalizeChord(result, remainder);
-  }
-
-  // ============================================================
-  // CRITICAL FIX SECTION - Ordine corretto di parsing
-  // ============================================================
-
-  // --- MINOR-MAJOR 7 (mMaj7, mM7) - PRIMA di tutto! ---
-  if (remainder.match(/^m(Maj7|M7|maj7)/i)) {
-    result.quality = 'minor';
-    result.hasSeventh = true;
-    result.extensions.push('M7'); // Flag speciale per settima maggiore
-    remainder = remainder.replace(/^m(Maj7|M7|maj7)/i, '');
-    return finalizeChord(result, remainder);
-  }
-
-  // --- SESTA CON NONA (6/9) ---
-  // FIX CRITICO: Ora symbol contiene ancora "6/9" completo
-  if (remainder.match(/^6\/9/)) {
-    result.extensions.push('6');
-    result.extensions.push('9');
-    result.hasNinth = true;
-    remainder = remainder.replace(/^6\/9/, '');
-    // Continua il parsing invece di return
-  }
-
-  // --- MAJOR 7TH/9/11/13 - Controlla PRIMA di minor! ---
-  if (remainder.match(/^(maj(?:7|9|11|13)?|ma7|M7|Δ7|△7)/)) {
-    result.quality = 'major';
-    result.hasSeventh = true;
-
-    // Estrai estensione se presente (maj9, maj11, maj13)
-    const majMatch = remainder.match(/^maj(9|11|13)/);
-    if (majMatch) {
-      const extension = majMatch[1];
-      result.extensions.push(extension);
-      if (extension === '9') result.hasNinth = true;
-    }
-
-    remainder = remainder.replace(/^(maj(?:7|9|11|13)?|ma7|M7|Δ7|△7)/, '');
-  }
-  // --- DOMINANT 7 ---
-  else if (remainder.match(/^7(?!maj|M|Δ)/)) {
-    if (result.quality === 'major') {
-      result.quality = 'dominant';
-    }
-    result.hasSeventh = true;
-    remainder = remainder.replace(/^7/, '');
-  }
-  // --- SESTA (6) - Solo se non già processato 6/9 ---
-  else if (remainder.match(/^6(?!\/)/) && !result.extensions.includes('6')) {
-    result.extensions.push('6');
-    remainder = remainder.replace(/^6/, '');
-  }
-  // --- MINOR - Controlla DOPO maj7! ---
-  else if (matchAny(remainder, MUSIC_SYMBOLS.minor) && !remainder.startsWith('maj')) {
-    result.quality = 'minor';
-    remainder = removeFirst(remainder, MUSIC_SYMBOLS.minor);
-
-    // FIX: Controlla se c'è 6 subito dopo m (Cm6)
-    if (remainder.match(/^6(?!\/)/)) {
-      result.extensions.push('6');
-      remainder = remainder.replace(/^6/, '');
-    }
-    // Minor 7th
-    else if (remainder.match(/^7/)) {
-      result.hasSeventh = true;
-      remainder = remainder.replace(/^7/, '');
+  // Check for slash bass note
+  let bassNote: string | undefined;
+  const slashIdx = remainder.lastIndexOf('/');
+  if (slashIdx > -1) {
+    const potentialBass = remainder.slice(slashIdx + 1);
+    if (ROOT_REGEX.test(potentialBass) && NOTE_TO_SEMITONE[potentialBass.match(ROOT_REGEX)![1]] !== undefined) {
+      bassNote = potentialBass.match(ROOT_REGEX)![1];
+      remainder = remainder.slice(0, slashIdx);
     }
   }
-  // --- MAJOR (explicit) ---
-  else if (matchAny(remainder, [...MUSIC_SYMBOLS.major, ...MUSIC_SYMBOLS.delta])) {
-    result.quality = 'major';
-    remainder = removeFirst(remainder, [...MUSIC_SYMBOLS.major, ...MUSIC_SYMBOLS.delta]);
-  }
 
-  // ============================================================
-  // ESTENSIONI (9, 11, 13) - Solo per accordi senza maj prefix
-  // ============================================================
-
-  if (remainder.match(/^(9|11|13)/)) {
-    const ext = remainder.match(/^(9|11|13)/)![1];
-
-    // NON aggiungere se già presente (da 6/9)
-    if (!result.extensions.includes(ext)) {
-      result.extensions.push(ext);
-    }
-
-    if (ext === '9') result.hasNinth = true;
-
-    // Estensioni implicano settima se non già presente
-    if (!result.hasSeventh) {
-      result.hasSeventh = true;
-
-      // Se quality è ancora 'major' (default), diventa 'dominant'
-      if (result.quality === 'major') {
-        result.quality = 'dominant';
+  // Resolve aliases first
+  let chordType = '';
+  if (remainder === '' || remainder === 'maj' || remainder === 'M') {
+    chordType = 'maj';
+  } else {
+    let resolved = remainder;
+    for (const [re, replacement] of ALIAS_PAIRS) {
+      const m = resolved.match(re);
+      if (m) {
+        resolved = replacement + resolved.slice(m[0].length);
+        break;
       }
     }
 
-    remainder = remainder.replace(/^(9|11|13)/, '');
-  }
+    // Greedy match from the sorted list
+    for (const key of CHORD_TYPE_KEYS) {
+      if (resolved.startsWith(key) || resolved === key) {
+        chordType = key;
+        break;
+      }
+    }
 
-  // ============================================================
-  // ALTERATIONS & ADDED TONES
-  // ============================================================
+    // Fallback: check alias map directly
+    if (!chordType && CHORD_ALIASES[remainder]) {
+      chordType = CHORD_ALIASES[remainder];
+    }
 
-  const alterationsMatch = remainder.match(/\(([^)]+)\)|([#♯b♭]\d+|add\d+)/g);
-  if (alterationsMatch) {
-    alterationsMatch.forEach((alt) => {
-      const cleaned = alt.replace(/[()]/g, '').trim();
-
-      const parts = cleaned.split(',').map((p) => p.trim());
-      parts.forEach((part) => {
-        if (part.startsWith('add')) {
-          result.addedTones.push(part);
-        } else if (part.match(/[#♯b♭]\d+/)) {
-          result.alterations.push(part.replace(/♯/g, '#').replace(/♭/g, 'b'));
-        } else if (part.match(/^\d+$/)) {
-          result.extensions.push(part);
-        }
-      });
-    });
-  }
-
-  return result;
-}
-
-// --- HELPER FUNCTIONS ---
-
-function matchAny(str: string, patterns: string[]): boolean {
-  return patterns.some((p) => str.startsWith(p));
-}
-
-function removeFirst(str: string, patterns: string[]): string {
-  for (const p of patterns) {
-    if (str.startsWith(p)) {
-      return str.slice(p.length);
+    if (!chordType) {
+      // Unknown chord type — default to major triad
+      chordType = 'maj';
     }
   }
-  return str;
-}
 
-function finalizeChord(chord: ParsedChord, remainder: string): ParsedChord {
-  const alterationsMatch = remainder.match(/\(([^)]+)\)|([#♯b♭]\d+|add\d+)/g);
-  if (alterationsMatch) {
-    alterationsMatch.forEach((alt) => {
-      const cleaned = alt.replace(/[()]/g, '').trim();
-      const parts = cleaned.split(',').map((p) => p.trim());
-      parts.forEach((part) => {
-        if (part.startsWith('add')) {
-          chord.addedTones.push(part);
-        } else if (part.match(/[#♯b♭]\d+/)) {
-          chord.alterations.push(part.replace(/♯/g, '#').replace(/♭/g, 'b'));
-        }
-      });
-    });
+  // Validate chordType exists
+  if (!CHORD_FORMULAS[chordType]) {
+    chordType = 'maj';
   }
 
-  return chord;
+  const notes = getChordNotes(root, chordType);
+
+  // Display name: root + quality suffix (omit 'maj' for plain major)
+  const qualitySuffix = chordType === 'maj' ? '' : chordType;
+  const displayName = bassNote ? `${root}${qualitySuffix}/${bassNote}` : `${root}${qualitySuffix}`;
+
+  return { root, chordType, bassNote, displayName, notes };
 }
 
-/**
- * Valida se un simbolo è parsabile
- */
-export function isValidChordSymbol(symbol: string): boolean {
-  return parseChordSymbol(symbol) !== null;
-}
-
-/**
- * Esempi di test
- */
-export const EXAMPLE_CHORDS = [
-  'C',
-  'Cmaj7',
-  'Cmaj9',
-  'Cmaj11',
-  'Cmaj13',
-  'CΔ',
-  'Cm',
-  'Cm7',
-  'C-7',
-  'C7',
-  'C9',
-  'C11',
-  'C13',
-  'C7b9',
-  'C7(#9,#11)',
-  'Cø7',
-  'Cdim7',
-  'C°7',
-  'C+7',
-  'Caug',
-  'Csus2',
-  'Csus4',
-  'C7sus4',
-  'Cadd9',
-  'Cm9',
-  'F#m7',
-  'F#7b9',
-  'Gbmaj9',
-  'Bb7#11/D',
-  'C/E',
-  'Dm7b5',
-  'CmMaj7',
-  'C6/9',
-  'Cm6',
+export const COMMON_CHORDS: Array<{ symbol: string; label: string }> = [
+  { symbol: 'Cmaj7',   label: 'Cmaj7' },
+  { symbol: 'Dm7',     label: 'Dm7' },
+  { symbol: 'G7',      label: 'G7' },
+  { symbol: 'Am7',     label: 'Am7' },
+  { symbol: 'Fmaj7',   label: 'Fmaj7' },
+  { symbol: 'Em7',     label: 'Em7' },
+  { symbol: 'Bdim7',   label: 'Bdim7' },
+  { symbol: 'Dm7b5',   label: 'Dm7♭5' },
+  { symbol: 'G7b9',    label: 'G7♭9' },
+  { symbol: 'Cmaj9',   label: 'Cmaj9' },
+  { symbol: 'D9',      label: 'D9' },
+  { symbol: 'Esus4',   label: 'Esus4' },
+  { symbol: 'Abmaj7',  label: 'A♭maj7' },
+  { symbol: 'Bb7',     label: 'B♭7' },
+  { symbol: 'F#m7b5',  label: 'F♯m7♭5' },
+  { symbol: 'C7#9',    label: 'C7♯9' },
+  { symbol: 'Gmaj7#11',label: 'Gmaj7♯11' },
+  { symbol: 'Dmin9',   label: 'Dmin9' },
 ];

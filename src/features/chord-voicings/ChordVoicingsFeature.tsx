@@ -1,83 +1,53 @@
-import React from 'react';
-import { ChordInput } from './components/ChordInput';
-import { VoicingStyleSelector } from './components/VoicingStyleSelector';
-import { VoicingResults } from './components/VoicingResults';
+import { useEffect } from 'react';
+import ChordInput from './components/ChordInput';
+import VoicingResults from './components/VoicingResults';
+import VoicingStyleSelector from './components/VoicingStyleSelector';
 import { useChordVoicings } from './hooks/useChordVoicings';
-import { Loader2, AlertCircle, Music2, Sparkles } from 'lucide-react';
 
-export const ChordVoicingsFeature: React.FC = () => {
+export default function ChordVoicingsFeature() {
   const {
-    chordSymbol,
-    setChordSymbol,
-    selectedStyle,
-    setSelectedStyle,
-    voicings,
-    error,
-    isLoading,
-    generateVoicingsForChord,
+    inputValue, setInputValue,
+    parsedChord, voicings,
+    activeStyles, setActiveStyles,
+    error, submit,
   } = useChordVoicings();
 
+  // Auto-submit on mount to show Cmaj7 by default
+  useEffect(() => { submit(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <div className="chord-voicings-feature">
-      <div className="feature-container">
-        {/* Input Section */}
-        <div className="input-section">
-          <ChordInput
-            value={chordSymbol}
-            onChange={setChordSymbol}
-            onSubmit={generateVoicingsForChord}
-            disabled={isLoading}
-          />
-
-          <VoicingStyleSelector
-            selectedStyle={selectedStyle}
-            onStyleChange={setSelectedStyle}
-            disabled={isLoading}
-          />
-
-          {/* Generate Button - usando classi atomiche */}
-          <button
-            className="btn btn-gradient btn-lg btn-full"
-            onClick={generateVoicingsForChord}
-            disabled={isLoading || !chordSymbol.trim()}
-            type="button"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="spinner" size={20} />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles size={20} />
-                Generate Voicings
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="error-message">
-            <AlertCircle size={20} className="error-icon" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* Results */}
-        {!error && voicings.length > 0 && (
-          <VoicingResults voicings={voicings} chordSymbol={chordSymbol} />
-        )}
-
-        {/* Empty State */}
-        {!error && !isLoading && voicings.length === 0 && chordSymbol.trim() === '' && (
-          <div className="empty-state">
-            <Music2 size={48} className="empty-icon" />
-            <h3>Enter a chord to get started</h3>
-            <p>Try entering chords like Cmaj7, Dm7, F#m7b5, or Bb13#11/G</p>
-          </div>
-        )}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div>
+        <h2 style={{ margin: '0 0 4px', fontSize: 22, color: '#e6edf3' }}>Piano Voicings</h2>
+        <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>
+          Enter any chord symbol to explore closed, drop, shell, quartal, and upper-structure voicings — all displayed on a piano keyboard.
+        </p>
       </div>
+
+      <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <ChordInput
+          value={inputValue}
+          onChange={setInputValue}
+          onSubmit={submit}
+          error={error}
+        />
+        <VoicingStyleSelector selected={activeStyles} onChange={setActiveStyles} />
+      </div>
+
+      {parsedChord && voicings.length > 0 && (
+        <VoicingResults
+          voicings={voicings}
+          activeStyles={activeStyles}
+          chordDisplay={parsedChord.displayName}
+          chordNotes={parsedChord.notes}
+        />
+      )}
+
+      {!parsedChord && !error && (
+        <div style={{ textAlign: 'center', padding: 60, color: '#6b7280' }}>
+          Enter a chord symbol above to see piano voicings.
+        </div>
+      )}
     </div>
   );
-};
+}

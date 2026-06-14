@@ -1,80 +1,38 @@
 import { useState, useCallback } from 'react';
-import { parseChordSymbol } from '../services/chordParser';
+import { parseChord } from '../services/chordParser';
 import { generateVoicings } from '../services/voicingGenerator';
-import type { ParsedChord } from '../types/chord.types';
-import type { ChordVoicing, VoicingStyle } from '../types/chord.types';
+import type { ParsedChord, Voicing, VoicingStyle } from '../types/chord.types';
 
-interface UseChordVoicingsResult {
-  chordSymbol: string;
-  setChordSymbol: (symbol: string) => void;
-  selectedStyle: VoicingStyle;
-  setSelectedStyle: (style: VoicingStyle) => void;
-  voicings: ChordVoicing[];
+const ALL_STYLES: VoicingStyle[] = ['closed', 'drop2', 'drop3', 'shell', 'rootless', 'open', 'quartal', 'spread', 'upperStructure'];
+
+interface UseChordVoicingsReturn {
+  inputValue: string;
+  setInputValue: (v: string) => void;
   parsedChord: ParsedChord | null;
-  error: string | null;
-  isLoading: boolean;
-  generateVoicingsForChord: () => void;
+  voicings: Voicing[];
+  activeStyles: VoicingStyle[];
+  setActiveStyles: (s: VoicingStyle[]) => void;
+  error: string;
+  submit: () => void;
 }
 
-export function useChordVoicings(): UseChordVoicingsResult {
-  const [chordSymbol, setChordSymbol] = useState<string>('');
-  const [selectedStyle, setSelectedStyle] = useState<VoicingStyle>('basic');
-  const [voicings, setVoicings] = useState<ChordVoicing[]>([]);
+export function useChordVoicings(): UseChordVoicingsReturn {
+  const [inputValue, setInputValue] = useState('Cmaj7');
   const [parsedChord, setParsedChord] = useState<ParsedChord | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [voicings, setVoicings] = useState<Voicing[]>([]);
+  const [activeStyles, setActiveStyles] = useState<VoicingStyle[]>([...ALL_STYLES]);
+  const [error, setError] = useState('');
 
-  const generateVoicingsForChord = useCallback(() => {
-    if (!chordSymbol.trim()) {
-      setError('Please enter a chord symbol');
-      setVoicings([]);
-      setParsedChord(null);
+  const submit = useCallback(() => {
+    const chord = parseChord(inputValue);
+    if (!chord) {
+      setError('Could not parse chord. Try: Cmaj7, Dm7, G7b9, F#m7b5...');
       return;
     }
+    setError('');
+    setParsedChord(chord);
+    setVoicings(generateVoicings(chord));
+  }, [inputValue]);
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Parse chord
-      const parsed = parseChordSymbol(chordSymbol);
-
-      if (!parsed) {
-        setError(`Sorry, I couldn't understand "${chordSymbol}". Try something like Cmaj7, F#m7b5, or Bb13#11/G.`);
-        setVoicings([]);
-        setParsedChord(null);
-        setIsLoading(false);
-        return;
-      }
-
-      setParsedChord(parsed);
-
-      // Generate voicings
-      const generatedVoicings = generateVoicings(parsed, {
-        style: selectedStyle,
-      });
-
-      setVoicings(generatedVoicings);
-      setError(null);
-    } catch (err: any) {
-      console.error('Error generating voicings:', err);
-      setError('An error occurred while generating voicings. Please try again.');
-      setVoicings([]);
-      setParsedChord(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [chordSymbol, selectedStyle]);
-
-  return {
-    chordSymbol,
-    setChordSymbol,
-    selectedStyle,
-    setSelectedStyle,
-    voicings,
-    parsedChord,
-    error,
-    isLoading,
-    generateVoicingsForChord,
-  };
+  return { inputValue, setInputValue, parsedChord, voicings, activeStyles, setActiveStyles, error, submit };
 }
