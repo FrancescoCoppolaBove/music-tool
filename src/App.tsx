@@ -174,6 +174,7 @@ interface TabDef {
   label: string;
   icon: string;
   desc: string;
+  subsection?: string;
 }
 
 interface GroupDef {
@@ -191,17 +192,17 @@ const GROUPS: GroupDef[] = [
     label: 'Composition',
     icon: '✍️',
     tabs: [
-      { id: 'scaleadvisor',  label: 'Scale Advisor',      icon: '🧭', desc: 'Find the right scale over any chord' },
-      { id: 'progressions',  label: 'Chord Progressions', icon: '🎸', desc: 'Build jazz, modal & cinematic progressions' },
-      { id: 'analysis',      label: 'Harmonic Analysis',  icon: '🔬', desc: 'Analyse key, Roman numerals & chord function' },
-      { id: 'riff',          label: 'Riff Architect',     icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees' },
-      { id: 'melody',        label: 'Melody Architect',   icon: '〰️', desc: 'Shape a melody with contour, approach & motif' },
-      { id: 'score',         label: 'Score → iReal Pro',  icon: '📄', desc: 'Import a score photo and export to iReal Pro' },
-      { id: 'landing',       label: 'Chord Landing',        icon: '🎯', desc: 'Find the best way to approach any target chord' },
-      { id: 'architect',     label: 'Song Architect',       icon: '🏗️', desc: 'Develop harmonic sections B and C from your A section' },
-      { id: 'voiceleading',  label: 'Voice Leading Lab',    icon: '↔️', desc: 'How to move voices smoothly between any two chords' },
-      { id: 'groove',        label: 'Groove Kitchen',       icon: '🥁', desc: 'Drum + bass patterns for Snarky Puppy, Ghost Note, Vulfpeck, Yussef Dayes' },
-      { id: 'arrangement',   label: 'Arrangement Blueprint', icon: '🎼', desc: 'What each instrument plays — from idea to complete arrangement' },
+      { id: 'scaleadvisor',  label: 'Scale Advisor',       icon: '🧭', desc: 'Find the right scale over any chord',                              subsection: 'Harmony' },
+      { id: 'progressions',  label: 'Chord Progressions',  icon: '🎸', desc: 'Build jazz, modal & cinematic progressions',                       subsection: 'Harmony' },
+      { id: 'analysis',      label: 'Harmonic Analysis',   icon: '🔬', desc: 'Analyse key, Roman numerals & chord function',                     subsection: 'Harmony' },
+      { id: 'landing',       label: 'Chord Landing',       icon: '🎯', desc: 'Find the best way to approach any target chord',                   subsection: 'Harmony' },
+      { id: 'voiceleading',  label: 'Voice Leading Lab',   icon: '↔️', desc: 'How to move voices smoothly between any two chords',              subsection: 'Harmony' },
+      { id: 'score',         label: 'Score → iReal Pro',   icon: '📄', desc: 'Import a score photo and export to iReal Pro',                    subsection: 'Harmony' },
+      { id: 'riff',          label: 'Riff Architect',      icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees',                 subsection: 'Arrange' },
+      { id: 'melody',        label: 'Melody Architect',    icon: '〰️', desc: 'Shape a melody with contour, approach & motif',                   subsection: 'Arrange' },
+      { id: 'architect',     label: 'Song Architect',      icon: '🏗️', desc: 'Develop harmonic sections B and C from your A section',           subsection: 'Arrange' },
+      { id: 'groove',        label: 'Groove Kitchen',      icon: '🥁', desc: 'Drum + bass patterns for Snarky Puppy, Ghost Note, Vulfpeck, Yussef Dayes', subsection: 'Arrange' },
+      { id: 'arrangement',   label: 'Arrangement Blueprint', icon: '🎼', desc: 'What each instrument plays — from idea to complete arrangement', subsection: 'Arrange' },
     ],
   },
   {
@@ -242,6 +243,28 @@ const GROUPS: GroupDef[] = [
 
 // ─── Desktop NavGroup dropdown ───────────────────────────────────────────────
 
+function NavDropdownItem({ tab, activeTab, onSelect }: { tab: TabDef; activeTab: Tab; onSelect: (t: Tab) => void }) {
+  const isCurrent = tab.id === activeTab;
+  return (
+    <button
+      key={tab.id}
+      onClick={() => onSelect(tab.id)}
+      className={`nav-dropdown-item${isCurrent ? ' active' : ''}`}
+    >
+      <span style={{
+        width: 3, alignSelf: 'stretch',
+        background: isCurrent ? '#7c3aed' : '#30363d',
+        borderRadius: '3px 0 0 3px',
+        flexShrink: 0, marginRight: 14,
+      }} />
+      <span style={{ flex: 1, padding: '12px 16px 12px 0' }}>
+        <span className="nav-dropdown-item-name" style={{ display: 'block' }}>{tab.label}</span>
+        <span className="nav-dropdown-item-desc" style={{ display: 'block' }}>{tab.desc}</span>
+      </span>
+    </button>
+  );
+}
+
 function NavGroup({
   group, activeTab, isOpen, onToggle, onSelect,
 }: {
@@ -253,6 +276,10 @@ function NavGroup({
 }) {
   const isGroupActive = group.tabs.some(t => t.id === activeTab);
 
+  // Build subsection columns if any tab has a subsection
+  const subsections = [...new Set(group.tabs.map(t => t.subsection).filter(Boolean))] as string[];
+  const isTwoCol = subsections.length > 1;
+
   return (
     <div style={{ position: 'relative', display: 'flex', alignItems: 'stretch' }}>
       <button
@@ -262,11 +289,7 @@ function NavGroup({
         <span>{group.label}</span>
         <svg
           width="10" height="10" viewBox="0 0 10 10" fill="none"
-          style={{
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s',
-            opacity: 0.5,
-          }}
+          style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', opacity: 0.5 }}
         >
           <path d="M1 3L5 7L9 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -276,44 +299,42 @@ function NavGroup({
         <div
           style={{
             position: 'absolute', top: 'calc(100% + 2px)', left: 0,
-            minWidth: 260,
+            width: isTwoCol ? 520 : 260,
             background: '#1c2128',
             border: '1px solid #30363d',
             borderRadius: 12,
             boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.08)',
             zIndex: 200,
-            padding: '6px',
+            overflow: 'hidden',
           }}
         >
-          {group.tabs.map(tab => {
-            const isCurrent = tab.id === activeTab;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => onSelect(tab.id)}
-                className={`nav-dropdown-item${isCurrent ? ' active' : ''}`}
-              >
-                {/* Accent bar */}
-                <span style={{
-                  width: 3,
-                  alignSelf: 'stretch',
-                  background: isCurrent ? '#7c3aed' : '#30363d',
-                  borderRadius: '3px 0 0 3px',
-                  flexShrink: 0,
-                  marginRight: 14,
-                }} />
-                {/* Text content */}
-                <span style={{ flex: 1, padding: '12px 16px 12px 0' }}>
-                  <span className="nav-dropdown-item-name" style={{ display: 'block' }}>
-                    {tab.label}
-                  </span>
-                  <span className="nav-dropdown-item-desc" style={{ display: 'block' }}>
-                    {tab.desc}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
+          {isTwoCol ? (
+            <div style={{ display: 'flex' }}>
+              {subsections.map((sub, colIdx) => (
+                <div key={sub} style={{ flex: 1, borderLeft: colIdx > 0 ? '1px solid #21262d' : 'none' }}>
+                  <div style={{
+                    padding: '10px 17px 6px',
+                    fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+                    textTransform: 'uppercase', color: '#4b5563',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>
+                    {sub}
+                  </div>
+                  <div style={{ padding: '0 6px 6px' }}>
+                    {group.tabs.filter(t => t.subsection === sub).map(tab => (
+                      <NavDropdownItem key={tab.id} tab={tab} activeTab={activeTab} onSelect={onSelect} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '6px' }}>
+              {group.tabs.map(tab => (
+                <NavDropdownItem key={tab.id} tab={tab} activeTab={activeTab} onSelect={onSelect} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -423,53 +444,72 @@ function MobileMenu({
               {group.label}
             </div>
 
-            {/* Tabs in group */}
-            {group.tabs.map(tab => {
-              const isCurrent = tab.id === activeTab;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => onSelect(tab.id)}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '12px 20px',
-                    background: isCurrent ? '#7c3aed18' : 'none',
-                    border: 'none',
-                    borderLeft: `3px solid ${isCurrent ? '#7c3aed' : 'transparent'}`,
-                    cursor: 'pointer', textAlign: 'left',
-                  }}
-                >
-                  <span style={{
-                    width: 38, height: 38, borderRadius: 10,
-                    background: isCurrent ? '#7c3aed22' : '#21262d',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 18, flexShrink: 0,
-                  }}>
-                    {tab.icon}
-                  </span>
-                  <span style={{ flex: 1 }}>
-                    <span style={{
-                      display: 'block',
-                      fontSize: 15, fontWeight: isCurrent ? 600 : 500,
-                      color: isCurrent ? '#c4b5fd' : '#e6edf3',
-                      lineHeight: 1.3,
-                    }}>
-                      {tab.label}
-                    </span>
-                    <span style={{
-                      display: 'block',
-                      fontSize: 12, color: '#6b7280',
-                      marginTop: 2, lineHeight: 1.4,
-                    }}>
-                      {tab.desc}
-                    </span>
-                  </span>
-                  {isCurrent && (
-                    <span style={{ color: '#7c3aed', fontSize: 12, flexShrink: 0 }}>●</span>
-                  )}
-                </button>
-              );
-            })}
+            {/* Tabs in group — with optional subsection headers */}
+            {(() => {
+              const subsections = [...new Set(group.tabs.map(t => t.subsection).filter(Boolean))] as string[];
+              const hasSubsections = subsections.length > 1;
+              let lastSub: string | undefined;
+
+              return group.tabs.map(tab => {
+                const isCurrent = tab.id === activeTab;
+                const showSubHeader = hasSubsections && tab.subsection && tab.subsection !== lastSub;
+                lastSub = tab.subsection;
+
+                return (
+                  <div key={tab.id}>
+                    {showSubHeader && (
+                      <div style={{
+                        padding: '10px 20px 4px',
+                        fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+                        textTransform: 'uppercase', color: '#4b5563',
+                      }}>
+                        {tab.subsection}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => onSelect(tab.id)}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                        padding: '12px 20px',
+                        background: isCurrent ? '#7c3aed18' : 'none',
+                        border: 'none',
+                        borderLeft: `3px solid ${isCurrent ? '#7c3aed' : 'transparent'}`,
+                        cursor: 'pointer', textAlign: 'left',
+                      }}
+                    >
+                      <span style={{
+                        width: 38, height: 38, borderRadius: 10,
+                        background: isCurrent ? '#7c3aed22' : '#21262d',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 18, flexShrink: 0,
+                      }}>
+                        {tab.icon}
+                      </span>
+                      <span style={{ flex: 1 }}>
+                        <span style={{
+                          display: 'block',
+                          fontSize: 15, fontWeight: isCurrent ? 600 : 500,
+                          color: isCurrent ? '#c4b5fd' : '#e6edf3',
+                          lineHeight: 1.3,
+                        }}>
+                          {tab.label}
+                        </span>
+                        <span style={{
+                          display: 'block',
+                          fontSize: 12, color: '#6b7280',
+                          marginTop: 2, lineHeight: 1.4,
+                        }}>
+                          {tab.desc}
+                        </span>
+                      </span>
+                      {isCurrent && (
+                        <span style={{ color: '#7c3aed', fontSize: 12, flexShrink: 0 }}>●</span>
+                      )}
+                    </button>
+                  </div>
+                );
+              });
+            })()}
           </div>
         ))}
       </div>
