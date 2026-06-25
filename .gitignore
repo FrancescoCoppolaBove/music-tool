@@ -52,4 +52,4 @@ Thumbs.db
 *.tmp
 *.temp
 .tmp/
-.temp/
+.temp/.superpowers/
