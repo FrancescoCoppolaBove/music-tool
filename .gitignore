@@ -53,3 +53,5 @@ Thumbs.db
 *.temp
 .tmp/
 .temp/.superpowers/
+.superpowers/
+.claude/worktrees/
