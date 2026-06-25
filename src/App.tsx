@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { computeStreak } from './shared/hooks/useExerciseScore';
 import { useAuth } from './shared/context/AuthContext';
+import { firebaseEnabled } from './firebase';
 import { useStats } from './shared/context/StatsContext';
 import { useGlobalKey, CHROMATIC_KEYS } from './shared/context/GlobalKeyContext';
 import AuthGate from './features/auth/AuthGate';
@@ -666,6 +667,36 @@ function UserMenu({ onSignOut, onProfile }: { onSignOut: () => void; onProfile: 
   );
 }
 
+// ─── Local-mode notice (shown for cloud features when Firebase is off) ───────
+
+function LocalModeNotice({ feature }: { feature: string }) {
+  return (
+    <div style={{
+      maxWidth: 520, margin: '40px auto', padding: '28px 30px',
+      background: '#161b22', border: '1px solid #30363d', borderRadius: 16, textAlign: 'center',
+    }}>
+      <div style={{ fontSize: 32, marginBottom: 12 }}>☁️</div>
+      <h2 style={{ margin: '0 0 8px', fontSize: 20, color: '#e6edf3', fontFamily: "'Syne', sans-serif" }}>
+        {feature} needs an account
+      </h2>
+      <p style={{ margin: '0 0 16px', fontSize: 14, color: '#8b949e', lineHeight: 1.6 }}>
+        You're running tonic in <strong>local mode</strong>. {feature} stores data in the cloud,
+        so it's disabled until Firebase is configured. Every offline tool — Scale Advisor, Cadence
+        Trainer, Transposing Instruments and the rest — works fully right now.
+      </p>
+      <div style={{
+        fontSize: 12.5, color: '#6b7280', background: '#0d1117', border: '1px solid #21262d',
+        borderRadius: 10, padding: '12px 14px', textAlign: 'left', fontFamily: 'monospace', lineHeight: 1.7,
+      }}>
+        To enable login &amp; cloud sync:<br />
+        1. <code>cp .env.example .env</code><br />
+        2. fill the <code>VITE_FIREBASE_*</code> keys from your Firebase console<br />
+        3. restart the dev server
+      </div>
+    </div>
+  );
+}
+
 // ─── App ─────────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -709,8 +740,9 @@ export default function App() {
     );
   }
 
-  // Auth gate — no user
-  if (!user) {
+  // Auth gate — no user. Skipped in local mode (Firebase not configured), where
+  // the app runs anonymously: offline tools work, cloud features are disabled.
+  if (!user && firebaseEnabled) {
     return <AuthGate />;
   }
 
@@ -843,8 +875,8 @@ export default function App() {
               </button>
             )}
 
-            {/* User avatar + sign out — desktop only */}
-            <UserMenu onSignOut={signOut} onProfile={() => handleSelectTab('profile')} />
+            {/* User avatar + sign out — desktop only (hidden in local mode) */}
+            {user && <UserMenu onSignOut={signOut} onProfile={() => handleSelectTab('profile')} />}
 
             {/* ── Mobile: hamburger button (hidden on desktop) ── */}
             <button
@@ -915,12 +947,12 @@ export default function App() {
         {activeTab === 'architect'     && <SongArchitectFeature />}
         {activeTab === 'cadence'       && <CadenceTrainerFeature />}
         {activeTab === 'transpose'     && <TransposingInstrumentsFeature />}
-        {activeTab === 'daily'         && <DailyChallengeFeature />}
-        {activeTab === 'journal'       && <PracticeJournalFeature />}
-        {activeTab === 'songs'         && <SongLibraryFeature />}
+        {activeTab === 'daily'         && (firebaseEnabled ? <DailyChallengeFeature />   : <LocalModeNotice feature="Daily Challenge" />)}
+        {activeTab === 'journal'       && (firebaseEnabled ? <PracticeJournalFeature /> : <LocalModeNotice feature="Practice Journal" />)}
+        {activeTab === 'songs'         && (firebaseEnabled ? <SongLibraryFeature />     : <LocalModeNotice feature="Song Library" />)}
         {activeTab === 'chorddetect'   && <ChordDetectionFeature onNavigateToScaleAdvisor={handleChordDetectToScaleAdvisor} />}
         {activeTab === 'nailpitch'     && <NailThePitchFeature />}
-        {activeTab === 'profile'       && <ProfileFeature />}
+        {activeTab === 'profile'       && (firebaseEnabled ? <ProfileFeature />         : <LocalModeNotice feature="Profile" />)}
         {activeTab === 'voiceleading'  && <VoiceLeadingFeature />}
         {activeTab === 'groove'        && <GrooveKitchenFeature />}
         {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}

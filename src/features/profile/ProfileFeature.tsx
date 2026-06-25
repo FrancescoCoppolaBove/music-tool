@@ -504,10 +504,11 @@ export default function ProfileFeature() {
 
   // Load profile + daily challenge history + songs count
   useEffect(() => {
-    if (!user) { setProfileLoading(false); return; }
+    if (!user || !db) { setProfileLoading(false); return; }
+    const database = db;
 
-    const profileRef = doc(db, 'users', user.uid, 'data', 'profile');
-    const dailyRef   = doc(db, 'users', user.uid, 'data', 'daily');
+    const profileRef = doc(database, 'users', user.uid, 'data', 'profile');
+    const dailyRef   = doc(database, 'users', user.uid, 'data', 'daily');
 
     Promise.all([
       getDoc(profileRef),
@@ -540,14 +541,14 @@ export default function ProfileFeature() {
 
     // Load songs count from collection length
     import('firebase/firestore').then(({ collection, getDocs }) => {
-      getDocs(collection(db, 'users', user.uid, 'songs'))
+      getDocs(collection(database, 'users', user.uid, 'songs'))
         .then(snap => setSongsCount(snap.size))
         .catch(() => {});
     });
   }, [user]);
 
   const saveProfile = useCallback(async (p: UserProfile) => {
-    if (!user) return;
+    if (!user || !db) return;
     setProfile(p);
     setEditing(false);
     await setDoc(doc(db, 'users', user.uid, 'data', 'profile'), p).catch(() => {});

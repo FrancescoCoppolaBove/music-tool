@@ -12,8 +12,14 @@ export interface Song {
   updatedAt?: number;
 }
 
+/** Throws when Firebase is not configured (local mode). Callers gate on auth. */
+function requireDb() {
+  if (!db) throw new Error('Firebase not configured');
+  return db;
+}
+
 function songsRef(uid: string) {
-  return collection(db, 'users', uid, 'songs');
+  return collection(requireDb(), 'users', uid, 'songs');
 }
 
 export async function loadSongs(uid: string): Promise<Song[]> {
@@ -32,7 +38,7 @@ export async function addSong(uid: string, song: Omit<Song, 'id'>): Promise<Song
 
 export async function updateSong(uid: string, songId: string, updates: Partial<Song>): Promise<void> {
   try {
-    await updateDoc(doc(db, 'users', uid, 'songs', songId), { ...updates, updatedAt: Date.now() });
+    await updateDoc(doc(requireDb(), 'users', uid, 'songs', songId), { ...updates, updatedAt: Date.now() });
   } catch {
     // fail silently
   }
@@ -40,7 +46,7 @@ export async function updateSong(uid: string, songId: string, updates: Partial<S
 
 export async function deleteSong(uid: string, songId: string): Promise<void> {
   try {
-    await deleteDoc(doc(db, 'users', uid, 'songs', songId));
+    await deleteDoc(doc(requireDb(), 'users', uid, 'songs', songId));
   } catch {
     // fail silently
   }

@@ -8,7 +8,7 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
 } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { auth, firebaseEnabled } from '../../firebase';
 
 interface AuthContextValue {
   user: User | null;
@@ -33,6 +33,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Local mode (no Firebase config): no auth listener, resolve immediately.
+    if (!firebaseEnabled || !auth) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     // Only call getRedirectResult if we actually initiated a redirect (popup-blocked fallback).
     // signInWithPopup is now the primary method on all platforms, so this is rarely needed.
     if (localStorage.getItem('tonic_auth_redirect')) {
@@ -48,6 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function signInWithGoogle() {
+    if (!auth) return;
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -68,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signOut() {
+    if (!auth) return;
     await firebaseSignOut(auth);
   }
 

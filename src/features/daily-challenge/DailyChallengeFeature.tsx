@@ -287,7 +287,7 @@ export default function DailyChallengeFeature() {
 
   // Check if already completed today
   useEffect(() => {
-    if (!user) { setLoading(false); return; }
+    if (!user || !db) { setLoading(false); return; }
     const ref = doc(db, 'users', user.uid, 'data', 'daily');
     getDoc(ref).then(snap => {
       if (snap.exists()) {
@@ -300,7 +300,7 @@ export default function DailyChallengeFeature() {
   }, [user, today]);
 
   async function saveResult(finalResult: DailyResult) {
-    if (!user) return;
+    if (!user || !db) return;
     const ref = doc(db, 'users', user.uid, 'data', 'daily');
     await setDoc(ref, { [today]: finalResult }, { merge: true }).catch(() => {});
   }

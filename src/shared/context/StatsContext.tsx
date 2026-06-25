@@ -28,7 +28,7 @@ export function StatsProvider({ children }: { children: React.ReactNode }) {
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !db) {
       setStats(EMPTY);
       setStatsLoading(false);
       return;
@@ -62,7 +62,7 @@ export function StatsProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const updateStats = useCallback((updater: (current: UserStats) => UserStats) => {
-    if (!user) return;
+    if (!user || !db) return;
     const ref = doc(db, 'users', user.uid, 'data', 'stats');
     setStats(prev => {
       const next = updater(prev);
