@@ -7,6 +7,7 @@ import { generateQuestions } from './data/index';
 // For training mode, reuse existing exercise components
 import { IntervalsExercise }       from '../ear-training/components/IntervalsExercise';
 import { ChordsExercise }          from '../ear-training/components/ChordsExercise';
+import { TonalFunctionsExercise }  from './components/TonalFunctionsExercise';
 
 type Screen = 'selector' | 'training' | 'exam';
 
@@ -67,8 +68,7 @@ function TrainingExercise({ moduleId }: { moduleId: EarModuleId }) {
     case 'sevenths':
       return <ChordsExercise />;
     case 'tonal-functions':
-      // Built in Task 6
-      return <div style={{ padding: 24, color: '#8b949e' }}>Tonal Functions — coming in next task</div>;
+      return <TonalFunctionsExercise />;
     case 'cadences':
       return <div style={{ padding: 24, color: '#8b949e' }}>Cadences Training — coming in next task</div>;
     default:
