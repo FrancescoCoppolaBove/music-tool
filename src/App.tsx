@@ -23,6 +23,8 @@ import IntervalQuizFeature from './features/interval-quiz/IntervalQuizFeature';
 import ScoreToIRealFeature from './features/score-to-ireal/ScoreToIRealFeature';
 import ChordLandingFeature from './features/chord-landing/ChordLandingFeature';
 import SongArchitectFeature from './features/song-architect/SongArchitectFeature';
+import CadenceTrainerFeature from './features/cadence-trainer/CadenceTrainerFeature';
+import TransposingInstrumentsFeature from './features/transposing-instruments/TransposingInstrumentsFeature';
 import ChordDetectionFeature from './features/chord-detection/ChordDetectionFeature';
 import NailThePitchFeature from './features/nail-the-pitch/NailThePitchFeature';
 import ProfileFeature from './features/profile/ProfileFeature';
@@ -167,7 +169,9 @@ type Tab =
   | 'profile'
   | 'voiceleading'
   | 'groove'
-  | 'arrangement';
+  | 'arrangement'
+  | 'cadence'
+  | 'transpose';
 
 interface TabDef {
   id: Tab;
@@ -224,6 +228,8 @@ const GROUPS: GroupDef[] = [
       { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹', desc: 'Visualize drop 2, quartal & upper structures' },
       { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵', desc: 'Explore key relationships at a glance' },
       { id: 'ear',           label: 'Ear Training',      icon: '👂', desc: 'Train your ear with interval exercises' },
+      { id: 'cadence',       label: 'Cadence Trainer',   icon: '🎓', desc: 'Recognise authentic, plagal, half & deceptive cadences by ear' },
+      { id: 'transpose',     label: 'Transposing Instruments', icon: '🎺', desc: 'Written vs sounding pitch for B♭, E♭, F & A instruments' },
       { id: 'quiz',          label: 'Scale Degree Quiz',  icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
       { id: 'chorddetect',   label: 'Chord Detection',   icon: '🎙️', desc: 'Play a chord — app identifies it in real time' },
       { id: 'nailpitch',     label: 'Nail the Pitch',    icon: '🎤', desc: 'Sing and see which notes you hit, Melodyne-style' },
@@ -907,6 +913,8 @@ export default function App() {
         {activeTab === 'score'         && <ScoreToIRealFeature />}
         {activeTab === 'landing'       && <ChordLandingFeature />}
         {activeTab === 'architect'     && <SongArchitectFeature />}
+        {activeTab === 'cadence'       && <CadenceTrainerFeature />}
+        {activeTab === 'transpose'     && <TransposingInstrumentsFeature />}
         {activeTab === 'daily'         && <DailyChallengeFeature />}
         {activeTab === 'journal'       && <PracticeJournalFeature />}
         {activeTab === 'songs'         && <SongLibraryFeature />}
