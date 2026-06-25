@@ -34,6 +34,9 @@ import VoiceLeadingFeature from './features/voice-leading/VoiceLeadingFeature';
 import GrooveKitchenFeature from './features/groove-kitchen/GrooveKitchenFeature';
 import ArrangementBlueprintFeature from './features/arrangement-blueprint/ArrangementBlueprintFeature';
 import HomePage from './features/home/HomePage';
+import EarTrainingProFeature from './features/ear-training-pro/EarTrainingProFeature';
+import SolfeggioCantatoFeature from './features/solfeggio-cantato/SolfeggioCantatoFeature';
+import SetticlavioFeature from './features/setticlavio/SetticlavioFeature';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
 
@@ -172,7 +175,10 @@ type Tab =
   | 'groove'
   | 'arrangement'
   | 'cadence'
-  | 'transpose';
+  | 'transpose'
+  | 'eartrainingpro'
+  | 'solfeggiocan'
+  | 'setticlavio';
 
 interface TabDef {
   id: Tab;
@@ -220,6 +226,16 @@ const GROUPS: GroupDef[] = [
     ],
   },
   {
+    id: 'solfeggio',
+    label: 'Solfeggio',
+    icon: '🎓',
+    tabs: [
+      { id: 'eartrainingpro', label: 'Ear Training Pro', icon: '👂', desc: 'Intervalli, accordi, funzioni tonali — modalità Allenamento ed Esame' },
+      { id: 'solfeggiocan',   label: 'Solfeggio Cantato', icon: '🎵', desc: 'Canta scale e intervalli — pitchy valuta la tua intonazione' },
+      { id: 'setticlavio',    label: 'Setticlavio',       icon: '🗝️',  desc: 'Leggi note in chiave di contralto e tenore' },
+    ],
+  },
+  {
     id: 'theory',
     label: 'Theory',
     icon: '📖',
@@ -228,7 +244,6 @@ const GROUPS: GroupDef[] = [
       { id: 'modal',         label: 'Modal Interchange', icon: '🔄', desc: 'Borrow chords from parallel modes' },
       { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹', desc: 'Visualize drop 2, quartal & upper structures' },
       { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵', desc: 'Explore key relationships at a glance' },
-      { id: 'ear',           label: 'Ear Training',      icon: '👂', desc: 'Train your ear with interval exercises' },
       { id: 'cadence',       label: 'Cadence Trainer',   icon: '🎓', desc: 'Recognise authentic, plagal, half & deceptive cadences by ear' },
       { id: 'transpose',     label: 'Transposing Instruments', icon: '🎺', desc: 'Written vs sounding pitch for B♭, E♭, F & A instruments' },
       { id: 'quiz',          label: 'Scale Degree Quiz',  icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
@@ -932,6 +947,9 @@ export default function App() {
         {activeTab === 'voicings'      && <ChordVoicingsFeature />}
         {activeTab === 'scales'        && <ScaleRecognitionFeature />}
         {activeTab === 'dictionary'    && <ScaleDictionaryFeature />}
+        {activeTab === 'eartrainingpro' && <EarTrainingProFeature />}
+        {activeTab === 'solfeggiocan'   && <SolfeggioCantatoFeature />}
+        {activeTab === 'setticlavio'    && <SetticlavioFeature />}
         {activeTab === 'ear'           && <EarTrainingFeature />}
         {activeTab === 'circle'        && <CircleOfFifthsFeature />}
         {activeTab === 'harmonization' && <ScaleHarmonizationFeature />}
