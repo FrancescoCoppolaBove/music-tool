@@ -36,7 +36,7 @@ export class HistoryManager<T> {
   /**
    * Seleziona random da array evitando history
    */
-  selectRandom<U>(items: U[], selector: (item: U) => T): U | null {
+  selectRandom<U>(items: readonly U[], selector: (item: U) => T): U | null {
     if (items.length === 0) return null;
 
     // Se tutti gli item sono nella history, resetta

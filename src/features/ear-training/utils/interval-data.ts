@@ -6,30 +6,30 @@
 export const CHROMATIC_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 export const INTERVALS = [
-  { semitones: 0, name: 'Unison', shortName: 'P1' },
-  { semitones: 1, name: 'Minor 2nd', shortName: 'm2' },
-  { semitones: 2, name: 'Major 2nd', shortName: 'M2' },
-  { semitones: 3, name: 'Minor 3rd', shortName: 'm3' },
-  { semitones: 4, name: 'Major 3rd', shortName: 'M3' },
-  { semitones: 5, name: 'Perfect 4th', shortName: 'P4' },
-  { semitones: 6, name: 'Tritone', shortName: 'TT' },
-  { semitones: 7, name: 'Perfect 5th', shortName: 'P5' },
-  { semitones: 8, name: 'Minor 6th', shortName: 'm6' },
-  { semitones: 9, name: 'Major 6th', shortName: 'M6' },
-  { semitones: 10, name: 'Minor 7th', shortName: 'm7' },
-  { semitones: 11, name: 'Major 7th', shortName: 'M7' },
-  { semitones: 12, name: 'Octave', shortName: 'P8' },
-];
+  { semitones: 0,  name: 'Unison',              nameIT: 'Unisono',              shortName: 'P1' },
+  { semitones: 1,  name: 'Minor 2nd',            nameIT: 'Seconda minore',       shortName: 'm2' },
+  { semitones: 2,  name: 'Major 2nd',            nameIT: 'Seconda maggiore',     shortName: 'M2' },
+  { semitones: 3,  name: 'Minor 3rd',            nameIT: 'Terza minore',         shortName: 'm3' },
+  { semitones: 4,  name: 'Major 3rd',            nameIT: 'Terza maggiore',       shortName: 'M3' },
+  { semitones: 5,  name: 'Perfect 4th',          nameIT: 'Quarta giusta',        shortName: 'P4' },
+  { semitones: 6,  name: 'Tritone',              nameIT: 'Tritono',              shortName: 'TT' },
+  { semitones: 7,  name: 'Perfect 5th',          nameIT: 'Quinta giusta',        shortName: 'P5' },
+  { semitones: 8,  name: 'Minor 6th',            nameIT: 'Sesta minore',         shortName: 'm6' },
+  { semitones: 9,  name: 'Major 6th',            nameIT: 'Sesta maggiore',       shortName: 'M6' },
+  { semitones: 10, name: 'Minor 7th',            nameIT: 'Settima minore',       shortName: 'm7' },
+  { semitones: 11, name: 'Major 7th',            nameIT: 'Settima maggiore',     shortName: 'M7' },
+  { semitones: 12, name: 'Octave',               nameIT: 'Ottava',               shortName: 'P8' },
+] as const;
 
 export const CHORD_TYPES = [
-  { name: 'Major', notes: [0, 4, 7], symbol: '' },
-  { name: 'Minor', notes: [0, 3, 7], symbol: 'm' },
-  { name: 'Diminished', notes: [0, 3, 6], symbol: 'dim' },
-  { name: 'Augmented', notes: [0, 4, 8], symbol: 'aug' },
-  { name: 'Major 7th', notes: [0, 4, 7, 11], symbol: 'maj7' },
-  { name: 'Dominant 7th', notes: [0, 4, 7, 10], symbol: '7' },
-  { name: 'Minor 7th', notes: [0, 3, 7, 10], symbol: 'm7' },
-  { name: 'Half-diminished 7th', notes: [0, 3, 6, 10], symbol: 'm7♭5' },
+  { name: 'Major',               nameIT: 'Accordo maggiore',         notes: [0, 4, 7],        symbol: ''      },
+  { name: 'Minor',               nameIT: 'Accordo minore',           notes: [0, 3, 7],        symbol: 'm'     },
+  { name: 'Diminished',          nameIT: 'Accordo diminuito',        notes: [0, 3, 6],        symbol: 'dim'   },
+  { name: 'Augmented',           nameIT: 'Accordo aumentato',        notes: [0, 4, 8],        symbol: 'aug'   },
+  { name: 'Major 7th',           nameIT: 'Settima di sensibile',     notes: [0, 4, 7, 11],    symbol: 'maj7'  },
+  { name: 'Dominant 7th',        nameIT: 'Settima di dominante',     notes: [0, 4, 7, 10],    symbol: '7'     },
+  { name: 'Minor 7th',           nameIT: 'Settima di minore',        notes: [0, 3, 7, 10],    symbol: 'm7'    },
+  { name: 'Half-diminished 7th', nameIT: 'Accordo semidiminuito',    notes: [0, 3, 6, 10],    symbol: 'm7♭5' },
 ];
 
 export const SCALE_TYPES = [
