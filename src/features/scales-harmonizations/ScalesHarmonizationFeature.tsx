@@ -13,6 +13,7 @@ import {
   type ChordDegree,
 } from '../scales-harmonizations/utils/scale-harmonization-data.ts';
 import { audioPlayer } from '../ear-training/utils/audio-player';
+import { ModalInfoPanel } from './components/ModalInfoPanel.tsx';
 
 // Mode options grouped by family
 const MODE_OPTIONS: {
@@ -271,6 +272,16 @@ export function ScaleHarmonizationFeature() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* ✅ NUOVO - Modal Info Panel QUI! */}
+      <div className='card'>
+        <div className='card-header'>
+          <h3 className='card-title'>🎼 Modal Theory</h3>
+        </div>
+        <div className='card-content'>
+          <ModalInfoPanel harmonization={harmonization} />
+        </div>
       </div>
 
       {/* Common Progressions */}
