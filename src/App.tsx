@@ -40,6 +40,7 @@ import SetticlavioFeature from './features/setticlavio/SetticlavioFeature';
 import ExamTemplatesFeature from './features/exam-templates/ExamTemplatesFeature';
 import TeacherDashboardFeature from './features/teacher-dashboard/TeacherDashboardFeature';
 import { useUserProfile } from './shared/context/UserProfileContext';
+import type { UserRole } from './shared/types/conservatory.types';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
 
@@ -429,7 +430,7 @@ function MobileMenu({
   activeTab: Tab;
   onSelect: (tab: Tab) => void;
   onClose: () => void;
-  role: import('./shared/types/conservatory.types').UserRole | null;
+  role: UserRole | null;
 }) {
   return (
     <>
