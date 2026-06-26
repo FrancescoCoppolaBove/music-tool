@@ -12,15 +12,17 @@ const MODE_OPTIONS: { id: KeyMode; label: string; emoji: string; description: st
 ];
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
-const LENGTHS = [2, 3, 4, 5, 6, 7, 8];
+const LENGTHS = [2, 3, 4, 5, 6];
 
 const TECHNIQUE_COLORS: Record<Technique, string> = {
   diatonic: '#3b82f6',
   modal_interchange: '#8b5cf6',
   secondary_dominant: '#f59e0b',
   tritone_sub: '#ef4444',
+  altered_dominant: '#f43f5e',
   backdoor: '#f97316',
   chromatic: '#ec4899',
+  dim_pedal: '#a855f7',
   quartal: '#06b6d4',
   sus: '#10b981',
   modulation: '#6366f1',
