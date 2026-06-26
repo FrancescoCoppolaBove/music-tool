@@ -9,6 +9,8 @@ import {
   getSubmissionsByStudents,
 } from '../../shared/utils/firestoreConservatory';
 import type { ClassDoc, AssignmentDoc, UserProfile, SubmissionDoc } from '../../shared/types/conservatory.types';
+import { RosterPanel } from './components/RosterPanel';
+import { StudentDrawer } from './components/StudentDrawer';
 
 // ── Prop types shared with sub-components ────────────────────────────────────
 export interface DashboardData {
@@ -32,10 +34,9 @@ export interface RosterPanelProps {
   data: DashboardData;
 }
 
-// Placeholder imports — replaced in Tasks 8, 9, 10
+// Placeholder — replaced in Tasks 9, 10
 const AlertsPanel = (_p: AlertsPanelProps) => <div />;
 const AssignmentsPanel = (_p: AssignmentsPanelProps) => <div />;
-const RosterPanel = (_p: RosterPanelProps) => <div />;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,7 @@ export default function TeacherDashboardFeature() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showNewAssignment, setShowNewAssignment] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<UserProfile | null>(null);
 
   async function loadData() {
     if (!user) return;
@@ -143,8 +145,15 @@ export default function TeacherDashboardFeature() {
           onNewAssignment={() => setShowNewAssignment(true)}
           onRefresh={loadData}
         />
-        <RosterPanel data={data} />
+        <RosterPanel data={data} onSelectStudent={setSelectedStudent} />
       </div>
+      {selectedStudent && (
+        <StudentDrawer
+          student={selectedStudent}
+          submissions={data.submissions.filter(s => s.userId === selectedStudent.uid)}
+          onClose={() => setSelectedStudent(null)}
+        />
+      )}
     </div>
   );
 }
