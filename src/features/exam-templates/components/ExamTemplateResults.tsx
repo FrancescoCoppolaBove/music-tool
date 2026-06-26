@@ -42,7 +42,7 @@ export function ExamTemplateResults({ result, onRetry, onBack }: Props) {
       completedAt: new Date(result.completedAt).getTime(),
       durationMs: result.durationMs,
     }).catch(() => {});
-  }, []);
+  }, [result, user]);
 
   const mins = Math.floor(result.durationMs / 60000);
   const secs = Math.floor((result.durationMs % 60000) / 1000);

@@ -21,7 +21,7 @@ export function MultiModuleExamSession({ template, onDone, onBack }: Props) {
   const currentSection = template.sections[sectionIdx];
   const questions = useMemo(
     () => generateQuestions(currentSection.moduleId, currentSection.level, currentSection.questionCount),
-    [sectionIdx],
+    [currentSection.moduleId, currentSection.level, currentSection.questionCount],
   );
 
   function handleSectionDone(answers: ExamAnswer[]) {
