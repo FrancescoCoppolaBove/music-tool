@@ -37,6 +37,9 @@ import HomePage from './features/home/HomePage';
 import EarTrainingProFeature from './features/ear-training-pro/EarTrainingProFeature';
 import SolfeggioCantatoFeature from './features/solfeggio-cantato/SolfeggioCantatoFeature';
 import SetticlavioFeature from './features/setticlavio/SetticlavioFeature';
+import ExamTemplatesFeature from './features/exam-templates/ExamTemplatesFeature';
+import TeacherDashboardFeature from './features/teacher-dashboard/TeacherDashboardFeature';
+import { useUserProfile } from './shared/context/UserProfileContext';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
 
@@ -178,7 +181,9 @@ type Tab =
   | 'transpose'
   | 'eartrainingpro'
   | 'solfeggiocan'
-  | 'setticlavio';
+  | 'setticlavio'
+  | 'examtemplates'
+  | 'teacherdashboard';
 
 interface TabDef {
   id: Tab;
@@ -232,7 +237,8 @@ const GROUPS: GroupDef[] = [
     tabs: [
       { id: 'eartrainingpro', label: 'Ear Training Pro', icon: '👂', desc: 'Intervalli, accordi, funzioni tonali — modalità Allenamento ed Esame' },
       { id: 'solfeggiocan',   label: 'Solfeggio Cantato', icon: '🎵', desc: 'Canta scale e intervalli — pitchy valuta la tua intonazione' },
-      { id: 'setticlavio',    label: 'Setticlavio',       icon: '🗝️',  desc: 'Leggi note in chiave di contralto e tenore' },
+      { id: 'setticlavio',    label: 'Setticlavio',         icon: '🗝️',  desc: 'Leggi note in chiave di contralto e tenore' },
+      { id: 'examtemplates',  label: 'Prove d\'Esame',      icon: '📝', desc: 'Simula un esame AFAM — domande miste su intervalli, accordi e cadenze' },
     ],
   },
   {
@@ -418,11 +424,12 @@ function MobileKeyPicker({ onClose }: { onClose: () => void }) {
 // ─── Mobile full-screen menu ─────────────────────────────────────────────────
 
 function MobileMenu({
-  activeTab, onSelect, onClose,
+  activeTab, onSelect, onClose, role,
 }: {
   activeTab: Tab;
   onSelect: (tab: Tab) => void;
   onClose: () => void;
+  role: import('./shared/types/conservatory.types').UserRole | null;
 }) {
   return (
     <>
@@ -534,6 +541,41 @@ function MobileMenu({
             })()}
           </div>
         ))}
+
+        {/* Teacher section — only visible when role === 'teacher' */}
+        {role === 'teacher' && (
+          <div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '14px 20px 8px',
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
+              color: '#4b5563', textTransform: 'uppercase',
+              borderTop: '1px solid #21262d',
+              marginTop: 4,
+            }}>
+              <span style={{ fontSize: 13 }}>🎓</span>
+              Docente
+            </div>
+            <button
+              onClick={() => onSelect('teacherdashboard')}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                padding: '12px 20px',
+                background: activeTab === 'teacherdashboard' ? '#7c3aed18' : 'none',
+                border: 'none',
+                borderLeft: `3px solid ${activeTab === 'teacherdashboard' ? '#7c3aed' : 'transparent'}`,
+                cursor: 'pointer', textAlign: 'left',
+                color: '#e6edf3',
+              }}
+            >
+              <span style={{ fontSize: 16 }}>📊</span>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>Dashboard Docente</div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Gestisci classi, compiti e studenti</div>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
@@ -716,6 +758,7 @@ function LocalModeNotice({ feature }: { feature: string }) {
 
 export default function App() {
   const { user, loading: authLoading, signOut } = useAuth();
+  const { role } = useUserProfile();
   const { stats } = useStats();
   const { globalKey, setGlobalKey } = useGlobalKey();
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -890,6 +933,31 @@ export default function App() {
               </button>
             )}
 
+            {/* Teacher nav button — only for teacher role */}
+            {role === 'teacher' && (
+              <button
+                onClick={() => handleSelectTab('teacherdashboard')}
+                style={{
+                  alignSelf: 'center',
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  background: activeTab === 'teacherdashboard' ? 'rgba(124,58,237,0.15)' : 'none',
+                  color: activeTab === 'teacherdashboard' ? '#c4b5fd' : '#8b949e',
+                  fontSize: 13, fontWeight: 600,
+                  fontFamily: "'DM Sans', sans-serif",
+                  padding: '6px 14px',
+                  borderRadius: 8,
+                  border: '1px solid',
+                  borderColor: activeTab === 'teacherdashboard' ? '#7c3aed' : '#30363d',
+                  cursor: 'pointer',
+                  marginRight: 8,
+                  flexShrink: 0,
+                  transition: 'background 0.15s, color 0.15s',
+                }}
+              >
+                🎓 Docente
+              </button>
+            )}
+
             {/* User avatar + sign out — desktop only (hidden in local mode) */}
             {user && <UserMenu onSignOut={signOut} onProfile={() => handleSelectTab('profile')} />}
 
@@ -931,6 +999,7 @@ export default function App() {
           activeTab={activeTab}
           onSelect={handleSelectTab}
           onClose={() => setMobileMenuOpen(false)}
+          role={role}
         />
       )}
 
@@ -971,6 +1040,8 @@ export default function App() {
         {activeTab === 'chorddetect'   && <ChordDetectionFeature onNavigateToScaleAdvisor={handleChordDetectToScaleAdvisor} />}
         {activeTab === 'nailpitch'     && <NailThePitchFeature />}
         {activeTab === 'profile'       && (firebaseEnabled ? <ProfileFeature />         : <LocalModeNotice feature="Profile" />)}
+        {activeTab === 'examtemplates'    && <ExamTemplatesFeature />}
+        {activeTab === 'teacherdashboard' && (firebaseEnabled ? <TeacherDashboardFeature /> : <LocalModeNotice feature="Dashboard Docente" />)}
         {activeTab === 'voiceleading'  && <VoiceLeadingFeature />}
         {activeTab === 'groove'        && <GrooveKitchenFeature />}
         {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}
