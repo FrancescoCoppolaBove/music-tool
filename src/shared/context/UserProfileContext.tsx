@@ -27,10 +27,12 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
       setProfileLoading(false);
       return;
     }
+    let cancelled = false;
     setProfileLoading(true);
     getOrCreateUserProfile(user)
-      .then(p => { setProfile(p); setProfileLoading(false); })
-      .catch(() => { setProfileLoading(false); });
+      .then(p => { if (!cancelled) { setProfile(p); setProfileLoading(false); } })
+      .catch(() => { if (!cancelled) setProfileLoading(false); });
+    return () => { cancelled = true; };
   }, [user?.uid]);
 
   return (
