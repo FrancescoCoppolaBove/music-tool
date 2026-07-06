@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import type { Level, Subsection } from './data/types';
 import { getCompletedLessons, markLessonComplete, markLessonIncomplete } from './data/types';
+import VisualRenderer from './visuals/VisualRenderer';
 
-type LessonTab = 'teoria' | 'esempi' | 'esercizi' | 'strumenti';
+type LessonTab = 'teoria' | 'esempi' | 'esercizi' | 'strumenti' | 'visualizza';
 
 interface Props {
   level: Level;
@@ -40,6 +41,7 @@ function renderContent(text: string) {
 export default function LessonView({ level, subsection, onBack, onNavigate }: Props) {
   const [activeTab, setActiveTab] = useState<LessonTab>('teoria');
   const [completed, setCompleted] = useState(() => getCompletedLessons().has(subsection.id));
+  const visualCount = subsection.visuals?.length ?? 0;
 
   function toggleComplete() {
     if (completed) {
@@ -55,6 +57,9 @@ export default function LessonView({ level, subsection, onBack, onNavigate }: Pr
     { id: 'esempi',    label: 'Esempi' },
     { id: 'esercizi',  label: 'Esercizi', badge: subsection.esercizi.length || undefined },
     { id: 'strumenti', label: 'Strumenti', badge: subsection.tools.length || undefined },
+    ...(visualCount > 0
+      ? [{ id: 'visualizza' as LessonTab, label: 'Visualizza', badge: visualCount }]
+      : []),
   ];
 
   return (
@@ -225,6 +230,24 @@ export default function LessonView({ level, subsection, onBack, onNavigate }: Pr
                   {subsection.obiettivo}
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'visualizza' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              {(subsection.visuals ?? []).map((v, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: '#1c2128',
+                    border: '1px solid #30363d',
+                    borderRadius: 12,
+                    padding: 20,
+                  }}
+                >
+                  <VisualRenderer visual={v} />
+                </div>
+              ))}
             </div>
           )}
         </div>
