@@ -39,6 +39,7 @@ import SolfeggioCantatoFeature from './features/solfeggio-cantato/SolfeggioCanta
 import SetticlavioFeature from './features/setticlavio/SetticlavioFeature';
 import ExamTemplatesFeature from './features/exam-templates/ExamTemplatesFeature';
 import TeacherDashboardFeature from './features/teacher-dashboard/TeacherDashboardFeature';
+import HarmoniaCourseFeature from './features/harmonia-course/HarmoniaCourseFeature';
 import { useUserProfile } from './shared/context/UserProfileContext';
 import type { UserRole } from './shared/types/conservatory.types';
 
@@ -151,40 +152,8 @@ const HEADER_STYLES = `
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Tab =
-  | 'home'
-  | 'voicings'
-  | 'scales'
-  | 'dictionary'
-  | 'ear'
-  | 'circle'
-  | 'harmonization'
-  | 'modal'
-  | 'progressions'
-  | 'scaleadvisor'
-  | 'analysis'
-  | 'riff'
-  | 'melody'
-  | 'quiz'
-  | 'score'
-  | 'landing'
-  | 'architect'
-  | 'journal'
-  | 'songs'
-  | 'daily'
-  | 'chorddetect'
-  | 'nailpitch'
-  | 'profile'
-  | 'voiceleading'
-  | 'groove'
-  | 'arrangement'
-  | 'cadence'
-  | 'transpose'
-  | 'eartrainingpro'
-  | 'solfeggiocan'
-  | 'setticlavio'
-  | 'examtemplates'
-  | 'teacherdashboard';
+import type { Tab } from '@shared/types/navigation.types';
+export type { Tab } from '@shared/types/navigation.types';
 
 interface TabDef {
   id: Tab;
@@ -244,18 +213,19 @@ const GROUPS: GroupDef[] = [
   },
   {
     id: 'theory',
-    label: 'Theory',
+    label: 'Armonia',
     icon: '📖',
     tabs: [
-      { id: 'harmonization', label: 'Scale Harmony',     icon: '🎶', desc: 'See how chords relate to their scale' },
-      { id: 'modal',         label: 'Modal Interchange', icon: '🔄', desc: 'Borrow chords from parallel modes' },
-      { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹', desc: 'Visualize drop 2, quartal & upper structures' },
-      { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵', desc: 'Explore key relationships at a glance' },
-      { id: 'cadence',       label: 'Cadence Trainer',   icon: '🎓', desc: 'Recognise authentic, plagal, half & deceptive cadences by ear' },
+      { id: 'harmonia',      label: 'Corso di Armonia',       icon: '📚', desc: 'Percorso completo da zero agli argomenti avanzati' },
+      { id: 'harmonization', label: 'Scale Harmony',          icon: '🎶', desc: 'See how chords relate to their scale' },
+      { id: 'modal',         label: 'Modal Interchange',      icon: '🔄', desc: 'Borrow chords from parallel modes' },
+      { id: 'voicings',      label: 'Piano Voicings',         icon: '🎹', desc: 'Visualize drop 2, quartal & upper structures' },
+      { id: 'circle',        label: 'Circle of Fifths',       icon: '🔵', desc: 'Explore key relationships at a glance' },
+      { id: 'cadence',       label: 'Cadence Trainer',        icon: '🎓', desc: 'Recognise authentic, plagal, half & deceptive cadences by ear' },
       { id: 'transpose',     label: 'Transposing Instruments', icon: '🎺', desc: 'Written vs sounding pitch for B♭, E♭, F & A instruments' },
-      { id: 'quiz',          label: 'Scale Degree Quiz',  icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
-      { id: 'chorddetect',   label: 'Chord Detection',   icon: '🎙️', desc: 'Play a chord — app identifies it in real time' },
-      { id: 'nailpitch',     label: 'Nail the Pitch',    icon: '🎤', desc: 'Sing and see which notes you hit, Melodyne-style' },
+      { id: 'quiz',          label: 'Scale Degree Quiz',      icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
+      { id: 'chorddetect',   label: 'Chord Detection',        icon: '🎙️', desc: 'Play a chord — app identifies it in real time' },
+      { id: 'nailpitch',     label: 'Nail the Pitch',         icon: '🎤', desc: 'Sing and see which notes you hit, Melodyne-style' },
     ],
   },
   {
@@ -1043,6 +1013,7 @@ export default function App() {
         {activeTab === 'profile'       && (firebaseEnabled ? <ProfileFeature />         : <LocalModeNotice feature="Profile" />)}
         {activeTab === 'examtemplates'    && <ExamTemplatesFeature />}
         {activeTab === 'teacherdashboard' && (firebaseEnabled ? <TeacherDashboardFeature /> : <LocalModeNotice feature="Dashboard Docente" />)}
+        {activeTab === 'harmonia'       && <HarmoniaCourseFeature onNavigate={handleSelectTab} />}
         {activeTab === 'voiceleading'  && <VoiceLeadingFeature />}
         {activeTab === 'groove'        && <GrooveKitchenFeature />}
         {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}
