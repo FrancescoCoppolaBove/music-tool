@@ -55,6 +55,26 @@ Un **intervallo** è la distanza tra due note. Si misura contando le note inclus
         { tabId: 'quiz',   label: 'Scale Degree Quiz',  icon: '🎯', desc: 'Allena il riconoscimento dei gradi e degli intervalli' },
         { tabId: 'circle', label: 'Circle of Fifths',   icon: '🔵', desc: 'Visualizza le distanze tra note e tonalità' },
       ],
+      visuals: [
+        {
+          type: 'interval-grid',
+          title: 'Tutti gli intervalli cromatici da Do',
+          rows: [
+            { degree: '1',   note: 'C',  semitones: 0  },
+            { degree: 'b2',  note: 'Db', semitones: 1  },
+            { degree: '2',   note: 'D',  semitones: 2  },
+            { degree: 'b3',  note: 'Eb', semitones: 3  },
+            { degree: '3',   note: 'E',  semitones: 4  },
+            { degree: '4',   note: 'F',  semitones: 5  },
+            { degree: '#4',  note: 'F#', semitones: 6  },
+            { degree: '5',   note: 'G',  semitones: 7  },
+            { degree: 'b6',  note: 'Ab', semitones: 8  },
+            { degree: '6',   note: 'A',  semitones: 9  },
+            { degree: 'b7',  note: 'Bb', semitones: 10 },
+            { degree: '7',   note: 'B',  semitones: 11 },
+          ],
+        },
+      ],
     },
     {
       id: '0.2',
@@ -97,6 +117,14 @@ Do (0♭) → Fa (1♭: Si♭) → Si♭ (2♭: +Mi♭) → Mi♭ → La♭ → 
         { tabId: 'scales',     label: 'Scale Recognition', icon: '🔍', desc: 'Identifica una scala dalle sue note' },
         { tabId: 'dictionary', label: 'Scale Dictionary',  icon: '📚', desc: 'Consulta tutte le scale con i loro gradi' },
         { tabId: 'circle',     label: 'Circle of Fifths',  icon: '🔵', desc: 'Esplora visivamente le relazioni tra tonalità' },
+      ],
+      visuals: [
+        {
+          type: 'circle-segment',
+          title: 'Circolo delle quinte — Do maggiore',
+          highlight: ['C', 'F', 'G'],
+          tonic: 'C',
+        },
       ],
     },
     {
@@ -639,6 +667,27 @@ Solo due note cambiano, e spesso solo di un semitono: questo è il voice leading
       obiettivo: 'Suonare qualsiasi progressione jazz con shell voicings nelle due disposizioni, realizzando voice leading fluido con movimenti minimi tra accordi successivi.',
       tools: [
         { tabId: 'voicings', label: 'Piano Voicings', icon: '🎹', desc: 'Visualizza e ascolta shell voicings per ogni tipo di accordo, esplorando le due disposizioni e il loro voice leading su progressioni II–V–I' },
+      ],
+      visuals: [
+        {
+          type: 'keyboard',
+          title: 'Shell Voicings — II–V–I in Do',
+          chords: [
+            { label: 'Dm7 (shell)',   notes: ['D3', 'F3', 'C4']  },
+            { label: 'G7 (shell)',    notes: ['G3', 'B3', 'F4']  },
+            { label: 'Cmaj7 (shell)', notes: ['C3', 'E3', 'B3']  },
+          ],
+        },
+        {
+          type: 'progression',
+          title: 'II–V–I in Do',
+          key: 'C',
+          steps: [
+            { chord: 'Dm7',   function: 'IIm7' },
+            { chord: 'G7',    function: 'V7'   },
+            { chord: 'Cmaj7', function: 'Imaj7' },
+          ],
+        },
       ],
     },
     {
