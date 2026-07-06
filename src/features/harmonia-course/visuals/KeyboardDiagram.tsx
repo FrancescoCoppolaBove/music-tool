@@ -43,7 +43,7 @@ function isLit(keyNote: string, highlights: string[]): boolean {
 function SingleKeyboard({ chord }: { chord: ChordKeyboardSpec }) {
   // If notes[] is empty, derive pitch classes from chord name via tonal
   const highlights =
-    chord.notes.length > 0 ? chord.notes : Chord.get(chord.label).notes;
+    chord.notes.length > 0 ? chord.notes : (Chord.get(chord.label).notes ?? []);
   const color = chord.color ?? '#7c3aed';
 
   return (
@@ -102,7 +102,7 @@ export default function KeyboardDiagram({
       )}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}>
         {chords.map((c, i) => (
-          <SingleKeyboard key={i} chord={c} />
+          <SingleKeyboard key={c.label} chord={c} />
         ))}
       </div>
     </div>
