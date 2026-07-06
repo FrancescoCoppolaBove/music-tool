@@ -7,6 +7,51 @@ export interface ToolLink {
   desc: string;
 }
 
+export interface ChordKeyboardSpec {
+  label: string;
+  notes: string[];
+  color?: string;
+}
+
+export interface ProgressionStep {
+  chord: string;
+  function?: string;
+  annotation?: string;
+}
+
+export interface IntervalRow {
+  degree: string;
+  note: string;
+  semitones: number;
+}
+
+export type Visual =
+  | {
+      type: 'keyboard';
+      title?: string;
+      chords: ChordKeyboardSpec[];
+    }
+  | {
+      type: 'progression';
+      title?: string;
+      key?: string;
+      steps: ProgressionStep[];
+    }
+  | {
+      type: 'interval-grid';
+      title?: string;
+      chord?: string;
+      scale?: string;
+      root?: string;
+      rows?: IntervalRow[];
+    }
+  | {
+      type: 'circle-segment';
+      title?: string;
+      highlight: string[];
+      tonic?: string;
+    };
+
 export interface Subsection {
   id: string;
   title: string;
@@ -16,6 +61,7 @@ export interface Subsection {
   esercizi: string[];
   obiettivo: string;
   tools: ToolLink[];
+  visuals?: Visual[];
 }
 
 export interface Level {
