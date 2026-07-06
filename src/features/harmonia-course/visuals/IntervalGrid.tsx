@@ -19,6 +19,7 @@ function rowBg(degree: string): string {
 function deriveRows(chord?: string, scale?: string, root?: string): IntervalRow[] {
   if (chord) {
     const c = Chord.get(chord);
+    if (c.empty) return [];
     return c.intervals.map((ivl, i) => ({
       degree: INTERVAL_LABEL[ivl] ?? ivl,
       note: c.notes[i] ?? '',
@@ -27,6 +28,7 @@ function deriveRows(chord?: string, scale?: string, root?: string): IntervalRow[
   }
   if (scale && root) {
     const s = Scale.get(`${root} ${scale}`);
+    if (s.empty) return [];
     return s.intervals.map((ivl, i) => ({
       degree: INTERVAL_LABEL[ivl] ?? ivl,
       note: s.notes[i] ?? '',
