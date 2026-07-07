@@ -60,50 +60,54 @@ export default function IntervalGrid({
           {title}
         </div>
       )}
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-        <thead>
-          <tr>
-            {['Grado', 'Nota', 'Semitoni'].map(h => (
-              <th
-                key={h}
+      {displayRows.length === 0 ? (
+        <p style={{ color: '#4b5563', fontStyle: 'italic' }}>Nessun dato da visualizzare.</p>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <thead>
+            <tr>
+              {['Grado', 'Nota', 'Semitoni'].map(h => (
+                <th
+                  key={h}
+                  style={{
+                    textAlign: 'left', padding: '6px 12px',
+                    color: '#6b7280', fontWeight: 600,
+                    borderBottom: '1px solid #30363d',
+                  }}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {displayRows.map((row, i) => (
+              <tr
+                key={i}
                 style={{
-                  textAlign: 'left', padding: '6px 12px',
-                  color: '#6b7280', fontWeight: 600,
-                  borderBottom: '1px solid #30363d',
+                  background: rowBg(row.degree),
+                  borderBottom: '1px solid rgba(48,54,61,0.4)',
                 }}
               >
-                {h}
-              </th>
+                <td style={{
+                  padding: '7px 12px', color: '#e6edf3',
+                  fontWeight: 600, fontFamily: 'monospace',
+                }}>
+                  {row.degree}
+                </td>
+                <td style={{
+                  padding: '7px 12px', color: '#c4b5fd', fontFamily: 'monospace',
+                }}>
+                  {row.note}
+                </td>
+                <td style={{ padding: '7px 12px', color: '#8b949e' }}>
+                  {row.semitones}
+                </td>
+              </tr>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {displayRows.map((row, i) => (
-            <tr
-              key={i}
-              style={{
-                background: rowBg(row.degree),
-                borderBottom: '1px solid rgba(48,54,61,0.4)',
-              }}
-            >
-              <td style={{
-                padding: '7px 12px', color: '#e6edf3',
-                fontWeight: 600, fontFamily: 'monospace',
-              }}>
-                {row.degree}
-              </td>
-              <td style={{
-                padding: '7px 12px', color: '#c4b5fd', fontFamily: 'monospace',
-              }}>
-                {row.note}
-              </td>
-              <td style={{ padding: '7px 12px', color: '#8b949e' }}>
-                {row.semitones}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

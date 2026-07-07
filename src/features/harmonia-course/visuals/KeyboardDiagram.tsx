@@ -101,7 +101,7 @@ export default function KeyboardDiagram({
         </div>
       )}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}>
-        {chords.map((c, i) => (
+        {chords.map(c => (
           <SingleKeyboard key={c.label} chord={c} />
         ))}
       </div>

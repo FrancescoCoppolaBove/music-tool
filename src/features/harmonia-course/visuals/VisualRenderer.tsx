@@ -34,5 +34,9 @@ export default function VisualRenderer({ visual }: { visual: Visual }) {
           tonic={visual.tonic}
         />
       );
+    default: {
+      const _exhaustive: never = visual;
+      return null;
+    }
   }
 }

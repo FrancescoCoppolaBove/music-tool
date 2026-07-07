@@ -237,7 +237,7 @@ export default function LessonView({ level, subsection, onBack, onNavigate }: Pr
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {(subsection.visuals ?? []).map((v, i) => (
                 <div
-                  key={i}
+                  key={v.type + i}
                   style={{
                     background: '#1c2128',
                     border: '1px solid #30363d',
