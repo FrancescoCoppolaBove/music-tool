@@ -3,7 +3,7 @@
  * Configurabile: difficoltà accordi e inversioni
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Volume2, Check, X, RotateCcw, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { CHORD_TYPES, generateRandomChord, ChordDifficulty, ChordInversion } from '../utils/interval-data';
@@ -106,14 +106,24 @@ export function ChordsExercise() {
 
   const playChord = useCallback(async () => {
     if (!currentQuestion) return;
-
+    audioPlayer.stopAll();
     setIsPlaying(true);
     try {
       await audioPlayer.playChord(currentQuestion.notes);
+      await audioPlayer.delay(1500);
     } catch (error: any) {
       console.error('Error playing chord:', error);
     }
-    setTimeout(() => setIsPlaying(false), 2000);
+    setIsPlaying(false);
+  }, [currentQuestion]);
+
+  const playChordRef = useRef(playChord);
+  useEffect(() => { playChordRef.current = playChord; }, [playChord]);
+
+  useEffect(() => {
+    if (!currentQuestion) return;
+    const timer = setTimeout(() => playChordRef.current(), 200);
+    return () => clearTimeout(timer);
   }, [currentQuestion]);
 
   useAutoRepeat(playChord, isCorrect, isPlaying);
@@ -324,7 +334,7 @@ export function ChordsExercise() {
           {availableChords.map((chordType) => {
             const isSelectedCorrect = isCorrect && chordType.name === currentQuestion.chordType.name;
             const isWrong = wrongAttempts.has(chordType.name);
-            const isDisabled = isCorrect || attempts.has(chordType.name);
+            const isDisabled = isPlaying || isCorrect || attempts.has(chordType.name);
 
             return (
               <button
