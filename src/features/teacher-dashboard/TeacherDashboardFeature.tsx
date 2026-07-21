@@ -11,6 +11,8 @@ import {
 import type { ClassDoc, AssignmentDoc, UserProfile, SubmissionDoc } from '../../shared/types/conservatory.types';
 import { RosterPanel } from './components/RosterPanel';
 import { StudentDrawer } from './components/StudentDrawer';
+import { AssignmentsPanel } from './components/AssignmentsPanel';
+import { NewAssignmentModal } from './components/NewAssignmentModal';
 
 // ── Prop types shared with sub-components ────────────────────────────────────
 export interface DashboardData {
@@ -34,9 +36,8 @@ export interface RosterPanelProps {
   data: DashboardData;
 }
 
-// Placeholder — replaced in Tasks 9, 10
+// Placeholder — replaced in Task 10
 const AlertsPanel = (_p: AlertsPanelProps) => <div />;
-const AssignmentsPanel = (_p: AssignmentsPanelProps) => <div />;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -131,8 +132,13 @@ export default function TeacherDashboardFeature() {
             {data.assignments.filter(a => a.dueDate > Date.now()).length} compiti attivi
           </div>
         </div>
-        {/* showNewAssignment is wired to a modal in Task 9 */}
-        <div style={{ display: showNewAssignment ? 'block' : 'none' }} />
+        {showNewAssignment && (
+          <NewAssignmentModal
+            classes={data.classes}
+            onClose={() => setShowNewAssignment(false)}
+            onCreated={() => { setShowNewAssignment(false); loadData(); }}
+          />
+        )}
       </div>
 
       {/* Alerts */}
