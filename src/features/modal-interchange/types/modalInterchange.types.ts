@@ -1,6 +1,10 @@
 import { NoteName } from '@shared/types/music.types';
 
-export type Mode = 'ionian' | 'dorian' | 'phrygian' | 'lydian' | 'mixolydian' | 'aeolian' | 'locrian' | 'harmonic-minor' | 'melodic-minor';
+export type Mode =
+  | 'ionian' | 'dorian' | 'phrygian' | 'lydian' | 'mixolydian' | 'aeolian' | 'locrian'
+  | 'harmonic-minor' | 'melodic-minor'
+  | 'locrian-natural6' | 'ionian-sharp5' | 'dorian-sharp4' | 'phrygian-dominant' | 'lydian-sharp2' | 'altered-diminished'
+  | 'dorian-b2' | 'lydian-augmented' | 'lydian-dominant' | 'mixolydian-b6' | 'locrian-natural2' | 'altered';
 
 // ✅ AGGIORNATO: Quadriadi invece di triadi
 export type ChordQuality =
