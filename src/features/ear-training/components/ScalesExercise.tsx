@@ -3,7 +3,7 @@
  * Usa scale precalcolate invece di generarle dinamicamente
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { generateRandomScaleFromData, getAvailableScales } from '../utils/scale-data-loader';
@@ -78,15 +78,25 @@ export function ScalesExercise() {
     console.log('🎹 Playing scale:', currentQuestion.scaleName, 'from', currentQuestion.root);
     console.log('🎵 Notes to play:', currentQuestion.notes);
 
+    audioPlayer.stopAll();
     setIsPlaying(true);
     try {
-      // Suona la scala in sequenza con volume ridotto (50%)
       await audioPlayer.playSequence(currentQuestion.notes, 400, 0.5);
+      await audioPlayer.delay(600);
       console.log('✅ Scale played successfully');
     } catch (error: any) {
       console.error('❌ Error playing scale:', error);
     }
-    setTimeout(() => setIsPlaying(false), currentQuestion.notes.length * 450);
+    setIsPlaying(false);
+  }, [currentQuestion]);
+
+  const playScaleRef = useRef(playScale);
+  useEffect(() => { playScaleRef.current = playScale; }, [playScale]);
+
+  useEffect(() => {
+    if (!currentQuestion) return;
+    const timer = setTimeout(() => playScaleRef.current(), 200);
+    return () => clearTimeout(timer);
   }, [currentQuestion]);
 
   useAutoRepeat(playScale, isCorrect, isPlaying);
@@ -262,7 +272,7 @@ export function ScalesExercise() {
           {availableScaleNames.map((scaleName) => {
             const isSelectedCorrect = isCorrect && scaleName === currentQuestion.scaleName;
             const isWrong = wrongAttempts.has(scaleName);
-            const isDisabled = isCorrect || attempts.has(scaleName);
+            const isDisabled = isPlaying || isCorrect || attempts.has(scaleName);
 
             return (
               <button
