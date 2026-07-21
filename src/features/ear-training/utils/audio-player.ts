@@ -98,6 +98,7 @@ export class AudioPlayer {
   private audioContext: AudioContext | null = null;
   private masterGain: GainNode | null = null;
   private bufferCache: Map<string, AudioBuffer> = new Map();
+  private activeSources: Set<AudioBufferSourceNode> = new Set();
 
   async initAudioContext(): Promise<void> {
     if (this.audioContext) return;
@@ -182,6 +183,10 @@ export class AudioPlayer {
       gainNode.gain.value = Math.max(0, Math.min(1, volume));
       source.connect(gainNode);
       gainNode.connect(this.masterGain);
+
+      this.activeSources.add(source);
+      source.onended = () => this.activeSources.delete(source);
+
       source.start(0);
     } else {
       // HTML5 Audio fallback
@@ -207,6 +212,14 @@ export class AudioPlayer {
 
   delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /** Stop all active audio sources. */
+  stopAll(): void {
+    this.activeSources.forEach(src => {
+      try { src.stop(); } catch { /* already stopped */ }
+    });
+    this.activeSources.clear();
   }
 }
 
