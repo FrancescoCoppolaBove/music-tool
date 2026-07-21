@@ -32,6 +32,22 @@ const MODE_QUALITIES: Record<Mode, ChordQuality[]> = {
 
   // Melodic Minor: im(maj7), iim7, ♭IIImaj7#5, IV7, V7, vim7♭5, viim7♭5
   'melodic-minor': ['mMaj7', 'm7', 'maj7#5', '7', '7', 'm7b5', 'm7b5'],
+
+  // Harmonic Minor modes 2–7
+  'locrian-natural6':    ['m7b5', 'maj7#5', 'm7', '7',    'maj7', 'dim7',   'mMaj7'  ],
+  'ionian-sharp5':       ['maj7#5', 'm7',  '7',   'maj7', 'dim7', 'mMaj7',  'm7b5'   ],
+  'dorian-sharp4':       ['m7',   '7',    'maj7', 'dim7', 'mMaj7', 'm7b5',  'maj7#5' ],
+  'phrygian-dominant':   ['7',    'maj7', 'dim7', 'mMaj7','m7b5', 'maj7#5', 'm7'     ],
+  'lydian-sharp2':       ['maj7', 'dim7', 'mMaj7','m7b5', 'maj7#5','m7',    '7'      ],
+  'altered-diminished':  ['dim7', 'mMaj7','m7b5', 'maj7#5','m7',  '7',      'maj7'   ],
+
+  // Melodic Minor modes 2–7
+  'dorian-b2':        ['m7',    'maj7#5', '7',     '7',     'm7b5',  'm7b5',  'mMaj7'  ],
+  'lydian-augmented': ['maj7#5','7',      '7',     'm7b5',  'm7b5',  'mMaj7', 'm7'     ],
+  'lydian-dominant':  ['7',     '7',      'm7b5',  'm7b5',  'mMaj7', 'm7',    'maj7#5' ],
+  'mixolydian-b6':    ['7',     'm7b5',   'm7b5',  'mMaj7', 'm7',    'maj7#5','7'      ],
+  'locrian-natural2': ['m7b5',  'm7b5',   'mMaj7', 'm7',    'maj7#5','7',     '7'      ],
+  'altered':          ['m7b5',  'mMaj7',  'm7',    'maj7#5','7',     '7',     'm7b5'   ],
 };
 
 const MODE_LABELS: Record<Mode, string> = {
@@ -44,6 +60,18 @@ const MODE_LABELS: Record<Mode, string> = {
   locrian: 'Locrian',
   'harmonic-minor': 'Harmonic Minor',
   'melodic-minor': 'Melodic Minor',
+  'locrian-natural6':   'Locrian ♮6 (HM mode 2)',
+  'ionian-sharp5':      'Ionian #5 (HM mode 3)',
+  'dorian-sharp4':      'Dorian #4 / Ukrainian Dorian (HM mode 4)',
+  'phrygian-dominant':  'Phrygian Dominant (HM mode 5)',
+  'lydian-sharp2':      'Lydian #2 (HM mode 6)',
+  'altered-diminished': 'Altered Diminished (HM mode 7)',
+  'dorian-b2':          'Dorian ♭2 / Phrygian ♮6 (MM mode 2)',
+  'lydian-augmented':   'Lydian Augmented (MM mode 3)',
+  'lydian-dominant':    'Lydian Dominant (MM mode 4)',
+  'mixolydian-b6':      'Mixolydian ♭6 / Hindu (MM mode 5)',
+  'locrian-natural2':   'Locrian ♮2 / Half-Diminished (MM mode 6)',
+  'altered':            'Altered / Super Locrian (MM mode 7)',
 };
 
 // Intervalli dei modi (in semitoni dalla tonica)
@@ -57,6 +85,18 @@ const MODE_INTERVALS: Record<Mode, number[]> = {
   locrian: [0, 1, 3, 5, 6, 8, 10],
   'harmonic-minor': [0, 2, 3, 5, 7, 8, 11],
   'melodic-minor': [0, 2, 3, 5, 7, 9, 11],
+  'locrian-natural6':   [0, 1, 3, 5, 6, 9, 10],
+  'ionian-sharp5':      [0, 2, 4, 5, 8, 9, 11],
+  'dorian-sharp4':      [0, 2, 3, 6, 7, 9, 10],
+  'phrygian-dominant':  [0, 1, 4, 5, 7, 8, 10],
+  'lydian-sharp2':      [0, 3, 4, 6, 7, 9, 11],
+  'altered-diminished': [0, 1, 3, 4, 6, 8,  9],
+  'dorian-b2':          [0, 1, 3, 5, 7, 9, 10],
+  'lydian-augmented':   [0, 2, 4, 6, 8, 9, 11],
+  'lydian-dominant':    [0, 2, 4, 6, 7, 9, 10],
+  'mixolydian-b6':      [0, 2, 4, 5, 7, 8, 10],
+  'locrian-natural2':   [0, 2, 3, 5, 6, 8, 10],
+  'altered':            [0, 1, 3, 4, 6, 8, 10],
 };
 
 // ✅ NOTAZIONE BEMOLLE (Db, Eb, Gb, Ab, Bb)
@@ -153,8 +193,16 @@ function createChord(root: NoteName, quality: ChordQuality, degree: number, mode
 export function generateModalInterchangeTable(key: NoteName, tonality: 'major' | 'minor'): ModalInterchangeTable {
   const modeOrder: Mode[] =
     tonality === 'major'
-      ? ['ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian', 'harmonic-minor', 'melodic-minor']
-      : ['aeolian', 'ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'locrian', 'harmonic-minor', 'melodic-minor'];
+      ? ['ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian',
+         'harmonic-minor', 'locrian-natural6', 'ionian-sharp5', 'dorian-sharp4',
+         'phrygian-dominant', 'lydian-sharp2', 'altered-diminished',
+         'melodic-minor', 'dorian-b2', 'lydian-augmented', 'lydian-dominant',
+         'mixolydian-b6', 'locrian-natural2', 'altered']
+      : ['aeolian', 'dorian', 'phrygian', 'ionian', 'lydian', 'mixolydian', 'locrian',
+         'harmonic-minor', 'locrian-natural6', 'ionian-sharp5', 'dorian-sharp4',
+         'phrygian-dominant', 'lydian-sharp2', 'altered-diminished',
+         'melodic-minor', 'dorian-b2', 'lydian-augmented', 'lydian-dominant',
+         'mixolydian-b6', 'locrian-natural2', 'altered'];
 
   const modes: ModeRow[] = modeOrder.map((mode) => {
     const intervals = MODE_INTERVALS[mode];
