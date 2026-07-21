@@ -59,7 +59,7 @@ export function ModeTable({ table }: ModeTableProps) {
                   currentGroup = group;
                   rows.push(
                     <tr key={`divider-${group}`} className="mode-group-divider">
-                      <td colSpan={8}>{GROUP_LABELS[group]}</td>
+                      <th colSpan={8} scope="colgroup">{GROUP_LABELS[group]}</th>
                     </tr>
                   );
                 }
