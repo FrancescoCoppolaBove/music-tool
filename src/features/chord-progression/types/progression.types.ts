@@ -12,8 +12,8 @@ export type Technique =
   | 'quartal'
   | 'sus'
   | 'modulation'
-  | 'altered_dominant'
-  | 'dim_pedal';
+  | 'float_chord'
+  | 'minor_to_major';
 
 export interface ProgressionChord {
   degree: string;          // Roman numeral e.g. "II" "bVII"

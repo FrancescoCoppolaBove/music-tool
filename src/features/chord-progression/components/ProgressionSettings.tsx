@@ -26,6 +26,8 @@ const TECHNIQUE_COLORS: Record<Technique, string> = {
   quartal: '#06b6d4',
   sus: '#10b981',
   modulation: '#6366f1',
+  float_chord: '#14b8a6',
+  minor_to_major: '#d97706',
 };
 
 interface Props {

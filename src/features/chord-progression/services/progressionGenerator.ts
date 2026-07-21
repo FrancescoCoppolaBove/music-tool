@@ -2982,6 +2982,84 @@ const TEMPLATES: ProgressionTemplate[] = [
     lengths: [3],
     mode: 'minor',
   },
+
+  // ── Jeff Schneider: Float Chord ───────────────────────────────────────────
+  {
+    id: 'float-chord-vamp',
+    name: 'V13sus–I (Float Chord Vamp)',
+    chords: [
+      { degree: 'V', quality: '13sus', function: 'Dominant', technique: 'float_chord', annotation: 'IVmaj7/V = V13sus float chord (Jeff Schneider)', techniqueLabel: 'Float Chord' },
+      { degree: 'I', quality: 'maj7',  function: 'Tonic',    technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['float_chord'],
+    description: 'Jeff Schneider float chord: IVmaj7 voiced over V bass = V13sus. In C: Fmaj7/G → Cmaj7. The sus dominant floats without tritone tension — a core neo-soul and R&B cadence.',
+    artists: ['Tom Misch', 'Kiefer', 'H.E.R.', 'Lalah Hathaway'],
+    feel: 'Neo-soul float',
+    lengths: [2],
+  },
+  {
+    id: 'float-chord-cadence',
+    name: 'ii–V13sus–I (Float Chord Cadence)',
+    chords: [
+      { degree: 'II', quality: 'm7',    function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'V',  quality: '13sus', function: 'Dominant',    technique: 'float_chord', annotation: 'IVmaj7/V float — suspended dominant with extensions', techniqueLabel: 'Float Chord' },
+      { degree: 'I',  quality: 'maj7',  function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['float_chord', 'diatonic'],
+    description: 'ii–V–I with the V replaced by a float chord (V13sus = IVmaj7/V). The sus dominant has richer color without the tritone pull — resolves with a floating, open lift.',
+    artists: ['Tom Misch', 'Knower', 'Louis Cole', 'Kiefer'],
+    feel: 'Contemporary jazz-R&B cadence',
+    lengths: [3],
+  },
+  {
+    id: 'neo-soul-float-cycle',
+    name: 'I–vi–ii–V13sus (Neo-Soul Float Cycle)',
+    chords: [
+      { degree: 'I',  quality: 'maj9',  function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'VI', quality: 'm7',    function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'II', quality: 'm7',    function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'V',  quality: '13sus', function: 'Dominant',    technique: 'float_chord', annotation: 'Float chord closes the cycle — loops back smoothly to I', techniqueLabel: 'Float Chord' },
+    ],
+    style: 'modern', techniques: ['float_chord', 'diatonic'],
+    description: 'I–vi–ii–V cycle with the V replaced by a float chord (V13sus). Perfect for looping R&B grooves — the floating sus dominant re-enters I without a hard resolution.',
+    artists: ['Tom Misch', 'H.E.R.', 'Kiefer', 'Masego', 'Lucky Daye'],
+    feel: 'Looping neo-soul groove',
+    lengths: [4],
+  },
+
+  // ── Jeff Schneider: Minor-to-Major Trick ─────────────────────────────────
+  {
+    id: 'minor-to-major-trick',
+    name: 'vi–VI7–#i°7–ii (Minor-to-Major Trick)',
+    chords: [
+      { degree: 'VI',  quality: 'm7',   function: 'Tonic',       technique: 'diatonic',          annotation: 'vim7 — natural vi chord',                                  techniqueLabel: 'Diatonic' },
+      { degree: 'VI',  quality: '7',    function: 'Dominant',    technique: 'secondary_dominant', annotation: 'VI7 = V/ii — raise the 3rd to create secondary dominant', techniqueLabel: 'Secondary Dominant' },
+      { degree: 'bII', quality: 'dim7', function: 'Color',       technique: 'minor_to_major',     annotation: 'Passing dim7 half-step below ii (Jeff Schneider)',         techniqueLabel: 'Minor-to-Major' },
+      { degree: 'II',  quality: 'm7',   function: 'Subdominant', technique: 'diatonic',           annotation: 'iim7 — destination chord',                                 techniqueLabel: 'Diatonic' },
+    ],
+    style: 'modern', techniques: ['minor_to_major', 'secondary_dominant'],
+    description: 'Jeff Schneider\'s Minor-to-Major Trick: vim7 → VI7 (raise the 3rd) → passing dim7 half-step below ii → iim7. In C: Am7 → A7 → C♯dim7 → Dm7. Gospel-R&B chromatic drama.',
+    artists: ['Bill Withers', 'Earth Wind & Fire', 'Hiatus Kaiyote', 'Jacob Collier'],
+    feel: 'Gospel-R&B chromatic approach',
+    lengths: [4],
+  },
+  {
+    id: 'minor-to-major-full',
+    name: 'vi–VI7–#i°7–ii–V13sus–I (Full Minor-to-Major)',
+    chords: [
+      { degree: 'VI',  quality: 'm7',   function: 'Tonic',       technique: 'diatonic',          annotation: 'vim7 — natural vi chord' },
+      { degree: 'VI',  quality: '7',    function: 'Dominant',    technique: 'secondary_dominant', annotation: 'VI7 = V/ii — raise the 3rd',               techniqueLabel: 'Secondary Dominant' },
+      { degree: 'bII', quality: 'dim7', function: 'Color',       technique: 'minor_to_major',     annotation: 'Passing dim7 half-step below ii',           techniqueLabel: 'Minor-to-Major' },
+      { degree: 'II',  quality: 'm7',   function: 'Subdominant', technique: 'diatonic',           annotation: 'iim7 arrives after chromatic approach' },
+      { degree: 'V',   quality: '13sus',function: 'Dominant',    technique: 'float_chord',        annotation: 'Float chord — IVmaj7/V before I',           techniqueLabel: 'Float Chord' },
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['minor_to_major', 'secondary_dominant', 'float_chord'],
+    description: 'Full Schneider journey: Minor-to-Major Trick into ii, then float chord cadence to I. In C: Am7 → A7 → C♯dim7 → Dm7 → G13sus → Cmaj7. Maximally chromatic yet resolved.',
+    artists: ['Cory Henry', 'Robert Glasper', 'Hiatus Kaiyote', 'Dirty Loops'],
+    feel: 'Chromatic neo-soul full cadence',
+    lengths: [6],
+  },
 ];
 
 // ─── Resolution ──────────────────────────────────────────────────────────────
@@ -3052,6 +3130,8 @@ export function getAvailableTechniques(): { id: Technique; label: string; descri
     { id: 'quartal',           label: 'Quartal Harmony',       description: 'Chords built in stacked 4ths — ambiguous, open, modal sound.' },
     { id: 'sus',               label: 'SUS Chords',            description: 'Suspended 2nd and 4th chords — avoids the 3rd, creates floating tension.' },
     { id: 'modulation',        label: 'Modulazione',           description: 'Pivot chord or direct modulation to a new key within the progression.' },
+    { id: 'float_chord',       label: 'Float Chord (IVmaj7/V)', description: 'Jeff Schneider: IVmaj7 over V bass = V13sus. Suspended dominant without tritone tension — neo-soul and R&B staple.' },
+    { id: 'minor_to_major',    label: 'Minor-to-Major Trick',  description: 'Jeff Schneider: vim7 → VI7 → passing dim7 half-step below target → destination. Gospel-R&B chromatic approach.' },
   ];
 }
 

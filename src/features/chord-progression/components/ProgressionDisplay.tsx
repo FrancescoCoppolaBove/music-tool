@@ -133,6 +133,8 @@ const TECHNIQUE_COLORS: Record<Technique, string> = {
   modulation: '#6366f1',
   altered_dominant: '#dc2626',
   dim_pedal: '#7c3aed',
+  float_chord: '#14b8a6',
+  minor_to_major: '#d97706',
 };
 
 const FUNCTION_COLORS: Record<string, string> = {
