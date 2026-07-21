@@ -3,7 +3,7 @@
  * Riconoscimento intervalli in contesto tonale
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { generateChordProgressionAudio, INTERVALS } from '../utils/interval-data';
@@ -114,6 +114,7 @@ export function IntervalsInContextExercise() {
   const playContextAndNotes = useCallback(async () => {
     if (!currentQuestion) return;
 
+    audioPlayer.stopAll();
     setIsPlaying(true);
     try {
       // Suona progressione
@@ -128,6 +129,7 @@ export function IntervalsInContextExercise() {
       await audioPlayer.playNote(currentQuestion.firstNote, 0.8);
       await audioPlayer.delay(500);
       await audioPlayer.playNote(currentQuestion.secondNote, 0.8);
+      await audioPlayer.delay(800);
     } catch (error: any) {
       console.error('Error:', error);
     }
@@ -136,6 +138,15 @@ export function IntervalsInContextExercise() {
 
   const allAnswered = !!(isFirstCorrect && isSecondCorrect && isIntervalCorrect);
   useAutoRepeat(playContextAndNotes, allAnswered, isPlaying);
+
+  const playContextAndNotesRef = useRef(playContextAndNotes);
+  useEffect(() => { playContextAndNotesRef.current = playContextAndNotes; }, [playContextAndNotes]);
+
+  useEffect(() => {
+    if (!currentQuestion) return;
+    const timer = setTimeout(() => playContextAndNotesRef.current(), 200);
+    return () => clearTimeout(timer);
+  }, [currentQuestion]);
 
   const handleFirstDegreeSelect = useCallback(
     (degreeName: string) => {
@@ -361,7 +372,7 @@ export function IntervalsInContextExercise() {
               <button
                 key={`first-${degree.name}`}
                 onClick={() => handleFirstDegreeSelect(degree.name)}
-                disabled={isFirstCorrect === true || isWrong}
+                disabled={isPlaying || isFirstCorrect === true || isWrong}
                 className={`answer-button degree-button ${showCorrect ? 'correct' : ''} ${isWrong ? 'incorrect' : ''}`}
                 style={{
                   backgroundColor: isWrong ? '#ef4444' : undefined,
@@ -400,7 +411,7 @@ export function IntervalsInContextExercise() {
               <button
                 key={`second-${degree.name}`}
                 onClick={() => handleSecondDegreeSelect(degree.name)}
-                disabled={isSecondCorrect === true || isWrong}
+                disabled={isPlaying || isSecondCorrect === true || isWrong}
                 className={`answer-button degree-button ${showCorrect ? 'correct' : ''} ${isWrong ? 'incorrect' : ''}`}
                 style={{
                   backgroundColor: isWrong ? '#ef4444' : undefined,
@@ -438,7 +449,7 @@ export function IntervalsInContextExercise() {
               <button
                 key={interval.shortName}
                 onClick={() => handleIntervalSelect(interval.shortName)}
-                disabled={isIntervalCorrect === true || isWrong}
+                disabled={isPlaying || isIntervalCorrect === true || isWrong}
                 className={`answer-button interval-button ${showCorrect ? 'correct' : ''} ${isWrong ? 'incorrect' : ''}`}
                 style={{
                   backgroundColor: isWrong ? '#ef4444' : undefined,
