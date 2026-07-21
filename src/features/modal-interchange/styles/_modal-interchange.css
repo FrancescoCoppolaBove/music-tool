@@ -1064,7 +1064,7 @@
   }
 }
 
-.mode-group-divider td {
+.mode-group-divider th {
   background: var(--surface-2, #f1f5f9);
   font-size: 0.7rem;
   font-weight: 700;
