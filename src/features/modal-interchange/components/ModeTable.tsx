@@ -1,4 +1,20 @@
-import { ModalInterchangeTable, ChordQuality } from '../types/modalInterchange.types';
+import React from 'react';
+import { ModalInterchangeTable, ChordQuality, Mode } from '../types/modalInterchange.types';
+
+const HM_MODES = new Set<Mode>(['harmonic-minor', 'locrian-natural6', 'ionian-sharp5', 'dorian-sharp4', 'phrygian-dominant', 'lydian-sharp2', 'altered-diminished']);
+const MM_MODES = new Set<Mode>(['melodic-minor', 'dorian-b2', 'lydian-augmented', 'lydian-dominant', 'mixolydian-b6', 'locrian-natural2', 'altered']);
+
+function getModeGroup(mode: Mode): 'diatonic' | 'harmonic-minor' | 'melodic-minor' {
+  if (HM_MODES.has(mode)) return 'harmonic-minor';
+  if (MM_MODES.has(mode)) return 'melodic-minor';
+  return 'diatonic';
+}
+
+const GROUP_LABELS: Record<'diatonic' | 'harmonic-minor' | 'melodic-minor', string> = {
+  'diatonic': 'Diatonic Modes',
+  'harmonic-minor': 'Harmonic Minor Modes',
+  'melodic-minor': 'Melodic Minor Modes',
+};
 
 interface ModeTableProps {
   table: ModalInterchangeTable;
@@ -34,27 +50,40 @@ export function ModeTable({ table }: ModeTableProps) {
             </tr>
           </thead>
           <tbody>
-            {table.modes.map((modeRow) => {
-              const isDiatonic = modeRow.mode === diatonicMode;
-
-              return (
-                <tr key={modeRow.mode} className={isDiatonic ? 'diatonic-row' : ''}>
-                  <td className='mode-name'>
-                    {modeRow.label}
-                    {isDiatonic && <span className='diatonic-badge'>Diatonic</span>}
-                  </td>
-                  {modeRow.chords.map((chord, index) => (
-                    <td key={index} className={`chord-cell quality-${chord.quality}`}>
-                      <div className='chord-content'>
-                        <span className='chord-root'>{chord.root}</span>
-                        <span className='chord-quality-symbol'>{getQualitySymbol(chord.quality)}</span>
-                        <span className='chord-numeral'>{chord.numeral}</span>
-                      </div>
+            {(() => {
+              let currentGroup: string | null = null;
+              return table.modes.flatMap((modeRow) => {
+                const group = getModeGroup(modeRow.mode);
+                const rows: React.ReactNode[] = [];
+                if (group !== currentGroup) {
+                  currentGroup = group;
+                  rows.push(
+                    <tr key={`divider-${group}`} className="mode-group-divider">
+                      <td colSpan={8}>{GROUP_LABELS[group]}</td>
+                    </tr>
+                  );
+                }
+                const isDiatonic = modeRow.mode === diatonicMode;
+                rows.push(
+                  <tr key={modeRow.mode} className={isDiatonic ? 'diatonic-row' : ''}>
+                    <td className='mode-name'>
+                      {modeRow.label}
+                      {isDiatonic && <span className='diatonic-badge'>Diatonic</span>}
                     </td>
-                  ))}
-                </tr>
-              );
-            })}
+                    {modeRow.chords.map((chord, index) => (
+                      <td key={index} className={`chord-cell quality-${chord.quality}`}>
+                        <div className='chord-content'>
+                          <span className='chord-root'>{chord.root}</span>
+                          <span className='chord-quality-symbol'>{getQualitySymbol(chord.quality)}</span>
+                          <span className='chord-numeral'>{chord.numeral}</span>
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                );
+                return rows;
+              });
+            })()}
           </tbody>
         </table>
       </div>

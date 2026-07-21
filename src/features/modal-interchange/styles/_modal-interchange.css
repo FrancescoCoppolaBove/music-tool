@@ -1063,3 +1063,14 @@
     font-size: var(--font-size-sm);
   }
 }
+
+.mode-group-divider td {
+  background: var(--surface-2, #f1f5f9);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-3, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.35rem 0.75rem;
+  border-top: 2px solid var(--border, #e2e8f0);
+}
