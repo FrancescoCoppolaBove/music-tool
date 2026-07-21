@@ -32,4 +32,5 @@ export type Tab =
   | 'setticlavio'
   | 'examtemplates'
   | 'teacherdashboard'
-  | 'harmonia';
+  | 'harmonia'
+  | 'reharm';

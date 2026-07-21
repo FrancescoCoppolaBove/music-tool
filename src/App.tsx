@@ -40,6 +40,7 @@ import SetticlavioFeature from './features/setticlavio/SetticlavioFeature';
 import ExamTemplatesFeature from './features/exam-templates/ExamTemplatesFeature';
 import TeacherDashboardFeature from './features/teacher-dashboard/TeacherDashboardFeature';
 import HarmoniaCourseFeature from './features/harmonia-course/HarmoniaCourseFeature';
+import ReharmonizationFeature from './features/reharmonization/ReharmonizationFeature';
 import { useUserProfile } from './shared/context/UserProfileContext';
 import type { UserRole } from './shared/types/conservatory.types';
 
@@ -182,6 +183,7 @@ const GROUPS: GroupDef[] = [
       { id: 'progressions',  label: 'Chord Progressions',  icon: '🎸', desc: 'Build jazz, modal & cinematic progressions',                       subsection: 'Harmony' },
       { id: 'analysis',      label: 'Harmonic Analysis',   icon: '🔬', desc: 'Analyse key, Roman numerals & chord function',                     subsection: 'Harmony' },
       { id: 'landing',       label: 'Chord Landing',       icon: '🎯', desc: 'Find the best way to approach any target chord',                   subsection: 'Harmony' },
+      { id: 'reharm',        label: 'Reharmonization Lab', icon: '🔀', desc: 'Journey vs Destination — add passing chords to any progression',      subsection: 'Harmony' },
       { id: 'voiceleading',  label: 'Voice Leading Lab',   icon: '↔️', desc: 'How to move voices smoothly between any two chords',              subsection: 'Harmony' },
       { id: 'score',         label: 'Score → iReal Pro',   icon: '📄', desc: 'Import a score photo and export to iReal Pro',                    subsection: 'Harmony' },
       { id: 'riff',          label: 'Riff Architect',      icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees',                 subsection: 'Arrange' },
@@ -1002,6 +1004,7 @@ export default function App() {
         {activeTab === 'quiz'          && <IntervalQuizFeature />}
         {activeTab === 'score'         && <ScoreToIRealFeature />}
         {activeTab === 'landing'       && <ChordLandingFeature />}
+        {activeTab === 'reharm'        && <ReharmonizationFeature />}
         {activeTab === 'architect'     && <SongArchitectFeature />}
         {activeTab === 'cadence'       && <CadenceTrainerFeature />}
         {activeTab === 'transpose'     && <TransposingInstrumentsFeature />}

@@ -69,7 +69,7 @@ const QUALITIES = [
   { value: 'augM7',   label: 'Aug Maj7',       cat: 'augmented'      },
 ];
 
-const ALL_MOODS = ['jazz', 'classical', 'gospel', 'chromatic', 'modal', 'cinematic', 'bluesy', 'experimental'];
+const ALL_MOODS = ['jazz', 'classical', 'gospel', 'chromatic', 'modal', 'cinematic', 'bluesy', 'r&b', 'experimental'];
 
 const COMPLEXITY_COLORS: Record<number, string> = {
   1: '#10b981',
@@ -466,6 +466,55 @@ const APPROACHES: Approach[] = [
     theory: 'The SubV (bII7 = Db7 for target C) can be preceded by its own ii chord — the minor 7th a perfect 4th below it (Abm7). This creates a proper ii–V cadence that resolves via tritone sub rather than a 5th. Compared to the tritone ii-V (Ebm7b5 → Db7), this version uses a regular m7 chord, giving a smoother, less dissonant color.',
     tip: 'The bass moves: Ab → Db → C (a descending minor 3rd then a half-step). This is less angular than the tritone ii-V version. Use when you want the chromatic bass motion but without the "outside" half-diminished color.',
     worksFor: ['major', 'any'],
+  },
+  // ── Jeff Schneider concepts ───────────────────────────────────────────────────
+  {
+    id: 'float-chord',
+    name: 'Float Chord (IVmaj7/V)',
+    complexity: 2,
+    steps: [{ interval: '5P', quality: '13sus', role: 'V13sus (IVmaj7/V)' }],
+    moods: ['jazz', 'r&b', 'modal'],
+    genres: ['R&B', 'Neo-Soul', 'Jazz Fusion', 'Contemporary', 'Funk'],
+    theory: 'The float chord is a IVmaj7 chord voiced over the V bass note. In key of C: Fmaj7 with G in the bass = G13sus (G–C–E–A). The chord has no 3rd — just stacked perfect intervals — creating an open, suspended quality. It replaces the heavier V7 with a lighter, more ambiguous dominant texture. Formula: float chord = IV chord of the destination key, played over the V bass.',
+    tip: 'Think Fmaj7/G before landing on Cmaj7. Alter it for color: add Ab (G13b9sus) or swap E for Eb (G13b9b13sus). For soloing, use G mixolydian or alternate between F major and G major triads. The float chord also works as a vamp for distant modulation — hold it and slip to a new key.',
+    worksFor: ['major', 'any'],
+  },
+  {
+    id: 'float-chord-altered',
+    name: 'Float Chord Altered (bIVmaj7/V)',
+    complexity: 3,
+    steps: [{ interval: '5P', quality: '7sus4', role: 'V13b9sus (altered float)' }],
+    moods: ['jazz', 'r&b', 'chromatic', 'experimental'],
+    genres: ['Contemporary Jazz', 'Fusion', 'Neo-Soul'],
+    theory: 'Altering the float chord (G13sus) by lowering the 13th (E→Eb) or adding a b9 (Ab) turns it from a cool suspension into a tense altered dominant. G13b9b13sus contains G–Ab–C–Eb–A — overlapping with the altered scale. The chord still has the characteristic "floated" IVmaj7 structure but now with chromatic tension.',
+    tip: 'Use this when you want more tension before landing. The b9 (Ab over G bass) is the key color note — it creates a direct half-step voice-lead to the major 3rd (E) of the target Cmaj7. Works beautifully at medium-slow tempos in a jazz-R&B ballad context.',
+    worksFor: ['major', 'any'],
+  },
+  {
+    id: 'minor-to-major',
+    name: 'Minor-to-Major Trick (vi→VI7→dim)',
+    complexity: 3,
+    steps: [
+      { interval: '5P', quality: 'm7',  role: 'vim7' },
+      { interval: '5P', quality: '7',   role: 'VI7 (borrowed dom.)' },
+      { interval: '7M', quality: 'dim7', role: '#vii°7 (passing dim)' },
+    ],
+    moods: ['jazz', 'r&b', 'gospel'],
+    genres: ['R&B', 'Gospel', 'Soul', 'Neo-Soul', 'Jazz Ballad'],
+    theory: 'The vi minor chord is "majorized" to VI7 — raising its minor 3rd to create a secondary dominant. This chromatic shift is the moment of surprise. A passing diminished chord (built a half-step below the target root) then connects with voice-leading tension. In key of C targeting Dm7: Am7 → A7 → C#dim7 → Dm7. The C#dim7 is the "money chord" — maximum chromatic tension before resolution.',
+    tip: 'Let the A7 ring — the shift from Am7 to A7 is the magic moment. Insert a G/B (V chord, first inversion) between A7 and C#dim7 for a bass walkup: Am7 → A7 → G/B → C#dim7 → Dm7. Works best approaching minor chords (like ii minor or iv). For extra drama, add a Bdim7 for one more step of tension before the final landing.',
+    worksFor: ['minor', 'any'],
+  },
+  {
+    id: 'secondary-subdominant',
+    name: 'Secondary Subdominant (IV of destination)',
+    complexity: 2,
+    steps: [{ interval: '4P', quality: 'm7', role: 'ivm7 (IV of target)' }],
+    moods: ['jazz', 'r&b', 'gospel', 'modal'],
+    genres: ['R&B', 'Gospel', 'Soul', 'Jazz', 'Funk'],
+    theory: 'Any chord can be prepared by its own IV chord — not the IV of the home key, but the IV of the specific chord you\'re landing on. Going to Dm7? Use Gm7 (IV of D minor). Going to G7? Use Cm7 (IV of G). This is the secondary subdominant: the subdominant function applies to any destination chord, not just the tonic. It creates a gentle, almost inevitable pull toward the target.',
+    tip: 'Think of this as "IV of wherever you\'re going." The motion Gm7 → Dm7 is essentially the same gravitational pull as Fm → C — a minor plagal cadence applied to any chord in the progression. Works especially beautifully in gospel and R&B when the destination is a major chord: Am7 → Emaj7 has the same amen quality as Fm → C.',
+    worksFor: ['any'],
   },
   {
     id: 'ii-V-of-iii-surprise',
