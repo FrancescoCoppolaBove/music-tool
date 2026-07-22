@@ -13,7 +13,11 @@ export type Technique =
   | 'sus'
   | 'modulation'
   | 'float_chord'
-  | 'minor_to_major';
+  | 'minor_to_major'
+  | 'blues'
+  | 'gospel'
+  | 'bossa_nova'
+  | 'flamenco';
 
 export interface ProgressionChord {
   degree: string;          // Roman numeral e.g. "II" "bVII"

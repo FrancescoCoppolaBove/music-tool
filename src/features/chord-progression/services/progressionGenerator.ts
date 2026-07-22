@@ -3060,6 +3060,380 @@ const TEMPLATES: ProgressionTemplate[] = [
     feel: 'Chromatic neo-soul full cadence',
     lengths: [6],
   },
+
+  // ─── Blues ───────────────────────────────────────────────────────────────────
+
+  {
+    id: 'blues-12bar-standard',
+    name: '12-bar Blues (Standard)',
+    chords: [
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues',                                      techniqueLabel: 'Blues Tonic' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'IV', quality: '7', function: 'Subdominant', technique: 'blues', annotation: 'IV7 — subdominant blues change', techniqueLabel: 'Blues IV' },
+      { degree: 'IV', quality: '7', function: 'Subdominant', technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'V',  quality: '7', function: 'Dominant',    technique: 'blues', annotation: 'V7 — turnaround begins',        techniqueLabel: 'Blues V' },
+      { degree: 'IV', quality: '7', function: 'Subdominant', technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'V',  quality: '7', function: 'Dominant',    technique: 'blues', annotation: 'V7 turnaround — loops to top', techniqueLabel: 'Blues V' },
+    ],
+    style: 'classic', techniques: ['blues'],
+    description: 'Il form blues fondamentale: 12 battute, tutti accordi settima di dominante. Alla base di jazz, R&B, rock e country. In C: C7–C7–C7–C7 | F7–F7–C7–C7 | G7–F7–C7–G7.',
+    artists: ['B.B. King', 'Muddy Waters', 'T-Bone Walker', 'Charlie Parker'],
+    feel: 'Classic 12-bar blues',
+    lengths: [12],
+  },
+
+  {
+    id: 'blues-12bar-quick-change',
+    name: '12-bar Quick-Change Blues',
+    chords: [
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'IV', quality: '7', function: 'Subdominant', technique: 'blues', annotation: 'Quick change — IV7 in bar 2', techniqueLabel: 'Quick Change' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'IV', quality: '7', function: 'Subdominant', technique: 'blues' },
+      { degree: 'IV', quality: '7', function: 'Subdominant', technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'V',  quality: '7', function: 'Dominant',    technique: 'blues' },
+      { degree: 'IV', quality: '7', function: 'Subdominant', technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'V',  quality: '7', function: 'Dominant',    technique: 'blues' },
+    ],
+    style: 'classic', techniques: ['blues'],
+    description: 'Quick-change blues: IV7 già in battuta 2 invece di battuta 5. Crea movimento anticipato. Chicago blues e jump blues. In C: C7–F7–C7–C7 | F7–F7–C7–C7 | G7–F7–C7–G7.',
+    artists: ['Louis Jordan', 'Ray Charles', 'Freddie King', 'Stevie Ray Vaughan'],
+    feel: 'Quick-change blues — movimento anticipato',
+    lengths: [12],
+  },
+
+  {
+    id: 'blues-12bar-jazz',
+    name: 'Jazz Blues (12-bar)',
+    chords: [
+      { degree: 'I',    quality: '7',   function: 'Tonic',       technique: 'blues' },
+      { degree: 'IV',   quality: '7',   function: 'Subdominant', technique: 'blues' },
+      { degree: 'I',    quality: '7',   function: 'Tonic',       technique: 'blues' },
+      { degree: 'VI',   quality: '7',   function: 'Dominant',    technique: 'secondary_dominant', annotation: 'VI7 = V/ii', techniqueLabel: 'Sec. Dom.' },
+      { degree: 'II',   quality: 'm7',  function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'V',    quality: '7',   function: 'Dominant',    technique: 'diatonic' },
+      { degree: 'I',    quality: '7',   function: 'Tonic',       technique: 'blues' },
+      { degree: 'bIII', quality: '7',   function: 'Color',       technique: 'tritone_sub', annotation: 'bIII7 = tritone sub di VI7', techniqueLabel: 'SubV' },
+      { degree: 'II',   quality: 'm7',  function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'V',    quality: '7',   function: 'Dominant',    technique: 'diatonic' },
+      { degree: 'I',    quality: '7',   function: 'Tonic',       technique: 'blues' },
+      { degree: 'V',    quality: '7',   function: 'Dominant',    technique: 'blues' },
+    ],
+    style: 'classic', techniques: ['blues', 'secondary_dominant', 'tritone_sub'],
+    description: 'Jazz blues bebop con ii–V cadenze, dominanti secondari e tritone substitutions. Fondamento di "Now\'s the Time", "Billie\'s Bounce", "Au Privave" di Charlie Parker.',
+    artists: ['Charlie Parker', 'Miles Davis', 'Sonny Rollins', 'Cannonball Adderley'],
+    feel: 'Bebop blues — jazz changes',
+    lengths: [12],
+  },
+
+  {
+    id: 'blues-12bar-minor',
+    name: 'Minor Blues (12-bar)',
+    chords: [
+      { degree: 'I',   quality: 'm7',  function: 'Tonic',       technique: 'blues', techniqueLabel: 'Minor Blues' },
+      { degree: 'I',   quality: 'm7',  function: 'Tonic',       technique: 'blues' },
+      { degree: 'I',   quality: 'm7',  function: 'Tonic',       technique: 'blues' },
+      { degree: 'I',   quality: 'm7',  function: 'Tonic',       technique: 'blues' },
+      { degree: 'IV',  quality: 'm7',  function: 'Subdominant', technique: 'blues', annotation: 'IVm7 — minor subdominant', techniqueLabel: 'Minor IV' },
+      { degree: 'IV',  quality: 'm7',  function: 'Subdominant', technique: 'blues' },
+      { degree: 'I',   quality: 'm7',  function: 'Tonic',       technique: 'blues' },
+      { degree: 'I',   quality: 'm7',  function: 'Tonic',       technique: 'blues' },
+      { degree: 'bVI', quality: '7',   function: 'Color',       technique: 'blues', annotation: 'bVI7 — dark subdominant blues color', techniqueLabel: 'Blues bVI' },
+      { degree: 'V',   quality: '7',   function: 'Dominant',    technique: 'blues', annotation: 'V7 — dominant con tensione alterata' },
+      { degree: 'I',   quality: 'm7',  function: 'Tonic',       technique: 'blues' },
+      { degree: 'V',   quality: '7',   function: 'Dominant',    technique: 'blues' },
+    ],
+    style: 'classic', techniques: ['blues', 'modal_interchange'],
+    description: 'Minor blues: forma più scura e cromatica. In Cm: Cm7–Cm7–Cm7–Cm7 | Fm7–Fm7–Cm7–Cm7 | Ab7–G7–Cm7–G7. Mondo di "Mr. P.C." (Coltrane), "Equinox", "So What" relatives.',
+    artists: ['John Coltrane', 'Miles Davis', 'Wes Montgomery', 'Joe Henderson'],
+    feel: 'Minor blues — dark e introspettivo',
+    lengths: [12],
+    mode: 'minor',
+  },
+
+  {
+    id: 'blues-8bar',
+    name: '8-bar Blues',
+    chords: [
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'IV', quality: '7', function: 'Subdominant', technique: 'blues', annotation: 'IV7 — subdominant change' },
+      { degree: 'IV', quality: '7', function: 'Subdominant', technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'V',  quality: '7', function: 'Dominant',    technique: 'blues' },
+      { degree: 'I',  quality: '7', function: 'Tonic',       technique: 'blues' },
+      { degree: 'V',  quality: '7', function: 'Dominant',    technique: 'blues', annotation: 'V7 turnaround' },
+    ],
+    style: 'classic', techniques: ['blues'],
+    description: 'Forma blues a 8 battute — loop più corto comune nel folk blues e jazz antico. "How Long Blues" (Leroy Carr), "Trouble in Mind", "Key to the Highway".',
+    artists: ['Leroy Carr', 'Memphis Slim', 'Big Mama Thornton', 'Chuck Berry'],
+    feel: 'Compact 8-bar blues loop',
+    lengths: [8],
+  },
+
+  // ─── Gospel ──────────────────────────────────────────────────────────────────
+
+  {
+    id: 'gospel-amen-cadence',
+    name: 'IV–I (Amen Cadence)',
+    chords: [
+      { degree: 'IV', quality: 'maj7', function: 'Subdominant', technique: 'gospel', annotation: 'IV — plagal approach',    techniqueLabel: 'Plagal' },
+      { degree: 'I',  quality: 'maj7', function: 'Tonic',       technique: 'gospel', annotation: 'I — risoluzione Amen',   techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'classic', techniques: ['gospel'],
+    description: 'L\'Amen Cadence — cadenza plagale IV→I. Il suono di "Amen" negli inni sacri. Risoluzione morbida e spirituale senza la tensione del sensibile. Onnipresente nel gospel.',
+    artists: ['Kirk Franklin', 'Andraé Crouch', 'Aretha Franklin', 'Mahalia Jackson'],
+    feel: 'Spiritual Amen — risoluzione sacra',
+    lengths: [2],
+  },
+
+  {
+    id: 'gospel-minor-amen',
+    name: 'IV–iv–I (Minor Amen)',
+    chords: [
+      { degree: 'IV', quality: 'maj7', function: 'Subdominant', technique: 'gospel',          annotation: 'IV — diatonic plagal',                      techniqueLabel: 'Plagal' },
+      { degree: 'IV', quality: 'm7',   function: 'Color',       technique: 'modal_interchange', annotation: 'iv — prestato dal parallelo minore',       techniqueLabel: 'Minor Plagal' },
+      { degree: 'I',  quality: 'maj7', function: 'Tonic',       technique: 'gospel',          annotation: 'I — risoluzione Amen dopo il colore scuro', techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'modern', techniques: ['gospel', 'modal_interchange'],
+    description: 'Gospel minor plagal: IV→iv→I. Il iv (preso dal minore parallelo) aggiunge oscurità prima della risoluzione. Stevie Wonder, Kirk Franklin, gospel shout moderno.',
+    artists: ['Stevie Wonder', 'Kirk Franklin', 'Marvin Gaye', 'Bill Withers'],
+    feel: 'Bittersweet gospel resolution',
+    lengths: [3],
+  },
+
+  {
+    id: 'gospel-dominants-chain',
+    name: 'VI7–II7–V7–I (Gospel Dominant Chain)',
+    chords: [
+      { degree: 'VI', quality: '7',    function: 'Dominant', technique: 'secondary_dominant', annotation: 'VI7 = V/ii', techniqueLabel: 'Sec. Dom.' },
+      { degree: 'II', quality: '7',    function: 'Dominant', technique: 'secondary_dominant', annotation: 'II7 = V/V', techniqueLabel: 'Sec. Dom.' },
+      { degree: 'V',  quality: '7',    function: 'Dominant', technique: 'diatonic' },
+      { degree: 'I',  quality: 'maj7', function: 'Tonic',    technique: 'gospel', techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'classic', techniques: ['gospel', 'secondary_dominant'],
+    description: 'Catena di dominanti gospel: VI7→II7→V7→I. Ogni accordo è V7 del successivo. Tensione montante che esplode su I — usato nei gospel shout e nei climax soul.',
+    artists: ['James Cleveland', 'Thomas A. Dorsey', 'Andraé Crouch', 'Hezekiah Walker'],
+    feel: 'Gospel dominant chain climax',
+    lengths: [4],
+  },
+
+  {
+    id: 'gospel-chromatic-approach',
+    name: 'I–#I°7–IIm7–V7 (Gospel Chromatic)',
+    chords: [
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',       technique: 'gospel' },
+      { degree: 'bII', quality: 'dim7', function: 'Color',       technique: 'gospel', annotation: '#I°7 — dim cromatico tra I e ii',           techniqueLabel: 'Chromatic Dim' },
+      { degree: 'II',  quality: 'm7',   function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'V',   quality: '7',    function: 'Dominant',    technique: 'diatonic' },
+    ],
+    style: 'classic', techniques: ['gospel', 'dim_pedal'],
+    description: 'Gospel cromatico: I→#I°7→IIm7→V7. Il #I°7 (= bII°7) è un diminuito cromatico di passaggio tra I e ii. Gospel, blues e jazz anni \'40. Ray Charles, Sam Cooke, Thomas Dorsey.',
+    artists: ['Ray Charles', 'Otis Redding', 'Sam Cooke', 'Thomas A. Dorsey'],
+    feel: 'Gospel chromatic groove',
+    lengths: [4],
+  },
+
+  {
+    id: 'gospel-walk-down',
+    name: 'I–bVII–bVI–V7 (Gospel Walk-Down)',
+    chords: [
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',    technique: 'gospel' },
+      { degree: 'bVII', quality: '7',    function: 'Color',    technique: 'modal_interchange', annotation: 'bVII7 — prestato dal Mixolydian', techniqueLabel: 'Borrowed bVII' },
+      { degree: 'bVI',  quality: 'maj7', function: 'Color',    technique: 'modal_interchange', annotation: 'bVI — colore Aeolian',           techniqueLabel: 'Borrowed bVI' },
+      { degree: 'V',    quality: '7',    function: 'Dominant', technique: 'gospel', annotation: 'V7 — riporta a I', techniqueLabel: 'Gospel Dom.' },
+    ],
+    style: 'modern', techniques: ['gospel', 'modal_interchange'],
+    description: 'Gospel/soul walk-down: I→bVII→bVI→V7. Discesa cromatica con accordi prestati prima di ritornare al V7. Pilastro del gospel, soul e Southern R&B.',
+    artists: ['Stevie Wonder', 'Al Green', 'Earth Wind & Fire', 'Maze feat. Frankie Beverly'],
+    feel: 'Gospel descending soul drive',
+    lengths: [4],
+  },
+
+  // ─── Bossa Nova ──────────────────────────────────────────────────────────────
+
+  {
+    id: 'bossa-nova-vamp',
+    name: 'Imaj9–bIImaj7 (Bossa Vamp Jobim)',
+    chords: [
+      { degree: 'I',   quality: 'maj9', function: 'Tonic', technique: 'bossa_nova', annotation: 'Imaj9 — tonic lussureggiante',             techniqueLabel: 'Bossa Tonic' },
+      { degree: 'bII', quality: 'maj7', function: 'Color', technique: 'bossa_nova', annotation: 'bIImaj7 — scivolata cromatica Jobim (Lydian #4)', techniqueLabel: 'Chromatic Slide' },
+    ],
+    style: 'modern', techniques: ['bossa_nova'],
+    description: 'Il vamp Jobim: Imaj9→bIImaj7. L\'accordo maggiore mezzo tono sotto il tono è il suono definitorio della Bossa Nova. "Wave", "The Girl from Ipanema" lo usano incessantemente.',
+    artists: ['Antônio Carlos Jobim', 'João Gilberto', 'Stan Getz', 'Astrud Gilberto'],
+    feel: 'Bossa Nova floating — Ipanema style',
+    lengths: [2],
+  },
+
+  {
+    id: 'bossa-jobim-slide',
+    name: 'IIm9–V13–Imaj9–bIImaj7 (Jobim Slide)',
+    chords: [
+      { degree: 'II',  quality: 'm9',   function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'V',   quality: '13',   function: 'Dominant',    technique: 'diatonic', annotation: 'V13 — dominant esteso' },
+      { degree: 'I',   quality: 'maj9', function: 'Tonic',       technique: 'bossa_nova', annotation: 'Imaj9 — risoluzione con extensions' },
+      { degree: 'bII', quality: 'maj7', function: 'Color',       technique: 'bossa_nova', annotation: 'bIImaj7 — Jobim chromatic back to ii', techniqueLabel: 'Chromatic Slide' },
+    ],
+    style: 'modern', techniques: ['bossa_nova'],
+    description: 'Progressione Jobim classica: IIm9→V13→Imaj9→bIImaj7. Il bIImaj7 crea la scivolata cromatica verso ii formando un loop. "The Girl from Ipanema", "Corcovado", "Desafinado".',
+    artists: ['Antônio Carlos Jobim', 'João Gilberto', 'Chet Baker', 'Stan Getz & João Gilberto'],
+    feel: 'Bossa Nova jazz loop — Jobim cycle',
+    lengths: [4],
+  },
+
+  {
+    id: 'bossa-nova-extended',
+    name: 'IIm9–V13–Imaj9–bVII7–IIm9–bIImaj7 (Bossa Estesa)',
+    chords: [
+      { degree: 'II',  quality: 'm9',   function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'V',   quality: '13',   function: 'Dominant',    technique: 'diatonic' },
+      { degree: 'I',   quality: 'maj9', function: 'Tonic',       technique: 'bossa_nova' },
+      { degree: 'bVII',quality: '7',    function: 'Color',       technique: 'backdoor', annotation: 'bVII7 — backdoor dominant', techniqueLabel: 'Backdoor' },
+      { degree: 'II',  quality: 'm9',   function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'bII', quality: 'maj7', function: 'Color',       technique: 'bossa_nova', annotation: 'bIImaj7 — scivolata cromatica', techniqueLabel: 'Chromatic Slide' },
+    ],
+    style: 'modern', techniques: ['bossa_nova', 'backdoor'],
+    description: 'Bossa Nova estesa con backdoor dominant. Il bVII7 aggiunge un passaggio prima di ritornare su IIm→bIImaj7. Territorio di "Wave" e del jazz brasiliano anni \'60.',
+    artists: ['Antônio Carlos Jobim', 'Herbie Hancock', 'Pat Metheny', 'Stan Getz'],
+    feel: 'Bossa Nova extended — wave territory',
+    lengths: [6],
+  },
+
+  // ─── Flamenco / Andalusian ───────────────────────────────────────────────────
+
+  {
+    id: 'flamenco-andalusian',
+    name: 'i–bVII–bVI–V7 (Cadenza Andalusa)',
+    chords: [
+      { degree: 'I',    quality: 'm7',  function: 'Tonic',    technique: 'flamenco', techniqueLabel: 'Phrygian i' },
+      { degree: 'bVII', quality: 'maj7',function: 'Color',    technique: 'flamenco', annotation: 'bVII — discesa maggiore',      techniqueLabel: 'Andalusian' },
+      { degree: 'bVI',  quality: 'maj7',function: 'Color',    technique: 'flamenco', annotation: 'bVI — colore frigio/aeoliano', techniqueLabel: 'Andalusian' },
+      { degree: 'V',    quality: '7',   function: 'Dominant', technique: 'flamenco', annotation: 'V7 — dominante frigio (3ª maggiore = suono spagnolo)', techniqueLabel: 'Phrygian Dom.' },
+    ],
+    style: 'classic', techniques: ['flamenco'],
+    description: 'La cadenza andalusa: i→bVII→bVI→V7. Discesa attraverso la scala frigia/eoliana. Il V7 ha la terza alzata (dominante frigio) — il suono spagnolo per antonomasia. In Am: Am–G–F–E7.',
+    artists: ['Paco de Lucía', 'Camarón de la Isla', 'Carlos Santana', 'Led Zeppelin'],
+    feel: 'Spanish/Flamenco — Andalusian descending',
+    lengths: [4],
+    mode: 'minor',
+  },
+
+  {
+    id: 'flamenco-vamp',
+    name: 'i–bII7 (Flamenco Vamp)',
+    chords: [
+      { degree: 'I',   quality: 'm',  function: 'Tonic', technique: 'flamenco', annotation: 'im — tonica flamenco', techniqueLabel: 'Flamenco i' },
+      { degree: 'bII', quality: '7',  function: 'Color', technique: 'flamenco', annotation: 'bII7 — scontro frigio dominante (mezzo tono sopra tonica)', techniqueLabel: 'Phryg. Dom.' },
+    ],
+    style: 'classic', techniques: ['flamenco'],
+    description: 'Il vamp flamenco core: im→bII7. Il bII7 è il suono frigio definitorio — accordo maggiore/dominante mezzo tono sopra la tonica. In Am: Am→Bb7. Hypnotico loop. "My Funny Valentine" (Miles Davis) usa questo colore.',
+    artists: ['Paco de Lucía', 'Chet Baker', 'Miles Davis', 'Bill Evans'],
+    feel: 'Flamenco hypnotic vamp — Phrygian clash',
+    lengths: [2],
+    mode: 'minor',
+  },
+
+  {
+    id: 'flamenco-spanish-cycle',
+    name: 'i–iv–bVII–bIII–bVI–V7 (Ciclo Spagnolo)',
+    chords: [
+      { degree: 'I',    quality: 'm',   function: 'Tonic',       technique: 'flamenco', techniqueLabel: 'Flamenco i' },
+      { degree: 'IV',   quality: 'm',   function: 'Subdominant', technique: 'flamenco' },
+      { degree: 'bVII', quality: 'maj7',function: 'Color',       technique: 'flamenco' },
+      { degree: 'bIII', quality: 'maj7',function: 'Color',       technique: 'flamenco', annotation: 'bIII — mediant mayor prestato' },
+      { degree: 'bVI',  quality: 'maj7',function: 'Color',       technique: 'flamenco' },
+      { degree: 'V',    quality: '7',   function: 'Dominant',    technique: 'flamenco', annotation: 'V7 Phrygian dominant — back to i', techniqueLabel: 'Phrygian Dom.' },
+    ],
+    style: 'classic', techniques: ['flamenco'],
+    description: 'Ciclo spagnolo esteso attraverso i gradi frigi/eoliani. In Am: Am–Dm–G–C–F–E7. La spina dorsale di innumerevoli rumba flamenco e composizioni Latin jazz. Gipsy Kings, Ottmar Liebert.',
+    artists: ['Paco de Lucía', 'Gipsy Kings', 'Ottmar Liebert', 'Jesse Cook'],
+    feel: 'Flamenco extended cycle — rumba',
+    lengths: [6],
+    mode: 'minor',
+  },
+
+  // ─── Rhythm Changes ──────────────────────────────────────────────────────────
+
+  {
+    id: 'rhythm-changes-a-full',
+    name: 'I–VI7–IIm7–V7–IVmaj7–IVm7–I–V7 (Rhythm Changes A)',
+    chords: [
+      { degree: 'I',  quality: '6',    function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'VI', quality: '7',    function: 'Dominant',    technique: 'secondary_dominant', annotation: 'VI7 = V/ii', techniqueLabel: 'Sec. Dom.' },
+      { degree: 'II', quality: 'm7',   function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'V',  quality: '7',    function: 'Dominant',    technique: 'diatonic' },
+      { degree: 'IV', quality: 'maj7', function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'IV', quality: 'm7',   function: 'Color',       technique: 'modal_interchange', annotation: 'IVm7 — prestato dal parallelo minore', techniqueLabel: 'Minor IV' },
+      { degree: 'I',  quality: '6',    function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'V',  quality: '7',    function: 'Dominant',    technique: 'diatonic', annotation: 'V7 turnaround to top' },
+    ],
+    style: 'classic', techniques: ['secondary_dominant', 'modal_interchange'],
+    description: 'Sezione A completa degli Rhythm Changes (8 battute) con modal interchange IV→IVm. Fondamento di "I Got Rhythm" (Gershwin), "Anthropology" (Parker), "Oleo" (Rollins).',
+    artists: ['Charlie Parker', 'Sonny Rollins', 'Dizzy Gillespie', 'Thelonious Monk'],
+    feel: 'Bebop Rhythm Changes A section',
+    lengths: [8],
+  },
+
+  {
+    id: 'rhythm-changes-bridge',
+    name: 'III7–VI7–II7–V7 (Bebop Bridge)',
+    chords: [
+      { degree: 'III', quality: '7', function: 'Dominant', technique: 'secondary_dominant', annotation: 'III7 = V/VI7', techniqueLabel: 'Sec. Dom.' },
+      { degree: 'VI',  quality: '7', function: 'Dominant', technique: 'secondary_dominant', annotation: 'VI7 = V/II7', techniqueLabel: 'Sec. Dom.' },
+      { degree: 'II',  quality: '7', function: 'Dominant', technique: 'secondary_dominant', annotation: 'II7 = V/V7',  techniqueLabel: 'Sec. Dom.' },
+      { degree: 'V',   quality: '7', function: 'Dominant', technique: 'diatonic',           annotation: 'V7 — ritorna alla sezione A' },
+    ],
+    style: 'classic', techniques: ['secondary_dominant'],
+    description: 'Il bridge degli Rhythm Changes: III7→VI7→II7→V7 — catena di dominanti secondari che risolvono ognuno una quarta sopra. Il motore del bebop. "I Got Rhythm", "Anthropology", "Cottontail".',
+    artists: ['Charlie Parker', 'Coleman Hawkins', 'Lester Young', 'Dizzy Gillespie'],
+    feel: 'Bebop dominant chain — Rhythm Changes bridge',
+    lengths: [4],
+  },
+
+  // ─── Turnarounds ─────────────────────────────────────────────────────────────
+
+  {
+    id: 'turnaround-chromatic-full',
+    name: 'I–#I°7–IIm7–bII7 (Chromatic Turnaround)',
+    chords: [
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',       technique: 'chromatic' },
+      { degree: 'bII', quality: 'dim7', function: 'Color',       technique: 'chromatic', annotation: '#I°7 — dim cromatico di passaggio', techniqueLabel: 'Chromatic Dim' },
+      { degree: 'II',  quality: 'm7',   function: 'Subdominant', technique: 'diatonic' },
+      { degree: 'bII', quality: '7',    function: 'Dominant',    technique: 'tritone_sub', annotation: 'bII7 — tritone sub di V7, approccio cromatico', techniqueLabel: 'SubV' },
+    ],
+    style: 'modern', techniques: ['chromatic', 'tritone_sub'],
+    description: 'Turnaround cromatico: I→#I°7→IIm7→bII7. Due passi cromatici — un dim di passaggio poi un tritone sub — approccio a I da mezzo tono sopra. Massima densità cromatica.',
+    artists: ['Joe Pass', 'George Van Eps', 'Wes Montgomery', 'Bill Evans'],
+    feel: 'Chromatic full-cycle turnaround',
+    lengths: [4],
+  },
+
+  {
+    id: 'turnaround-extended-dominants',
+    name: 'I–III7–VI7–II7–V7 (Extended Turnaround)',
+    chords: [
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',    technique: 'diatonic' },
+      { degree: 'III', quality: '7',    function: 'Dominant', technique: 'secondary_dominant', annotation: 'III7 = V/vi', techniqueLabel: 'Sec. Dom.' },
+      { degree: 'VI',  quality: '7',    function: 'Dominant', technique: 'secondary_dominant', annotation: 'VI7 = V/ii', techniqueLabel: 'Sec. Dom.' },
+      { degree: 'II',  quality: '7',    function: 'Dominant', technique: 'secondary_dominant', annotation: 'II7 = V/V', techniqueLabel: 'Sec. Dom.' },
+      { degree: 'V',   quality: '7',    function: 'Dominant', technique: 'diatonic',           annotation: 'V7 → back to I' },
+    ],
+    style: 'classic', techniques: ['secondary_dominant'],
+    description: 'Turnaround esteso I→III7→VI7→II7→V7: ogni accordo risolve una quarta sopra. Espansione bebop del basic I–VI–ii–V. Comune nel piano stride e nel comping bebop.',
+    artists: ['Art Tatum', 'Oscar Peterson', 'Thelonious Monk', 'Fats Waller'],
+    feel: 'Extended bebop turnaround',
+    lengths: [5],
+  },
 ];
 
 // ─── Resolution ──────────────────────────────────────────────────────────────
@@ -3132,6 +3506,10 @@ export function getAvailableTechniques(): { id: Technique; label: string; descri
     { id: 'modulation',        label: 'Modulazione',           description: 'Pivot chord or direct modulation to a new key within the progression.' },
     { id: 'float_chord',       label: 'Float Chord (IVmaj7/V)', description: 'Jeff Schneider: IVmaj7 over V bass = V13sus. Suspended dominant without tritone tension — neo-soul and R&B staple.' },
     { id: 'minor_to_major',    label: 'Minor-to-Major Trick',  description: 'Jeff Schneider: vim7 → VI7 → passing dim7 half-step below target → destination. Gospel-R&B chromatic approach.' },
+    { id: 'blues',             label: 'Blues',                  description: 'Forma blues: accordi settima di dominante su I7, IV7 e V7. 12-bar, 8-bar, jazz blues, minor blues — la radice di jazz, rock e soul.' },
+    { id: 'gospel',            label: 'Gospel',                 description: 'Armonia gospel: cadenza plagale IV→I, catene di dominanti secondari, bII°7 cromatico. Il suono di Kirk Franklin, Aretha, Sam Cooke.' },
+    { id: 'bossa_nova',        label: 'Bossa Nova',             description: 'Armonia brasiliana Jobim: Imaj9→bIImaj7 (scivolata cromatica), ii–V lussureggianti con tensioni 9, 11, 13. "Ipanema", "Wave", "Corcovado".' },
+    { id: 'flamenco',          label: 'Flamenco / Andalusiano', description: 'Cadenza andalusa i→bVII→bVI→V7, vamp frigio im→bII7, ciclo spagnolo. Il suono flamenco/phrygian dominant di Paco de Lucía.' },
   ];
 }
 

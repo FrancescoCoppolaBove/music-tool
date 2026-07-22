@@ -135,6 +135,10 @@ const TECHNIQUE_COLORS: Record<Technique, string> = {
   dim_pedal: '#7c3aed',
   float_chord: '#14b8a6',
   minor_to_major: '#d97706',
+  blues: '#2563eb',
+  gospel: '#7c3aed',
+  bossa_nova: '#059669',
+  flamenco: '#dc2626',
 };
 
 const FUNCTION_COLORS: Record<string, string> = {

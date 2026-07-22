@@ -12,7 +12,7 @@ const MODE_OPTIONS: { id: KeyMode; label: string; emoji: string; description: st
 ];
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
-const LENGTHS = [2, 3, 4, 5, 6];
+const LENGTHS = [2, 3, 4, 5, 6, 8, 12];
 
 const TECHNIQUE_COLORS: Record<Technique, string> = {
   diatonic: '#3b82f6',
@@ -28,6 +28,10 @@ const TECHNIQUE_COLORS: Record<Technique, string> = {
   modulation: '#6366f1',
   float_chord: '#14b8a6',
   minor_to_major: '#d97706',
+  blues: '#2563eb',
+  gospel: '#7c3aed',
+  bossa_nova: '#059669',
+  flamenco: '#dc2626',
 };
 
 interface Props {
