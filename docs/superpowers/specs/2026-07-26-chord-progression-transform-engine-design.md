@@ -1,4 +1,4 @@
-# Chord Progression 2.0 — Transform Engine, Key Journeys, Playback
+# Chord Progression 2.0 — Transform Engine, Cicli di Modulazione, Playback
 
 **Data:** 2026-07-26
 **Feature:** `src/features/chord-progression/`
@@ -24,7 +24,7 @@ minor 1=4, Beethoven 1=2, Michelle, Satie, Crimson, 2–5–1 per terze ascenden
    toggle Base/Arricchita per confrontare scheletro e variante.
 3. **Controllo:** slider "Spice" 0–3 + i filtri tecnica esistenti come whitelist delle
    trasformazioni ammesse.
-4. **Drill di modulazione:** categoria dedicata "Key Journeys" con generazione algoritmica.
+4. **Drill di modulazione:** categoria dedicata "Cicli di Modulazione" con generazione algoritmica.
 5. **Playback:** sì, riusando/estraendo il player Web Audio di ear-training.
 
 ## Architettura
@@ -33,16 +33,16 @@ minor 1=4, Beethoven 1=2, Michelle, Satie, Crimson, 2–5–1 per terze ascenden
 
 ```
 src/features/chord-progression/
-├── ChordProgressionFeature.tsx        (orchestratore UI, + tab Key Journeys)
+├── ChordProgressionFeature.tsx        (orchestratore UI, + sezione Cicli di Modulazione)
 ├── components/
 │   ├── ProgressionSettings.tsx        (+ slider Spice)
 │   ├── ProgressionDisplay.tsx         (+ toggle Base/Arricchita, badge inserted, ▶, ↻)
-│   └── KeyJourneys.tsx                (NUOVO — sezione drill di modulazione)
+│   └── ModulationCycles.tsx                (NUOVO — sezione drill di modulazione)
 ├── services/
 │   ├── progressionGenerator.ts        (orchestratore: filtra template → applica engine)
 │   ├── templates.ts                   (NUOVO — i 214 template attuali + ~20 nuovi, estratti)
 │   ├── transformEngine.ts             (NUOVO — motore a trasformazioni)
-│   └── journeys.ts                    (NUOVO — generatori algoritmici Key Journeys)
+│   └── modulationCycles.ts                    (NUOVO — generatori algoritmici dei cicli)
 ├── hooks/useChordProgression.ts       (+ spice, seed, regenerateVariant)
 └── types/progression.types.ts         (tipi estesi)
 
@@ -137,18 +137,18 @@ interface GeneratedProgression {
 }
 ```
 
-### Key Journeys (`journeys.ts` + `KeyJourneys.tsx`)
+### Cicli di Modulazione (`modulationCycles.ts` + `ModulationCycles.tsx`)
 
-Generatori **algoritmici** (non template fissi): ogni journey è una funzione
-`(startKey, cycles, options) => JourneyResult` dove `JourneyResult` contiene gruppi di
+Generatori **algoritmici** (non template fissi): ogni ciclo è una funzione
+`(startKey, cycles, options) => ModulationCycleResult` dove `ModulationCycleResult` contiene gruppi di
 accordi etichettati con la tonalità attraversata.
 
 ```ts
-interface JourneyStep { key: string; chords: ResolvedChord[]; label: string } // es. "ii–V–I in Bb"
-interface JourneyResult { id: string; name: string; steps: JourneyStep[]; description: string }
+interface CycleStep { key: string; chords: ResolvedChord[]; label: string } // es. "ii–V–I in Bb"
+interface ModulationCycleResult { id: string; name: string; steps: CycleStep[]; description: string }
 ```
 
-Journey inclusi (tutti dalle lezioni sui modulating drills):
+Cicli inclusi (tutti dalle lezioni sui modulating drills):
 
 1. **Catena di dominanti** — C7→F7→B♭7… ciclo di quinte discendente
 2. **Salita aumentata** — I → I aug → I6 → I7 → risolve una quarta sopra, ripete
@@ -163,7 +163,7 @@ Journey inclusi (tutti dalle lezioni sui modulating drills):
    terza del precedente
 
 UI: blocco dedicato sotto i risultati (stessa pagina, pattern `<details>` già usato dal
-resolver di numerali) con selettore journey, tonalità di
+resolver di numerali) con selettore del ciclo, tonalità di
 partenza, numero di cicli (default: giro completo), tonalità corrente mostrata sopra ogni
 gruppo, playback incluso.
 
@@ -202,7 +202,7 @@ playChordSequence(chords: { notes: string[] }[], bpm: number, onChordStart?: (i)
     `transformOf` ("era G7") e spiegazione
   - lista `appliedTransforms` in calce alla card ("Mosse applicate: SubV/ii, passing dim…")
   - ▶ playback, ↻ varia (nuovo seed per quella card)
-- **Key Journeys:** sezione dedicata come sopra
+- **Cicli di Modulazione:** sezione dedicata come sopra
 
 ## Error handling
 
