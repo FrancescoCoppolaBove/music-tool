@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { playChordSequence, type SequenceHandle } from '@shared/utils/chordAudio';
 import type { GeneratedProgression, ResolvedChord, Technique } from '../types/progression.types';
 
 // ─── Scale recommendations ────────────────────────────────────────────────────
@@ -237,9 +238,30 @@ function ProgressionDetail({ progression, onRegenerate }: {
 }) {
   const { template, chords, baseChords, key, appliedTransforms } = progression;
   const [showEnriched, setShowEnriched] = useState(true);
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [bpm, setBpm] = useState(90);
+  const handleRef = useRef<SequenceHandle | null>(null);
+
+  useEffect(() => () => handleRef.current?.stop(), []);
+  useEffect(() => { handleRef.current?.stop(); }, [progression.id, progression.seed, showEnriched]);
+
+  const isPlaying = playingIndex !== null;
 
   const hasTransforms = appliedTransforms.length > 0;
   const displayChords = hasTransforms && !showEnriched ? baseChords : chords;
+
+  function togglePlay() {
+    if (isPlaying) {
+      handleRef.current?.stop();
+      return;
+    }
+    handleRef.current = playChordSequence(
+      displayChords,
+      bpm,
+      i => setPlayingIndex(i),
+      () => setPlayingIndex(null),
+    );
+  }
 
   const uniqueTechniques = Array.from(new Set(
     displayChords.flatMap(c => c.techniqueLabel ? [c.techniqueLabel] : [])
@@ -312,12 +334,38 @@ function ProgressionDetail({ progression, onRegenerate }: {
             </button>
           </>
         )}
+        <button
+          onClick={togglePlay}
+          style={{
+            padding: '4px 14px', fontSize: 13, cursor: 'pointer', fontWeight: 700,
+            background: isPlaying ? '#dc2626' : '#10b98130',
+            border: `1px solid ${isPlaying ? '#ef4444' : '#10b981'}`,
+            borderRadius: 6, color: isPlaying ? '#fff' : '#6ee7b7',
+          }}
+        >
+          {isPlaying ? '⏹ Stop' : '▶ Play'}
+        </button>
+        <label style={{ fontSize: 11, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 4 }}>
+          BPM
+          <input
+            type="number" min={40} max={200} value={bpm}
+            onChange={e => setBpm(Number(e.target.value) || 90)}
+            style={{
+              width: 54, padding: '3px 6px', background: '#0d1117',
+              border: '1px solid #30363d', borderRadius: 4, color: '#e6edf3', fontSize: 12,
+            }}
+          />
+        </label>
       </div>
 
       {/* Chord blocks */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
         {displayChords.map((chord, i) => (
-          <ChordBlock key={`${progression.seed}-${showEnriched}-${i}`} chord={chord} index={i + 1} total={displayChords.length} />
+          <ChordBlock
+            key={`${progression.seed}-${showEnriched}-${i}`}
+            chord={chord} index={i + 1} total={displayChords.length}
+            playing={playingIndex === i}
+          />
         ))}
       </div>
 
@@ -470,7 +518,9 @@ function ScaleMap({ chords }: { chords: ResolvedChord[] }) {
 
 // ─── Chord block ──────────────────────────────────────────────────────────────
 
-function ChordBlock({ chord, index, total }: { chord: ResolvedChord; index: number; total: number }) {
+function ChordBlock({ chord, index, total, playing = false }: {
+  chord: ResolvedChord; index: number; total: number; playing?: boolean;
+}) {
   const techniqueColor = chord.technique ? TECHNIQUE_COLORS[chord.technique] : undefined;
   const functionColor = FUNCTION_COLORS[chord.function] ?? '#6b7280';
   const scales = getScalesForQuality(chord.quality);
@@ -483,7 +533,10 @@ function ChordBlock({ chord, index, total }: { chord: ResolvedChord; index: numb
       style={{
         flex: '1 1 100px', minWidth: 90, maxWidth: 160,
         background: chord.inserted ? '#0d111780' : '#0d1117',
-        border: `1px ${chord.inserted ? 'dashed' : 'solid'} ${techniqueColor ?? '#30363d'}`,
+        border: playing
+          ? '2px solid #10b981'
+          : `1px ${chord.inserted ? 'dashed' : 'solid'} ${techniqueColor ?? '#30363d'}`,
+        boxShadow: playing ? '0 0 12px #10b98155' : undefined,
         borderRadius: 10, padding: '12px 12px 10px',
         position: 'relative', display: 'flex', flexDirection: 'column', gap: 6,
       }}
