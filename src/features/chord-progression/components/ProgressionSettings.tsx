@@ -14,6 +14,13 @@ const MODE_OPTIONS: { id: KeyMode; label: string; emoji: string; description: st
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 const LENGTHS = [2, 3, 4, 5, 6, 8, 12];
 
+const SPICE_LEVELS = [
+  { value: 0, label: 'Scheletro', emoji: '📄' },
+  { value: 1, label: 'Leggero',  emoji: '🌶' },
+  { value: 2, label: 'Medio',    emoji: '🌶🌶' },
+  { value: 3, label: 'Massimo',  emoji: '🌶🌶🌶' },
+];
+
 const TECHNIQUE_COLORS: Record<Technique, string> = {
   diatonic: '#3b82f6',
   modal_interchange: '#8b5cf6',
@@ -32,6 +39,7 @@ const TECHNIQUE_COLORS: Record<Technique, string> = {
   gospel: '#7c3aed',
   bossa_nova: '#059669',
   flamenco: '#dc2626',
+  color: '#eab308',
 };
 
 interface Props {
@@ -46,13 +54,15 @@ interface Props {
   techniques: Technique[];
   toggleTechnique: (t: Technique) => void;
   availableTechniques: Array<{ id: Technique; label: string; description: string }>;
+  spice: number;
+  setSpice: (s: number) => void;
   onGenerate: () => void;
   resultCount: number;
 }
 
 export default function ProgressionSettings({
   keyNote, setKey, mode, setMode, length, setLength, style, setStyle,
-  techniques, toggleTechnique, availableTechniques, onGenerate, resultCount,
+  techniques, toggleTechnique, availableTechniques, spice, setSpice, onGenerate, resultCount,
 }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -153,11 +163,40 @@ export default function ProgressionSettings({
         </div>
       </div>
 
+      {/* Spice level */}
+      <div>
+        <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>
+          Spice <span style={{ color: '#4b5563' }}>(quante trasformazioni applica il motore)</span>
+        </label>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {SPICE_LEVELS.map(s => {
+            const isOn = spice === s.value;
+            return (
+              <button
+                key={s.value}
+                onClick={() => setSpice(s.value)}
+                style={{
+                  padding: '6px 14px',
+                  background: isOn ? '#dc262630' : '#0d1117',
+                  border: `1px solid ${isOn ? '#ef4444' : '#30363d'}`,
+                  borderRadius: 20,
+                  color: isOn ? '#fca5a5' : '#6b7280',
+                  fontSize: 13, cursor: 'pointer', transition: 'all 0.15s',
+                  fontWeight: isOn ? 700 : 400,
+                }}
+              >
+                {s.emoji} {s.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Technique filters */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <label style={{ fontSize: 12, color: '#8b949e' }}>
-            Harmony Techniques <span style={{ color: '#4b5563' }}>(select to filter; none = show all)</span>
+            Harmony Techniques <span style={{ color: '#4b5563' }}>(filtrano i template di stile e limitano le mosse del motore; nessuna = tutte)</span>
           </label>
           {techniques.length > 0 && (
             <button

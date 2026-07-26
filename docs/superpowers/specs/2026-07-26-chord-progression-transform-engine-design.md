@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-26
 **Feature:** `src/features/chord-progression/`
-**Stato:** Design approvato (in attesa di review scritta)
+**Stato:** Implementato (2026-07-26)
 
 ## Obiettivo
 
