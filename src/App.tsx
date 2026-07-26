@@ -37,6 +37,12 @@ import HomePage from './features/home/HomePage';
 import EarTrainingProFeature from './features/ear-training-pro/EarTrainingProFeature';
 import SolfeggioCantatoFeature from './features/solfeggio-cantato/SolfeggioCantatoFeature';
 import SetticlavioFeature from './features/setticlavio/SetticlavioFeature';
+import ExamTemplatesFeature from './features/exam-templates/ExamTemplatesFeature';
+import TeacherDashboardFeature from './features/teacher-dashboard/TeacherDashboardFeature';
+import HarmoniaCourseFeature from './features/harmonia-course/HarmoniaCourseFeature';
+import ReharmonizationFeature from './features/reharmonization/ReharmonizationFeature';
+import { useUserProfile } from './shared/context/UserProfileContext';
+import type { UserRole } from './shared/types/conservatory.types';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
 
@@ -147,38 +153,8 @@ const HEADER_STYLES = `
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Tab =
-  | 'home'
-  | 'voicings'
-  | 'scales'
-  | 'dictionary'
-  | 'ear'
-  | 'circle'
-  | 'harmonization'
-  | 'modal'
-  | 'progressions'
-  | 'scaleadvisor'
-  | 'analysis'
-  | 'riff'
-  | 'melody'
-  | 'quiz'
-  | 'score'
-  | 'landing'
-  | 'architect'
-  | 'journal'
-  | 'songs'
-  | 'daily'
-  | 'chorddetect'
-  | 'nailpitch'
-  | 'profile'
-  | 'voiceleading'
-  | 'groove'
-  | 'arrangement'
-  | 'cadence'
-  | 'transpose'
-  | 'eartrainingpro'
-  | 'solfeggiocan'
-  | 'setticlavio';
+import type { Tab } from '@shared/types/navigation.types';
+export type { Tab } from '@shared/types/navigation.types';
 
 interface TabDef {
   id: Tab;
@@ -207,6 +183,7 @@ const GROUPS: GroupDef[] = [
       { id: 'progressions',  label: 'Chord Progressions',  icon: '🎸', desc: 'Build jazz, modal & cinematic progressions',                       subsection: 'Harmony' },
       { id: 'analysis',      label: 'Harmonic Analysis',   icon: '🔬', desc: 'Analyse key, Roman numerals & chord function',                     subsection: 'Harmony' },
       { id: 'landing',       label: 'Chord Landing',       icon: '🎯', desc: 'Find the best way to approach any target chord',                   subsection: 'Harmony' },
+      { id: 'reharm',        label: 'Reharmonization Lab', icon: '🔀', desc: 'Journey vs Destination — add passing chords to any progression',      subsection: 'Harmony' },
       { id: 'voiceleading',  label: 'Voice Leading Lab',   icon: '↔️', desc: 'How to move voices smoothly between any two chords',              subsection: 'Harmony' },
       { id: 'score',         label: 'Score → iReal Pro',   icon: '📄', desc: 'Import a score photo and export to iReal Pro',                    subsection: 'Harmony' },
       { id: 'riff',          label: 'Riff Architect',      icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees',                 subsection: 'Arrange' },
@@ -232,23 +209,25 @@ const GROUPS: GroupDef[] = [
     tabs: [
       { id: 'eartrainingpro', label: 'Ear Training Pro', icon: '👂', desc: 'Intervalli, accordi, funzioni tonali — modalità Allenamento ed Esame' },
       { id: 'solfeggiocan',   label: 'Solfeggio Cantato', icon: '🎵', desc: 'Canta scale e intervalli — pitchy valuta la tua intonazione' },
-      { id: 'setticlavio',    label: 'Setticlavio',       icon: '🗝️',  desc: 'Leggi note in chiave di contralto e tenore' },
+      { id: 'setticlavio',    label: 'Setticlavio',         icon: '🗝️',  desc: 'Leggi note in chiave di contralto e tenore' },
+      { id: 'examtemplates',  label: 'Prove d\'Esame',      icon: '📝', desc: 'Simula un esame AFAM — domande miste su intervalli, accordi e cadenze' },
     ],
   },
   {
     id: 'theory',
-    label: 'Theory',
+    label: 'Armonia',
     icon: '📖',
     tabs: [
-      { id: 'harmonization', label: 'Scale Harmony',     icon: '🎶', desc: 'See how chords relate to their scale' },
-      { id: 'modal',         label: 'Modal Interchange', icon: '🔄', desc: 'Borrow chords from parallel modes' },
-      { id: 'voicings',      label: 'Piano Voicings',    icon: '🎹', desc: 'Visualize drop 2, quartal & upper structures' },
-      { id: 'circle',        label: 'Circle of Fifths',  icon: '🔵', desc: 'Explore key relationships at a glance' },
-      { id: 'cadence',       label: 'Cadence Trainer',   icon: '🎓', desc: 'Recognise authentic, plagal, half & deceptive cadences by ear' },
+      { id: 'harmonia',      label: 'Corso di Armonia',       icon: '📚', desc: 'Percorso completo da zero agli argomenti avanzati' },
+      { id: 'harmonization', label: 'Scale Harmony',          icon: '🎶', desc: 'See how chords relate to their scale' },
+      { id: 'modal',         label: 'Modal Interchange',      icon: '🔄', desc: 'Borrow chords from parallel modes' },
+      { id: 'voicings',      label: 'Piano Voicings',         icon: '🎹', desc: 'Visualize drop 2, quartal & upper structures' },
+      { id: 'circle',        label: 'Circle of Fifths',       icon: '🔵', desc: 'Explore key relationships at a glance' },
+      { id: 'cadence',       label: 'Cadence Trainer',        icon: '🎓', desc: 'Recognise authentic, plagal, half & deceptive cadences by ear' },
       { id: 'transpose',     label: 'Transposing Instruments', icon: '🎺', desc: 'Written vs sounding pitch for B♭, E♭, F & A instruments' },
-      { id: 'quiz',          label: 'Scale Degree Quiz',  icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
-      { id: 'chorddetect',   label: 'Chord Detection',   icon: '🎙️', desc: 'Play a chord — app identifies it in real time' },
-      { id: 'nailpitch',     label: 'Nail the Pitch',    icon: '🎤', desc: 'Sing and see which notes you hit, Melodyne-style' },
+      { id: 'quiz',          label: 'Scale Degree Quiz',      icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
+      { id: 'chorddetect',   label: 'Chord Detection',        icon: '🎙️', desc: 'Play a chord — app identifies it in real time' },
+      { id: 'nailpitch',     label: 'Nail the Pitch',         icon: '🎤', desc: 'Sing and see which notes you hit, Melodyne-style' },
     ],
   },
   {
@@ -418,11 +397,12 @@ function MobileKeyPicker({ onClose }: { onClose: () => void }) {
 // ─── Mobile full-screen menu ─────────────────────────────────────────────────
 
 function MobileMenu({
-  activeTab, onSelect, onClose,
+  activeTab, onSelect, onClose, role,
 }: {
   activeTab: Tab;
   onSelect: (tab: Tab) => void;
   onClose: () => void;
+  role: UserRole | null;
 }) {
   return (
     <>
@@ -534,6 +514,41 @@ function MobileMenu({
             })()}
           </div>
         ))}
+
+        {/* Teacher section — only visible when role === 'teacher' */}
+        {role === 'teacher' && (
+          <div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '14px 20px 8px',
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
+              color: '#4b5563', textTransform: 'uppercase',
+              borderTop: '1px solid #21262d',
+              marginTop: 4,
+            }}>
+              <span style={{ fontSize: 13 }}>🎓</span>
+              Docente
+            </div>
+            <button
+              onClick={() => onSelect('teacherdashboard')}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                padding: '12px 20px',
+                background: activeTab === 'teacherdashboard' ? '#7c3aed18' : 'none',
+                border: 'none',
+                borderLeft: `3px solid ${activeTab === 'teacherdashboard' ? '#7c3aed' : 'transparent'}`,
+                cursor: 'pointer', textAlign: 'left',
+                color: '#e6edf3',
+              }}
+            >
+              <span style={{ fontSize: 16 }}>📊</span>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>Dashboard Docente</div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Gestisci classi, compiti e studenti</div>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
@@ -716,6 +731,7 @@ function LocalModeNotice({ feature }: { feature: string }) {
 
 export default function App() {
   const { user, loading: authLoading, signOut } = useAuth();
+  const { role } = useUserProfile();
   const { stats } = useStats();
   const { globalKey, setGlobalKey } = useGlobalKey();
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -890,6 +906,31 @@ export default function App() {
               </button>
             )}
 
+            {/* Teacher nav button — only for teacher role */}
+            {role === 'teacher' && (
+              <button
+                onClick={() => handleSelectTab('teacherdashboard')}
+                style={{
+                  alignSelf: 'center',
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  background: activeTab === 'teacherdashboard' ? 'rgba(124,58,237,0.15)' : 'none',
+                  color: activeTab === 'teacherdashboard' ? '#c4b5fd' : '#8b949e',
+                  fontSize: 13, fontWeight: 600,
+                  fontFamily: "'DM Sans', sans-serif",
+                  padding: '6px 14px',
+                  borderRadius: 8,
+                  border: '1px solid',
+                  borderColor: activeTab === 'teacherdashboard' ? '#7c3aed' : '#30363d',
+                  cursor: 'pointer',
+                  marginRight: 8,
+                  flexShrink: 0,
+                  transition: 'background 0.15s, color 0.15s',
+                }}
+              >
+                🎓 Docente
+              </button>
+            )}
+
             {/* User avatar + sign out — desktop only (hidden in local mode) */}
             {user && <UserMenu onSignOut={signOut} onProfile={() => handleSelectTab('profile')} />}
 
@@ -931,6 +972,7 @@ export default function App() {
           activeTab={activeTab}
           onSelect={handleSelectTab}
           onClose={() => setMobileMenuOpen(false)}
+          role={role}
         />
       )}
 
@@ -962,6 +1004,7 @@ export default function App() {
         {activeTab === 'quiz'          && <IntervalQuizFeature />}
         {activeTab === 'score'         && <ScoreToIRealFeature />}
         {activeTab === 'landing'       && <ChordLandingFeature />}
+        {activeTab === 'reharm'        && <ReharmonizationFeature />}
         {activeTab === 'architect'     && <SongArchitectFeature />}
         {activeTab === 'cadence'       && <CadenceTrainerFeature />}
         {activeTab === 'transpose'     && <TransposingInstrumentsFeature />}
@@ -971,6 +1014,9 @@ export default function App() {
         {activeTab === 'chorddetect'   && <ChordDetectionFeature onNavigateToScaleAdvisor={handleChordDetectToScaleAdvisor} />}
         {activeTab === 'nailpitch'     && <NailThePitchFeature />}
         {activeTab === 'profile'       && (firebaseEnabled ? <ProfileFeature />         : <LocalModeNotice feature="Profile" />)}
+        {activeTab === 'examtemplates'    && <ExamTemplatesFeature />}
+        {activeTab === 'teacherdashboard' && (firebaseEnabled ? <TeacherDashboardFeature /> : <LocalModeNotice feature="Dashboard Docente" />)}
+        {activeTab === 'harmonia'       && <HarmoniaCourseFeature onNavigate={handleSelectTab} />}
         {activeTab === 'voiceleading'  && <VoiceLeadingFeature />}
         {activeTab === 'groove'        && <GrooveKitchenFeature />}
         {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}

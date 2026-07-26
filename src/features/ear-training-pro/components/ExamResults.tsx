@@ -1,6 +1,9 @@
 // src/features/ear-training-pro/components/ExamResults.tsx
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ExamSessionResult } from '../types';
+import { useAuth } from '../../../shared/context/AuthContext';
+import { addSubmission } from '../../../shared/utils/firestoreConservatory';
+import { firebaseEnabled } from '../../../firebase';
 
 const MODULE_LABELS: Record<string, string> = {
   'melodic-intervals':  'Intervalli Melodici',
@@ -20,6 +23,29 @@ export function ExamResults({
   onRetry: () => void;
   onBack: () => void;
 }) {
+  const { user } = useAuth();
+  const saved = useRef(false);
+
+  useEffect(() => {
+    if (saved.current || !firebaseEnabled || !user) return;
+    saved.current = true;
+
+    addSubmission({
+      userId: user.uid,
+      moduleId: result.moduleId,
+      score: result.score,
+      answers: result.answers.map(a => ({
+        questionId: a.questionId,
+        given: a.given,
+        correct: a.correct,
+        isCorrect: a.isCorrect,
+        timeMs: a.timeMs,
+      })),
+      completedAt: new Date(result.completedAt).getTime(),
+      durationMs: result.durationMs,
+    }).catch(() => {});
+  }, []);
+
   const scoreColor = result.score >= 80 ? '#22c55e' : result.score >= 60 ? '#f59e0b' : '#ef4444';
 
   return (

@@ -3,7 +3,7 @@
  * Configurazione centralizzata di tutte le feature dell'app
  */
 
-import { Piano, Search, Book, Music, Headphones, Circle, Grid, Sparkles } from 'lucide-react'; // ✅ Aggiungi Sparkles
+import { Piano, Search, Book, Music, Headphones, Circle, Grid, Sparkles, Lightbulb } from 'lucide-react'; // ✅ Aggiungi Lightbulb
 import type { LucideIcon } from 'lucide-react';
 
 export type FeatureId =
@@ -13,7 +13,8 @@ export type FeatureId =
   | 'scale-harmonization'
   | 'ear-training'
   | 'circle-fifths'
-  | 'modal-interchange' // ✅ AGGIUNGI QUESTO
+  | 'modal-interchange'
+  | 'composition-assistant' // ✅ NUOVO
   | 'chord-builder';
 
 export type FeatureLevel = 'beginner' | 'intermediate' | 'advanced' | 'all';
@@ -80,7 +81,6 @@ export const FEATURES: Feature[] = [
     level: 'intermediate',
     status: 'active',
   },
-  // ✅ AGGIUNGI QUESTA FEATURE
   {
     id: 'modal-interchange',
     name: 'Modal Interchange',
@@ -88,6 +88,16 @@ export const FEATURES: Feature[] = [
     icon: Sparkles,
     level: 'intermediate',
     status: 'active',
+  },
+  // ✅ NUOVA FEATURE
+  {
+    id: 'composition-assistant',
+    name: 'Composition Assistant',
+    description: 'Analyze progressions & get creative suggestions',
+    icon: Lightbulb,
+    level: 'advanced',
+    status: 'active',
+    badge: 'NEW',
   },
   {
     id: 'chord-builder',

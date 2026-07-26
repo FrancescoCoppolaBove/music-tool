@@ -3,7 +3,7 @@
  * Riconoscimento progressioni armoniche
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { CHORD_PROGRESSIONS, generateRandomProgression, ProgressionDifficulty, ChordProgression } from '../utils/interval-data';
@@ -75,6 +75,7 @@ export function ChordProgressionsExercise() {
 
     console.log('🎹 Playing progression:', currentQuestion.progression.name);
 
+    audioPlayer.stopAll();
     setIsPlaying(true);
     try {
       // Suona ogni accordo della progressione
@@ -83,6 +84,7 @@ export function ChordProgressionsExercise() {
         await audioPlayer.playChord(chord);
         await audioPlayer.delay(800); // 800ms tra gli accordi
       }
+      await audioPlayer.delay(1000);
       console.log('✅ Progression played successfully');
     } catch (error: any) {
       console.error('❌ Error playing progression:', error);
@@ -91,6 +93,15 @@ export function ChordProgressionsExercise() {
   }, [currentQuestion]);
 
   useAutoRepeat(playProgression, isCorrect, isPlaying);
+
+  const playProgressionRef = useRef(playProgression);
+  useEffect(() => { playProgressionRef.current = playProgression; }, [playProgression]);
+
+  useEffect(() => {
+    if (!currentQuestion) return;
+    const timer = setTimeout(() => playProgressionRef.current(), 200);
+    return () => clearTimeout(timer);
+  }, [currentQuestion]);
 
   const handleAnswer = useCallback(
     (progressionName: string) => {
@@ -263,7 +274,7 @@ export function ChordProgressionsExercise() {
           {availableProgressions.map((progression) => {
             const isSelectedCorrect = isCorrect && progression.name === currentQuestion.progression.name;
             const isWrong = wrongAttempts.has(progression.name);
-            const isDisabled = isCorrect || attempts.has(progression.name);
+            const isDisabled = isPlaying || isCorrect || attempts.has(progression.name);
 
             return (
               <button

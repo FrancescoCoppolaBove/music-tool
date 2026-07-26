@@ -5,14 +5,28 @@ import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 const MODES = [
-  { name: 'dorian',        label: 'Dorian',      color: '#06b6d4' },
-  { name: 'phrygian',      label: 'Phrygian',    color: '#f59e0b' },
-  { name: 'lydian',        label: 'Lydian',      color: '#10b981' },
-  { name: 'mixolydian',    label: 'Mixolydian',  color: '#8b5cf6' },
-  { name: 'aeolian',       label: 'Aeolian',     color: '#ef4444' },
-  { name: 'locrian',       label: 'Locrian',     color: '#6b7280' },
-  { name: 'harmonic minor', label: 'Harm. Minor', color: '#ec4899' },
-  { name: 'melodic minor',  label: 'Mel. Minor',  color: '#f97316' },
+  { name: 'dorian',           label: 'Dorian',         color: '#06b6d4' },
+  { name: 'phrygian',         label: 'Phrygian',       color: '#f59e0b' },
+  { name: 'lydian',           label: 'Lydian',         color: '#10b981' },
+  { name: 'mixolydian',       label: 'Mixolydian',     color: '#8b5cf6' },
+  { name: 'aeolian',          label: 'Aeolian',        color: '#ef4444' },
+  { name: 'locrian',          label: 'Locrian',        color: '#6b7280' },
+  // Harmonic Minor family
+  { name: 'harmonic minor',   label: 'Harm. Minor',    color: '#ec4899' },
+  { name: 'locrian natural 6',label: 'Locrian ♮6',     color: '#ec4899' },
+  { name: 'ionian #5',        label: 'Ionian #5',      color: '#ec4899' },
+  { name: 'dorian #4',        label: 'Dorian #4',      color: '#ec4899' },
+  { name: 'phrygian dominant',label: 'Phrygian Dom.',  color: '#ec4899' },
+  { name: 'lydian #9',        label: 'Lydian #2',      color: '#ec4899' },
+  { name: 'ultralocrian',     label: 'Altered Dim.',   color: '#ec4899' },
+  // Melodic Minor family
+  { name: 'melodic minor',    label: 'Mel. Minor',     color: '#f97316' },
+  { name: 'dorian b2',        label: 'Dorian ♭2',      color: '#f97316' },
+  { name: 'lydian augmented', label: 'Lydian Aug.',    color: '#f97316' },
+  { name: 'lydian dominant',  label: 'Lydian Dom.',    color: '#f97316' },
+  { name: 'mixolydian b6',    label: 'Mixolydian ♭6',  color: '#f97316' },
+  { name: 'locrian #2',       label: 'Locrian ♮2',     color: '#f97316' },
+  { name: 'altered',          label: 'Altered',        color: '#f97316' },
 ];
 
 // Well-known borrowed chord annotations — curated musical knowledge

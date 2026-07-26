@@ -3,7 +3,7 @@
  * Solo il primo tentativo conta per lo score
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Volume2, Check, X, Trophy } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { INTERVALS } from '../utils/interval-data';
@@ -61,13 +61,26 @@ export function IntervalsExercise() {
   }, [isCorrect]);
 
   const playInterval = useCallback(async () => {
+    audioPlayer.stopAll();
     setIsPlaying(true);
     try {
       await audioPlayer.playSequence([currentQuestion.rootNote, currentQuestion.secondNote], 600, 0.8);
+      await audioPlayer.delay(700);
     } catch (error: any) {
       console.error('Error playing interval:', error);
     }
-    setTimeout(() => setIsPlaying(false), 1500);
+    setIsPlaying(false);
+  }, [currentQuestion]);
+
+  const playIntervalRef = useRef(playInterval);
+  useEffect(() => {
+    playIntervalRef.current = playInterval;
+  }, [playInterval]);
+
+  useEffect(() => {
+    if (!currentQuestion) return;
+    const timer = setTimeout(() => playIntervalRef.current(), 200);
+    return () => clearTimeout(timer);
   }, [currentQuestion]);
 
   useAutoRepeat(playInterval, isCorrect, isPlaying);
@@ -197,7 +210,7 @@ export function IntervalsExercise() {
           {INTERVALS.map((interval) => {
             const isSelectedCorrect = isCorrect && interval.name === currentQuestion.interval.name;
             const isWrong = wrongAttempts.has(interval.name);
-            const isDisabled = isCorrect || attempts.has(interval.name);
+            const isDisabled = isPlaying || isCorrect || attempts.has(interval.name);
 
             return (
               <button

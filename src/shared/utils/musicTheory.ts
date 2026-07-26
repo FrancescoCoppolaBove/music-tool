@@ -223,13 +223,56 @@ export const SCALE_FORMULAS: Record<string, ScaleFormula> = {
 
   // Exotic
   'hungarianMinor': { intervals: [0,2,3,6,7,8,11],   name: 'Hungarian Minor',            category: 'Exotic' },
+  'hungarianMajor': { intervals: [0,3,4,6,7,9,10],   name: 'Hungarian Major',            category: 'Exotic' },
   'doubleHarmonic': { intervals: [0,1,4,5,7,8,11],   name: 'Double Harmonic (Byzantine)',category: 'Exotic' },
   'neapolitanMaj':  { intervals: [0,1,3,5,7,9,11],   name: 'Neapolitan Major',           category: 'Exotic' },
   'neapolitanMin':  { intervals: [0,1,3,5,7,8,11],   name: 'Neapolitan Minor',           category: 'Exotic' },
   'enigmatic':      { intervals: [0,1,4,6,8,10,11],  name: 'Enigmatic',                  category: 'Exotic' },
   'persian':        { intervals: [0,1,4,5,6,8,11],   name: 'Persian',                    category: 'Exotic' },
   'japanese':       { intervals: [0,1,5,7,8],         name: 'Japanese (Hirajoshi)',        category: 'Exotic' },
+  'hirajoshi':      { intervals: [0,2,3,7,8],         name: 'Hirajoshi (alt.)',            category: 'Exotic' },
   'insen':          { intervals: [0,1,5,7,10],        name: 'In Sen',                     category: 'Exotic' },
+  'iwato':          { intervals: [0,1,5,6,10],        name: 'Iwato',                      category: 'Exotic' },
+  'yo':             { intervals: [0,2,5,7,9],          name: 'Yo (Japanese)',              category: 'Exotic' },
+  'ryukyu':         { intervals: [0,4,5,7,11],         name: 'Ryukyu',                     category: 'Exotic' },
+  'balinese':       { intervals: [0,1,3,7,8],          name: 'Balinese Pelog',             category: 'Exotic' },
+  'arabic':         { intervals: [0,2,4,5,6,8,10],   name: 'Arabic (Hijaz Kar)',          category: 'Exotic' },
+  'chinese':        { intervals: [0,4,6,7,11],         name: 'Chinese',                    category: 'Exotic' },
+
+  // Pentatonic variants
+  'minorPentaFlat5':{ intervals: [0,3,5,6,10],        name: 'Minor Pentatonic ♭5',        category: 'Pentatonic' },
+  'dominantPenta':  { intervals: [0,2,4,7,10],         name: 'Dominant Pentatonic',        category: 'Pentatonic' },
+  'egyptianPenta':  { intervals: [0,2,5,7,10],         name: 'Egyptian Pentatonic',        category: 'Pentatonic' },
+  'kumoi':          { intervals: [0,2,3,7,9],           name: 'Kumoi Pentatonic',           category: 'Pentatonic' },
+  'ritusen':        { intervals: [0,2,5,7,9],           name: 'Ritusen Pentatonic',         category: 'Pentatonic' },
+
+  // Additional blues
+  'bluesHeptaMinor':{ intervals: [0,2,3,4,5,7,10],   name: 'Blues Heptatonic Minor',     category: 'Blues' },
+  'minorBluesPenta':{ intervals: [0,3,5,6,7,10],      name: 'Minor Blues Pentatonic',     category: 'Blues' },
+
+  // Bebop variants
+  'bebopHarmMinor': { intervals: [0,2,3,5,7,8,10,11], name: 'Bebop Harmonic Minor',       category: 'Bebop' },
+  'bebopMelMinor':  { intervals: [0,2,3,5,7,8,9,11],  name: 'Bebop Melodic Minor',        category: 'Bebop' },
+
+  // More jazz / melodic minor modes
+  'halfDimLocrian': { intervals: [0,2,3,5,6,8,10],   name: 'Locrian ♮2 (Half-Dim)',       category: 'Jazz' },
+  'superLocrian':   { intervals: [0,1,3,4,6,8,10],   name: 'Super Locrian (Altered)',     category: 'Jazz' },
+  'locrianSharp2':  { intervals: [0,2,3,5,6,8,10],   name: 'Locrian ♮2',                  category: 'Jazz' },
+
+  // Symmetric / modern
+  'chromatic':      { intervals: [0,1,2,3,4,5,6,7,8,9,10,11], name: 'Chromatic',          category: 'Symmetric' },
+  'tritone':        { intervals: [0,1,4,6,7,10],      name: 'Tritone Scale',              category: 'Symmetric' },
+  'prometheus':     { intervals: [0,2,4,6,9,10],      name: 'Prometheus',                 category: 'Symmetric' },
+  'prometheusNeo':  { intervals: [0,2,4,6,9,11],      name: 'Prometheus Neapolitan',      category: 'Symmetric' },
+  'leadingWhole':   { intervals: [0,2,4,6,8,10,11],   name: 'Leading Whole Tone',         category: 'Symmetric' },
+
+  // More harmonic major modes
+  'harmonicMajorMode2': { intervals: [0,1,3,5,7,9,10], name: 'Dorian ♭5 (Harm. Maj. II)', category: 'Major' },
+  'lydianAugSharp2':    { intervals: [0,3,4,6,8,9,11], name: 'Lydian Aug. ♯2',            category: 'Jazz' },
+
+  // Minor scale variants
+  'dorianFlat9':   { intervals: [0,1,3,5,7,9,10],    name: 'Dorian ♭9',                  category: 'Minor' },
+  'phrygianNat6':  { intervals: [0,1,3,5,7,9,10],    name: 'Phrygian ♮6',                category: 'Modal' },
 };
 
 export function getScaleNotes(root: string, scaleKey: string): string[] {

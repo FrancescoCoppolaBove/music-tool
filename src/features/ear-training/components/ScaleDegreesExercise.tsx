@@ -3,7 +3,7 @@
  * Riconoscimento gradi della scala in contesto tonale
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Volume2, Check, X, Trophy, Settings } from 'lucide-react';
 import { audioPlayer } from '../utils/audio-player';
 import { generateRandomScaleDegreeWithHistory } from '../utils/random-with-history';
@@ -91,6 +91,7 @@ export function ScaleDegreesExercise() {
 
     console.log('🎹 Playing context progression + target note');
 
+    audioPlayer.stopAll();
     setIsPlaying(true);
     try {
       // 1. Suona progressione di contesto
@@ -106,6 +107,7 @@ export function ScaleDegreesExercise() {
       // 3. Suona nota target
       console.log('🎵 Playing target note:', currentQuestion.targetNote);
       await audioPlayer.playNote(currentQuestion.targetNote, 0.8);
+      await audioPlayer.delay(800);
 
       console.log('✅ Context + note played successfully');
     } catch (error: any) {
@@ -115,6 +117,15 @@ export function ScaleDegreesExercise() {
   }, [currentQuestion]);
 
   useAutoRepeat(playContextAndNote, isCorrect, isPlaying);
+
+  const playContextAndNoteRef = useRef(playContextAndNote);
+  useEffect(() => { playContextAndNoteRef.current = playContextAndNote; }, [playContextAndNote]);
+
+  useEffect(() => {
+    if (!currentQuestion) return;
+    const timer = setTimeout(() => playContextAndNoteRef.current(), 200);
+    return () => clearTimeout(timer);
+  }, [currentQuestion]);
 
   const handleAnswer = useCallback(
     (degreeName: string) => {
@@ -289,7 +300,7 @@ export function ScaleDegreesExercise() {
           {availableDegrees.map((degree) => {
             const isSelectedCorrect = isCorrect && degree.name === currentQuestion.scaleDegree.name;
             const isWrong = wrongAttempts.has(degree.name);
-            const isDisabled = isCorrect || attempts.has(degree.name);
+            const isDisabled = isPlaying || isCorrect || attempts.has(degree.name);
 
             // Calcola il nome della nota per questo grado nella tonalità corrente
             const targetNoteForDegree = generateTargetNoteFromDegree(currentQuestion.key, degree);
