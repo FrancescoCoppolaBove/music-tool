@@ -294,6 +294,161 @@ const susApproach: Transform = {
   },
 };
 
+const tritoneSub: Transform = {
+  id: 'tritone_sub',
+  kind: 'substitution',
+  label: 'Tritone sub',
+  explain: 'Dominante sostituita con quella a un tritono: stessi 3ª e 7ª, basso cromatico.',
+  findTargets: chords =>
+    chords.map((_, i) => i).filter(i =>
+      canSubstitute(chords, i) && DOM_Q.includes(chords[i].quality) && chords[i].quality !== '7sus4'),
+  apply: (chords, idx, ctx, rng) => {
+    const orig = chords[idx];
+    const sub = makeChord(noteToSemitone(orig.root) + 6, rng() < 0.5 ? '7' : '9#11', ctx, {
+      function: 'Dominant', technique: 'tritone_sub', techniqueLabel: 'Tritone Sub',
+      transformOf: orig.symbol, transformLabel: 'SubV',
+      transformExplain: `${orig.symbol} sostituito col dominante a un tritono: condividono 3ª e 7ª`,
+      annotation: 'SubV',
+    });
+    return chords.map((c, i) => (i === idx ? sub : c));
+  },
+};
+
+const vAlternatives: Transform = {
+  id: 'backdoor',
+  kind: 'substitution',
+  label: 'Alternativa al V',
+  explain: 'Il V7 sostituito con un derivato del diminuito: ♭VII7, IVm6, ♭VIm6 o IIm7♭5.',
+  findTargets: (chords, ctx) =>
+    chords.map((_, i) => i).filter(i =>
+      canSubstitute(chords, i)
+      && DOM_Q.includes(chords[i].quality)
+      && (noteToSemitone(chords[i].root) - ctx.keySemitone + 12) % 12 === 7),
+  apply: (chords, idx, ctx, rng) => {
+    const orig = chords[idx];
+    const options: Array<[number, string, string]> = [
+      [ctx.keySemitone + 10, '9', '♭VII9 backdoor'],
+      [ctx.keySemitone + 5, 'm6', 'IVm6'],
+      [ctx.keySemitone + 8, 'm6', '♭VIm6'],
+      [ctx.keySemitone + 2, 'm7b5', 'IIm7♭5'],
+    ];
+    const [sem, q, name] = options[Math.floor(rng() * options.length)];
+    const sub = makeChord(sem, q, ctx, {
+      function: 'Dominant', technique: 'backdoor', techniqueLabel: 'V Alternative',
+      transformOf: orig.symbol, transformLabel: name,
+      transformExplain: `${orig.symbol} sostituito con ${name}: stessa funzione dominante, colore dal diminuito`,
+      annotation: `${name} → I`,
+    });
+    return chords.map((c, i) => (i === idx ? sub : c));
+  },
+};
+
+const modalInterchange: Transform = {
+  id: 'modal_interchange',
+  kind: 'substitution',
+  label: 'Modal interchange',
+  explain: 'Accordo preso in prestito dal minore parallelo: IVm, ♭VImaj7, IIm7♭5.',
+  findTargets: (chords, ctx) =>
+    chords.map((_, i) => i).filter(i => {
+      if (!canSubstitute(chords, i)) return false;
+      const rel = (noteToSemitone(chords[i].root) - ctx.keySemitone + 12) % 12;
+      const q = chords[i].quality;
+      return (rel === 5 && MAJOR_Q.includes(q))
+        || (rel === 9 && MINOR_Q.includes(q))
+        || (rel === 2 && MINOR_Q.includes(q));
+    }),
+  apply: (chords, idx, ctx, rng) => {
+    const orig = chords[idx];
+    const rel = (noteToSemitone(orig.root) - ctx.keySemitone + 12) % 12;
+    let sub: ResolvedChord;
+    if (rel === 5) {
+      sub = makeChord(ctx.keySemitone + 5, rng() < 0.5 ? 'm6' : 'm7', ctx,
+        { degree: 'IVm', annotation: 'IVm — prestito dal minore' });
+    } else if (rel === 9) {
+      sub = makeChord(ctx.keySemitone + 8, 'maj7', ctx,
+        { degree: 'bVI', annotation: '♭VImaj7 — prestito dal minore' });
+    } else {
+      sub = makeChord(ctx.keySemitone + 2, 'm7b5', ctx,
+        { degree: 'iiø', annotation: 'IIm7♭5 — prestito dal minore' });
+    }
+    sub.technique = 'modal_interchange';
+    sub.techniqueLabel = 'Modal Interchange';
+    sub.function = orig.function;
+    sub.transformOf = orig.symbol;
+    sub.transformLabel = 'Borrowed';
+    sub.transformExplain = `${orig.symbol} sostituito con un prestito dal minore parallelo`;
+    return chords.map((c, i) => (i === idx ? sub : c));
+  },
+};
+
+const COLOR_MAP: Record<string, string[]> = {
+  maj: ['maj7', 'maj9', '6/9'],
+  maj7: ['maj9', '6/9'],
+  m: ['m7', 'm9'],
+  m7: ['m9', 'm11'],
+  '7': ['9', '13'],
+};
+
+const colorExtensions: Transform = {
+  id: 'color',
+  kind: 'decoration',
+  label: 'Color / Estensioni',
+  explain: 'Estensioni sull\'accordo: 9, 11, 13, 6/9. Colore senza cambiare funzione.',
+  findTargets: chords =>
+    chords.map((_, i) => i).filter(i =>
+      !isTouched(chords[i]) && COLOR_MAP[chords[i].quality] !== undefined),
+  apply: (chords, idx, ctx, rng) => {
+    const orig = chords[idx];
+    const opts = COLOR_MAP[orig.quality];
+    const q = opts[Math.floor(rng() * opts.length)];
+    const sub = makeChord(noteToSemitone(orig.root), q, ctx, {
+      degree: orig.degree, function: orig.function,
+      technique: orig.technique ?? 'color', techniqueLabel: orig.techniqueLabel,
+      annotation: orig.annotation,
+      transformOf: orig.symbol, transformLabel: 'Color',
+      transformExplain: `${orig.symbol} arricchito a ${q}: stessa funzione, più colore`,
+    });
+    return chords.map((c, i) => (i === idx ? sub : c));
+  },
+};
+
+const floatChord: Transform = {
+  id: 'float_chord',
+  kind: 'decoration',
+  label: 'Float chord',
+  explain: 'IVmaj7 sul basso del V (= V13sus): dominante sospesa senza tritono. Neo-soul.',
+  findTargets: chords =>
+    chords.map((_, i) => i).filter(i => {
+      if (!canSubstitute(chords, i)) return false;
+      const c = chords[i];
+      const next = chords[i + 1];
+      if (!DOM_Q.includes(c.quality) || c.quality === '7sus4' || !next) return false;
+      return (noteToSemitone(next.root) - noteToSemitone(c.root) + 12) % 12 === 5;
+    }),
+  apply: (chords, idx, ctx) => {
+    const orig = chords[idx];
+    const bassSem = ((noteToSemitone(orig.root) % 12) + 12) % 12;
+    const upperSem = (bassSem + 10) % 12;
+    const bass = semitoneToNote(bassSem, ctx.preferFlat || [1, 3, 6, 8, 10].includes(bassSem));
+    const upper = semitoneToNote(upperSem, ctx.preferFlat || [1, 3, 6, 8, 10].includes(upperSem));
+    const sub: ResolvedChord = {
+      degree: orig.degree,
+      symbol: `${upper}maj7/${bass}`,
+      root: bass,
+      quality: '7sus4',
+      notes: [bass, ...getChordNotes(upper, 'maj7')],
+      function: 'Dominant',
+      technique: 'float_chord',
+      techniqueLabel: 'Float Chord',
+      annotation: 'V13sus',
+      transformOf: orig.symbol,
+      transformLabel: 'Float',
+      transformExplain: `${orig.symbol} sostituito con ${upper}maj7/${bass}: dominante sospesa senza tritono`,
+    };
+    return chords.map((c, i) => (i === idx ? sub : c));
+  },
+};
+
 export const TRANSFORMS: Transform[] = [
   secondaryDominant,
   passingDim,
@@ -303,6 +458,11 @@ export const TRANSFORMS: Transform[] = [
   backdoorIiV,
   chromaticApproach,
   susApproach,
+  tritoneSub,
+  vAlternatives,
+  modalInterchange,
+  colorExtensions,
+  floatChord,
 ];
 
 // Tecniche che agiscono da whitelist del motore (non filtrano i template)
@@ -355,5 +515,3 @@ export function applyTransforms(
   return { chords, applied };
 }
 
-// canSubstitute is used by future substitution transforms
-export { canSubstitute };
