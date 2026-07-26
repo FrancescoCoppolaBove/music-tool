@@ -269,11 +269,15 @@ export function playChordSequence(
     }, i * barMs));
   });
   timers.push(window.setTimeout(() => {
-    if (!stopped) onEnd?.();
+    if (!stopped) {
+      stopped = true;
+      onEnd?.();
+    }
   }, chords.length * barMs));
 
   return {
     stop: () => {
+      if (stopped) return;
       stopped = true;
       timers.forEach(t => clearTimeout(t));
       audioPlayer.stopAll();
