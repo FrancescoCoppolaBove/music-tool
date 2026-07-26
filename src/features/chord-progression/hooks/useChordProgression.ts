@@ -4,7 +4,7 @@ import { generateProgressions, getAvailableTechniques, type ProgressionFilter } 
 import type { GeneratedProgression, HarmonyStyle, KeyMode, Technique } from '../types/progression.types';
 import { storageGet, storageSet } from '@shared/utils/storage';
 
-interface SessionState { key: string; mode: KeyMode; length: number; style: HarmonyStyle | 'both'; techniques: Technique[] }
+interface SessionState { key: string; mode: KeyMode; length: number; style: HarmonyStyle | 'both'; techniques: Technique[]; spice: number }
 const SESSION_KEY = 'session_chordProgression';
 
 export function useChordProgression() {
@@ -20,23 +20,28 @@ export function useChordProgression() {
   const [length, setLength] = useState(saved.current?.length ?? 4);
   const [style, setStyle] = useState<HarmonyStyle | 'both'>(saved.current?.style ?? 'both');
   const [techniques, setTechniques] = useState<Technique[]>(saved.current?.techniques ?? []);
+  const [spice, setSpice] = useState<number>(saved.current?.spice ?? 1);
   const [results, setResults] = useState<GeneratedProgression[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const generate = useCallback(() => {
-    const filter: ProgressionFilter = { key, mode, length, style, techniques };
+    const filter: ProgressionFilter = {
+      key, mode, length, style, techniques,
+      spice,
+      seed: Math.floor(Math.random() * 1_000_000_000),
+    };
     const r = generateProgressions(filter);
     setResults(r);
     setSelectedId(r[0]?.id ?? null);
-  }, [key, mode, length, style, techniques]);
+  }, [key, mode, length, style, techniques, spice]);
 
   // Auto-generate on mount
   useEffect(() => { generate(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Persist settings whenever they change (not results, which are deterministic)
   useEffect(() => {
-    storageSet<SessionState>(SESSION_KEY, { key, mode, length, style, techniques });
-  }, [key, mode, length, style, techniques]);
+    storageSet<SessionState>(SESSION_KEY, { key, mode, length, style, techniques, spice });
+  }, [key, mode, length, style, techniques, spice]);
 
   function toggleTechnique(t: Technique) {
     setTechniques(prev =>
@@ -53,6 +58,7 @@ export function useChordProgression() {
     length, setLength,
     style, setStyle,
     techniques, toggleTechnique,
+    spice, setSpice,
     results, selectedId, setSelectedId, selected,
     generate,
     availableTechniques,

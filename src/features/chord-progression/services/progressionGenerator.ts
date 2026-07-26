@@ -15,6 +15,7 @@ import type {
   Technique,
 } from '../types/progression.types';
 import { TEMPLATES } from './templates';
+import { applyTransforms, TRANSFORM_TECHNIQUE_IDS } from './transformEngine';
 
 // ─── Resolution ──────────────────────────────────────────────────────────────
 
@@ -69,6 +70,8 @@ export interface ProgressionFilter {
   length: number;
   style: HarmonyStyle | 'both';
   techniques: Technique[];
+  spice: number;
+  seed: number;
 }
 
 export function getAvailableTechniques(): { id: Technique; label: string; description: string }[] {
@@ -95,45 +98,63 @@ export function getAvailableTechniques(): { id: Technique; label: string; descri
 }
 
 export function generateProgressions(filter: ProgressionFilter): GeneratedProgression[] {
-  const { key, mode, length, style, techniques } = filter;
+  const { key, mode, length, style, techniques, spice, seed } = filter;
 
   if (noteToSemitone(key) < 0) return [];
+
+  const templateFilterTechniques = techniques.filter(t => !TRANSFORM_TECHNIQUE_IDS.includes(t));
 
   const results: GeneratedProgression[] = [];
   let id = 0;
 
   for (const template of TEMPLATES) {
-    // Length filter: allow if template supports this length
     if (!template.lengths.includes(length)) continue;
 
-    // Mode filter: undefined defaults to 'major'
     const templateMode = template.mode ?? 'major';
     if (templateMode !== 'both' && templateMode !== mode) continue;
 
-    // Style filter
     if (style !== 'both' && template.style !== style) continue;
 
-    // Technique filter: template must use at least one selected technique
-    if (techniques.length > 0) {
-      const hasOverlap = template.techniques.some(t => techniques.includes(t));
+    if (templateFilterTechniques.length > 0) {
+      const hasOverlap = template.techniques.some(t => templateFilterTechniques.includes(t));
       if (!hasOverlap) continue;
     }
 
-    const chords = template.chords.map(c => resolveChord(key, c, mode));
+    const baseChords = template.chords.map(c => resolveChord(key, c, mode));
+    const { chords, applied } = applyTransforms(baseChords, key, mode, {
+      spice,
+      allowed: techniques,
+      seed: seed + id,
+    });
 
     results.push({
       id: String(id++),
       template,
       key,
       chords,
-      baseChords: chords,
-      seed: 0,
-      appliedTransforms: [],
+      baseChords,
+      seed,
+      appliedTransforms: applied,
       description: template.description,
     });
   }
 
   return results;
+}
+
+export function regenerateProgression(
+  prog: GeneratedProgression,
+  mode: KeyMode,
+  techniques: Technique[],
+  spice: number,
+  newSeed: number,
+): GeneratedProgression {
+  const { chords, applied } = applyTransforms(prog.baseChords, prog.key, mode, {
+    spice,
+    allowed: techniques,
+    seed: newSeed,
+  });
+  return { ...prog, chords, seed: newSeed, appliedTransforms: applied };
 }
 
 export function getAllLengths(): number[] {
