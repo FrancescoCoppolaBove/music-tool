@@ -17,7 +17,8 @@ export type Technique =
   | 'blues'
   | 'gospel'
   | 'bossa_nova'
-  | 'flamenco';
+  | 'flamenco'
+  | 'color';
 
 export interface ProgressionChord {
   degree: string;          // Roman numeral e.g. "II" "bVII"
@@ -57,7 +58,10 @@ export interface GeneratedProgression {
   id: string;
   template: ProgressionTemplate;
   key: string;
-  chords: ResolvedChord[];    // with actual note names
+  chords: ResolvedChord[];       // versione arricchita (== baseChords se spice 0)
+  baseChords: ResolvedChord[];   // scheletro risolto
+  seed: number;
+  appliedTransforms: { label: string; explain: string }[];
   description: string;
 }
 
@@ -71,4 +75,8 @@ export interface ResolvedChord {
   techniqueLabel?: string;
   function: string;
   annotation?: string;
+  inserted?: boolean;        // accordo di passaggio aggiunto dal motore
+  transformOf?: string;      // simbolo originale se sostituito (es. "G7")
+  transformLabel?: string;   // es. "SubV", "Passing dim"
+  transformExplain?: string; // spiegazione della mossa per il tooltip
 }

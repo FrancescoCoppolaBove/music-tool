@@ -90,6 +90,7 @@ export function getAvailableTechniques(): { id: Technique; label: string; descri
     { id: 'gospel',            label: 'Gospel',                 description: 'Armonia gospel: cadenza plagale IV→I, catene di dominanti secondari, bII°7 cromatico. Il suono di Kirk Franklin, Aretha, Sam Cooke.' },
     { id: 'bossa_nova',        label: 'Bossa Nova',             description: 'Armonia brasiliana Jobim: Imaj9→bIImaj7 (scivolata cromatica), ii–V lussureggianti con tensioni 9, 11, 13. "Ipanema", "Wave", "Corcovado".' },
     { id: 'flamenco',          label: 'Flamenco / Andalusiano', description: 'Cadenza andalusa i→bVII→bVI→V7, vamp frigio im→bII7, ciclo spagnolo. Il suono flamenco/phrygian dominant di Paco de Lucía.' },
+    { id: 'color',             label: 'Color / Estensioni',     description: 'Arricchisce le qualità: maj7→maj9/6-9, m7→m9/m11, V7→13. Colore senza cambiare funzione.' },
   ];
 }
 
@@ -125,6 +126,9 @@ export function generateProgressions(filter: ProgressionFilter): GeneratedProgre
       template,
       key,
       chords,
+      baseChords: chords,
+      seed: 0,
+      appliedTransforms: [],
       description: template.description,
     });
   }

@@ -139,6 +139,7 @@ const TECHNIQUE_COLORS: Record<Technique, string> = {
   gospel: '#7c3aed',
   bossa_nova: '#059669',
   flamenco: '#dc2626',
+  color: '#eab308',
 };
 
 const FUNCTION_COLORS: Record<string, string> = {
