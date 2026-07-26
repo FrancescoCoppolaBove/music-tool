@@ -3,6 +3,7 @@ import { Progression } from 'tonal';
 import ProgressionSettings from './components/ProgressionSettings';
 import ProgressionDisplay from './components/ProgressionDisplay';
 import { useChordProgression } from './hooks/useChordProgression';
+import ModulationCycles from './components/ModulationCycles';
 
 export default function ChordProgressionFeature() {
   const {
@@ -59,6 +60,9 @@ export default function ChordProgressionFeature() {
         onSelect={setSelectedId}
         onRegenerate={regenerateVariant}
       />
+
+      {/* Modulation Cycles */}
+      <ModulationCycles />
 
       {/* Custom Roman Numeral input */}
       <CustomRomanInput currentKey={key} />
