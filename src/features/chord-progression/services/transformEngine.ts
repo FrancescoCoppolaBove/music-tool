@@ -403,7 +403,7 @@ const colorExtensions: Transform = {
     const q = opts[Math.floor(rng() * opts.length)];
     const sub = makeChord(noteToSemitone(orig.root), q, ctx, {
       degree: orig.degree, function: orig.function,
-      technique: orig.technique ?? 'color', techniqueLabel: orig.techniqueLabel,
+      technique: orig.technique ?? 'color', techniqueLabel: orig.techniqueLabel ?? 'Color Extension',
       annotation: orig.annotation,
       transformOf: orig.symbol, transformLabel: 'Color',
       transformExplain: `${orig.symbol} arricchito a ${q}: stessa funzione, più colore`,
@@ -427,7 +427,7 @@ const floatChord: Transform = {
     }),
   apply: (chords, idx, ctx) => {
     const orig = chords[idx];
-    const bassSem = ((noteToSemitone(orig.root) % 12) + 12) % 12;
+    const bassSem = (noteToSemitone(orig.root) + 12) % 12;
     const upperSem = (bassSem + 10) % 12;
     const bass = semitoneToNote(bassSem, ctx.preferFlat || [1, 3, 6, 8, 10].includes(bassSem));
     const upper = semitoneToNote(upperSem, ctx.preferFlat || [1, 3, 6, 8, 10].includes(upperSem));
