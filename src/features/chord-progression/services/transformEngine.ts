@@ -154,9 +154,155 @@ const passingDim: Transform = {
   },
 };
 
+const iiVMajor: Transform = {
+  id: 'secondary_dominant',
+  kind: 'insertion',
+  label: 'ii–V del target',
+  explain: 'IIm7–V7 del target maggiore: la cadenza jazz completa che prepara l\'arrivo.',
+  findTargets: chords =>
+    chords.map((_, i) => i).filter(i =>
+      canInsertBefore(chords, i) && MAJOR_Q.includes(chords[i].quality)),
+  apply: (chords, idx, ctx) => {
+    const t = noteToSemitone(chords[idx].root);
+    const two = makeChord(t + 2, 'm7', ctx, {
+      inserted: true, technique: 'secondary_dominant', techniqueLabel: 'Related ii',
+      function: 'Subdominant', transformLabel: 'ii/x',
+      transformExplain: `IIm7 di ${chords[idx].symbol}: il ii della cadenza inserita`,
+    });
+    const five = makeChord(t + 7, '7', ctx, {
+      inserted: true, technique: 'secondary_dominant', techniqueLabel: 'Secondary Dominant',
+      function: 'Dominant', transformLabel: 'V/x',
+      transformExplain: `V7 di ${chords[idx].symbol}: il V della cadenza inserita`,
+      annotation: `ii–V → ${chords[idx].symbol}`,
+    });
+    return [...chords.slice(0, idx), two, five, ...chords.slice(idx)];
+  },
+};
+
+const iiVMinor: Transform = {
+  id: 'altered_dominant',
+  kind: 'insertion',
+  label: 'ii–V minore del target',
+  explain: 'IIm7♭5–V7alt verso un target minore: mezzo diminuito + dominante alterata.',
+  findTargets: chords =>
+    chords.map((_, i) => i).filter(i =>
+      canInsertBefore(chords, i) && MINOR_Q.includes(chords[i].quality)),
+  apply: (chords, idx, ctx) => {
+    const t = noteToSemitone(chords[idx].root);
+    const two = makeChord(t + 2, 'm7b5', ctx, {
+      inserted: true, technique: 'altered_dominant', techniqueLabel: 'Minor ii',
+      function: 'Subdominant', transformLabel: 'iiø/x',
+      transformExplain: `IIm7♭5 di ${chords[idx].symbol}: il ii del ii–V minore`,
+    });
+    const five = makeChord(t + 7, '7alt', ctx, {
+      inserted: true, technique: 'altered_dominant', techniqueLabel: 'Altered Dominant',
+      function: 'Dominant', transformLabel: 'V7alt/x',
+      transformExplain: `V7alt di ${chords[idx].symbol}: massima tensione prima del minore`,
+      annotation: `iiø–V7alt → ${chords[idx].symbol}`,
+    });
+    return [...chords.slice(0, idx), two, five, ...chords.slice(idx)];
+  },
+};
+
+const subVApproach: Transform = {
+  id: 'tritone_sub',
+  kind: 'insertion',
+  label: 'SubV del target',
+  explain: 'Dominante un semitono sopra il target: il tritone sub che scende cromaticamente.',
+  findTargets: chords =>
+    chords.map((_, i) => i).filter(i => {
+      if (!canInsertBefore(chords, i)) return false;
+      const subSem = (noteToSemitone(chords[i].root) + 1) % 12;
+      const prev = chords[i - 1];
+      return !prev || noteToSemitone(prev.root) !== subSem;
+    }),
+  apply: (chords, idx, ctx) => {
+    const target = chords[idx];
+    const ins = makeChord(noteToSemitone(target.root) + 1, '7', ctx, {
+      inserted: true, technique: 'tritone_sub', techniqueLabel: 'Tritone Sub',
+      function: 'Dominant', transformLabel: 'SubV/x',
+      transformExplain: `Dominante un semitono sopra ${target.symbol}: sub di tritono del suo V7`,
+      annotation: `SubV → ${target.symbol}`,
+    });
+    return [...chords.slice(0, idx), ins, ...chords.slice(idx)];
+  },
+};
+
+const backdoorIiV: Transform = {
+  id: 'backdoor',
+  kind: 'insertion',
+  label: 'Backdoor ii–V',
+  explain: 'IVm7–♭VII7 prima della tonica: la cadenza che entra "dalla porta sul retro".',
+  findTargets: (chords, ctx) => {
+    const last = chords.length - 1;
+    if (!canInsertBefore(chords, last)) return [];
+    const c = chords[last];
+    const rel = (noteToSemitone(c.root) - ctx.keySemitone + 12) % 12;
+    return rel === 0 && MAJOR_Q.includes(c.quality) ? [last] : [];
+  },
+  apply: (chords, idx, ctx) => {
+    const ivm = makeChord(ctx.keySemitone + 5, 'm7', ctx, {
+      inserted: true, technique: 'backdoor', techniqueLabel: 'Backdoor ii',
+      function: 'Subdominant', degree: 'IVm', transformLabel: 'IVm7',
+      transformExplain: 'IVm7: il ii della cadenza backdoor',
+    });
+    const bvii = makeChord(ctx.keySemitone + 10, '7', ctx, {
+      inserted: true, technique: 'backdoor', techniqueLabel: 'Backdoor Dominant',
+      function: 'Dominant', degree: 'bVII', transformLabel: '♭VII7',
+      transformExplain: '♭VII7: il dominante backdoor che risolve alla tonica da sotto',
+      annotation: `♭VII7 → ${chords[idx].symbol}`,
+    });
+    return [...chords.slice(0, idx), ivm, bvii, ...chords.slice(idx)];
+  },
+};
+
+const chromaticApproach: Transform = {
+  id: 'chromatic',
+  kind: 'insertion',
+  label: 'Approccio cromatico',
+  explain: 'Stesso tipo di accordo un semitono sopra o sotto il target: planing cromatico gospel.',
+  findTargets: chords =>
+    chords.map((_, i) => i).filter(i => canInsertBefore(chords, i)),
+  apply: (chords, idx, ctx, rng) => {
+    const target = chords[idx];
+    const dir = rng() < 0.5 ? 1 : -1;
+    const ins = makeChord(noteToSemitone(target.root) + dir, target.quality, ctx, {
+      inserted: true, technique: 'chromatic', techniqueLabel: 'Chromatic Approach',
+      function: target.function, transformLabel: dir > 0 ? 'Chrom. da sopra' : 'Chrom. da sotto',
+      transformExplain: `${target.quality} un semitono ${dir > 0 ? 'sopra' : 'sotto'} ${target.symbol}: scivolamento cromatico`,
+    });
+    return [...chords.slice(0, idx), ins, ...chords.slice(idx)];
+  },
+};
+
+const susApproach: Transform = {
+  id: 'sus',
+  kind: 'insertion',
+  label: 'Sospensione sus',
+  explain: '7sus4 sulla stessa fondamentale prima del dominante: la sospensione che poi risolve.',
+  findTargets: chords =>
+    chords.map((_, i) => i).filter(i =>
+      canInsertBefore(chords, i) && ['7', '9', '13', '7b9'].includes(chords[i].quality)),
+  apply: (chords, idx, ctx) => {
+    const target = chords[idx];
+    const ins = makeChord(noteToSemitone(target.root), '7sus4', ctx, {
+      inserted: true, technique: 'sus', techniqueLabel: 'Sus Suspension',
+      function: 'Dominant', transformLabel: 'sus→3',
+      transformExplain: `${target.root}7sus4 che risolve nel ${target.symbol}: quarta sospesa poi terza`,
+    });
+    return [...chords.slice(0, idx), ins, ...chords.slice(idx)];
+  },
+};
+
 export const TRANSFORMS: Transform[] = [
   secondaryDominant,
   passingDim,
+  iiVMajor,
+  iiVMinor,
+  subVApproach,
+  backdoorIiV,
+  chromaticApproach,
+  susApproach,
 ];
 
 // Tecniche che agiscono da whitelist del motore (non filtrano i template)
