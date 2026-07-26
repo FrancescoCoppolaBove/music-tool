@@ -11,6 +11,7 @@ export default function ChordProgressionFeature() {
     length, setLength,
     style, setStyle,
     techniques, toggleTechnique,
+    spice, setSpice,
     results, selectedId, setSelectedId,
     generate,
     availableTechniques,
@@ -43,6 +44,8 @@ export default function ChordProgressionFeature() {
           techniques={techniques}
           toggleTechnique={toggleTechnique}
           availableTechniques={availableTechniques}
+          spice={spice}
+          setSpice={setSpice}
           onGenerate={generate}
           resultCount={results.length}
         />

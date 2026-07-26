@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
-import { generateProgressions, getAvailableTechniques, type ProgressionFilter } from '../services/progressionGenerator';
+import { generateProgressions, regenerateProgression, getAvailableTechniques, type ProgressionFilter } from '../services/progressionGenerator';
 import type { GeneratedProgression, HarmonyStyle, KeyMode, Technique } from '../types/progression.types';
 import { storageGet, storageSet } from '@shared/utils/storage';
 
@@ -35,6 +35,12 @@ export function useChordProgression() {
     setSelectedId(r[0]?.id ?? null);
   }, [key, mode, length, style, techniques, spice]);
 
+  const regenerateVariant = useCallback((id: string) => {
+    setResults(prev => prev.map(p => p.id === id
+      ? regenerateProgression(p, mode, techniques, spice, Math.floor(Math.random() * 1_000_000_000))
+      : p));
+  }, [mode, techniques, spice]);
+
   // Auto-generate on mount
   useEffect(() => { generate(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -61,6 +67,7 @@ export function useChordProgression() {
     spice, setSpice,
     results, selectedId, setSelectedId, selected,
     generate,
+    regenerateVariant,
     availableTechniques,
   };
 }
