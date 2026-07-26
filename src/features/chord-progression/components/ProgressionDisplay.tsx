@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { GeneratedProgression, ResolvedChord, Technique } from '../types/progression.types';
 
 // ─── Scale recommendations ────────────────────────────────────────────────────
@@ -155,11 +156,12 @@ interface ProgressionDisplayProps {
   results: GeneratedProgression[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  onRegenerate: (id: string) => void;
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function ProgressionDisplay({ results, selectedId, onSelect }: ProgressionDisplayProps) {
+export default function ProgressionDisplay({ results, selectedId, onSelect, onRegenerate }: ProgressionDisplayProps) {
   if (results.length === 0) return (
     <div style={{ textAlign: 'center', padding: 40, color: '#4b5563' }}>
       <div style={{ fontSize: 30, marginBottom: 8 }}>🎵</div>
@@ -172,7 +174,7 @@ export default function ProgressionDisplay({ results, selectedId, onSelect }: Pr
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Selected progression — detail view */}
-      {selected && <ProgressionDetail progression={selected} />}
+      {selected && <ProgressionDetail progression={selected} onRegenerate={onRegenerate} />}
 
       {/* List of all results */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -229,11 +231,18 @@ export default function ProgressionDisplay({ results, selectedId, onSelect }: Pr
 
 // ─── Detail panel ─────────────────────────────────────────────────────────────
 
-function ProgressionDetail({ progression }: { progression: GeneratedProgression }) {
-  const { template, chords, key } = progression;
+function ProgressionDetail({ progression, onRegenerate }: {
+  progression: GeneratedProgression;
+  onRegenerate: (id: string) => void;
+}) {
+  const { template, chords, baseChords, key, appliedTransforms } = progression;
+  const [showEnriched, setShowEnriched] = useState(true);
+
+  const hasTransforms = appliedTransforms.length > 0;
+  const displayChords = hasTransforms && !showEnriched ? baseChords : chords;
 
   const uniqueTechniques = Array.from(new Set(
-    chords.flatMap(c => c.techniqueLabel ? [c.techniqueLabel] : [])
+    displayChords.flatMap(c => c.techniqueLabel ? [c.techniqueLabel] : [])
   ));
 
   return (
@@ -244,7 +253,7 @@ function ProgressionDetail({ progression }: { progression: GeneratedProgression 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Key of {key} · {template.lengths[0]} chords · {template.style}</div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Key of {key} · {displayChords.length} chords · {template.style}</div>
           <h3 style={{ margin: 0, fontSize: 20, color: '#e6edf3' }}>{template.name}</h3>
           <div style={{ fontSize: 13, color: '#8b949e', marginTop: 4 }}>{template.description}</div>
         </div>
@@ -261,22 +270,73 @@ function ProgressionDetail({ progression }: { progression: GeneratedProgression 
         </div>
       </div>
 
-      {/* Feel tag */}
-      <div style={{ marginBottom: 16 }}>
+      {/* Feel + controlli variante */}
+      <div style={{ marginBottom: 16, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{
           padding: '3px 10px', background: '#7c3aed20', border: '1px solid #7c3aed',
           borderRadius: 6, fontSize: 12, color: '#c4b5fd', fontStyle: 'italic',
         }}>
           🎭 {template.feel}
         </span>
+
+        {hasTransforms && (
+          <>
+            <div style={{ display: 'flex', border: '1px solid #30363d', borderRadius: 6, overflow: 'hidden' }}>
+              {(['Base', 'Arricchita'] as const).map(lbl => {
+                const isOn = (lbl === 'Arricchita') === showEnriched;
+                return (
+                  <button
+                    key={lbl}
+                    onClick={() => setShowEnriched(lbl === 'Arricchita')}
+                    style={{
+                      padding: '4px 12px', fontSize: 12, cursor: 'pointer', border: 'none',
+                      background: isOn ? '#7c3aed' : '#0d1117',
+                      color: isOn ? '#fff' : '#6b7280', fontWeight: isOn ? 700 : 400,
+                    }}
+                  >
+                    {lbl}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={() => onRegenerate(progression.id)}
+              title="Rigenera le trasformazioni con un nuovo seed"
+              style={{
+                padding: '4px 12px', fontSize: 12, cursor: 'pointer',
+                background: '#0d1117', border: '1px solid #30363d',
+                borderRadius: 6, color: '#8b949e',
+              }}
+            >
+              ↻ Varia
+            </button>
+          </>
+        )}
       </div>
 
       {/* Chord blocks */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-        {chords.map((chord, i) => (
-          <ChordBlock key={i} chord={chord} index={i + 1} total={chords.length} />
+        {displayChords.map((chord, i) => (
+          <ChordBlock key={`${progression.seed}-${showEnriched}-${i}`} chord={chord} index={i + 1} total={displayChords.length} />
         ))}
       </div>
+
+      {/* Mosse applicate dal motore */}
+      {hasTransforms && showEnriched && (
+        <div style={{ borderTop: '1px solid #30363d', paddingTop: 12, marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>🌶 Mosse del motore:</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {appliedTransforms.map((t, i) => (
+              <span key={i} title={t.explain} style={{
+                padding: '3px 10px', background: '#dc262615', border: '1px solid #ef444455',
+                borderRadius: 5, fontSize: 12, color: '#fca5a5', cursor: 'help',
+              }}>
+                {t.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Techniques used */}
       {uniqueTechniques.length > 0 && (
@@ -296,13 +356,13 @@ function ProgressionDetail({ progression }: { progression: GeneratedProgression 
       )}
 
       {/* ── Scale suggestions ──────────────────────────────────────────────── */}
-      <ScaleMap chords={chords} />
+      <ScaleMap chords={displayChords} />
 
       {/* Chord tones */}
       <div style={{ borderTop: '1px solid #30363d', paddingTop: 12, marginTop: 12 }}>
         <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>Chord tones:</div>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          {chords.map((chord, i) => (
+          {displayChords.map((chord, i) => (
             <div key={i} style={{ minWidth: 80 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#e6edf3', fontFamily: 'monospace', marginBottom: 4 }}>
                 {chord.symbol}
@@ -415,18 +475,35 @@ function ChordBlock({ chord, index, total }: { chord: ResolvedChord; index: numb
   const functionColor = FUNCTION_COLORS[chord.function] ?? '#6b7280';
   const scales = getScalesForQuality(chord.quality);
   const primaryScale = scales.find(s => s.isPrimary);
+  const isTransformed = !!chord.inserted || !!chord.transformOf;
 
   return (
-    <div style={{
-      flex: '1 1 100px', minWidth: 90, maxWidth: 160,
-      background: '#0d1117', border: `1px solid ${techniqueColor ?? '#30363d'}`,
-      borderRadius: 10, padding: '12px 12px 10px',
-      position: 'relative', display: 'flex', flexDirection: 'column', gap: 6,
-    }}>
+    <div
+      title={chord.transformExplain}
+      style={{
+        flex: '1 1 100px', minWidth: 90, maxWidth: 160,
+        background: chord.inserted ? '#0d111780' : '#0d1117',
+        border: `1px ${chord.inserted ? 'dashed' : 'solid'} ${techniqueColor ?? '#30363d'}`,
+        borderRadius: 10, padding: '12px 12px 10px',
+        position: 'relative', display: 'flex', flexDirection: 'column', gap: 6,
+      }}
+    >
       {/* Index */}
       <div style={{ position: 'absolute', top: 6, left: 9, fontSize: 10, color: '#4b5563' }}>
         {index}/{total}
       </div>
+
+      {/* Badge trasformazione */}
+      {isTransformed && chord.transformLabel && (
+        <div style={{
+          position: 'absolute', top: 4, right: 6,
+          fontSize: 9, fontWeight: 700, color: techniqueColor ?? '#fca5a5',
+          background: '#161b22', border: `1px solid ${techniqueColor ?? '#ef4444'}55`,
+          borderRadius: 8, padding: '1px 6px',
+        }}>
+          {chord.inserted ? `+ ${chord.transformLabel}` : chord.transformLabel}
+        </div>
+      )}
 
       {/* Degree */}
       <div style={{ fontSize: 11, color: '#6b7280', marginTop: 10 }}>{chord.degree}</div>
@@ -435,6 +512,13 @@ function ChordBlock({ chord, index, total }: { chord: ResolvedChord; index: numb
       <div style={{ fontSize: 20, fontWeight: 700, color: '#e6edf3', fontFamily: 'monospace', lineHeight: 1 }}>
         {chord.symbol}
       </div>
+
+      {/* Era... (per sostituzioni) */}
+      {chord.transformOf && (
+        <div style={{ fontSize: 10, color: '#6b7280', textDecoration: 'line-through' }}>
+          era {chord.transformOf}
+        </div>
+      )}
 
       {/* Harmonic function badge */}
       <div style={{

@@ -14,6 +14,7 @@ export default function ChordProgressionFeature() {
     spice, setSpice,
     results, selectedId, setSelectedId,
     generate,
+    regenerateVariant,
     availableTechniques,
   } = useChordProgression();
 
@@ -56,6 +57,7 @@ export default function ChordProgressionFeature() {
         results={results}
         selectedId={selectedId}
         onSelect={setSelectedId}
+        onRegenerate={regenerateVariant}
       />
 
       {/* Custom Roman Numeral input */}
