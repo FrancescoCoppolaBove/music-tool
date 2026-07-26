@@ -176,12 +176,12 @@ export default function ProgressionSettings({
                 key={s.value}
                 onClick={() => setSpice(s.value)}
                 style={{
-                  padding: '6px 16px',
+                  padding: '6px 14px',
                   background: isOn ? '#dc262630' : '#0d1117',
                   border: `1px solid ${isOn ? '#ef4444' : '#30363d'}`,
                   borderRadius: 20,
                   color: isOn ? '#fca5a5' : '#6b7280',
-                  fontSize: 13, cursor: 'pointer',
+                  fontSize: 13, cursor: 'pointer', transition: 'all 0.15s',
                   fontWeight: isOn ? 700 : 400,
                 }}
               >
