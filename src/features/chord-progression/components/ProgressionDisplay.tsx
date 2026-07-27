@@ -1,6 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { playChordSequence, voiceChord, audioPlayer, type SequenceHandle } from '@shared/utils/chordAudio';
 import type { GeneratedProgression, ResolvedChord, Technique } from '../types/progression.types';
+import { generateVoicings } from '@features/chord-voicings/services/voicingGenerator';
+import type { ParsedChord } from '@features/chord-voicings/types/chord.types';
+
+// ─── Voicing helper ───────────────────────────────────────────────────────────
+
+function getVoicedNotes(chord: ResolvedChord, style: string): string[] {
+  if (style === 'auto') return voiceChord(chord.notes.slice(0, 5));
+  const parsed: ParsedChord = {
+    root: chord.root,
+    chordType: chord.quality,
+    displayName: chord.symbol,
+    notes: chord.notes,
+  };
+  const voicings = generateVoicings(parsed);
+  const match = voicings.find(v => v.style === style);
+  if (!match || match.notes.length === 0) return voiceChord(chord.notes.slice(0, 5));
+  return match.notes.map(n => `${n.note}${n.octave}`);
+}
 
 // ─── Scale recommendations ────────────────────────────────────────────────────
 
@@ -240,11 +258,13 @@ function ProgressionDetail({ progression, onRegenerate }: {
   const [showEnriched, setShowEnriched] = useState(true);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [bpm, setBpm] = useState(90);
+  const [chordVoicingStyles, setChordVoicingStyles] = useState<Record<number, string>>({});
   const handleRef = useRef<SequenceHandle | null>(null);
 
   useEffect(() => () => handleRef.current?.stop(), []);
   useEffect(() => { handleRef.current?.stop(); }, [progression.id, progression.seed, showEnriched]);
   useEffect(() => { void audioPlayer.preloadAllNotes(); }, []);
+  useEffect(() => { setChordVoicingStyles({}); }, [progression.id, showEnriched]);
 
   const isPlaying = playingIndex !== null;
 
@@ -257,11 +277,15 @@ function ProgressionDetail({ progression, onRegenerate }: {
       return;
     }
     void audioPlayer.initAudioContext();
+    const voicedChords = displayChords.map((c, i) => ({
+      notes: getVoicedNotes(c, chordVoicingStyles[i] ?? 'auto'),
+    }));
     handleRef.current = playChordSequence(
-      displayChords,
+      voicedChords,
       bpm,
       i => setPlayingIndex(i),
       () => setPlayingIndex(null),
+      true,
     );
   }
 
