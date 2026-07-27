@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { playChordSequence, type SequenceHandle } from '@shared/utils/chordAudio';
+import { playChordSequence, voiceChord, audioPlayer, type SequenceHandle } from '@shared/utils/chordAudio';
 import type { GeneratedProgression, ResolvedChord, Technique } from '../types/progression.types';
 
 // ─── Scale recommendations ────────────────────────────────────────────────────
@@ -244,6 +244,7 @@ function ProgressionDetail({ progression, onRegenerate }: {
 
   useEffect(() => () => handleRef.current?.stop(), []);
   useEffect(() => { handleRef.current?.stop(); }, [progression.id, progression.seed, showEnriched]);
+  useEffect(() => { void audioPlayer.preloadAllNotes(); }, []);
 
   const isPlaying = playingIndex !== null;
 
@@ -255,6 +256,7 @@ function ProgressionDetail({ progression, onRegenerate }: {
       handleRef.current?.stop();
       return;
     }
+    void audioPlayer.initAudioContext();
     handleRef.current = playChordSequence(
       displayChords,
       bpm,
