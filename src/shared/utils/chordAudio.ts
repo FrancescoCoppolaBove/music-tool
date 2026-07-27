@@ -163,6 +163,7 @@ export class AudioPlayer {
    * Notes outside C2-B3 are pitch-shifted from the nearest sample.
    */
   async playNote(note: string, volume = 1.0): Promise<void> {
+    if (!this.audioContext) await this.initAudioContext();
     await this.resumeAudioContext();
 
     const resolved = resolveNote(note);
