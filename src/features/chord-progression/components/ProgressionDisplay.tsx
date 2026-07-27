@@ -20,6 +20,19 @@ function getVoicedNotes(chord: ResolvedChord, style: string): string[] {
   return match.notes.map(n => `${n.note}${n.octave}`);
 }
 
+const VOICING_OPTIONS = [
+  { value: 'auto',           label: 'Auto' },
+  { value: 'closed',         label: 'Closed' },
+  { value: 'drop2',          label: 'Drop 2' },
+  { value: 'drop3',          label: 'Drop 3' },
+  { value: 'shell',          label: 'Shell' },
+  { value: 'rootless',       label: 'Rootless' },
+  { value: 'open',           label: 'Open' },
+  { value: 'spread',         label: 'Spread' },
+  { value: 'quartal',        label: 'Quartal' },
+  { value: 'upperStructure', label: 'Upper Str.' },
+] as const;
+
 // ─── Scale recommendations ────────────────────────────────────────────────────
 
 interface ScaleSuggestion {
@@ -391,6 +404,8 @@ function ProgressionDetail({ progression, onRegenerate }: {
             key={`${progression.seed}-${showEnriched}-${i}`}
             chord={chord} index={i + 1} total={displayChords.length}
             playing={playingIndex === i}
+            voicingStyle={chordVoicingStyles[i] ?? 'auto'}
+            onVoicingChange={style => setChordVoicingStyles(prev => ({ ...prev, [i]: style }))}
           />
         ))}
       </div>
@@ -544,8 +559,9 @@ function ScaleMap({ chords }: { chords: ResolvedChord[] }) {
 
 // ─── Chord block ──────────────────────────────────────────────────────────────
 
-function ChordBlock({ chord, index, total, playing = false }: {
+function ChordBlock({ chord, index, total, playing = false, voicingStyle = 'auto', onVoicingChange }: {
   chord: ResolvedChord; index: number; total: number; playing?: boolean;
+  voicingStyle?: string; onVoicingChange?: (style: string) => void;
 }) {
   const techniqueColor = chord.technique ? TECHNIQUE_COLORS[chord.technique] : undefined;
   const functionColor = FUNCTION_COLORS[chord.function] ?? '#6b7280';
@@ -636,6 +652,30 @@ function ChordBlock({ chord, index, total, playing = false }: {
             +{scales.length - 1} more
           </div>
         )}
+      </div>
+
+      {/* Voicing selector */}
+      <div style={{ marginTop: 4, paddingTop: 6, borderTop: '1px solid #21262d' }}>
+        <div style={{
+          fontSize: 9, color: voicingStyle !== 'auto' ? '#a78bfa' : '#4b5563',
+          letterSpacing: '0.06em', marginBottom: 3, textTransform: 'uppercase' as const,
+        }}>
+          Voicing
+        </div>
+        <select
+          value={voicingStyle}
+          onChange={e => { e.stopPropagation(); onVoicingChange?.(e.target.value); }}
+          onClick={e => e.stopPropagation()}
+          style={{
+            width: '100%', background: '#0d1117',
+            border: '1px solid #30363d', borderRadius: 3,
+            color: '#c4b5fd', fontSize: 10, padding: '2px 4px', cursor: 'pointer',
+          }}
+        >
+          {VOICING_OPTIONS.map(o => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Arrow to next */}
