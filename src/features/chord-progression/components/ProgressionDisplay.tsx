@@ -17,7 +17,9 @@ function getVoicedNotes(chord: ResolvedChord, style: string): string[] {
   const voicings = generateVoicings(parsed);
   const match = voicings.find(v => v.style === style);
   if (!match || match.notes.length === 0) return voiceChord(chord.notes.slice(0, 5));
-  return match.notes.map(n => `${n.note}${n.octave}`);
+  // Cap octave at 4 — spread/quartal/upperStructure can push notes to octave 5-6,
+  // causing 4×-8× pitch shifting which sounds extremely high in the audio player.
+  return match.notes.map(n => `${n.note}${Math.min(n.octave, 4)}`);
 }
 
 const VOICING_OPTIONS = [
