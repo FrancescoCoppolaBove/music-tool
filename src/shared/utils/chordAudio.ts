@@ -257,6 +257,7 @@ export function playChordSequence(
   bpm: number,
   onChordStart?: (index: number) => void,
   onEnd?: () => void,
+  prevoiced = false,
 ): SequenceHandle {
   let stopped = false;
   const timers: number[] = [];
@@ -266,7 +267,7 @@ export function playChordSequence(
     timers.push(window.setTimeout(() => {
       if (stopped) return;
       onChordStart?.(i);
-      void audioPlayer.playChord(voiceChord(c.notes.slice(0, 5)));
+      void audioPlayer.playChord(prevoiced ? c.notes : voiceChord(c.notes.slice(0, 5)));
     }, i * barMs));
   });
   timers.push(window.setTimeout(() => {
