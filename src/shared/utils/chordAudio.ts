@@ -240,7 +240,7 @@ export function voiceChord(pitchClasses: string[], baseOctave = 3): string[] {
   for (let i = 0; i < pitchClasses.length; i++) {
     const sem = noteToSemitone(pitchClasses[i]);
     if (sem < 0) continue;
-    let abs = (i === 0 ? baseOctave - 1 : baseOctave) * 12 + sem;
+    let abs = baseOctave * 12 + sem;
     while (abs <= prev) abs += 12;
     if (abs >= 6 * 12) abs -= 12;
     voiced.push(`${pitchClasses[i]}${Math.floor(abs / 12)}`);
