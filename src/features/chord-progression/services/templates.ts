@@ -3672,7 +3672,7 @@ export const TEMPLATES: ProgressionTemplate[] = [
   // Tier 1: Direct formula — keep I in home key, borrow IV and V from a
   // parallel flat-major source key (Bb=Dorian, Eb=Aeolian, Ab=Phrygian).
 
-  // ── I–IV–V–I variants ──
+  // ── Cushion of I–IV–V–I ──
   {
     id: 'cushion-i-iv-v-i-dorian',
     name: 'I–♭III–IV–I (Cushion Dorico)',
@@ -3683,7 +3683,7 @@ export const TEMPLATES: ProgressionTemplate[] = [
       { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
     ],
     style: 'modern', techniques: ['modal_interchange'],
-    description: 'Cushion Dorico: IV e V vengono da Bb maggiore. ♭III (Eb) scurisce il colore, IV7 (F) risolve al tono. Effetto chiaroscuro tipico del video.',
+    description: 'Cushion Dorico: IV e V vengono da Bb maggiore. ♭III (Eb) scurisce il colore, IV7 (F) risolve al tono. Effetto chiaroscuro tipico del prestito modale.',
     artists: ['Vulfpeck', 'Jacob Collier', 'Tom Misch', 'Cory Henry'],
     feel: 'Chiaroscuro Dorico',
     lengths: [4],
@@ -3810,7 +3810,7 @@ export const TEMPLATES: ProgressionTemplate[] = [
     lengths: [4],
   },
 
-  // ── Turnaround variants (ascending cushion ii-chains) ──
+  // ── Turnaround variants (cushion ii-chains) ──
   {
     id: 'cushion-turnaround-dorian',
     name: '♭IIIm7–♭VIm7–IV7–I (Cushion Turnaround Dorico)',
@@ -3846,7 +3846,7 @@ export const TEMPLATES: ProgressionTemplate[] = [
     name: '♭IIm7–♭Vm7–♭III7–I (Cushion Turnaround Frigio)',
     chords: [
       { degree: 'bII',  quality: 'm7',  function: 'Subdominant', technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Frigio ii-sub (IV di Ab)' },
-      { degree: 'bV',   quality: 'm7',  function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭V = tritone cushion — massima tensione' },
+      { degree: 'bV',   quality: 'm7',  function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Tritone Cushion', annotation: '♭V = tritone cushion — massima tensione' },
       { degree: 'bIII', quality: '7',   function: 'Dominant',    technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Frigio V-sub (V di Ab) — risolve al tono' },
       { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
     ],
