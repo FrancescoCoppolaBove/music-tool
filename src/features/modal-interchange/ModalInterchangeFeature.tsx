@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Scale, Chord, Note } from 'tonal';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
+import PhrygianCushionExplorer from './components/PhrygianCushionExplorer';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
@@ -277,6 +278,8 @@ export default function ModalInterchangeFeature() {
           );
         })}
       </div>
+
+      <PhrygianCushionExplorer />
 
       {/* Common borrowed chords guide */}
       <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
