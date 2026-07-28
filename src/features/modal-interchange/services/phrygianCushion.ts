@@ -64,7 +64,7 @@ export function parseDegrees(input: string): string[] {
 }
 
 function chordSymbol(root: string, quality: string): string {
-  return quality === 'maj' ? root : `${root}${quality}`;
+  return `${root}${quality}`;
 }
 
 function resolveInKey(key: string, degree: string): CushionChord {
@@ -75,7 +75,7 @@ function resolveInKey(key: string, degree: string): CushionChord {
   return { inputDegree: degree, symbol: chordSymbol(root, quality), root, quality, isBorrowed: false, sourceKey: null };
 }
 
-function resolveInCushion(degree: string, homeKey: string, level: CushionLevel): CushionChord {
+function resolveInCushion(degree: string, homeKey: string, level: CushionLevel, homeNoteSemitones: Set<number>): CushionChord {
   if (degree === 'I') {
     return { ...resolveInKey(homeKey, 'I'), isBorrowed: false, sourceKey: null };
   }
@@ -88,19 +88,19 @@ function resolveInCushion(degree: string, homeKey: string, level: CushionLevel):
   const scaleNotes = getScaleNotes(sourceKey, 'major');
   const root = scaleNotes[ordinal - 1];
   const quality = MAJOR_DIATONIC_QUALITY[ORDINAL_TO_DEGREE_KEY[ordinal]] ?? 'maj7';
-  const homeNotes = new Set(getScaleNotes(homeKey, 'major'));
   return {
     inputDegree: degree,
     symbol: chordSymbol(root, quality),
     root,
     quality,
-    isBorrowed: !homeNotes.has(root),
+    isBorrowed: !homeNoteSemitones.has(noteToSemitone(root)),
     sourceKey,
   };
 }
 
 export function computeCushionVariants(degrees: string[], key: string): CushionResult {
   const original = degrees.map(d => resolveInKey(key, d));
+  const homeNoteSemitones = new Set(getScaleNotes(key, 'major').map(noteToSemitone));
   const levels: CushionLevel[] = ['dorian', 'aeolian', 'phrygian'];
   const variants: CushionVariant[] = levels.map(level => {
     const { label, color, offset } = CUSHION_OFFSETS[level];
@@ -113,7 +113,7 @@ export function computeCushionVariants(degrees: string[], key: string): CushionR
       label: `${label} (da ${sourceKey})`,
       sourceKey,
       color,
-      chords: degrees.map(d => resolveInCushion(d, key, level)),
+      chords: degrees.map(d => resolveInCushion(d, key, level, homeNoteSemitones)),
     };
   });
   return { original, variants };
