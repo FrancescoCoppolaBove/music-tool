@@ -3667,4 +3667,193 @@ export const TEMPLATES: ProgressionTemplate[] = [
     lengths: [6],
     mode: 'minor',
   },
+
+  // ── PHRYGIAN CUSHION CHORDS ───────────────────────────────────────────────
+  // Tier 1: Direct formula — keep I in home key, borrow IV and V from a
+  // parallel flat-major source key (Bb=Dorian, Eb=Aeolian, Ab=Phrygian).
+
+  // ── I–IV–V–I variants ──
+  {
+    id: 'cushion-i-iv-v-i-dorian',
+    name: 'I–♭III–IV–I (Cushion Dorico)',
+    chords: [
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'bIII', quality: 'maj7', function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭III prestato da Bb maggiore (IV di Bb) — Dorico' },
+      { degree: 'IV',   quality: '7',    function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'IV come V di Bb maggiore — funzione dominante cushion' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'Cushion Dorico: IV e V vengono da Bb maggiore. ♭III (Eb) scurisce il colore, IV7 (F) risolve al tono. Effetto chiaroscuro tipico del video.',
+    artists: ['Vulfpeck', 'Jacob Collier', 'Tom Misch', 'Cory Henry'],
+    feel: 'Chiaroscuro Dorico',
+    lengths: [4],
+  },
+  {
+    id: 'cushion-i-iv-v-i-aeolian',
+    name: 'I–♭VI–♭VII–I (Cushion Eolico)',
+    chords: [
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'bVI',  quality: 'maj7', function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭VI prestato da Eb maggiore (IV di Eb) — Eolico' },
+      { degree: 'bVII', quality: '7',    function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭VII come V di Eb maggiore — funzione dominante cushion' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'Cushion Eolico: IV e V vengono da Eb maggiore. ♭VI (Ab) e ♭VII (Bb) creano un colore più scuro e cinematico rispetto al Dorico.',
+    artists: ['Radiohead', 'Hans Zimmer', 'Thom Yorke', 'Bon Iver'],
+    feel: 'Cinematico Eolico',
+    lengths: [4],
+  },
+  {
+    id: 'cushion-i-iv-v-i-phrygian',
+    name: 'I–♭II–♭III–I (Cushion Frigio)',
+    chords: [
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'bII',  quality: 'maj7', function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭II prestato da Ab maggiore (IV di Ab) — Frigio' },
+      { degree: 'bIII', quality: '7',    function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭III come V di Ab maggiore — colore massimamente scuro' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'Cushion Frigio: IV e V vengono da Ab maggiore. ♭II (Db) è l\'accordo più drammatico — frigio puro, flamenco-jazz, prima risoluzione cromatica.',
+    artists: ['Paco de Lucía', 'Chick Corea', 'Miles Davis', 'Tigran Hamasyan'],
+    feel: 'Drammatico Frigio',
+    lengths: [4],
+  },
+
+  // ── II–V–I variants (cushion IV as ii-sub, cushion V as V-sub) ──
+  {
+    id: 'cushion-ii-v-i-dorian',
+    name: '♭IIIm7–IV7–I (Cushion Dorico II–V)',
+    chords: [
+      { degree: 'bIII', quality: 'm7',  function: 'Subdominant', technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭IIIm7 = IV di Bb come sostituto ii — Dorico' },
+      { degree: 'IV',   quality: '7',   function: 'Dominant',    technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'IV7 = V di Bb come sostituto V — Dorico' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'II–V–I con cushion Dorico: ii (Dm) → ♭IIIm7 (Ebm7), V (G7) → IV7 (F7). Il cambio di colore è sottile — da Dorian/Vulfpeck.',
+    artists: ['Vulfpeck', 'Cory Henry', 'Jacob Collier', 'Scary Pockets'],
+    feel: 'Dorico ii–V riarmonizzato',
+    lengths: [3],
+  },
+  {
+    id: 'cushion-ii-v-i-aeolian',
+    name: '♭VIm7–♭VII7–I (Cushion Eolico II–V)',
+    chords: [
+      { degree: 'bVI',  quality: 'm7',  function: 'Subdominant', technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭VIm7 = IV di Eb come sostituto ii — Eolico' },
+      { degree: 'bVII', quality: '7',   function: 'Dominant',    technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭VII7 = V di Eb come sostituto V — Eolico' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'II–V–I con cushion Eolico: ii → ♭VIm7 (Abm7), V → ♭VII7 (Bb7). Si trova in molti standard — una delle sostituzioni più efficaci.',
+    artists: ['Snarky Puppy', 'Ghost-Note', 'Anderson .Paak', 'D\'Angelo'],
+    feel: 'Eolico ii–V funk-jazz',
+    lengths: [3],
+  },
+  {
+    id: 'cushion-ii-v-i-phrygian',
+    name: '♭IIm7–♭III7–I (Cushion Frigio II–V)',
+    chords: [
+      { degree: 'bII',  quality: 'm7',  function: 'Subdominant', technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭IIm7 = IV di Ab come sostituto ii — Frigio' },
+      { degree: 'bIII', quality: '7',   function: 'Dominant',    technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭III7 = V di Ab come sostituto V — Frigio' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'II–V–I con cushion Frigio: ii → ♭IIm7 (Dbm7), V → ♭III7 (Eb7). Colore frigio/spagnolo massimo — risoluzione cromatica dalla seconda piatta.',
+    artists: ['Tigran Hamasyan', 'Chick Corea', 'Herbie Hancock', 'Iiro Rantala'],
+    feel: 'Frigio ii–V drammatico',
+    lengths: [3],
+  },
+
+  // ── I–V–vi–IV variants ──
+  {
+    id: 'cushion-pop-dorian',
+    name: 'I–IV7–vi–♭IIImaj7 (Cushion Dorico Pop)',
+    chords: [
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'IV',   quality: '7',    function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'V di Bb come sostituto del V originale — cushion Dorico' },
+      { degree: 'VI',   quality: 'm7',   function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'bIII', quality: 'maj7', function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'IV di Bb come sostituto del IV originale — cushion Dorico' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'I–V–vi–IV con cushion Dorico: V→IV7 (F7) e IV→♭IIImaj7 (Ebmaj7). Il giro pop acquista un colore funk-soul.',
+    artists: ['Tom Misch', 'Cory Henry', 'Vulfpeck', 'Scary Pockets'],
+    feel: 'Pop giro con colore Dorico',
+    lengths: [4],
+  },
+  {
+    id: 'cushion-pop-aeolian',
+    name: 'I–♭VII7–vi–♭VImaj7 (Cushion Eolico Pop)',
+    chords: [
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'bVII', quality: '7',    function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'V di Eb come sostituto del V originale — cushion Eolico' },
+      { degree: 'VI',   quality: 'm7',   function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'bVI',  quality: 'maj7', function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'IV di Eb come sostituto del IV originale — cushion Eolico' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'I–V–vi–IV con cushion Eolico: V→♭VII7 (Bb7) e IV→♭VImaj7 (Abmaj7). Radiohead-territory — il giro pop diventa cinematico.',
+    artists: ['Radiohead', 'Bon Iver', 'Frank Ocean', 'Sufjan Stevens'],
+    feel: 'Pop giro cinematico Eolico',
+    lengths: [4],
+  },
+  {
+    id: 'cushion-pop-phrygian',
+    name: 'I–♭III7–vi–♭IImaj7 (Cushion Frigio Pop)',
+    chords: [
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'bIII', quality: '7',    function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'V di Ab come sostituto del V originale — cushion Frigio' },
+      { degree: 'VI',   quality: 'm7',   function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'bII',  quality: 'maj7', function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'IV di Ab come sostituto del IV originale — cushion Frigio' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'I–V–vi–IV con cushion Frigio: V→♭III7 (Eb7) e IV→♭IImaj7 (Dbmaj7). Colore neapolitano-frigio massimo nel giro pop.',
+    artists: ['Tigran Hamasyan', 'Chick Corea', 'Iiro Rantala'],
+    feel: 'Pop giro Frigio estremo',
+    lengths: [4],
+  },
+
+  // ── Turnaround variants (ascending cushion ii-chains) ──
+  {
+    id: 'cushion-turnaround-dorian',
+    name: '♭IIIm7–♭VIm7–IV7–I (Cushion Turnaround Dorico)',
+    chords: [
+      { degree: 'bIII', quality: 'm7',  function: 'Subdominant', technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Dorico ii-sub (IV di Bb)' },
+      { degree: 'bVI',  quality: 'm7',  function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Eolico ii-sub (IV di Eb) — catena discendente' },
+      { degree: 'IV',   quality: '7',   function: 'Dominant',    technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Dorico V-sub (V di Bb) — risolve al tono' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'Turnaround con doppio ii-sub cushion (Dorico + Eolico) poi V cushion Dorico verso I. Catena cromatica discendente Eb–Ab–F–C.',
+    artists: ['Jacob Collier', 'Vulfpeck', 'Snarky Puppy', 'Brad Mehldau'],
+    feel: 'Turnaround cushion multi-livello',
+    lengths: [4],
+  },
+  {
+    id: 'cushion-turnaround-aeolian',
+    name: '♭VIm7–♭IIm7–♭VII7–I (Cushion Turnaround Eolico)',
+    chords: [
+      { degree: 'bVI',  quality: 'm7',  function: 'Subdominant', technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Eolico ii-sub (IV di Eb)' },
+      { degree: 'bII',  quality: 'm7',  function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Frigio ii-sub (IV di Ab) — catena discendente' },
+      { degree: 'bVII', quality: '7',   function: 'Dominant',    technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Eolico V-sub (V di Eb)' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'Turnaround con catena Eolico→Frigio poi V Eolico. Moto cromatico discendente Ab–Db–Bb–C con massimo scurimento prima del ritorno.',
+    artists: ['Radiohead', 'Bon Iver', 'Kendrick Lamar', 'Flying Lotus'],
+    feel: 'Turnaround Eolico oscuro',
+    lengths: [4],
+  },
+  {
+    id: 'cushion-turnaround-phrygian',
+    name: '♭IIm7–♭Vm7–♭III7–I (Cushion Turnaround Frigio)',
+    chords: [
+      { degree: 'bII',  quality: 'm7',  function: 'Subdominant', technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Frigio ii-sub (IV di Ab)' },
+      { degree: 'bV',   quality: 'm7',  function: 'Color',       technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: '♭V = tritone cushion — massima tensione' },
+      { degree: 'bIII', quality: '7',   function: 'Dominant',    technique: 'modal_interchange', techniqueLabel: 'Phrygian Cushion', annotation: 'Frigio V-sub (V di Ab) — risolve al tono' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'Turnaround Frigio estremo: ♭IIm7–♭Vm7 (relazione di tritono!) poi ♭III7 → I. Tensione massima con accordo sul triton prima della risoluzione.',
+    artists: ['Tigran Hamasyan', 'Brad Mehldau', 'Iiro Rantala', 'Craig Taborn'],
+    feel: 'Turnaround Frigio estremo',
+    lengths: [4],
+  },
 ];
