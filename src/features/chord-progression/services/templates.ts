@@ -3556,6 +3556,62 @@ export const TEMPLATES: ProgressionTemplate[] = [
     lengths: [3],
   },
 
+  {
+    id: 'gospel-736-into-walkup',
+    name: 'VII–III–VI → IV/VI–V/VII–I (7-3-6 + Walk-Up)',
+    chords: [
+      { degree: 'VII', quality: 'm7b5', function: 'Subdominant', technique: 'gospel',              annotation: 'VIIm7b5 — mezzo diminuito, prepara il 3', techniqueLabel: '7-3-6' },
+      { degree: 'III', quality: '7',    function: 'Dominant',    technique: 'secondary_dominant',  annotation: 'III7 — dominante secondario, risolve su VI', techniqueLabel: '7-3-6' },
+      { degree: 'VI',  quality: 'm7',   function: 'Tonic',       technique: 'gospel',              annotation: 'VIm7 — arrivo sul 6: punto di partenza del walk-up', techniqueLabel: '7-3-6 Landing' },
+      { degree: 'IV',  quality: 'add9', function: 'Subdominant', technique: 'gospel',              annotation: 'IVadd2/VI — slash chord, basso sale dal 6', techniqueLabel: 'Slash Walk-Up' },
+      { degree: 'V',   quality: '7',    function: 'Dominant',    technique: 'gospel',              annotation: 'V/VII — slash chord, basso sale al 7', techniqueLabel: 'Slash Walk-Up' },
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',       technique: 'gospel',              annotation: 'I — risoluzione finale', techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'modern', techniques: ['gospel', 'secondary_dominant'],
+    description: 'Combinazione gospel 7-3-6 + walk-up: il turnaround VII–III–VI atterra sul VI, da cui parte il walk-up IV/VI–V/VII–I. Il 7-3-6 aggiunge moto al passaggio verso VI, il walk-up porta a casa sul I. Elijah Moose (Gifted Hands Music): il 7-3-6 "adds motion when you\'re going to the 1".',
+    artists: ['Kirk Franklin', 'Andraé Crouch', 'Hezekiah Walker', 'Fred Hammond'],
+    feel: 'Gospel turnaround into walk-up resolution',
+    lengths: [6],
+  },
+
+  {
+    id: 'gospel-walkup-into-251',
+    name: 'IV/VI–V/VII–I → IIm9–V13–Imaj9 (Walk-Up + Two-Five-One)',
+    chords: [
+      { degree: 'IV',  quality: 'add9', function: 'Subdominant', technique: 'gospel',    annotation: 'IVadd2/VI — walk-up, basso sul 6', techniqueLabel: 'Slash Walk-Up' },
+      { degree: 'V',   quality: '7',    function: 'Dominant',    technique: 'gospel',    annotation: 'V/VII — walk-up, basso sul 7', techniqueLabel: 'Slash Walk-Up' },
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',       technique: 'gospel',    annotation: 'I — primo arrivo, poi parte il II-V', techniqueLabel: 'Gospel Tonic' },
+      { degree: 'II',  quality: 'm9',   function: 'Subdominant', technique: 'gospel',    annotation: 'IIm9 — supertonica con 9ª', techniqueLabel: 'Gospel ii' },
+      { degree: 'V',   quality: '13',   function: 'Dominant',    technique: 'diatonic',  annotation: 'V13 — dominante esteso con 13ª', techniqueLabel: 'Gospel Dom.' },
+      { degree: 'I',   quality: 'maj9', function: 'Tonic',       technique: 'gospel',    annotation: 'Imaj9 — risoluzione ricca con estensioni', techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'modern', techniques: ['gospel'],
+    description: 'Walk-up che apre, two-five-one che chiude: il walk-up IV/VI–V/VII–I stabilisce il tono, il IIm9–V13–Imaj9 ricolloca la risoluzione con colore moderno. Tipico del gospel contemporaneo dove il walk-up prepara e il ii-V-I sigilla.',
+    artists: ['PJ Morton', 'Cory Henry', 'Kirk Franklin', 'Maverick City Music'],
+    feel: 'Gospel walk-up into extended ii-V-I',
+    lengths: [6],
+  },
+
+  {
+    id: 'gospel-full-cycle',
+    name: 'I–VII–III–VI–IIm9–V13–IVadd2–V7 (Ciclo Gospel Completo)',
+    chords: [
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',       technique: 'gospel',              annotation: 'I — partenza tonica', techniqueLabel: 'Gospel Tonic' },
+      { degree: 'VII', quality: 'm7b5', function: 'Subdominant', technique: 'gospel',              annotation: 'VIIm7b5 — mezzo diminuito: inizio del 7-3-6', techniqueLabel: '7-3-6' },
+      { degree: 'III', quality: '7',    function: 'Dominant',    technique: 'secondary_dominant',  annotation: 'III7 — dominante secondario: cuore del 7-3-6', techniqueLabel: '7-3-6' },
+      { degree: 'VI',  quality: 'm7',   function: 'Color',       technique: 'gospel',              annotation: 'VIm7 — landing del 7-3-6, lancio verso il II', techniqueLabel: '7-3-6 Landing' },
+      { degree: 'II',  quality: 'm9',   function: 'Subdominant', technique: 'gospel',              annotation: 'IIm9 — inizio two-five-one', techniqueLabel: 'Gospel ii' },
+      { degree: 'V',   quality: '13',   function: 'Dominant',    technique: 'diatonic',            annotation: 'V13 — tensione massima', techniqueLabel: 'Gospel Dom.' },
+      { degree: 'IV',  quality: 'add9', function: 'Subdominant', technique: 'gospel',              annotation: 'IVadd2/VI — walk-up, basso sul 6', techniqueLabel: 'Slash Walk-Up' },
+      { degree: 'V',   quality: '7',    function: 'Dominant',    technique: 'gospel',              annotation: 'V/VII — walk-up, basso sul 7, risolve su I', techniqueLabel: 'Slash Walk-Up' },
+    ],
+    style: 'modern', techniques: ['gospel', 'secondary_dominant'],
+    description: 'Tutti e tre i movimenti gospel del video in un unico giro: partenza su I, 7-3-6 (VII–III–VI) per aggiungere moto verso il 6, two-five-one (IIm9–V13) per la tensione, walk-up slash chord (IVadd2/VI–V/VII) per rientrare su I. Basato su "How Great Is Our God" (Elijah Moose, Gifted Hands Music). Loop perfetto.',
+    artists: ['Kirk Franklin', 'Andraé Crouch', 'Hezekiah Walker', 'Cory Henry'],
+    feel: 'Gospel full circle — How Great Is Our God style',
+    lengths: [8],
+  },
+
   // ── DALLE LEZIONI: ALTERNATIVE AL V DAL DIMINUITO ────────────────────────
   {
     id: 'v-alt-backdoor-9',
