@@ -281,6 +281,46 @@ export default function ModalInterchangeFeature() {
 
       <PhrygianCushionExplorer />
 
+      {/* Famous song examples */}
+      <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
+        <summary style={{ cursor: 'pointer', fontSize: 13, color: '#8b949e', fontWeight: 600, listStyle: 'none' }}>
+          🎵 Modal Interchange in Famous Songs
+        </summary>
+        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[
+            {
+              song: 'Crazy — Gnarls Barkley',
+              prog: 'Im – V – ♭VI – ♭III',
+              key: 'C minor',
+              note: 'Natural minor loop. One single moment of C major (Imaj) replacing the Cm tonic is the emotional climax of the entire song — the brief switch to parallel major feels like coming up for air.',
+            },
+            {
+              song: 'Clair de Lune — Debussy',
+              prog: 'Imaj – IIIm – ♭IIImaj',
+              key: 'D♭ major',
+              note: 'Opens on the diatonic mediant (Fm, III of D♭), then immediately drops a half-step to the borrowed ♭III (E major = F♭ in the score). The contrast between the two mediants — one minor, one major, a semitone apart — is the bittersweet heart of the piece.',
+            },
+            {
+              song: "I Can't Go for That — Hall & Oates",
+              prog: 'im – ♭VI – Imaj',
+              key: 'F minor / C',
+              note: 'The verse lives in F minor (darkness). When C major arrives, the clouds part. This minor ↔ major toggle between parallel keys is pure modal interchange — the major tonic appears like a sudden shaft of light.',
+            },
+          ].map(({ song, prog, key, note }, i) => (
+            <div key={i} style={{
+              background: '#0d1117', border: '1px solid #21262d', borderRadius: 8, padding: '10px 12px',
+            }}>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline', marginBottom: 4 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#e6edf3' }}>{song}</div>
+                <div style={{ fontSize: 12, color: '#7c3aed', fontFamily: 'monospace' }}>{prog}</div>
+                <div style={{ fontSize: 11, color: '#4b5563' }}>({key})</div>
+              </div>
+              <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>{note}</div>
+            </div>
+          ))}
+        </div>
+      </details>
+
       {/* Common borrowed chords guide */}
       <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
         <summary style={{ cursor: 'pointer', fontSize: 13, color: '#8b949e', fontWeight: 600, listStyle: 'none' }}>

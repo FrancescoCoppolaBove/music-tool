@@ -3,7 +3,7 @@ import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { parseDegrees, computeCushionVariants } from '../services/phrygianCushion';
 import type { CushionChord } from '../services/phrygianCushion';
 
-const PRESETS = ['I IV V I', 'II V I', 'I V VI IV', 'I VI IV V'];
+const PRESETS = ['I IV V I', 'II V I', 'I II VI V', 'I V VI IV', 'I VI IV V'];
 
 export default function PhrygianCushionExplorer() {
   const { globalKey } = useGlobalKey();
@@ -158,12 +158,13 @@ export default function PhrygianCushionExplorer() {
           fontSize: 12, color: '#6b7280', padding: '10px 12px',
           background: '#0d1117', borderRadius: 8, lineHeight: 1.6,
         }}>
-          <strong style={{ color: '#8b949e' }}>Come funziona:</strong>{' '}
+          <strong style={{ color: '#8b949e' }}>Come funziona (il "Kush Chord Game"):</strong>{' '}
           Il grado <strong style={{ color: '#10b981', fontFamily: 'monospace' }}>I</strong> resta
           ancorato a <strong style={{ color: '#10b981' }}>{globalKey} maggiore</strong>.
-          Gli altri gradi vengono prelevati dalla stessa posizione diatonica nella chiave sorgente
-          (Dorico −2 semitoni, Eolico −9 semitoni, Frigio −4 semitoni).
-          Il colore scuro–chiaro nasce dall'abbassamento progressivo delle note rispetto alla tonalità di partenza.
+          Tutti gli altri accordi vengono prelevati dalla stessa posizione diatonica in una chiave maggiore
+          parallela più bassa: Dorico dalla chiave −2 semitoni, Eolico −9 semitoni, Frigio −4 semitoni.{' '}
+          <strong style={{ color: '#8b949e' }}>I II VI V</strong> è la progressione classica del Kush Chord Game —
+          prova a selezionarla per vedere le tre varianti affiancate.
         </div>
       )}
     </div>
