@@ -3861,6 +3861,39 @@ export const TEMPLATES: ProgressionTemplate[] = [
     lengths: [6],
   },
 
+  {
+    id: 'gospel-chromatic-iii-descent',
+    name: 'IIIm–♭IIIm–IIm–Imaj7 (Gospel Chromatic Third Descent)',
+    chords: [
+      { degree: 'III',  quality: 'm',    function: 'Color',       technique: 'gospel',    annotation: 'IIIm — partenza sul terzo minore del target (primo rivolto); mano sinistra: V', techniqueLabel: 'Gospel Approach' },
+      { degree: 'bIII', quality: 'm',    function: 'Color',       technique: 'chromatic', annotation: '♭IIIm — discesa cromatica di un semitono; mano sinistra: VII',               techniqueLabel: 'Chromatic Descent' },
+      { degree: 'II',   quality: 'm',    function: 'Subdominant', technique: 'chromatic', annotation: 'IIm — secondo semitono verso I; mano sinistra: VII→I',                        techniqueLabel: 'Chromatic Descent' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'gospel',    annotation: 'Imaj7 — arrivo al target chord',                                               techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'classic', techniques: ['gospel', 'chromatic'],
+    description: 'Il primo dei tre gospel moves tradizionali: approccio cromatico discendente da IIIm a I. Il principio è universale: qualunque chord target, vai al suo III minore (primo rivolto) e scendi per semitoni — IIIm → ♭IIIm → IIm → I. La mano sinistra sale 5-7-1 (V-VII-I walk-up). Funziona per qualunque target chord in qualunque tonalità. Pilastro degli inni gospel tradizionali — "Amazing Grace", spirituals, hymns.',
+    artists: ['Andraé Crouch', 'Kirk Franklin', 'James Cleveland', 'Richard Smallwood'],
+    feel: 'Gospel chromatic third descent — traditional hymn approach',
+    lengths: [4],
+  },
+
+  {
+    id: 'gospel-omnibus',
+    name: 'V–II7–VIIdim–V7–Imaj7 (Omnibus Progression)',
+    chords: [
+      { degree: 'V',   quality: 'maj7', function: 'Dominant', technique: 'gospel',              annotation: 'V — punto di partenza; due voci iniziano il moto contrario',                             techniqueLabel: 'Omnibus' },
+      { degree: 'II',  quality: '7',    function: 'Dominant', technique: 'secondary_dominant',  annotation: 'II7 = V/V — moto contrario: una voce sale, una scende',                                 techniqueLabel: 'Omnibus / Sec. Dom.' },
+      { degree: 'VII', quality: 'dim7', function: 'Color',    technique: 'dim_pedal',           annotation: 'VIIdim (F#° in C) — diminuito di passaggio nel moto contrario (fulcro dell\'Omnibus)', techniqueLabel: 'Omnibus Passing Dim' },
+      { degree: 'V',   quality: '7',    function: 'Dominant', technique: 'diatonic',            annotation: 'V7 — dominante finale prima della risoluzione' },
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',    technique: 'gospel',              annotation: 'Imaj7 — risoluzione alla tonica: le due voci convergono',                               techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'classic', techniques: ['gospel', 'secondary_dominant', 'dim_pedal'],
+    description: 'Il terzo gospel move tradizionale — l\'Omnibus Progression: due linee melodiche in moto contrario a partire da V, che convergono entrambe su I. In C: G → D → F#dim → G7 → C. Il VIIdim (F#°) è il pivot cromatico del moto contrario — nome accademico ufficiale: "Omnibus". Usato alla fine di brani gospel tradizionali per tornare alla tonica con massimo movimento cromatico bidirezionale. Tecnica storica del pianoforte gospel, presente in inni del XIX-XX secolo.',
+    artists: ['Andraé Crouch', 'Thomas A. Dorsey', 'James Cleveland', 'Richard Smallwood'],
+    feel: 'Gospel Omnibus — contrary motion traditional turnaround',
+    lengths: [5],
+  },
+
   // ── DALLE LEZIONI: ALTERNATIVE AL V DAL DIMINUITO ────────────────────────
   {
     id: 'v-alt-backdoor-9',
