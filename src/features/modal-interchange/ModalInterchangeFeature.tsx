@@ -5,6 +5,14 @@ import PhrygianCushionExplorer from './components/PhrygianCushionExplorer';
 
 const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
+// Flat-preferred names for source key display
+const SEMITONE_TO_KEY = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'] as const;
+
+function getSourceKey(home: string, semitoneOffset: number): string {
+  const chroma = Note.get(home).chroma ?? 0;
+  return SEMITONE_TO_KEY[(chroma + semitoneOffset + 12) % 12];
+}
+
 const MODES = [
   { name: 'dorian',           label: 'Dorian',         color: '#06b6d4' },
   { name: 'phrygian',         label: 'Phrygian',       color: '#f59e0b' },
@@ -279,47 +287,57 @@ export default function ModalInterchangeFeature() {
         })}
       </div>
 
-      <PhrygianCushionExplorer />
-
-      {/* Famous song examples */}
-      <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
-        <summary style={{ cursor: 'pointer', fontSize: 13, color: '#8b949e', fontWeight: 600, listStyle: 'none' }}>
-          🎵 Modal Interchange in Famous Songs
-        </summary>
-        <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {[
-            {
-              song: 'Crazy — Gnarls Barkley',
-              prog: 'Im – V – ♭VI – ♭III',
-              key: 'C minor',
-              note: 'Natural minor loop. One single moment of C major (Imaj) replacing the Cm tonic is the emotional climax of the entire song — the brief switch to parallel major feels like coming up for air.',
-            },
-            {
-              song: 'Clair de Lune — Debussy',
-              prog: 'Imaj – IIIm – ♭IIImaj',
-              key: 'D♭ major',
-              note: 'Opens on the diatonic mediant (Fm, III of D♭), then immediately drops a half-step to the borrowed ♭III (E major = F♭ in the score). The contrast between the two mediants — one minor, one major, a semitone apart — is the bittersweet heart of the piece.',
-            },
-            {
-              song: "I Can't Go for That — Hall & Oates",
-              prog: 'im – ♭VI – Imaj',
-              key: 'F minor / C',
-              note: 'The verse lives in F minor (darkness). When C major arrives, the clouds part. This minor ↔ major toggle between parallel keys is pure modal interchange — the major tonic appears like a sudden shaft of light.',
-            },
-          ].map(({ song, prog, key, note }, i) => (
-            <div key={i} style={{
-              background: '#0d1117', border: '1px solid #21262d', borderRadius: 8, padding: '10px 12px',
-            }}>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline', marginBottom: 4 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#e6edf3' }}>{song}</div>
-                <div style={{ fontSize: 12, color: '#7c3aed', fontFamily: 'monospace' }}>{prog}</div>
-                <div style={{ fontSize: 11, color: '#4b5563' }}>({key})</div>
-              </div>
-              <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>{note}</div>
-            </div>
-          ))}
+      {/* Source key borrowing guide */}
+      <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#e6edf3', marginBottom: 6 }}>
+            Da dove prendere in prestito — {selectedKey} maggiore
+          </div>
+          <p style={{ margin: 0, fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>
+            Tieni il <strong style={{ color: '#10b981', fontFamily: 'monospace' }}>I</strong> nella tonalità di{' '}
+            <strong style={{ color: '#e6edf3' }}>{selectedKey} maggiore</strong> e sposta tutti gli altri accordi
+            in una tonalità sorgente. Le tre fonti che funzionano meglio corrispondono alle alterazioni di{' '}
+            <strong style={{ color: '#e6edf3' }}>{selectedKey} minore naturale</strong> — creano
+            un effetto chiaro-scuro dove gli accordi "scuri" risolvono sempre sul I brillante.
+          </p>
         </div>
-      </details>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(155px, 1fr))', gap: 8 }}>
+          {([
+            { mode: 'Dorian',   degreeInSource: 'II', offset: 10, color: '#06b6d4', feel: 'Mellow, jazz-soul',      darker: '2 note abbassate' },
+            { mode: 'Aeolian',  degreeInSource: 'VI', offset:  3, color: '#ef4444', feel: 'Minore naturale, epico',  darker: '3 note abbassate' },
+            { mode: 'Phrygian', degreeInSource: 'III', offset: 8, color: '#f59e0b', feel: 'Esotico, cinematico',    darker: '3 note abbassate (max)' },
+          ] as const).map(({ mode, degreeInSource, offset, color, feel, darker }) => {
+            const source = getSourceKey(selectedKey, offset);
+            return (
+              <div key={mode} style={{
+                background: '#0d1117', border: `1px solid ${color}40`, borderRadius: 8, padding: '10px 12px',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color, fontWeight: 600 }}>{mode}</span>
+                </div>
+                <div style={{ fontFamily: 'monospace', fontSize: 20, fontWeight: 700, color: '#e6edf3', marginBottom: 2 }}>
+                  {source} maj
+                </div>
+                <div style={{ fontSize: 11, color: '#4b5563', marginBottom: 4 }}>
+                  {selectedKey} è il {degreeInSource}° grado di {source}
+                </div>
+                <div style={{ fontSize: 11, color: '#6b7280' }}>{feel}</div>
+                <div style={{ fontSize: 10, color, marginTop: 3 }}>{darker}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ fontSize: 12, color: '#4b5563', lineHeight: 1.5 }}>
+          Puoi sperimentare con qualsiasi altra tonalità — alcune funzioneranno, altre meno.
+          Queste tre però sono le più naturali perché sono esattamente le tre alterazioni (bemolle) che compaiono nella scala di {selectedKey} minore.
+          Usa l'Explorer qui sotto per vedere gli accordi concreti che ne risultano.
+        </div>
+      </div>
+
+      <PhrygianCushionExplorer />
 
       {/* Common borrowed chords guide */}
       <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
