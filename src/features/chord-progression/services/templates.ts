@@ -3496,6 +3496,66 @@ export const TEMPLATES: ProgressionTemplate[] = [
     lengths: [6],
   },
 
+  {
+    id: 'gospel-walkup-slash',
+    name: 'IV/VI–V/VII–I (Gospel Walk-Up)',
+    chords: [
+      { degree: 'IV', quality: 'maj7', function: 'Subdominant', technique: 'gospel', annotation: 'IV/VI — Bb/D in F: basso sul 6, slash chord', techniqueLabel: 'Slash Walk-Up' },
+      { degree: 'V',  quality: '7',    function: 'Dominant',    technique: 'gospel', annotation: 'V/VII — C/E in F: basso sul 7, slash chord', techniqueLabel: 'Slash Walk-Up' },
+      { degree: 'I',  quality: 'maj7', function: 'Tonic',       technique: 'gospel', annotation: 'I — risoluzione tonica', techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'classic', techniques: ['gospel'],
+    description: 'Walk-up gospel essenziale: IV/VI → V/VII → I. La mano sinistra sale 6→7→1 (bass walk-up), la mano destra tiene il IV e il V come slash chords. Apertura classica di "How Great Is Our God" e di centinaia di inni. Funziona come intro, come collegamento tra versi e come risoluzione.',
+    artists: ['Kirk Franklin', 'Andraé Crouch', 'Hezekiah Walker', 'Fred Hammond'],
+    feel: 'Gospel walk-up — Sunday morning opening',
+    lengths: [3],
+  },
+
+  {
+    id: 'gospel-walkup-add2',
+    name: 'IVadd9/VI–Vadd9/VII–Iadd9 (Gospel Walk-Up extended)',
+    chords: [
+      { degree: 'IV', quality: 'add9', function: 'Subdominant', technique: 'gospel', annotation: 'IVadd9/VI — IV con 9ª aggiunta (nota intera sopra root): pienezza senza il 7', techniqueLabel: 'Gospel Add9' },
+      { degree: 'V',  quality: 'add9', function: 'Dominant',    technique: 'gospel', annotation: 'Vadd9/VII — V con 9ª aggiunta: nota tra il 3 e il 5', techniqueLabel: 'Gospel Add9' },
+      { degree: 'I',  quality: 'add9', function: 'Tonic',       technique: 'gospel', annotation: 'I — risoluzione triade maggiore + 9ª', techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'classic', techniques: ['gospel'],
+    description: 'Walk-up gospel con add9: si aggiunge la 9ª (nota un tono sopra la fondamentale) al IV e al V — in F: Bbadd9/D, Cadd9/E, Fadd9. La nota aggiunta trasforma la semplicità della triade in suono gospel pieno. Elijah Moose (Gifted Hands Music): "the more notes you add to a chord with taste, the more fullness you get".',
+    artists: ['Kirk Franklin', 'PJ Morton', 'Cory Henry', 'Maverick City Music'],
+    feel: 'Gospel walk-up with add9 fullness',
+    lengths: [3],
+  },
+
+  {
+    id: 'gospel-251-essential',
+    name: 'IIm7–V7–Imaj7 (Gospel Two-Five-One)',
+    chords: [
+      { degree: 'II', quality: 'm7',   function: 'Subdominant', technique: 'gospel', annotation: 'IIm7 — supertonica minore, tensione morbida', techniqueLabel: 'Gospel ii' },
+      { degree: 'V',  quality: '7',    function: 'Dominant',    technique: 'diatonic', annotation: 'V7 — dominante, massima tensione', techniqueLabel: 'Gospel Dom.' },
+      { degree: 'I',  quality: 'maj7', function: 'Tonic',       technique: 'gospel', annotation: 'Imaj7 — risoluzione tonica', techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'classic', techniques: ['gospel'],
+    description: 'Il two-five-one gospel fondamentale: IIm7 → V7 → Imaj7. Il movement più importante del gospel, del jazz e del soul. Il IIm7 prepara, il V7 tende, il I risolve. Elijah Moose: "learn this in every single key because it is relevant to all genres — gospel, jazz, blues, pop, R&B". Usato in "How Great Is Our God" e in migliaia di altri brani.',
+    artists: ['Kirk Franklin', 'Thomas A. Dorsey', 'Aretha Franklin', 'James Cleveland'],
+    feel: 'Gospel two-five-one cadence',
+    lengths: [3],
+  },
+
+  {
+    id: 'gospel-251-extended',
+    name: 'IIm9–V13sus4–Imaj9 (Gospel Two-Five-One Fancy)',
+    chords: [
+      { degree: 'II', quality: 'm9',   function: 'Subdominant', technique: 'gospel', annotation: 'IIm9 — supertonica con 9ª: colore gospel moderno', techniqueLabel: 'Gospel ii ext.' },
+      { degree: 'V',  quality: '13',   function: 'Dominant',    technique: 'gospel', annotation: 'V13 (o sus4) — dominante con estensioni alte', techniqueLabel: 'Gospel Dom.' },
+      { degree: 'I',  quality: 'maj9', function: 'Tonic',       technique: 'gospel', annotation: 'Imaj9 — tonica estesa: risoluzione ricca', techniqueLabel: 'Gospel Tonic' },
+    ],
+    style: 'modern', techniques: ['gospel'],
+    description: 'Two-five-one gospel con estensioni moderne: IIm9 → V13 → Imaj9. Le estensioni (9, 13) aggiungono colore "gospel contemporaneo" senza cambiare la funzione armonica di base. La versione "fancy" che i pianisti gospel usano per arricchire il suono base — la stessa progressione, più note con gusto.',
+    artists: ['Cory Henry', 'PJ Morton', 'Kirk Franklin', 'Robert Glasper'],
+    feel: 'Gospel two-five-one — contemporary extended',
+    lengths: [3],
+  },
+
   // ── DALLE LEZIONI: ALTERNATIVE AL V DAL DIMINUITO ────────────────────────
   {
     id: 'v-alt-backdoor-9',
