@@ -3007,6 +3007,97 @@ export const TEMPLATES: ProgressionTemplate[] = [
     lengths: [4],
   },
 
+  {
+    id: 'neo-soul-mi-iv-cadence',
+    name: 'IVmaj7–ivm7–I–im–♭VImaj7–IVadd9–IIø–V7sus–Imaj9 (MI Floating Cadence)',
+    chords: [
+      { degree: 'IV',  quality: 'maj7', function: 'Subdominant', technique: 'diatonic',          annotation: 'IVmaj7 — sottodominante diatonica' },
+      { degree: 'IV',  quality: 'm7',   function: 'Color',       technique: 'modal_interchange', annotation: 'ivm7 — IV minore, prestito da Aeolian',           techniqueLabel: 'Minor IV' },
+      { degree: 'I',   quality: 'add9', function: 'Tonic',       technique: 'diatonic',          annotation: 'I6(add9) — tonica in primo rivolto con 9ª' },
+      { degree: 'I',   quality: 'm',    function: 'Color',       technique: 'modal_interchange', annotation: 'im(add9) — tonica minore prestata, oscurità improvvisa', techniqueLabel: 'Minor Tonic' },
+      { degree: 'bVI', quality: 'maj7', function: 'Color',       technique: 'modal_interchange', annotation: '♭VImaj7 — prestito da Aeolian, colore cinematico',  techniqueLabel: 'Borrowed ♭VI' },
+      { degree: 'IV',  quality: 'add9', function: 'Subdominant', technique: 'diatonic',          annotation: 'IVadd9 — IV in primo rivolto con 9ª' },
+      { degree: 'II',  quality: 'm7b5', function: 'Color',       technique: 'modal_interchange', annotation: 'iiø(♭9) — mezzo diminuito con ♭9, prestito da minore', techniqueLabel: 'Half-Dim' },
+      { degree: 'V',   quality: 'sus4', function: 'Dominant',    technique: 'diatonic',          annotation: 'V7sus — dominante sospeso, tensione senza sensibile', techniqueLabel: 'Sus Dom' },
+      { degree: 'I',   quality: 'maj9', function: 'Tonic',       technique: 'diatonic',          annotation: 'Imaj9 — risoluzione tonica estesa' },
+    ],
+    style: 'modern', techniques: ['modal_interchange', 'color'],
+    description: 'Progressione neo-soul densa in 9 accordi: IV plagale → IV minore (MI) → tonica maggiore/minore alternata → ♭VI cinematico → iiø mezzo diminuito → V7sus → Imaj9. Modal interchange continuo tra parallelo maggiore e minore crea un flusso chiaroscuro. @Haltber No.1 — stile D\'Angelo / Robert Glasper.',
+    artists: ["D'Angelo", 'Robert Glasper', 'Thundercat', 'Hiatus Kaiyote'],
+    feel: 'Neo-soul floating — MI major/minor interchange',
+    lengths: [9],
+  },
+
+  {
+    id: 'neo-soul-mi-bvi-bvii-loop',
+    name: 'Imaj7–IVmaj7–♭VImaj7–♭VII6/9–Imaj7 (MI Plagal Loop)',
+    chords: [
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'IV',   quality: 'maj7', function: 'Subdominant', technique: 'diatonic',          annotation: 'IVmaj7 — moto plagale classico' },
+      { degree: 'bVI',  quality: 'maj7', function: 'Color',       technique: 'modal_interchange', annotation: '♭VImaj7 — prestito da Aeolian, discesa cromatica',   techniqueLabel: 'Borrowed ♭VI' },
+      { degree: 'bVII', quality: '6/9',  function: 'Color',       technique: 'modal_interchange', annotation: '♭VII6/9 — prestito da Mixolydian, finisce aperto',  techniqueLabel: 'Borrowed ♭VII' },
+      { degree: 'I',    quality: 'maj7', function: 'Tonic',       technique: 'diatonic',          annotation: 'Imaj7 — rientro tonica, ripartenza loop' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'Loop neo-soul a 5 accordi: tonica → IV plagale → ♭VI Aeolian → ♭VII Mixolydian → ritorno a I. La discesa I→IV→♭VI→♭VII crea un movimento perpetuo che non si chiude mai in modo definitivo. @Haltber No.2 — stile Erykah Badu / Frank Ocean / H.E.R.',
+    artists: ['Erykah Badu', 'Frank Ocean', 'H.E.R.', 'Sza'],
+    feel: 'Neo-soul Aeolian/Mixolydian plagal loop',
+    lengths: [5],
+  },
+
+  {
+    id: 'neo-soul-mi-altered-cycle',
+    name: 'VIm7–♭VImaj7–V7alt–Imaj7–ivm9–♭VII7sus–Iadd9–im (MI + Altered Dom)',
+    chords: [
+      { degree: 'VI',  quality: 'm7',   function: 'Tonic',       technique: 'diatonic',          annotation: 'VIm7 — apertura sul VI naturale' },
+      { degree: 'bVI', quality: 'maj7', function: 'Color',       technique: 'modal_interchange', annotation: '♭VImaj7 — prestito Aeolian: mezzo tono sotto vi', techniqueLabel: 'Borrowed ♭VI' },
+      { degree: 'V',   quality: '7b9',  function: 'Dominant',    technique: 'altered_dominant',  annotation: 'V7alt (#5 #9 ♭9) — dominante pienamente alterato',  techniqueLabel: 'Altered Dom.' },
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',       technique: 'diatonic',          annotation: 'Imaj7 — risoluzione al centro' },
+      { degree: 'IV',  quality: 'm9',   function: 'Color',       technique: 'modal_interchange', annotation: 'ivm9 — IV minore prestato da Aeolian, riapertura scura', techniqueLabel: 'Minor IV' },
+      { degree: 'bVII',quality: 'sus4', function: 'Color',       technique: 'modal_interchange', annotation: '♭VII7sus — Mixolydian sus, galleggia senza risoluzione', techniqueLabel: 'Borrowed ♭VII' },
+      { degree: 'I',   quality: 'add9', function: 'Tonic',       technique: 'diatonic',          annotation: 'I6(add9) — tonica in primo rivolto' },
+      { degree: 'I',   quality: 'm',    function: 'Color',       technique: 'modal_interchange', annotation: 'im(add9) — chiusura minore amara: risoluzione bittersweet', techniqueLabel: 'Minor Tonic' },
+    ],
+    style: 'modern', techniques: ['modal_interchange', 'altered_dominant'],
+    description: '8 accordi neo-soul che combinano Modal Interchange e Altered Dominant: il V7alt (#5 #9 ♭9) crea la massima tensione prima di I, poi il ciclo riparte con ivm e ♭VII sospeso, concludendo con la tonica minore bittersweet. @Haltber No.3 — territorio Cory Henry / Snarky Puppy / Yussef Dayes.',
+    artists: ['Cory Henry', 'Snarky Puppy', 'Yussef Dayes', 'Thundercat'],
+    feel: 'Neo-soul altered dominant with MI bittersweet ending',
+    lengths: [8],
+  },
+
+  {
+    id: 'neo-soul-mi-deceptive',
+    name: 'IIm7–VIm9–Imaj9–IVmaj7–♭VIImaj7 (MI Deceptive Float)',
+    chords: [
+      { degree: 'II',   quality: 'm7',   function: 'Subdominant', technique: 'diatonic',          annotation: 'IIm7 — partenza classica neo-soul' },
+      { degree: 'VI',   quality: 'm9',   function: 'Tonic',       technique: 'diatonic',          annotation: 'VIm9 — cadenza ingannevole: atterraggio sul VI', techniqueLabel: 'Deceptive Landing' },
+      { degree: 'I',    quality: 'maj9', function: 'Tonic',       technique: 'diatonic',          annotation: 'Imaj9 — tonica piena con 9ª' },
+      { degree: 'IV',   quality: 'maj7', function: 'Subdominant', technique: 'diatonic',          annotation: 'IVmaj7 — movimento plagale' },
+      { degree: 'bVII', quality: 'maj7', function: 'Color',       technique: 'modal_interchange', annotation: '♭VIImaj7 — Mixolydian: finale aperto, non risolve', techniqueLabel: 'Borrowed ♭VII' },
+    ],
+    style: 'modern', techniques: ['modal_interchange', 'secondary_dominant'],
+    description: 'Progressione neo-soul a cadenza ingannevole: ii→vi (atterraggio inaspettato sul VI) → I → IV → ♭VII (Mixolydian, finale aperto). La sequenza non risolve mai definitivamente — il ♭VII finale galleggia verso un nuovo ciclo. @Haltber No.4 — Anderson .Paak / Lucky Daye / Masego.',
+    artists: ['Anderson .Paak', 'Lucky Daye', 'Masego', 'Ari Lennox'],
+    feel: 'Neo-soul deceptive cadence — open Mixolydian ending',
+    lengths: [5],
+  },
+
+  {
+    id: 'neo-soul-sd-vi-groove',
+    name: 'IVmaj7–III7(♭13)–VIm9–IIm9 (Secondary Dom V/vi Groove)',
+    chords: [
+      { degree: 'IV',  quality: 'maj7', function: 'Subdominant', technique: 'diatonic',           annotation: 'IVmaj7 — apertura plagale, suono caldo' },
+      { degree: 'III', quality: '7b9',  function: 'Dominant',    technique: 'secondary_dominant', annotation: 'III7(♭13) = V7/vi — dominante secondario del vi, tensione cromatica', techniqueLabel: 'Sec. Dom. V/vi' },
+      { degree: 'VI',  quality: 'm9',   function: 'Tonic',       technique: 'diatonic',           annotation: 'VIm9 — risoluzione cadenza ingannevole sul VI' },
+      { degree: 'II',  quality: 'm9',   function: 'Subdominant', technique: 'diatonic',           annotation: 'IIm9 — loop verso IV' },
+    ],
+    style: 'modern', techniques: ['secondary_dominant', 'color'],
+    description: '4 accordi neo-soul con dominante secondario V7/vi: IV plagale apre, III7(♭13) = V7/vi crea tensione cromatica, VIm9 risolve in modo ingannevole, IIm9 chiude il ciclo verso IV. Il III7 con ♭13 (nota alterata) è il suono caratteristico del neo-soul contemporaneo. @Haltber No.5 — Tom Misch / Jacob Collier / Flying Lotus.',
+    artists: ['Tom Misch', 'Jacob Collier', 'Flying Lotus', 'Kiefer'],
+    feel: 'Neo-soul secondary dominant groove — deceptive VI loop',
+    lengths: [4],
+  },
+
   // ── Jeff Schneider: Minor-to-Major Trick ─────────────────────────────────
   {
     id: 'minor-to-major-trick',
