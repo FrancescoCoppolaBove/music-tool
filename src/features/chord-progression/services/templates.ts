@@ -3827,6 +3827,40 @@ export const TEMPLATES: ProgressionTemplate[] = [
     lengths: [8],
   },
 
+  {
+    id: 'gospel-ccm-6415',
+    name: 'VIm7–IVmaj7–Imaj7–V7 (Gospel 6-4-1-5)',
+    chords: [
+      { degree: 'VI', quality: 'm7',   function: 'Tonic',       technique: 'gospel',    annotation: 'VI (6) — apertura sul VI: "Our God Is Greater" sound', techniqueLabel: 'Gospel' },
+      { degree: 'IV', quality: 'maj7', function: 'Subdominant', technique: 'gospel',    annotation: 'IV (4) — sottodominante calda' },
+      { degree: 'I',  quality: 'maj7', function: 'Tonic',       technique: 'gospel',    annotation: 'I (1) — tonica' },
+      { degree: 'V',  quality: '7',    function: 'Dominant',    technique: 'diatonic',  annotation: 'V (5) — dominante, ritorno al VI', techniqueLabel: 'Gospel Dom.' },
+    ],
+    style: 'classic', techniques: ['gospel'],
+    description: 'La progressione 6-4-1-5 del gospel contemporaneo cristiano: VIm7–IVmaj7–Imaj7–V7. È la base armonica di "Our God Is Greater" (Chris Tomlin), "There\'ll Be Another" e di centinaia di worship songs. In gospel si parte dal VI e il V porta il ritorno. David Hutchinson (Worship Leader Hangout): il punto di partenza essenziale prima di inserire movimenti più avanzati come il 7-3-6.',
+    artists: ['Chris Tomlin', 'Hillsong', 'Elevation Worship', 'Bethel Music'],
+    feel: 'Gospel CCM — 6-4-1-5 worship loop',
+    lengths: [4],
+  },
+
+  {
+    id: 'gospel-ccm-736-inside',
+    name: 'VIm7–IVmaj7–Imaj7–VIIm7b5–III7alt–VIm7 (7-3-6 dentro 6415)',
+    chords: [
+      { degree: 'VI',  quality: 'm7',   function: 'Tonic',       technique: 'gospel',              annotation: 'VI — partenza, stesso landing point di arrivo', techniqueLabel: 'Gospel' },
+      { degree: 'IV',  quality: 'maj7', function: 'Subdominant', technique: 'gospel',              annotation: 'IV — movimento plagale' },
+      { degree: 'I',   quality: 'maj7', function: 'Tonic',       technique: 'gospel',              annotation: 'I — tonica: invece di V→VI si usa il 7-3-6' },
+      { degree: 'VII', quality: 'm7b5', function: 'Subdominant', technique: 'gospel',              annotation: 'VII (7) — mezzo diminuito: inizio del 7-3-6', techniqueLabel: '7-3-6' },
+      { degree: 'III', quality: '7b9',  function: 'Dominant',    technique: 'secondary_dominant',  annotation: 'III7alt (#5 #9) = V7/vi — dominante alterato pienamente, tensione massima', techniqueLabel: '7-3-6 Alt Dom' },
+      { degree: 'VI',  quality: 'm7',   function: 'Tonic',       technique: 'gospel',              annotation: 'VI — landing del 7-3-6: risoluzione al VI, torna al loop', techniqueLabel: '7-3-6 Landing' },
+    ],
+    style: 'modern', techniques: ['gospel', 'secondary_dominant'],
+    description: 'La progressione 6-4-1-5 con il 7-3-6 inserito come cadenza di ritorno al VI: invece di I→V→VI si usa I→VII–III–VI. Il 7-3-6 (= minor ii-V-i in jazz) sostituisce il V7→VI con una risoluzione molto più sofisticata e tipicamente gospel. Il III chord suona come V7/vi con #5 e #9 alterati. David Hutchinson (Worship Leader Hangout): "il 7-3-6 è una meravigliosa progressione di passaggio" applicata dentro il loop 6415.',
+    artists: ['Kirk Franklin', 'Fred Hammond', 'Hezekiah Walker', 'Chris Tomlin'],
+    feel: 'Gospel CCM 6-4-1 with 7-3-6 cadence — elevated worship',
+    lengths: [6],
+  },
+
   // ── DALLE LEZIONI: ALTERNATIVE AL V DAL DIMINUITO ────────────────────────
   {
     id: 'v-alt-backdoor-9',
