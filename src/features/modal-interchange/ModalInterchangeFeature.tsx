@@ -337,7 +337,7 @@ export default function ModalInterchangeFeature() {
         </div>
       </div>
 
-      <PhrygianCushionExplorer />
+      <PhrygianCushionExplorer musicalKey={selectedKey} />
 
       {/* Common borrowed chords guide */}
       <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>

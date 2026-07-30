@@ -46,32 +46,37 @@ function buildScaleChords(sourceKey: string, homeKey: string): SourceChord[] {
   });
 }
 
-export default function PhrygianCushionExplorer() {
+interface Props {
+  musicalKey?: string;
+}
+
+export default function PhrygianCushionExplorer({ musicalKey }: Props) {
   const { globalKey } = useGlobalKey();
+  const activeKey = musicalKey ?? globalKey;
 
   const columns = useMemo<SourceColumn[]>(() => {
-    const dorianKey   = getSourceKey(globalKey, 10);
-    const aeolianKey  = getSourceKey(globalKey,  3);
-    const phrygianKey = getSourceKey(globalKey,  8);
+    const dorianKey   = getSourceKey(activeKey, 10);
+    const aeolianKey  = getSourceKey(activeKey,  3);
+    const phrygianKey = getSourceKey(activeKey,  8);
     return [
       {
-        label: 'Originale', sublabel: `${globalKey} maggiore`, color: '#10b981', isHome: true,
-        chords: buildScaleChords(globalKey, globalKey),
+        label: 'Originale', sublabel: `${activeKey} maggiore`, color: '#10b981', isHome: true,
+        chords: buildScaleChords(activeKey, activeKey),
       },
       {
         label: 'Dorian', sublabel: `da ${dorianKey} maj`, color: '#06b6d4',
-        chords: buildScaleChords(dorianKey, globalKey),
+        chords: buildScaleChords(dorianKey, activeKey),
       },
       {
         label: 'Aeolian', sublabel: `da ${aeolianKey} maj`, color: '#ef4444',
-        chords: buildScaleChords(aeolianKey, globalKey),
+        chords: buildScaleChords(aeolianKey, activeKey),
       },
       {
         label: 'Phrygian', sublabel: `da ${phrygianKey} maj`, color: '#f59e0b',
-        chords: buildScaleChords(phrygianKey, globalKey),
+        chords: buildScaleChords(phrygianKey, activeKey),
       },
     ];
-  }, [globalKey]);
+  }, [activeKey]);
 
   const validColumns = columns.filter(col => col.chords.length === 7);
 
@@ -87,7 +92,7 @@ export default function PhrygianCushionExplorer() {
         </h3>
         <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>
           Tutti gli accordi disponibili dalle tre tonalità sorgente. Gli accordi con bordo colorato
-          non appartengono a <strong style={{ color: '#e6edf3' }}>{globalKey} maggiore</strong> —
+          non appartengono a <strong style={{ color: '#e6edf3' }}>{activeKey} maggiore</strong> —
           sono i cush chords da prendere in prestito liberamente nelle tue progressioni.
         </p>
       </div>
@@ -157,7 +162,7 @@ export default function PhrygianCushionExplorer() {
         background: '#0d1117', borderRadius: 8, lineHeight: 1.6,
       }}>
         <strong style={{ color: '#8b949e' }}>Come usarlo:</strong>{' '}
-        Il <strong style={{ color: '#10b981', fontFamily: 'monospace' }}>I ({globalKey}maj)</strong> resta
+        Il <strong style={{ color: '#10b981', fontFamily: 'monospace' }}>I ({activeKey}maj)</strong> resta
         sempre il tuo tonico. Per tutti gli altri accordi puoi pescare liberamente da qualsiasi colonna —
         anche mischiando fonti diverse nella stessa progressione. Più scuro il colore della fonte,
         più scuro l'effetto armonico. La progressione risolve sempre sul I.
