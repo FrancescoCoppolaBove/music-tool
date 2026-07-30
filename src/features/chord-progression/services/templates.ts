@@ -2840,6 +2840,130 @@ export const TEMPLATES: ProgressionTemplate[] = [
     mode: 'both',
   },
   {
+    id: 'lofi-i-vi-ii-vsus',
+    name: 'Imaj9–VIm9–IIm9–V13sus (Lofi Classic Loop)',
+    chords: [
+      { degree: 'I',  quality: 'maj9', function: 'Tonic',       technique: 'diatonic',    annotation: 'Imaj9 — tonica estesa, suono caldo' },
+      { degree: 'VI', quality: 'm9',   function: 'Tonic',       technique: 'diatonic',    annotation: 'VIm9 — relativa minore con 9ª' },
+      { degree: 'II', quality: 'm9',   function: 'Subdominant', technique: 'diatonic',    annotation: 'IIm9 — supertonica con colore jazz' },
+      { degree: 'V',  quality: '13sus',function: 'Dominant',    technique: 'float_chord', annotation: 'V13sus — dominante sospeso: nessuna sensibile, ritorna su I morbidamente', techniqueLabel: 'Float Chord' },
+    ],
+    style: 'modern', techniques: ['diatonic', 'float_chord'],
+    description: 'Il loop lofi per eccellenza: I–vi–ii–V con estensioni su tutto e il V che diventa 13sus per non chiudere mai con durezza. È l\'evoluzione jazz del I–vi–ii–V — il suono di Lofi Girl, Tomppabeats, e di ogni playlist "study beats". Il 13sus galleggia senza la tensione del tritono.',
+    artists: ['Nujabes', 'Tomppabeats', 'Idealism', 'Philanthrope'],
+    feel: 'Lofi classic — study beats floating loop',
+    lengths: [4],
+  },
+
+  {
+    id: 'lofi-vi-ii-vsus-i',
+    name: 'VIm9–IIm9–V13sus–Imaj9 (Lofi Starting-from-vi)',
+    chords: [
+      { degree: 'VI', quality: 'm9',   function: 'Tonic',       technique: 'diatonic',    annotation: 'VIm9 — partenza sulla relativa minore: senso di malinconia' },
+      { degree: 'II', quality: 'm9',   function: 'Subdominant', technique: 'diatonic',    annotation: 'IIm9 — supertonica jazz' },
+      { degree: 'V',  quality: '13sus',function: 'Dominant',    technique: 'float_chord', annotation: 'V13sus — dominante galleggiante', techniqueLabel: 'Float Chord' },
+      { degree: 'I',  quality: 'maj9', function: 'Tonic',       technique: 'diatonic',    annotation: 'Imaj9 — risoluzione tonica: calore dopo la malinconia' },
+    ],
+    style: 'modern', techniques: ['diatonic', 'float_chord'],
+    description: 'Il loop lofi che parte dal vi — la variante più malinconica del classico I–vi–ii–V. Aprire sul VIm9 crea immediata nostalgia prima che il flusso risolva sul Imaj9. Molto comune nei beat lofi giapponesi e nei sample di jazz anni \'60.',
+    artists: ['Nujabes', 'J Dilla', 'Madlib', 'Knxwledge'],
+    feel: 'Lofi melancholic — starting from vi',
+    lengths: [4],
+  },
+
+  {
+    id: 'lofi-tritone-sub',
+    name: 'IIm9–♭IImaj7–Imaj9 (Lofi Tritone Sub Approach)',
+    chords: [
+      { degree: 'II',  quality: 'm9',   function: 'Subdominant', technique: 'diatonic',    annotation: 'IIm9 — supertonica jazz' },
+      { degree: 'bII', quality: 'maj7', function: 'Dominant',    technique: 'tritone_sub', annotation: '♭IImaj7 — tritone sub di V: cromatismo discendente al tono', techniqueLabel: 'SubV' },
+      { degree: 'I',   quality: 'maj9', function: 'Tonic',       technique: 'diatonic',    annotation: 'Imaj9 — arrivo cromatico, morbidissimo' },
+    ],
+    style: 'modern', techniques: ['tritone_sub'],
+    description: 'ii–SubV–I: il ♭IImaj7 è il tritone sub di V7 che si avvicina a I per semitono dall\'alto. Invece di V7→I (quarta sotto), si usa ♭II→I (semitono sopra). Più morbido, più jazzistico, perfetto per il lofi. Coltrane lo usa, Nujabes lo campiona, i bedroom producer lo adorano.',
+    artists: ['Nujabes', 'Kiefer', 'Tom Misch', 'Chet Baker'],
+    feel: 'Lofi jazz tritone sub — chromatic arrival',
+    lengths: [3],
+  },
+
+  {
+    id: 'lofi-nujabes-float',
+    name: 'IVmaj9–♭VIImaj7–IIIm7–VIm9 (Nujabes Float)',
+    chords: [
+      { degree: 'IV',   quality: 'maj9', function: 'Subdominant', technique: 'diatonic',          annotation: 'IVmaj9 — sottodominante larga, nessuna tensione' },
+      { degree: 'bVII', quality: 'maj7', function: 'Color',       technique: 'modal_interchange', annotation: '♭VIImaj7 — Mixolydian: scivola di tono verso III', techniqueLabel: 'Borrowed ♭VII' },
+      { degree: 'III',  quality: 'm7',   function: 'Tonic',       technique: 'diatonic',          annotation: 'IIIm7 — mediant minore diatonico' },
+      { degree: 'VI',   quality: 'm9',   function: 'Tonic',       technique: 'diatonic',          annotation: 'VIm9 — finale aperto, non risolve mai su I' },
+    ],
+    style: 'modern', techniques: ['modal_interchange', 'color'],
+    description: 'Il loop floating Nujabes: IV–♭VII–III–VI scende attraverso accordi prevalentemente diatonici con il ♭VII prestato dal Mixolydian. Non risolve mai su I — il loop galleggia in un limbo tonale. Il suono di "Feather", "Luv (sic)" e di tutta la colonna sonora di Samurai Champloo.',
+    artists: ['Nujabes', 'Fat Jon', 'Shing02', 'Tomppabeats'],
+    feel: 'Nujabes floating — Samurai Champloo aesthetic',
+    lengths: [4],
+  },
+
+  {
+    id: 'lofi-bvi-color',
+    name: 'Imaj9–♭VImaj7–IIm9–V13sus (Lofi ♭VI Color)',
+    chords: [
+      { degree: 'I',    quality: 'maj9', function: 'Tonic',       technique: 'diatonic',          annotation: 'Imaj9 — tonica con colore' },
+      { degree: 'bVI',  quality: 'maj7', function: 'Color',       technique: 'modal_interchange', annotation: '♭VImaj7 — colore Aeolian scuro prima del II', techniqueLabel: 'Borrowed ♭VI' },
+      { degree: 'II',   quality: 'm9',   function: 'Subdominant', technique: 'diatonic',          annotation: 'IIm9 — supertonica jazz' },
+      { degree: 'V',    quality: '13sus',function: 'Dominant',    technique: 'float_chord',       annotation: 'V13sus — ritorno galleggiante su I', techniqueLabel: 'Float Chord' },
+    ],
+    style: 'modern', techniques: ['modal_interchange', 'float_chord'],
+    description: 'Variante lofi con ♭VI (prestato da Aeolian) che inserisce un momento di oscurità tra I e ii. Il contrasto I–♭VI–ii crea una mini-narrativa chiaroscuro prima che il V13sus riporti tutto all\'inizio senza risoluzione dura.',
+    artists: ['Idealism', 'Philanthrope', 'Eevee', 'Glimlip'],
+    feel: 'Lofi ♭VI color — chill bittersweet loop',
+    lengths: [4],
+  },
+
+  {
+    id: 'lofi-jdilla-hanging',
+    name: 'IIm9–V13sus (J Dilla Hanging ii-V)',
+    chords: [
+      { degree: 'II', quality: 'm9',   function: 'Subdominant', technique: 'diatonic',    annotation: 'IIm9 — tensione aperta, non risolve mai' },
+      { degree: 'V',  quality: '13sus',function: 'Dominant',    technique: 'float_chord', annotation: 'V13sus — dominante perpetuamente sospeso: I non arriva mai', techniqueLabel: 'Float Chord' },
+    ],
+    style: 'modern', techniques: ['diatonic', 'float_chord'],
+    description: 'Due accordi, tensione infinita: IIm9–V13sus che non risolve mai su I. Ispirato alla filosofia di J Dilla — la bellezza è nel groove e nella ripetizione, non nella risoluzione armonica. Quando il I non arriva mai, l\'ascoltatore inizia a muoversi. Minimalismo assoluto.',
+    artists: ['J Dilla', 'Madlib', 'Karriem Riggins', 'Knxwledge'],
+    feel: 'J Dilla minimal — infinite hanging ii-V',
+    lengths: [2],
+  },
+
+  {
+    id: 'lofi-dorian-maj7',
+    name: '♭IIImaj7–IVmaj9–♭VIImaj7–Imaj9 (Lofi Dorian Cascade)',
+    chords: [
+      { degree: 'bIII', quality: 'maj7', function: 'Color',       technique: 'modal_interchange', annotation: '♭IIImaj7 — prestito Dorian/Aeolian: calore minore', techniqueLabel: 'Borrowed ♭III' },
+      { degree: 'IV',   quality: 'maj9', function: 'Subdominant', technique: 'diatonic',          annotation: 'IVmaj9 — sottodominante larga' },
+      { degree: 'bVII', quality: 'maj7', function: 'Color',       technique: 'modal_interchange', annotation: '♭VIImaj7 — Mixolydian: crea il colore lofi', techniqueLabel: 'Borrowed ♭VII' },
+      { degree: 'I',    quality: 'maj9', function: 'Tonic',       technique: 'diatonic',          annotation: 'Imaj9 — ritorno a casa con calore' },
+    ],
+    style: 'modern', techniques: ['modal_interchange'],
+    description: 'Cascata Dorian di accordi maggiori con 7: ♭III–IV–♭VII–I. Tutti i quattro accordi suonano come major7 o maj9, creando una qualità luminosa e sognante nonostante i prestiti dal modo minore. Il suono definitorio del lo-fi hip-hop — morbido, senza spigoli, perpetuamente nostalgico.',
+    artists: ['Nujabes', 'Tomppabeats', 'Philanthrope', 'Kiefer'],
+    feel: 'Lofi Dorian major7 cascade — dreamy nostalgic',
+    lengths: [4],
+  },
+
+  {
+    id: 'lofi-iii-vi-ii-v',
+    name: 'IIIm7–VIm9–IIm9–V13sus (Jazz iii-vi-ii-V Lofi)',
+    chords: [
+      { degree: 'III', quality: 'm7',   function: 'Tonic',       technique: 'diatonic',    annotation: 'IIIm7 — apertura sulla mediant: senso di sospensione' },
+      { degree: 'VI',  quality: 'm9',   function: 'Tonic',       technique: 'diatonic',    annotation: 'VIm9 — relativa minore con 9ª' },
+      { degree: 'II',  quality: 'm9',   function: 'Subdominant', technique: 'diatonic',    annotation: 'IIm9 — supertonica jazz' },
+      { degree: 'V',   quality: '13sus',function: 'Dominant',    technique: 'float_chord', annotation: 'V13sus — galleggia senza mai toccare I', techniqueLabel: 'Float Chord' },
+    ],
+    style: 'modern', techniques: ['diatonic', 'float_chord'],
+    description: 'Il ciclo jazz iii–vi–ii–V con estensioni lofi e dominante sospeso: la progressione non parte mai da I e non arriva mai a I — esiste in un loop perenne di tensione controllata. È la base di decine di standard jazz reinterpretati in chiave lofi. Molto Wes Montgomery / Grant Green campionati da J Dilla.',
+    artists: ['J Dilla', 'Madlib', 'Nujabes', 'Kiefer'],
+    feel: 'Jazz iii-vi-ii-V lofi groove — perpetual motion',
+    lengths: [4],
+  },
+  {
     id: 'thundercat-dorian-fusion',
     name: 'im9–IV7–♭VIImaj9–♭IIImaj7 (Thundercat Dorian Fusion)',
     chords: [
