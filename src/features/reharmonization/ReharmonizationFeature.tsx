@@ -35,6 +35,7 @@ const CAT_COLORS: Record<string, string> = {
   'Secondary Subdominant':  '#84cc16',
   'Diminished Passing':     '#ef4444',
   'Minor-to-Major Trick':   '#ec4899',
+  'Backdoor Dominant':      '#f59e0b',
 };
 
 // ─── Chord parsing ───────────────────────────────────────────────────────────
@@ -115,7 +116,15 @@ function getJourneyOptions(target: ParsedChord): JourneyOption[] {
       color: CAT_COLORS['Diminished Passing'],
       chords: [`${tp(r, '7M')}dim7`],
       roles: ['#vii°7 (½ step below)'],
-      theory: `dim7 built a half-step below ${r}. Two tritones — maximum harmonic tension. All four voices resolve by step. Symmetrical (same chord, 4 spellings).`,
+      theory: `dim7 built a half-step below ${r}. Two tritones — maximum harmonic tension. All four voices resolve by step. Symmetrical (same chord, 4 spellings). Note: ${tp(r, '7M')}°7 is enharmonic to ${r.replace(/b/,'').replace(/#/,'')}7♭9 as rootless voicing — the "money chord" shortcut.`,
+    },
+    {
+      id: 'backdoor-dom',
+      category: 'Backdoor Dominant',
+      color: CAT_COLORS['Backdoor Dominant'],
+      chords: [`${tp(r, '7m')}7`],
+      roles: ['♭VII7 (backdoor dom.)'],
+      theory: `♭VII7 = ${tp(r, '7m')}7. Resolves UP a whole step to ${r} — the opposite of a V7 which falls a fifth. Takes Lydian ♭7 or Mixolydian. No altered tensions needed (it resolves by step, not tritone). Very common in jazz, R&B, gospel.`,
     },
     {
       id: 'minor-to-major',
@@ -536,6 +545,7 @@ export default function ReharmonizationFeature() {
                     'Secondary Subdominant': 'IVmaj7 of wherever you\'re going. Works for any chord.',
                     'Diminished Passing': '°7 half-step below target. Pop/drop voicing. Two tritones.',
                     'Minor-to-Major Trick': 'vim7 → VI7 (raise 3rd) → passing dim → minor dest.',
+                    'Backdoor Dominant': '♭VII7 = whole step below target. Lydian ♭7 scale. No tritone motion.',
                   }[cat] ?? ''}
                 </div>
               </div>
@@ -544,6 +554,62 @@ export default function ReharmonizationFeature() {
         <div style={{ marginTop: 14, fontSize: 11, color: '#4b5563', lineHeight: 1.6 }}>
           <strong style={{ color: '#6b7280' }}>Framework:</strong>{' '}
           Enter your destination progression — chords you KNOW you want. Then work backwards: for each transition, pick a journey chord that creates tension before the destination. Journey chords are temporary — they exist only to make the landing more satisfying.
+        </div>
+
+        {/* Berklee 6 Reharmonization Techniques */}
+        <div style={{ marginTop: 20, padding: '14px 16px', background: '#0d1117', border: '1px solid #21262d', borderRadius: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
+            Berklee 6 Reharmonization Techniques
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {([
+              { label: '1. Diatonic Substitution', color: '#06b6d4', detail: 'Replace with a diatonic chord sharing 2+ common tones. Tonic subs: I→III or VI. SD sub: IV→II.' },
+              { label: '2. Secondary Dominant',     color: '#8b5cf6', detail: 'V7 of any diatonic chord. Scale: Mixolydian (to major) or Mixolydian ♭9 ♭13 (to minor).' },
+              { label: '3. Related II–7 Insertion', color: '#84cc16', detail: 'Add the II-7 before any V7. Turns a single dominant into a full ii–V approach.' },
+              { label: '4. Tritone Sub (subV7)',    color: '#06b6d4', detail: '♭II7 replaces V7. Shares the tritone. Resolves by half step. Scale: Lydian ♭7.' },
+              { label: '5. Modal Interchange',      color: '#ef4444', detail: 'Borrow from the parallel mode. ♭VII, ♭VI, ♭III, iv, ♭II (Neapolitan) — each adds a new colour.' },
+              { label: '6. Chromatic Approach',     color: '#ec4899', detail: 'Insert a dominant or dim7 a half step above/below the target. dim7 = rootless Dom7♭9.' },
+            ] as const).map(({ label, color, detail }) => (
+              <div key={label} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{ width: 3, background: color, borderRadius: 2, alignSelf: 'stretch', flexShrink: 0 }} />
+                <div>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3' }}>{label}</span>
+                  <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{detail}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tritone chain */}
+          <div style={{ marginTop: 14, padding: '10px 12px', background: '#161b22', borderRadius: 8, border: '1px solid #30363d' }}>
+            <div style={{ fontSize: 10, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+              Full Tritone Sub Chain — ii–V–I reharmonized
+            </div>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              {([
+                { label: 'II-7',    chord: 'Dm7',   color: '#06b6d4', note: '' },
+                { label: '→',       chord: '',       color: '',         note: '' },
+                { label: 'subV7/V', chord: 'Ab7',   color: '#f59e0b', note: '(tritone of D7)' },
+                { label: '→',       chord: '',       color: '',         note: '' },
+                { label: 'subV7',   chord: 'Db7',   color: '#f59e0b', note: '' },
+                { label: '→',       chord: '',       color: '',         note: '' },
+                { label: 'I',       chord: 'Cmaj7', color: '#10b981', note: '' },
+              ]).map(({ label, chord, color, note }, idx) => (
+                chord === '' ? (
+                  <span key={idx} style={{ color: '#4b5563', fontSize: 16 }}>→</span>
+                ) : (
+                  <div key={idx} style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color, fontFamily: syne }}>{chord}</div>
+                    <div style={{ fontSize: 9, color: '#6b7280' }}>{label}</div>
+                    {note && <div style={{ fontSize: 9, color: '#f59e0b' }}>{note}</div>}
+                  </div>
+                )
+              ))}
+            </div>
+            <div style={{ fontSize: 10, color: '#4b5563', marginTop: 6 }}>
+              Bass descends by half step throughout. All approach chords take Lydian ♭7.
+            </div>
+          </div>
         </div>
       </div>
     </div>
