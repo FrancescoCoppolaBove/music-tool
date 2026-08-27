@@ -515,6 +515,44 @@ function SuggestionCard({
         {suggestion.voices.map(v => (
           <VoiceRow key={v.voiceName} voice={v} color={tagColor} />
         ))}
+
+        {/* Minor 9th warning: detect adjacent voices a minor 2nd (1 semitone) apart in destination — possible minor 9th */}
+        {(() => {
+          const destNotes = suggestion.voices.map(v => v.noteB);
+          const minorNinthPairs: string[] = [];
+          for (let i = 0; i < destNotes.length - 1; i++) {
+            const interval = Math.abs((noteToSemi(destNotes[i]) - noteToSemi(destNotes[i + 1]) + 12) % 12);
+            if (interval === 1 || interval === 11) {
+              minorNinthPairs.push(`${suggestion.voices[i].voiceName}–${suggestion.voices[i + 1].voiceName}`);
+            }
+          }
+          return minorNinthPairs.length > 0 ? (
+            <div style={{ marginTop: 8, padding: '5px 8px', background: '#7f1d1d22', border: '1px solid #ef444460', borderRadius: 6, fontSize: 10, color: '#ef4444' }}>
+              ⚠️ Minor 9th risk: {minorNinthPairs.join(', ')} — adjacent voices a semitone apart may clash in tonal voicings
+            </div>
+          ) : null;
+        })()}
+
+        {/* Parallel 5ths check: both voices arrive on a P5 interval AND both moved */}
+        {(() => {
+          const vs = suggestion.voices;
+          const flags: string[] = [];
+          for (let i = 0; i < vs.length - 1; i++) {
+            for (let j = i + 1; j < vs.length; j++) {
+              if (vs[i].semitones === 0 && vs[j].semitones === 0) continue;
+              const srcInt = ((noteToSemi(vs[i].noteA) - noteToSemi(vs[j].noteA)) % 12 + 12) % 12;
+              const dstInt = ((noteToSemi(vs[i].noteB) - noteToSemi(vs[j].noteB)) % 12 + 12) % 12;
+              if (srcInt === 7 && dstInt === 7 && vs[i].semitones !== 0) {
+                flags.push(`${vs[i].voiceName}–${vs[j].voiceName}`);
+              }
+            }
+          }
+          return flags.length > 0 ? (
+            <div style={{ marginTop: 6, padding: '5px 8px', background: '#78350f22', border: '1px solid #f59e0b60', borderRadius: 6, fontSize: 10, color: '#f59e0b' }}>
+              ⚠️ Parallel 5ths: {flags.join(', ')} — avoid in tonal voice leading
+            </div>
+          ) : null;
+        })()}
       </div>
 
       {suggestion.artistExample && (
