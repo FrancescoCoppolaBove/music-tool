@@ -20,6 +20,8 @@ interface ScaleInfo {
   trickSemitones?: number;
   trickScaleName?: string;
   trickInterval?: string;
+  characteristicNote?: string;
+  modalContext?: boolean;
 }
 
 interface ChordScaleEntry {
@@ -77,6 +79,8 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
       trickSemitones: 5,
       trickScaleName: 'Major',
       trickInterval: 'P4 above',
+      characteristicNote: '♯4 — the Lydian signature',
+      modalContext: true,
     },
     alternatives: [
       {
@@ -143,6 +147,8 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
       trickSemitones: 2,
       trickScaleName: 'Major',
       trickInterval: 'M2 above',
+      characteristicNote: 'nat. 6 — the Dorian signature',
+      modalContext: true,
     },
     alternatives: [
       {
@@ -153,6 +159,7 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
         avoidNotes: [8],
         description: 'Natural minor — preferred in rock, pop, and classical contexts. The b6 creates more darkness compared to Dorian. Strong for melodic minor contexts and for tonal cadences.',
         extensionLabel: 'Extensions: 9, 11 (b13 is colouristic)',
+        characteristicNote: '♭6 — Aeolian colour; avoid note in tonal cadences',
       },
       {
         name: SCALES.dorianb2.name,
@@ -177,6 +184,8 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
         trickSemitones: 8,
         trickScaleName: 'Major',
         trickInterval: 'min. 6th above',
+        characteristicNote: '♭2 — defines Phrygian; freely voice in modal context',
+        modalContext: true,
       },
       {
         name: SCALES.minorPenta.name,
@@ -228,11 +237,12 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
       chordTones: [0, 4, 7, 10],
       goodExtensions: [2, 6, 9],
       avoidNotes: [],
-      description: 'Melodic Minor mode 4 — combines the dominant b7 with the Lydian ♯11. Sophisticated tension without the harshness of Altered. The go-to modern jazz dominant sound (think Herbie Hancock, Snarky Puppy).',
+      description: 'Melodic Minor mode 4 — combines the dominant b7 with the Lydian ♯11. Sophisticated tension without the harshness of Altered. The go-to modern jazz dominant sound (think Herbie Hancock, Snarky Puppy). Use on subV7 (tritone sub) — no avoid notes, resolves by half step.',
       extensionLabel: 'Extensions: 9, ♯11, 13',
       trickSemitones: 7,
       trickScaleName: 'Melodic Minor',
       trickInterval: 'P5 above',
+      characteristicNote: '♯11 — subV7 & Lydian ♭7 territory; no avoid notes',
     },
     alternatives: [
       {
@@ -241,11 +251,12 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
         chordTones: [0, 4, 7, 10],
         goodExtensions: [2, 9],
         avoidNotes: [5],
-        description: 'The most direct dominant scale — natural major with a b7. Functional and clear. Avoid the 11th (P4) which clashes with the major 3rd. Ideal for blues, bebop, and tonal harmony.',
+        description: 'The most direct dominant scale — natural major with a b7. Functional and clear. Avoid the 11th (P4) which clashes with the major 3rd. Ideal for V7 resolving to a major tonic (diatonic dominant).',
         extensionLabel: 'Extensions: 9, 13 (avoid 11)',
         trickSemitones: 5,
         trickScaleName: 'Major',
         trickInterval: 'P4 above (= key tonic)',
+        characteristicNote: '♭7 — diatonic dominant; V7 → major tonic',
       },
       {
         name: SCALES.mixolydianb6.name,
@@ -253,11 +264,12 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
         chordTones: [0, 4, 7, 10],
         goodExtensions: [2, 8],
         avoidNotes: [5],
-        description: 'Melodic Minor mode 5 — Mixolydian with a b13. The b6 creates a darker, more brooding dominant sound that resolves naturally to a minor tonic. Perfect for V7–im7 progressions.',
+        description: 'Melodic Minor mode 5 — Mixolydian with a b13. The b6 creates a darker dominant sound that resolves naturally to a minor tonic. Use on V7 resolving to a minor tonic (Berklee: Mixolydian ♭9 ♭13).',
         extensionLabel: 'Extensions: 9, b13 (avoid 11)',
         trickSemitones: 5,
         trickScaleName: 'Melodic Minor',
         trickInterval: 'P4 above',
+        characteristicNote: '♭13 — V7 → minor tonic; Mixolydian ♭9 ♭13',
       },
       {
         name: SCALES.phrygianDom.name,
@@ -374,6 +386,7 @@ const CHORD_SCALE_DATA: ChordScaleEntry[] = [
       avoidNotes: [],
       description: 'Melodic Minor mode 6 — adds a natural 9th instead of the b9 found in standard Locrian. Much softer and more jazzistic, ideal for minor ii–V–i progressions. The natural 9th is the key difference.',
       extensionLabel: 'Extensions: 9 (natural), 11',
+      characteristicNote: 'nat. 9 — distinguishes from Locrian; jazzistic choice',
       trickSemitones: 3,
       trickScaleName: 'Melodic Minor',
       trickInterval: 'min. 3rd above',
@@ -818,6 +831,22 @@ function ScaleCard({
         </div>
       )}
 
+      {scale.characteristicNote && (
+        <div style={{
+          marginTop: 8, fontSize: 11, color: '#a78bfa',
+          fontFamily: "'DM Mono', monospace",
+          display: 'flex', alignItems: 'center', gap: 4,
+        }}>
+          <span style={{ color: '#7c3aed' }}>✦</span> {scale.characteristicNote}
+        </div>
+      )}
+
+      {scale.avoidNotes.length > 0 && scale.modalContext && (
+        <div style={{ fontSize: 11, color: '#6b7280', fontStyle: 'italic', marginTop: 4 }}>
+          Avoid note in tonal context — characteristic in modal use
+        </div>
+      )}
+
       <p style={{ marginTop: 10, marginBottom: 0, fontSize: 12, color: '#6b7280', lineHeight: 1.6 }}>
         {scale.description}
       </p>
@@ -854,6 +883,35 @@ function ChordScalePanel({ root, quality }: { root: string; quality: string }) {
       {entry.alternatives.map((alt, i) => (
         <ScaleCard key={i} root={root} scale={alt} isPrimary={false} />
       ))}
+
+      {/* Dominant context guide */}
+      {quality === '7' && (
+        <div style={{
+          background: '#0d1117', border: '1px solid #21262d',
+          borderRadius: 10, padding: 16, marginTop: 4,
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+            Which dominant scale? — Berklee guide
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {([
+              { label: 'V7 → major (diatonic)', scale: 'Mixolydian', detail: 'T9, S4, T13 — avoid the 11th; plain natural dominant', color: '#8b5cf6' },
+              { label: 'V7 → minor (secondary dom)', scale: 'Mixolydian ♭9 ♭13', detail: 'T♭9, T♭13 — from Harmonic Minor of target', color: '#ec4899' },
+              { label: 'subV7 (tritone sub → major)', scale: 'Lydian ♭7', detail: 'T9, T♯11, T13 — no avoid notes; resolves by half step', color: '#f97316' },
+              { label: 'Non-resolving / blues / modal', scale: 'Mixolydian or Blues', detail: 'Treat as a tonic — any scale colour works', color: '#10b981' },
+            ] as const).map(({ label, scale, detail, color }) => (
+              <div key={label} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{ width: 3, background: color, borderRadius: 2, alignSelf: 'stretch', flexShrink: 0 }} />
+                <div>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#e6edf3' }}>{label}</span>
+                  <span style={{ fontSize: 12, color: '#a78bfa', marginLeft: 8, fontFamily: "'DM Mono', monospace" }}>{scale}</span>
+                  <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{detail}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
