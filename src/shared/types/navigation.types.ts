@@ -33,4 +33,5 @@ export type Tab =
   | 'examtemplates'
   | 'teacherdashboard'
   | 'harmonia'
-  | 'reharm';
+  | 'reharm'
+  | 'cycles';

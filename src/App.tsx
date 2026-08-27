@@ -16,6 +16,7 @@ import ScaleHarmonizationFeature from './features/scale-harmonization/ScaleHarmo
 import ModalInterchangeFeature from './features/modal-interchange/ModalInterchangeFeature';
 import ChordProgressionFeature from './features/chord-progression/ChordProgressionFeature';
 import ScaleAdvisorFeature from './features/scale-advisor/ScaleAdvisorFeature';
+import HarmonicCyclesFeature from './features/harmonic-cycles/HarmonicCyclesFeature';
 import HarmonicAnalysisFeature from './features/harmonic-analysis/HarmonicAnalysisFeature';
 import RiffArchitectFeature from './features/riff-architect/RiffArchitectFeature';
 import MelodyArchitectFeature from './features/melody-architect/MelodyArchitectFeature';
@@ -179,6 +180,7 @@ const GROUPS: GroupDef[] = [
     icon: '✍️',
     tabs: [
       { id: 'scaleadvisor',  label: 'Scale Advisor',       icon: '🧭', desc: 'Find the right scale over any chord',                              subsection: 'Harmony' },
+      { id: 'cycles',        label: 'Harmonic Cycles',     icon: '🔁', desc: 'Progressions by fourths, thirds, Giant Steps & more',               subsection: 'Harmony' },
       { id: 'progressions',  label: 'Chord Progressions',  icon: '🎸', desc: 'Build jazz, modal & cinematic progressions',                       subsection: 'Harmony' },
       { id: 'analysis',      label: 'Harmonic Analysis',   icon: '🔬', desc: 'Analyse key, Roman numerals & chord function',                     subsection: 'Harmony' },
       { id: 'landing',       label: 'Chord Landing',       icon: '🎯', desc: 'Find the best way to approach any target chord',                   subsection: 'Harmony' },
@@ -996,6 +998,7 @@ export default function App() {
         {activeTab === 'modal'         && <ModalInterchangeFeature />}
         {activeTab === 'progressions'  && <ChordProgressionFeature />}
         {activeTab === 'scaleadvisor'  && <ScaleAdvisorFeature />}
+        {activeTab === 'cycles'        && <HarmonicCyclesFeature />}
         {activeTab === 'analysis'      && <HarmonicAnalysisFeature />}
         {activeTab === 'riff'          && <RiffArchitectFeature />}
         {activeTab === 'melody'        && <MelodyArchitectFeature />}
