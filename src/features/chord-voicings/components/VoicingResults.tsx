@@ -109,37 +109,82 @@ export default function VoicingResults({ voicings, activeStyles, chordDisplay, c
       <div style={{ display: 'grid', gap: 6 }}>
         {filtered.map(v => {
           const isActive = v.id === (selectedId ?? filtered[0]?.id);
+          const sortedByMidi = [...v.notes].sort((a, b) => a.midi - b.midi);
+          const hasMinorNinth = sortedByMidi.some((n, i) =>
+            i + 1 < sortedByMidi.length && (sortedByMidi[i + 1].midi - n.midi) === 13
+          );
+          const intervals = v.notes.map(n => n.interval);
+          const hasMaj3 = intervals.includes('3');
+          const hasMin7 = intervals.includes('♭7');
+          const isDomVoicing = hasMin7;
+          const tritoneOk = hasMaj3 && hasMin7;
           return (
-            <button
-              key={v.id}
-              onClick={() => setSelectedId(v.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '10px 14px',
-                background: isActive ? '#1c2128' : '#0d1117',
-                border: `1px solid ${isActive ? STYLE_COLORS[v.style] : '#30363d'}`,
-                borderRadius: 8, cursor: 'pointer', textAlign: 'left',
-                transition: 'all 0.1s',
-                flexWrap: 'wrap',
-              }}
-            >
-              <span style={{
-                padding: '2px 8px',
-                background: `${STYLE_COLORS[v.style]}20`,
-                border: `1px solid ${STYLE_COLORS[v.style]}`,
-                borderRadius: 4, fontSize: 11, color: STYLE_COLORS[v.style], fontWeight: 600,
-                minWidth: 82, textAlign: 'center', flexShrink: 0,
-              }}>
-                {v.style === 'upperStructure' ? 'UST' : v.style.charAt(0).toUpperCase() + v.style.slice(1)}
-              </span>
-              <span style={{ flex: 1, fontSize: 13, color: '#c9d1d9', minWidth: 80 }}>{v.styleLabel}</span>
-              <span style={{ fontSize: 11, color: '#8b949e', fontFamily: 'monospace', flexShrink: 0 }}>
-                {v.notes.map(n => `${n.note}${n.octave}`).join(' – ')}
-              </span>
-            </button>
+            <div key={v.id} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <button
+                onClick={() => setSelectedId(v.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '10px 14px',
+                  background: isActive ? '#1c2128' : '#0d1117',
+                  border: `1px solid ${isActive ? STYLE_COLORS[v.style] : '#30363d'}`,
+                  borderRadius: 8, cursor: 'pointer', textAlign: 'left',
+                  transition: 'all 0.1s',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <span style={{
+                  padding: '2px 8px',
+                  background: `${STYLE_COLORS[v.style]}20`,
+                  border: `1px solid ${STYLE_COLORS[v.style]}`,
+                  borderRadius: 4, fontSize: 11, color: STYLE_COLORS[v.style], fontWeight: 600,
+                  minWidth: 82, textAlign: 'center', flexShrink: 0,
+                }}>
+                  {v.style === 'upperStructure' ? 'UST' : v.style.charAt(0).toUpperCase() + v.style.slice(1)}
+                </span>
+                <span style={{ flex: 1, fontSize: 13, color: '#c9d1d9', minWidth: 80 }}>{v.styleLabel}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                  {isDomVoicing && (
+                    <span style={{ fontSize: 10, color: tritoneOk ? '#10b981' : '#f59e0b', fontFamily: 'monospace' }}>
+                      {tritoneOk ? '✓ tritone' : '⚠ tritone?'}
+                    </span>
+                  )}
+                  {hasMinorNinth && (
+                    <span style={{ fontSize: 10, color: '#ef4444' }}>⚠ m9</span>
+                  )}
+                </div>
+                <span style={{ fontSize: 11, color: '#8b949e', fontFamily: 'monospace', flexShrink: 0 }}>
+                  {v.notes.map(n => `${n.note}${n.octave}`).join(' – ')}
+                </span>
+              </button>
+              {hasMinorNinth && isActive && (
+                <div style={{ fontSize: 10, color: '#ef4444', padding: '4px 10px', background: '#7f1d1d22', border: '1px solid #ef444440', borderRadius: 6 }}>
+                  ⚠️ Minor 9th interval between adjacent voices — avoid in tonal voicings (Modern Jazz Voicings rule)
+                </div>
+              )}
+              {isDomVoicing && !tritoneOk && isActive && (
+                <div style={{ fontSize: 10, color: '#f59e0b', padding: '4px 10px', background: '#78350f22', border: '1px solid #f59e0b40', borderRadius: 6 }}>
+                  ⚠️ Missing {!hasMaj3 ? 'major 3rd' : 'minor 7th (♭7)'} — tritone incomplete. Dominant function weakened.
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
+
+      {/* UST Theory Panel */}
+      {activeStyles.includes('upperStructure') && (
+        <div style={{ background: '#161b22', border: '1px solid #a855f740', borderRadius: 10, padding: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+            Upper Structure Triad — construction rules
+          </div>
+          <div style={{ fontSize: 12, color: '#8b949e', lineHeight: 1.7 }}>
+            <strong style={{ color: '#e6edf3' }}>Lower structure:</strong> Root, 3rd, 7th — the shell voicing that defines chord quality<br />
+            <strong style={{ color: '#e6edf3' }}>Upper structure:</strong> Close-position major or minor triad — must contain at least one tension (9, ♯11, 13…)<br />
+            <strong style={{ color: '#e6edf3' }}>Separation rule:</strong> Upper triad must sit at least a major 3rd above the top note of the lower structure<br />
+            <strong style={{ color: '#e6edf3' }}>Common USTs on G7:</strong> A major (9, ♯11, 13) · B major (3, ♯5, 7) · F♯ minor (♯11, 13, 7) · B♭ minor (♭9, ♭13, ♭7)
+          </div>
+        </div>
+      )}
     </div>
   );
 }
