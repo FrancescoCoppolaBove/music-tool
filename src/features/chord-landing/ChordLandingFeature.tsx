@@ -71,6 +71,16 @@ const QUALITIES = [
 
 const ALL_MOODS = ['jazz', 'classical', 'gospel', 'chromatic', 'modal', 'cinematic', 'bluesy', 'r&b', 'experimental'];
 
+const CAT_LABELS: Record<string, string> = {
+  major: 'Major',
+  minor: 'Minor',
+  dominant: 'Dominant',
+  suspended: 'Suspended',
+  halfdiminished: 'Half Dim.',
+  diminished: 'Diminished',
+  augmented: 'Augmented',
+};
+
 const COMPLEXITY_COLORS: Record<number, string> = {
   1: '#10b981',
   2: '#06b6d4',
@@ -919,7 +929,7 @@ export default function ChordLandingFeature() {
             return (
               <div key={cat} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 10, color: catColor, minWidth: 80, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  {cat}
+                  {CAT_LABELS[cat] ?? cat}
                 </span>
                 {catQualities.map(q => (
                   <button

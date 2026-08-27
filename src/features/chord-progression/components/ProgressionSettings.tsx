@@ -15,10 +15,10 @@ const KEYS = ['C', 'C#', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'Ab', 'A', 
 const LENGTHS = [2, 3, 4, 5, 6, 8, 12];
 
 const SPICE_LEVELS = [
-  { value: 0, label: 'Scheletro', emoji: '📄' },
-  { value: 1, label: 'Leggero',  emoji: '🌶' },
-  { value: 2, label: 'Medio',    emoji: '🌶🌶' },
-  { value: 3, label: 'Massimo',  emoji: '🌶🌶🌶' },
+  { value: 0, label: 'Skeleton', emoji: '📄' },
+  { value: 1, label: 'Light',    emoji: '🌶' },
+  { value: 2, label: 'Medium',   emoji: '🌶🌶' },
+  { value: 3, label: 'Maximum',  emoji: '🌶🌶🌶' },
 ];
 
 const TECHNIQUE_COLORS: Record<Technique, string> = {
@@ -166,7 +166,7 @@ export default function ProgressionSettings({
       {/* Spice level */}
       <div>
         <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>
-          Spice <span style={{ color: '#4b5563' }}>(quante trasformazioni applica il motore)</span>
+          Spice <span style={{ color: '#4b5563' }}>(how many transformations the engine applies)</span>
         </label>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {SPICE_LEVELS.map(s => {

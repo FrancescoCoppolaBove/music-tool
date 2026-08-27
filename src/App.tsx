@@ -11,7 +11,6 @@ import DailyChallengeFeature from './features/daily-challenge/DailyChallengeFeat
 import ChordVoicingsFeature from './features/chord-voicings/ChordVoicingsFeature';
 import ScaleRecognitionFeature from './features/scale-recognition/ScaleRecognitionFeature';
 import ScaleDictionaryFeature from './features/scale-dictionary/ScaleDictionaryFeature';
-import EarTrainingFeature from './features/ear-training/EarTrainingFeature';
 import CircleOfFifthsFeature from './features/circle-of-fifth/CircleOfFifthsFeature';
 import ScaleHarmonizationFeature from './features/scale-harmonization/ScaleHarmonizationFeature';
 import ModalInterchangeFeature from './features/modal-interchange/ModalInterchangeFeature';
@@ -678,7 +677,7 @@ function UserMenu({ onSignOut, onProfile }: { onSignOut: () => void; onProfile: 
                 fontSize: 13, color: '#e6edf3', borderRadius: 6,
               }}
             >
-              👤 Il mio profilo
+              👤 My profile
             </button>
             <button
               onClick={() => { setOpen(false); onSignOut(); }}
@@ -992,7 +991,6 @@ export default function App() {
         {activeTab === 'eartrainingpro' && <EarTrainingProFeature />}
         {activeTab === 'solfeggiocan'   && <SolfeggioCantatoFeature />}
         {activeTab === 'setticlavio'    && <SetticlavioFeature />}
-        {activeTab === 'ear'           && <EarTrainingFeature />}
         {activeTab === 'circle'        && <CircleOfFifthsFeature />}
         {activeTab === 'harmonization' && <ScaleHarmonizationFeature />}
         {activeTab === 'modal'         && <ModalInterchangeFeature />}
