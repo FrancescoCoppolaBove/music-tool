@@ -60,19 +60,19 @@ export default function PhrygianCushionExplorer({ musicalKey }: Props) {
     const phrygianKey = getSourceKey(activeKey,  8);
     return [
       {
-        label: 'Originale', sublabel: `${activeKey} maggiore`, color: '#10b981', isHome: true,
+        label: 'Original', sublabel: `${activeKey} major`, color: '#10b981', isHome: true,
         chords: buildScaleChords(activeKey, activeKey),
       },
       {
-        label: 'Dorian', sublabel: `da ${dorianKey} maj`, color: '#06b6d4',
+        label: 'Dorian', sublabel: `from ${dorianKey} maj`, color: '#06b6d4',
         chords: buildScaleChords(dorianKey, activeKey),
       },
       {
-        label: 'Aeolian', sublabel: `da ${aeolianKey} maj`, color: '#ef4444',
+        label: 'Aeolian', sublabel: `from ${aeolianKey} maj`, color: '#ef4444',
         chords: buildScaleChords(aeolianKey, activeKey),
       },
       {
-        label: 'Phrygian', sublabel: `da ${phrygianKey} maj`, color: '#f59e0b',
+        label: 'Phrygian', sublabel: `from ${phrygianKey} maj`, color: '#f59e0b',
         chords: buildScaleChords(phrygianKey, activeKey),
       },
     ];
@@ -91,9 +91,9 @@ export default function PhrygianCushionExplorer({ musicalKey }: Props) {
           🎹 Cushion Chord Palette
         </h3>
         <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>
-          Tutti gli accordi disponibili dalle tre tonalità sorgente. Gli accordi con bordo colorato
-          non appartengono a <strong style={{ color: '#e6edf3' }}>{activeKey} maggiore</strong> —
-          sono i cush chords da prendere in prestito liberamente nelle tue progressioni.
+          All chords available from the three source keys. Highlighted chords (coloured border)
+          don't belong to <strong style={{ color: '#e6edf3' }}>{activeKey} major</strong> —
+          they are cush chords you can borrow freely in your progressions.
         </p>
       </div>
 
@@ -146,7 +146,7 @@ export default function PhrygianCushionExplorer({ musicalKey }: Props) {
                   </div>
                   {highlight && (
                     <div style={{ fontSize: 9, color: col.color, marginTop: 2 }}>
-                      prestito
+                      borrowed
                     </div>
                   )}
                 </div>
@@ -161,11 +161,11 @@ export default function PhrygianCushionExplorer({ musicalKey }: Props) {
         fontSize: 12, color: '#6b7280', padding: '10px 12px',
         background: '#0d1117', borderRadius: 8, lineHeight: 1.6,
       }}>
-        <strong style={{ color: '#8b949e' }}>Come usarlo:</strong>{' '}
-        Il <strong style={{ color: '#10b981', fontFamily: 'monospace' }}>I ({activeKey}maj)</strong> resta
-        sempre il tuo tonico. Per tutti gli altri accordi puoi pescare liberamente da qualsiasi colonna —
-        anche mischiando fonti diverse nella stessa progressione. Più scuro il colore della fonte,
-        più scuro l'effetto armonico. La progressione risolve sempre sul I.
+        <strong style={{ color: '#8b949e' }}>How to use it:</strong>{' '}
+        The <strong style={{ color: '#10b981', fontFamily: 'monospace' }}>I ({activeKey}maj)</strong> always
+        stays your tonic. For all other chords you can freely pick from any column —
+        even mixing different source keys in the same progression. The darker the source colour,
+        the darker the harmonic effect. The progression always resolves back to I.
       </div>
     </div>
   );
