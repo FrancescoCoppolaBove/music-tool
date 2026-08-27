@@ -34,4 +34,5 @@ export type Tab =
   | 'teacherdashboard'
   | 'harmonia'
   | 'reharm'
-  | 'cycles';
+  | 'cycles'
+  | 'chordfinder';
