@@ -38,13 +38,68 @@ const MODES = [
   { name: 'altered',          label: 'Altered',        color: '#f97316' },
 ];
 
-// Well-known borrowed chord annotations — curated musical knowledge
-const COMMON_BORROWED: Record<string, { from: string; description: string }> = {
-  '♭VII_major_Mixolydian': { from: 'Mixolydian / Aeolian', description: '♭VII major — very common borrowed chord in rock/pop (e.g., Bb in C major)' },
-  '♭VI_major_Aeolian':     { from: 'Aeolian / Phrygian',   description: '♭VI major — dark, cinematic color (e.g., Ab in C major)' },
-  '♭III_major_Aeolian':    { from: 'Aeolian',              description: '♭III major — minor modal interchange (e.g., Eb in C major)' },
-  'iv_minor_Aeolian':      { from: 'Aeolian / Dorian',     description: 'iv minor — substitutes IV major for a darker, sadder feel (e.g., Fm in C major)' },
-  'II_major_Lydian':       { from: 'Lydian',               description: '♯IV (II of Lydian) — bright Lydian color chord' },
+// Well-known borrowed chord annotations — keyed by `${rootOffset}_${modeName}`
+// rootOffset = semitones of chord root above home key (0–11)
+const COMMON_BORROWED: Record<string, {
+  from: string;
+  characteristicNote: string;
+  chordScale: string;
+  description: string;
+}> = {
+  '10_aeolian': {
+    from: 'Aeolian',
+    characteristicNote: '♭7 — Aeolian / Mixolydian colour',
+    chordScale: 'Lydian ♭7',
+    description: '♭VII major — the most common borrowed chord in jazz, rock, and R&B. Acts as a backdoor dominant (resolves up a whole step to I). Lydian ♭7 chord scale.',
+  },
+  '10_mixolydian': {
+    from: 'Mixolydian',
+    characteristicNote: '♭7 — Mixolydian colour',
+    chordScale: 'Lydian ♭7',
+    description: '♭VII from Mixolydian — same sound as Aeolian ♭VII but highlights the mode source. The backbone of "Fly Me to the Moon", classic gospel cadences.',
+  },
+  '8_aeolian': {
+    from: 'Aeolian',
+    characteristicNote: '♭6 — Aeolian characteristic note',
+    chordScale: 'Lydian',
+    description: '♭VI major — dark cinematic colour. Very common in film scores and neo-soul. The ♭6 of the home key is the source of the borrowed quality.',
+  },
+  '3_aeolian': {
+    from: 'Aeolian',
+    characteristicNote: '♭3 — parallel minor root',
+    chordScale: 'Lydian',
+    description: '♭III major — borrowed from the parallel minor. Warm, melancholic modal interchange. Common in jazz ballads and indie rock.',
+  },
+  '5_aeolian': {
+    from: 'Aeolian / Dorian',
+    characteristicNote: '♭6 of IV creates iv quality',
+    chordScale: 'Dorian',
+    description: 'iv minor — the darkest subdominant substitution. The ♭3 of iv (♭6 of home key) is the key colour. Pillar of gospel, soul, and minor plagal cadences.',
+  },
+  '5_dorian': {
+    from: 'Dorian',
+    characteristicNote: 'nat. 6 of IV = Dorian quality',
+    chordScale: 'Dorian',
+    description: 'IV minor with major 6 (IV-6) — the Dorian borrowed chord. The maj6 adds warmth vs. plain iv minor. Classic in jazz-funk and neo-soul.',
+  },
+  '6_lydian': {
+    from: 'Lydian',
+    characteristicNote: '♯4 → II chord root',
+    chordScale: 'Lydian',
+    description: 'II major (♯IV) — bright Lydian colour. Floating, luminous quality. Used by Jacob Collier, Joe Hisaishi, and in progressive jazz harmony.',
+  },
+  '1_phrygian': {
+    from: 'Phrygian',
+    characteristicNote: '♭2 — the Neapolitan chord',
+    chordScale: 'Lydian',
+    description: '♭IIMaj7 — the Neapolitan chord. Half-step above tonic, creates strong downward pull. E.g., D♭Maj7 in C major. Very common in jazz reharmonization and classical cadences.',
+  },
+  '0_aeolian': {
+    from: 'Aeolian / Phrygian',
+    characteristicNote: '♭3 replaces major 3rd',
+    chordScale: 'Dorian',
+    description: 'I minor — the tonic minor swap. The strongest modal interchange. Instantly switches the home chord from major to minor. E.g., Cm7 in C major.',
+  },
 };
 
 interface ModeChord {
@@ -89,7 +144,7 @@ export default function ModalInterchangeFeature() {
   useEffect(() => { setSelectedKey(globalKey); }, [globalKey]);
   const [selectedModes, setSelectedModes] = useState<string[]>(['aeolian', 'dorian', 'mixolydian']);
   const [showAll, setShowAll] = useState(false);
-  const [focusedChord, setFocusedChord] = useState<{ symbol: string; mode: string; desc?: string } | null>(null);
+  const [focusedChord, setFocusedChord] = useState<{ symbol: string; mode: string; desc?: string; chordScale?: string } | null>(null);
 
   const homeChords = useMemo(
     () => buildModeChords(selectedKey, 'major', selectedKey),
@@ -210,6 +265,11 @@ export default function ModalInterchangeFeature() {
         <div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>
           {focusedChord?.desc ?? ' '}
         </div>
+        {focusedChord?.chordScale && (
+          <div style={{ fontSize: 11, color: '#f97316', marginTop: 4, fontFamily: "'DM Mono', monospace" }}>
+            Scale: {focusedChord.chordScale}
+          </div>
+        )}
       </div>
 
       {/* Modal interchange table */}
@@ -242,21 +302,23 @@ export default function ModalInterchangeFeature() {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {chords.map((chord, i) => {
                   const isBorrowed = !homeSymbols.has(chord.symbol);
+                  const homeChroma = Note.get(selectedKey).chroma ?? 0;
+                  const chordChroma = Note.get(chord.root).chroma ?? 0;
+                  const offset = (chordChroma - homeChroma + 12) % 12;
+                  const annotation = isBorrowed ? COMMON_BORROWED[`${offset}_${mode.name}`] : undefined;
+                  const tooltipDesc = annotation
+                    ? annotation.description
+                    : isBorrowed
+                      ? `Borrowed from ${mode.label} — not in ${selectedKey} major`
+                      : `Also in ${selectedKey} major`;
+                  const chordScale = annotation?.chordScale;
                   return (
                     <button
                       key={i}
-                      onMouseEnter={() => setFocusedChord({
-                        symbol: chord.symbol,
-                        mode: mode.label,
-                        desc: isBorrowed ? `Borrowed from ${mode.label} — not in ${selectedKey} major` : `Also in ${selectedKey} major`,
-                      })}
+                      onMouseEnter={() => setFocusedChord({ symbol: chord.symbol, mode: mode.label, desc: tooltipDesc, chordScale })}
                       onMouseLeave={() => setFocusedChord(null)}
                       onClick={() => setFocusedChord(prev =>
-                        prev?.symbol === chord.symbol ? null : {
-                          symbol: chord.symbol,
-                          mode: mode.label,
-                          desc: isBorrowed ? `Borrowed from ${mode.label} — not in ${selectedKey} major` : `Also in ${selectedKey} major`,
-                        }
+                        prev?.symbol === chord.symbol ? null : { symbol: chord.symbol, mode: mode.label, desc: tooltipDesc, chordScale }
                       )}
                       style={{
                         padding: '8px 12px', borderRadius: 8, cursor: 'pointer', textAlign: 'center',
@@ -275,7 +337,12 @@ export default function ModalInterchangeFeature() {
                       }}>
                         {chord.symbol}
                       </div>
-                      {isBorrowed && (
+                      {isBorrowed && annotation && (
+                        <div style={{ fontSize: 9, color: '#a78bfa', marginTop: 2, fontFamily: "'DM Mono', monospace" }}>
+                          ✦ {annotation.characteristicNote.split('—')[0].trim()}
+                        </div>
+                      )}
+                      {isBorrowed && !annotation && (
                         <div style={{ fontSize: 9, color: mode.color, marginTop: 2 }}>borrowed</div>
                       )}
                     </button>
@@ -291,22 +358,22 @@ export default function ModalInterchangeFeature() {
       <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#e6edf3', marginBottom: 6 }}>
-            Da dove prendere in prestito — {selectedKey} maggiore
+            Where to borrow from — {selectedKey} major
           </div>
           <p style={{ margin: 0, fontSize: 13, color: '#6b7280', lineHeight: 1.5 }}>
-            Tieni il <strong style={{ color: '#10b981', fontFamily: 'monospace' }}>I</strong> nella tonalità di{' '}
-            <strong style={{ color: '#e6edf3' }}>{selectedKey} maggiore</strong> e sposta tutti gli altri accordi
-            in una tonalità sorgente. Le tre fonti che funzionano meglio corrispondono alle alterazioni di{' '}
-            <strong style={{ color: '#e6edf3' }}>{selectedKey} minore naturale</strong> — creano
-            un effetto chiaro-scuro dove gli accordi "scuri" risolvono sempre sul I brillante.
+            Keep the <strong style={{ color: '#10b981', fontFamily: 'monospace' }}>I</strong> chord in{' '}
+            <strong style={{ color: '#e6edf3' }}>{selectedKey} major</strong> and shift all other chords
+            to a source key. The three sources that work best correspond to the alterations found in{' '}
+            <strong style={{ color: '#e6edf3' }}>{selectedKey} natural minor</strong> — they create
+            a light-and-shadow effect where the "dark" borrowed chords always resolve to the bright I.
           </p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(155px, 1fr))', gap: 8 }}>
           {([
-            { mode: 'Dorian',   degreeInSource: 'II', offset: 10, color: '#06b6d4', feel: 'Mellow, jazz-soul',      darker: '2 note abbassate' },
-            { mode: 'Aeolian',  degreeInSource: 'VI', offset:  3, color: '#ef4444', feel: 'Minore naturale, epico',  darker: '3 note abbassate' },
-            { mode: 'Phrygian', degreeInSource: 'III', offset: 8, color: '#f59e0b', feel: 'Esotico, cinematico',    darker: '3 note abbassate (max)' },
+            { mode: 'Dorian',   degreeInSource: 'II',  offset: 10, color: '#06b6d4', feel: 'Mellow, jazz-soul',       darker: '2 lowered notes' },
+            { mode: 'Aeolian',  degreeInSource: 'VI',  offset:  3, color: '#ef4444', feel: 'Natural minor, epic',      darker: '3 lowered notes' },
+            { mode: 'Phrygian', degreeInSource: 'III', offset:  8, color: '#f59e0b', feel: 'Exotic, cinematic',         darker: '3 lowered notes (max)' },
           ] as const).map(({ mode, degreeInSource, offset, color, feel, darker }) => {
             const source = getSourceKey(selectedKey, offset);
             return (
@@ -321,7 +388,7 @@ export default function ModalInterchangeFeature() {
                   {source} maj
                 </div>
                 <div style={{ fontSize: 11, color: '#4b5563', marginBottom: 4 }}>
-                  {selectedKey} è il {degreeInSource}° grado di {source}
+                  {selectedKey} is the {degreeInSource} degree of {source}
                 </div>
                 <div style={{ fontSize: 11, color: '#6b7280' }}>{feel}</div>
                 <div style={{ fontSize: 10, color, marginTop: 3 }}>{darker}</div>
@@ -331,9 +398,9 @@ export default function ModalInterchangeFeature() {
         </div>
 
         <div style={{ fontSize: 12, color: '#4b5563', lineHeight: 1.5 }}>
-          Puoi sperimentare con qualsiasi altra tonalità — alcune funzioneranno, altre meno.
-          Queste tre però sono le più naturali perché sono esattamente le tre alterazioni (bemolle) che compaiono nella scala di {selectedKey} minore.
-          Usa l'Explorer qui sotto per vedere gli accordi concreti che ne risultano.
+          You can experiment with any other source key — some will work, others won't.
+          These three are the most natural because they correspond exactly to the flattened notes found in {selectedKey} natural minor.
+          Use the Explorer below to see the resulting chords in practice.
         </div>
       </div>
 
