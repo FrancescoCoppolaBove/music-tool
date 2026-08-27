@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Chord, Key, Progression } from 'tonal';
+import { Chord, Key, Note, Progression } from 'tonal';
 
 // ─── Data Types ───────────────────────────────────────────────────────────────
 
@@ -15,6 +15,8 @@ interface AnalyzedChord {
   chordScale: string;
   tension: number;
   empty: boolean;
+  dim7Annotation?: string;
+  borrowedFrom?: string;
 }
 
 interface KeyCandidate {
@@ -38,6 +40,18 @@ interface AnalysisResult {
   patterns: PatternMatch[];
   secondaryDominantHint: string;
 }
+
+// ─── Borrowed chord source mode mapping (by semitone offset from key root) ────
+const BORROWED_SOURCE: Record<number, string> = {
+  10: '← Aeolian / Mixolydian (♭VII)',
+  8:  '← Aeolian (♭VI)',
+  3:  '← Aeolian (♭III)',
+  5:  '← Aeolian / Dorian (iv)',
+  1:  '← Phrygian (♭II — Neapolitan)',
+  6:  '← Lydian (♯IV)',
+};
+
+const FLAT_NOTES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 // ─── Key Detection ────────────────────────────────────────────────────────────
 
@@ -154,6 +168,25 @@ function analyzeChord(sym: string, key: KeyCandidate): AnalyzedChord {
 
   const tension = fn === 'T' ? 1 : fn === 'SD' ? 2 : fn === 'D' ? 4 : 3;
 
+  // dim7 as rootless Dom7♭9: root of dom7 is a major 3rd (4 semitones) below the dim7 root
+  let dim7Annotation: string | undefined;
+  const isFullDim7 = (chord.quality === 'Diminished' && chord.intervals?.includes('7d')) ||
+    sym.toLowerCase().includes('dim7') || sym.includes('°7');
+  if (!chord.empty && isFullDim7 && chord.tonic) {
+    const dimChroma = Note.get(chord.tonic).chroma ?? 0;
+    const dom7Root = FLAT_NOTES[(dimChroma - 4 + 12) % 12];
+    dim7Annotation = `= ${dom7Root}7♭9 (rootless)`;
+  }
+
+  // Borrowed chord source mode
+  let borrowedFrom: string | undefined;
+  if (fn === 'B' && !chord.empty && chord.tonic) {
+    const keyChroma = Note.get(key.root).chroma ?? 0;
+    const chordChroma = Note.get(chord.tonic).chroma ?? 0;
+    const offset = (chordChroma - keyChroma + 12) % 12;
+    borrowedFrom = BORROWED_SOURCE[offset];
+  }
+
   return {
     original: sym,
     symbol: chord.empty ? sym : chord.symbol,
@@ -164,6 +197,8 @@ function analyzeChord(sym: string, key: KeyCandidate): AnalyzedChord {
     chordScale,
     tension,
     empty: chord.empty,
+    dim7Annotation,
+    borrowedFrom,
   };
 }
 
@@ -258,12 +293,37 @@ function detectPatterns(
       });
     }
 
+    // Backdoor Dominant: ♭VII7 → I (resolves up a whole step)
+    if (
+      i + 1 < chords.length &&
+      chords[i + 1].fn === 'T'
+    ) {
+      const keyChroma = Note.get(key.root).chroma ?? 0;
+      const chordObj = Chord.get(chords[i].original);
+      if (!chordObj.empty && chordObj.tonic) {
+        const chordChroma = Note.get(chordObj.tonic).chroma ?? 0;
+        const offset = (chordChroma - keyChroma + 12) % 12;
+        const isDom7 = chords[i].original.endsWith('7') || chords[i].original.includes('7');
+        if (offset === 10 && isDom7) {
+          const alreadyCovered = patterns.some(p => p.label === 'V–I' && p.indices.includes(i));
+          if (!alreadyCovered) {
+            patterns.push({
+              label: 'Backdoor Dom.',
+              indices: [i, i + 1],
+              description: `${chords[i].original} is a backdoor dominant (♭VII7 → I) — resolves up a whole step. Scale: Lydian ♭7 or Mixolydian.`,
+            });
+          }
+        }
+      }
+    }
+
     // Borrowed
     if (chords[i].fn === 'B') {
+      const sourceLabel = chords[i].borrowedFrom ? ` ${chords[i].borrowedFrom}` : ' from parallel mode';
       patterns.push({
         label: 'Borrowed',
         indices: [i],
-        description: `${chords[i].original} borrowed from parallel mode — adds modal colour`,
+        description: `${chords[i].original} borrowed${sourceLabel} — adds modal colour`,
       });
     }
 
@@ -607,6 +667,20 @@ function ChordCard({
       >
         {fnLabel}
       </div>
+
+      {/* dim7 as rootless Dom7♭9 */}
+      {chord.dim7Annotation && (
+        <div style={{ fontSize: 9, color: '#f97316', marginTop: 2, textAlign: 'center', fontFamily: 'monospace' }}>
+          {chord.dim7Annotation}
+        </div>
+      )}
+
+      {/* Borrowed source mode */}
+      {chord.borrowedFrom && (
+        <div style={{ fontSize: 9, color: '#a78bfa', marginTop: 2, textAlign: 'center', fontStyle: 'italic' }}>
+          {chord.borrowedFrom}
+        </div>
+      )}
 
       {/* Non-diatonic note */}
       {!chord.isDiatonic && chord.fn !== 'B' && (
