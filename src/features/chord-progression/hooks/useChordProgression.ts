@@ -4,7 +4,7 @@ import { generateProgressions, regenerateProgression, getAvailableTechniques, ty
 import type { GeneratedProgression, HarmonyStyle, KeyMode, Technique } from '../types/progression.types';
 import { storageGet, storageSet } from '@shared/utils/storage';
 
-interface SessionState { key: string; mode: KeyMode; length: number; style: HarmonyStyle | 'both'; techniques: Technique[]; spice: number }
+interface SessionState { key: string; mode: KeyMode; length: number; style: HarmonyStyle | 'both'; spice: number }
 const SESSION_KEY = 'session_chordProgression';
 
 export function useChordProgression() {
@@ -19,7 +19,7 @@ export function useChordProgression() {
   const [mode, setMode] = useState<KeyMode>(saved.current?.mode ?? 'major');
   const [length, setLength] = useState(saved.current?.length ?? 4);
   const [style, setStyle] = useState<HarmonyStyle | 'both'>(saved.current?.style ?? 'both');
-  const [techniques, setTechniques] = useState<Technique[]>(saved.current?.techniques ?? []);
+  const [techniques, setTechniques] = useState<Technique[]>([]);
   const [spice, setSpice] = useState<number>(saved.current?.spice ?? 1);
   const [results, setResults] = useState<GeneratedProgression[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -46,7 +46,7 @@ export function useChordProgression() {
 
   // Persist settings whenever they change (not results, which are deterministic)
   useEffect(() => {
-    storageSet<SessionState>(SESSION_KEY, { key, mode, length, style, techniques, spice });
+    storageSet<SessionState>(SESSION_KEY, { key, mode, length, style, spice });
   }, [key, mode, length, style, techniques, spice]);
 
   function toggleTechnique(t: Technique) {
