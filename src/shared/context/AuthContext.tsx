@@ -59,14 +59,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
-    // Use popup on all platforms — on iOS it opens a SFSafariViewController
-    // which maintains state correctly without cross-origin storage issues.
-    // signInWithRedirect on iOS Chrome fails due to storage partitioning.
+    // Safari (including iOS) partitions sessionStorage across origins, so
+    // signInWithRedirect always fails with "missing initial state". Popup is
+    // the only working option — if it gets blocked we surface a clear message.
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
     try {
       await signInWithPopup(auth, provider);
     } catch (err) {
       const code = String((err as Record<string, unknown>)?.code ?? '');
       if (code === 'auth/popup-blocked' || code === 'auth/popup-cancelled-by-user') {
+        if (isSafari) {
+          throw new Error(
+            'Safari ha bloccato il popup di accesso. Vai in Impostazioni → Safari → Blocca popup e disattivalo, poi riprova.'
+          );
+        }
         localStorage.setItem('tonic_auth_redirect', '1');
         await signInWithRedirect(auth, provider);
         return;

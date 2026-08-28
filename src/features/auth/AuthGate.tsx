@@ -157,6 +157,9 @@ export default function AuthGate() {
         setError('Google sign-in non abilitato. Vai su Firebase Console → Authentication → Sign-in method → Google → Enable.');
       } else if (code === 'auth/popup-blocked') {
         setError('Popup bloccato dal browser. Permetti i popup per questo sito e riprova.');
+      } else if (!code || code === 'undefined') {
+        // Custom (non-Firebase) error — show message directly
+        setError(message);
       } else {
         // Show raw details for diagnosis
         setError(`Errore [${code}]: ${message}`);
