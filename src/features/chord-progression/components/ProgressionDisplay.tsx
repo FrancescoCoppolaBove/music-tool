@@ -3,6 +3,7 @@ import { playChordSequence, voiceChord, audioPlayer, type SequenceHandle } from 
 import type { GeneratedProgression, ResolvedChord, Technique } from '../types/progression.types';
 import { generateVoicings } from '@features/chord-voicings/services/voicingGenerator';
 import type { ParsedChord } from '@features/chord-voicings/types/chord.types';
+import { addBerkleeExtensions } from '../services/progressionGenerator';
 
 // ─── Voicing helper ───────────────────────────────────────────────────────────
 
@@ -148,6 +149,26 @@ const QUALITY_SCALES: Record<string, ScaleSuggestion[]> = {
     { name: 'Mixolydian',    isPrimary: false },
     { name: 'Phrygian',      isPrimary: false },
   ],
+
+  // ── Berklee extended qualities ────────────────────────────────────────────
+  'maj9#11': [
+    { name: 'Lydian',             isPrimary: true  },
+    { name: 'Lydian Augmented',  isPrimary: false },
+  ],
+  'm11b5':  [
+    { name: 'Locrian ♯2',      isPrimary: true  },
+    { name: 'Locrian',          isPrimary: false },
+    { name: 'HW Diminished',    isPrimary: false },
+  ],
+  '9sus4': [
+    { name: 'Mixolydian',     isPrimary: true  },
+    { name: 'Dorian',         isPrimary: false },
+    { name: 'Aeolian',        isPrimary: false },
+  ],
+  '6/9': [
+    { name: 'Lydian',             isPrimary: true  },
+    { name: 'Ionian (Major)',     isPrimary: false },
+  ],
 };
 
 function getScalesForQuality(quality: string): ScaleSuggestion[] {
@@ -191,11 +212,12 @@ interface ProgressionDisplayProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onRegenerate: (id: string) => void;
+  withExtensions?: boolean;
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function ProgressionDisplay({ results, selectedId, onSelect, onRegenerate }: ProgressionDisplayProps) {
+export default function ProgressionDisplay({ results, selectedId, onSelect, onRegenerate, withExtensions = false }: ProgressionDisplayProps) {
   if (results.length === 0) return (
     <div style={{ textAlign: 'center', padding: 40, color: '#4b5563' }}>
       <div style={{ fontSize: 30, marginBottom: 8 }}>🎵</div>
@@ -208,7 +230,7 @@ export default function ProgressionDisplay({ results, selectedId, onSelect, onRe
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Selected progression — detail view */}
-      {selected && <ProgressionDetail progression={selected} onRegenerate={onRegenerate} />}
+      {selected && <ProgressionDetail progression={selected} onRegenerate={onRegenerate} withExtensions={withExtensions} />}
 
       {/* List of all results */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -217,6 +239,7 @@ export default function ProgressionDisplay({ results, selectedId, onSelect, onRe
         </div>
         {results.map(r => {
           const isActive = r.id === (selectedId ?? results[0]?.id);
+          const listChords = withExtensions ? addBerkleeExtensions(r.chords) : r.chords;
           return (
             <button
               key={r.id}
@@ -230,13 +253,13 @@ export default function ProgressionDisplay({ results, selectedId, onSelect, onRe
               }}
             >
               <div style={{ flex: 1, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                {r.chords.map((c, i) => (
+                {listChords.map((c, i) => (
                   <span key={i} style={{
                     fontFamily: 'monospace', fontSize: 14,
                     color: isActive ? '#e6edf3' : '#8b949e', fontWeight: isActive ? 600 : 400,
                   }}>
                     {c.symbol}
-                    {i < r.chords.length - 1 && (
+                    {i < listChords.length - 1 && (
                       <span style={{ color: '#30363d', margin: '0 4px' }}>→</span>
                     )}
                   </span>
@@ -265,9 +288,10 @@ export default function ProgressionDisplay({ results, selectedId, onSelect, onRe
 
 // ─── Detail panel ─────────────────────────────────────────────────────────────
 
-function ProgressionDetail({ progression, onRegenerate }: {
+function ProgressionDetail({ progression, onRegenerate, withExtensions = false }: {
   progression: GeneratedProgression;
   onRegenerate: (id: string) => void;
+  withExtensions?: boolean;
 }) {
   const { template, chords, baseChords, key, appliedTransforms } = progression;
   const [showEnriched, setShowEnriched] = useState(true);
@@ -277,14 +301,15 @@ function ProgressionDetail({ progression, onRegenerate }: {
   const handleRef = useRef<SequenceHandle | null>(null);
 
   useEffect(() => () => handleRef.current?.stop(), []);
-  useEffect(() => { handleRef.current?.stop(); }, [progression.id, progression.seed, showEnriched]);
+  useEffect(() => { handleRef.current?.stop(); }, [progression.id, progression.seed, showEnriched, withExtensions]);
   useEffect(() => { void audioPlayer.preloadAllNotes(); }, []);
-  useEffect(() => { setChordVoicingStyles({}); }, [progression.id, showEnriched]);
+  useEffect(() => { setChordVoicingStyles({}); }, [progression.id, showEnriched, withExtensions]);
 
   const isPlaying = playingIndex !== null;
 
   const hasTransforms = appliedTransforms.length > 0;
-  const displayChords = hasTransforms && !showEnriched ? baseChords : chords;
+  const rawDisplayChords = hasTransforms && !showEnriched ? baseChords : chords;
+  const displayChords = withExtensions ? addBerkleeExtensions(rawDisplayChords) : rawDisplayChords;
 
   function togglePlay() {
     if (isPlaying) {
@@ -341,6 +366,15 @@ function ProgressionDetail({ progression, onRegenerate }: {
         }}>
           🎭 {template.feel}
         </span>
+
+        {withExtensions && (
+          <span style={{
+            padding: '3px 10px', background: '#eab30820', border: '1px solid #eab308',
+            borderRadius: 6, fontSize: 12, color: '#fcd34d', fontWeight: 600,
+          }}>
+            🎓 Berklee ext.
+          </span>
+        )}
 
         {hasTransforms && (
           <>

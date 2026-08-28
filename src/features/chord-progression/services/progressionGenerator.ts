@@ -162,3 +162,48 @@ export function getAllLengths(): number[] {
   TEMPLATES.forEach(t => t.lengths.forEach(l => lengths.add(l)));
   return Array.from(lengths).sort((a, b) => a - b);
 }
+
+// ─── Berklee Extensions ────────────────────────────────────────────────────────
+
+// Major-key degree overrides — applied only when chord is not in a harmonic-minor context
+const DEGREE_QUALITY_EXT: Record<string, string> = {
+  'III_m7':   'm11',   // avoid b9; Berklee: T11 only on IIIm
+  'VI_m7':    'm11',   // avoid 13 (creates mi6 clash); T9+T11
+  'VII_m7b5': 'm11b5',
+  'V_7':      '13',    // T9 + T13 (Mixolydian)
+  'V_9':      '13',
+};
+
+// Quality-level extension map (Berklee two-step: 7→9→13, m7→m9→m11, maj7→maj9→maj9#11)
+const QUALITY_EXT: Record<string, string> = {
+  'maj7':    'maj9',
+  'maj':     'maj9',
+  '6':       '6/9',
+  'm7':      'm9',
+  '7':       '9',
+  '7sus4':   '9sus4',
+  'm7b5':    'm11b5',
+  // Level 2
+  'maj9':    'maj9#11',
+  'm9':      'm11',
+  '9':       '13',
+  // Already maxed / special — leave unchanged
+  'm11':     'm11',   '13':      '13',   '6/9':      '6/9',
+  'maj9#11': 'maj9#11', 'm11b5': 'm11b5', 'maj7#11': 'maj9#11',
+  '7alt':    '7alt',  '7b9':    '7b9',   'dim7':     'dim7',
+  'quartal': 'quartal', '9sus4': '9sus4',
+};
+
+export function addBerkleeExtensions(chords: ResolvedChord[]): ResolvedChord[] {
+  return chords.map(chord => {
+    const skipDegreeOverride = chord.techniqueLabel === 'Harmonic Minor';
+    const degreeKey = `${chord.degree}_${chord.quality}`;
+    const extended =
+      (!skipDegreeOverride ? DEGREE_QUALITY_EXT[degreeKey] : undefined)
+      ?? QUALITY_EXT[chord.quality]
+      ?? chord.quality;
+    if (extended === chord.quality) return chord;
+    const qualitySuffix = extended === 'maj' ? '' : extended;
+    return { ...chord, quality: extended, symbol: `${chord.root}${qualitySuffix}` };
+  });
+}

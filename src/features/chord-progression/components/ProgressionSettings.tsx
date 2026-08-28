@@ -58,11 +58,14 @@ interface Props {
   setSpice: (s: number) => void;
   onGenerate: () => void;
   resultCount: number;
+  withExtensions: boolean;
+  setWithExtensions: (v: boolean) => void;
 }
 
 export default function ProgressionSettings({
   keyNote, setKey, mode, setMode, length, setLength, style, setStyle,
   techniques, toggleTechnique, availableTechniques, spice, setSpice, onGenerate, resultCount,
+  withExtensions, setWithExtensions,
 }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -232,6 +235,30 @@ export default function ProgressionSettings({
             );
           })}
         </div>
+      </div>
+
+      {/* Berklee Extensions toggle */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <button
+          onClick={() => setWithExtensions(!withExtensions)}
+          title="Applies Berklee tension rules: maj7→maj9, m7→m9/m11 (degree-specific), 7→9/13. Toggle on/off to compare."
+          style={{
+            padding: '6px 16px',
+            background: withExtensions ? '#eab30820' : '#0d1117',
+            border: `1px solid ${withExtensions ? '#eab308' : '#30363d'}`,
+            borderRadius: 20,
+            color: withExtensions ? '#fcd34d' : '#6b7280',
+            fontSize: 13, cursor: 'pointer', transition: 'all 0.15s',
+            fontWeight: withExtensions ? 700 : 400,
+          }}
+        >
+          🎓 Berklee Extensions {withExtensions ? 'ON' : 'OFF'}
+        </button>
+        {withExtensions && (
+          <span style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.4 }}>
+            maj7→maj9 · m7→m9/m11 · 7→9/13 · degree-aware (III→m11, V→13, VI→m11)
+          </span>
+        )}
       </div>
 
       {/* Generate button */}

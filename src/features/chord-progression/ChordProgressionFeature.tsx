@@ -19,6 +19,8 @@ export default function ChordProgressionFeature() {
     availableTechniques,
   } = useChordProgression();
 
+  const [withExtensions, setWithExtensions] = useState(false);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
@@ -50,6 +52,8 @@ export default function ChordProgressionFeature() {
           setSpice={setSpice}
           onGenerate={generate}
           resultCount={results.length}
+          withExtensions={withExtensions}
+          setWithExtensions={setWithExtensions}
         />
       </div>
 
@@ -59,6 +63,7 @@ export default function ChordProgressionFeature() {
         selectedId={selectedId}
         onSelect={setSelectedId}
         onRegenerate={regenerateVariant}
+        withExtensions={withExtensions}
       />
 
       {/* Modulation Cycles */}
