@@ -4423,7 +4423,57 @@ export const TEMPLATES: ProgressionTemplate[] = [
     feel: 'Groove fusion cushion triplo',
     lengths: [4],
   },
-  // ─── Berklee theory additions ─────────────────────────────────────────────────
+  // ─── SubV II Correlate patterns ───────────────────────────────────────────────
+  {
+    id: 'subv-correlate-approach',
+    name: '♭VIm7–♭II7–Imaj7 (SubV with II Correlate)',
+    chords: [
+      { degree: 'bVI', quality: 'm7',  function: 'Subdominant', technique: 'subv_correlate', annotation: 'II correlate of SubV — m7 a P5 above the SubV root; bass moves by P4 then half step', techniqueLabel: 'SubV Correlate' },
+      { degree: 'bII', quality: '7',   function: 'Dominant',    technique: 'tritone_sub',    annotation: 'SubV — tritone sub of V7; half-step chromatic resolution down to I', techniqueLabel: 'SubV' },
+      { degree: 'I',   quality: 'maj7',function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['subv_correlate', 'tritone_sub'],
+    description: 'SubV with its II correlate: the m7 a P5 above the SubV precedes it, creating a chromatic double approach. Bass motion: bVI→bII→I, mixing a fourth leap and two half steps. Art Tatum, Benny Golson, and Barry Harris use this constantly as an arrival device.',
+    artists: ['Art Tonal', 'Benny Golson', 'Barry Harris', 'Joe Pass'],
+    feel: 'Bebop — chromatic double approach via SubV correlate',
+    lengths: [3],
+  },
+  {
+    id: 'subv-correlate-double-chain',
+    name: 'IIm7–V7–♭VIm7–♭II7–Imaj7 (Cycle-5 then Chromatic Chain)',
+    chords: [
+      { degree: 'II',  quality: 'm7',  function: 'Subdominant', technique: 'diatonic',       annotation: 'IIm7 — standard subdominant; sets up ii–V expectation' },
+      { degree: 'V',   quality: '7',   function: 'Dominant',    technique: 'diatonic',       annotation: 'V7 — first dominant; the ear expects resolution to I here' },
+      { degree: 'bVI', quality: 'm7',  function: 'Subdominant', technique: 'subv_correlate', annotation: 'II correlate of SubV — diverts the V7 resolution into a chromatic chain', techniqueLabel: 'SubV Correlate' },
+      { degree: 'bII', quality: '7',   function: 'Dominant',    technique: 'tritone_sub',    annotation: 'SubV — completes the chromatic chain with half-step resolution', techniqueLabel: 'SubV' },
+      { degree: 'I',   quality: 'maj7',function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['subv_correlate', 'tritone_sub', 'diatonic'],
+    description: 'Standard IIm7–V7 followed by the SubV correlate chain (♭VIm7→♭II7→I). The first ii–V sets up a diatonic expectation; the second pair subverts it with chromatic half-step motion. A core bebop reharmonization device — the ear is tricked twice before the tonic arrives.',
+    artists: ['Art Tatum', 'Thelonious Monk', 'Cedar Walton', 'Benny Golson'],
+    feel: 'Bebop reharmonization — diatonic ii–V then chromatic chain',
+    lengths: [5],
+  },
+  {
+    id: 'subv-correlate-minor-cadence',
+    name: 'im7–IIm7♭5–V7♭9–♭VIm7–♭II7–im7 (Minor with Chromatic Return)',
+    chords: [
+      { degree: 'I',   quality: 'm7',   function: 'Tonic',       technique: 'diatonic' },
+      { degree: 'II',  quality: 'm7b5', function: 'Subdominant', technique: 'diatonic',       annotation: 'IIm7♭5 — half-diminished from harmonic minor', techniqueLabel: 'Harmonic Minor' },
+      { degree: 'V',   quality: '7b9',  function: 'Dominant',    technique: 'diatonic',       annotation: 'V7♭9 — harmonic minor dominant; maximum tension', techniqueLabel: 'Harmonic Minor' },
+      { degree: 'bVI', quality: 'm7',   function: 'Color',        technique: 'subv_correlate', annotation: 'II correlate of SubV/i — chromatic approach instead of direct V7→im resolution', techniqueLabel: 'SubV Correlate' },
+      { degree: 'bII', quality: '7',    function: 'Dominant',    technique: 'tritone_sub',    annotation: 'SubV/im — half-step chromatic resolution to minor tonic', techniqueLabel: 'SubV' },
+      { degree: 'I',   quality: 'm7',   function: 'Tonic',       technique: 'diatonic' },
+    ],
+    style: 'modern', techniques: ['subv_correlate', 'tritone_sub', 'diatonic'],
+    description: 'Minor tonic → harmonic minor ii–V → chromatic return via SubV correlate chain (♭VIm7→♭II7→im). After setting up the classic minor ii°–V7♭9 cadence, the resolution is subverted into a chromatic approach. Inspired by the "Round Midnight" reharmonization technique (Monk/Golson).',
+    artists: ['Thelonious Monk', 'Benny Golson', 'Wayne Shorter', 'Bill Evans'],
+    feel: 'Jazz minor — harmonic minor cadence with chromatic SubV return',
+    lengths: [6],
+    mode: 'minor',
+  },
+
+  // ─── Theory additions ─────────────────────────────────────────────────────────
   {
     id: 'neapolitan-major',
     name: 'IIm7–♭IImaj7–V7–Imaj7 (Neapolitan Pre-Dominant)',

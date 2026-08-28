@@ -40,6 +40,7 @@ const TECHNIQUE_COLORS: Record<Technique, string> = {
   bossa_nova: '#059669',
   flamenco: '#dc2626',
   color: '#eab308',
+  subv_correlate: '#f97316',
 };
 
 interface Props {
@@ -252,7 +253,7 @@ export default function ProgressionSettings({
             fontWeight: withExtensions ? 700 : 400,
           }}
         >
-          🎓 Berklee Extensions {withExtensions ? 'ON' : 'OFF'}
+          ✦ Harmony Extensions {withExtensions ? 'ON' : 'OFF'}
         </button>
         {withExtensions && (
           <span style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.4 }}>

@@ -94,6 +94,7 @@ export function getAvailableTechniques(): { id: Technique; label: string; descri
     { id: 'bossa_nova',        label: 'Bossa Nova',             description: 'Brazilian Jobim harmony: Imaj9→♭IImaj7 (chromatic slide), lush ii–V with tensions 9, 11, 13. "Ipanema", "Wave", "Corcovado".' },
     { id: 'flamenco',          label: 'Flamenco / Andalusian',  description: 'Andalusian cadence i→♭VII→♭VI→V7, Phrygian vamp im→♭II7, Spanish cycle. The flamenco / Phrygian dominant sound of Paco de Lucía.' },
     { id: 'color',             label: 'Color / Extensions',     description: 'Enriches chord qualities: maj7→maj9/6-9, m7→m9/m11, V7→13. Color without changing harmonic function.' },
+    { id: 'subv_correlate',    label: 'SubV II Correlate',      description: 'II correlate of the SubV (m7 a P5 above the SubV) + SubV: chromatic double approach to the target. The bVI-7→bII7→I motion. Art Tatum, Benny Golson, Monk.' },
   ];
 }
 
@@ -163,7 +164,7 @@ export function getAllLengths(): number[] {
   return Array.from(lengths).sort((a, b) => a - b);
 }
 
-// ─── Berklee Extensions ────────────────────────────────────────────────────────
+// ─── Harmony Extensions ────────────────────────────────────────────────────────
 
 // Major-key degree overrides — applied only when chord is not in a harmonic-minor context
 const DEGREE_QUALITY_EXT: Record<string, string> = {

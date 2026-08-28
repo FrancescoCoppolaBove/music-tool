@@ -18,7 +18,8 @@ export type Technique =
   | 'gospel'
   | 'bossa_nova'
   | 'flamenco'
-  | 'color';
+  | 'color'
+  | 'subv_correlate';
 
 export interface ProgressionChord {
   degree: string;          // Roman numeral e.g. "II" "bVII"

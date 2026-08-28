@@ -412,6 +412,51 @@ const colorExtensions: Transform = {
   },
 };
 
+// II correlate of SubV: m7 a P5 above the SubV root (= P8 + m2 above target)
+// Inserts [bVI-7, bII7] before the target — the chromatic double approach.
+const subVIiCorrelate: Transform = {
+  id: 'subv_correlate',
+  kind: 'insertion',
+  label: 'II correlato del SubV',
+  explain: 'II correlato (m7 una quinta sopra il SubV) + SubV: approccio cromatico doppio verso il target.',
+  findTargets: chords =>
+    chords.map((_, i) => i).filter(i => {
+      if (!canInsertBefore(chords, i)) return false;
+      const prev = chords[i - 1];
+      // Non aggiungere se il precedente è già un SubV (bII7)
+      if (prev && DOM_Q.includes(prev.quality)) {
+        const rel = (noteToSemitone(chords[i].root) - noteToSemitone(prev.root) + 12) % 12;
+        if (rel === 1) return false;
+      }
+      return true;
+    }),
+  apply: (chords, idx, ctx) => {
+    const target = chords[idx];
+    const tSem = noteToSemitone(target.root);
+    const subVSem = (tSem + 1) % 12;
+    const correlSem = (subVSem + 7) % 12;
+    const correl = makeChord(correlSem, 'm7', ctx, {
+      inserted: true,
+      technique: 'subv_correlate',
+      techniqueLabel: 'SubV Correlate',
+      function: 'Subdominant',
+      transformLabel: 'ii/SubV',
+      transformExplain: `m7 una quinta sopra il SubV di ${target.symbol}: II correlato del SubV`,
+      annotation: `ii/SubV → SubV → ${target.symbol}`,
+    });
+    const subV = makeChord(subVSem, '7', ctx, {
+      inserted: true,
+      technique: 'subv_correlate',
+      techniqueLabel: 'SubV',
+      function: 'Dominant',
+      transformLabel: 'SubV/x',
+      transformExplain: `Dominante un semitono sopra ${target.symbol}: risoluzione cromatica`,
+      annotation: `SubV → ${target.symbol}`,
+    });
+    return [...chords.slice(0, idx), correl, subV, ...chords.slice(idx)];
+  },
+};
+
 const floatChord: Transform = {
   id: 'float_chord',
   kind: 'decoration',
@@ -455,6 +500,7 @@ export const TRANSFORMS: Transform[] = [
   iiVMajor,
   iiVMinor,
   subVApproach,
+  subVIiCorrelate,
   backdoorIiV,
   chromaticApproach,
   susApproach,
@@ -469,6 +515,7 @@ export const TRANSFORMS: Transform[] = [
 export const TRANSFORM_TECHNIQUE_IDS: Technique[] = [
   'secondary_dominant', 'tritone_sub', 'altered_dominant', 'dim_pedal',
   'backdoor', 'chromatic', 'modal_interchange', 'sus', 'float_chord', 'color',
+  'subv_correlate',
 ];
 
 // ─── Motore ──────────────────────────────────────────────────────────────────

@@ -196,6 +196,7 @@ const TECHNIQUE_COLORS: Record<Technique, string> = {
   bossa_nova: '#059669',
   flamenco: '#dc2626',
   color: '#eab308',
+  subv_correlate: '#f97316',
 };
 
 const FUNCTION_COLORS: Record<string, string> = {
@@ -372,7 +373,7 @@ function ProgressionDetail({ progression, onRegenerate, withExtensions = false }
             padding: '3px 10px', background: '#eab30820', border: '1px solid #eab308',
             borderRadius: 6, fontSize: 12, color: '#fcd34d', fontWeight: 600,
           }}>
-            🎓 Berklee ext.
+            ✦ ext.
           </span>
         )}
 
