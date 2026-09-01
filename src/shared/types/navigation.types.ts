@@ -35,4 +35,5 @@ export type Tab =
   | 'harmonia'
   | 'reharm'
   | 'cycles'
-  | 'chordfinder';
+  | 'chordfinder'
+  | 'rhythmic-displacement';

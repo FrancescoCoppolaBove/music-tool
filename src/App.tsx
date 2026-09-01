@@ -34,6 +34,7 @@ import ModalBuddy from './shared/components/ModalBuddy';
 import VoiceLeadingFeature from './features/voice-leading/VoiceLeadingFeature';
 import GrooveKitchenFeature from './features/groove-kitchen/GrooveKitchenFeature';
 import ArrangementBlueprintFeature from './features/arrangement-blueprint/ArrangementBlueprintFeature';
+import RhythmicDisplacementFeature from './features/rhythmic-displacement/RhythmicDisplacementFeature';
 import HomePage from './features/home/HomePage';
 import EarTrainingProFeature from './features/ear-training-pro/EarTrainingProFeature';
 import SolfeggioCantatoFeature from './features/solfeggio-cantato/SolfeggioCantatoFeature';
@@ -194,6 +195,7 @@ const GROUPS: GroupDef[] = [
       { id: 'architect',     label: 'Song Architect',      icon: '🏗️', desc: 'Develop harmonic sections B and C from your A section',           subsection: 'Arrange' },
       { id: 'groove',        label: 'Groove Kitchen',      icon: '🥁', desc: 'Drum + bass patterns for Snarky Puppy, Ghost Note, Vulfpeck, Yussef Dayes', subsection: 'Arrange' },
       { id: 'arrangement',   label: 'Arrangement Blueprint', icon: '🎼', desc: 'What each instrument plays — from idea to complete arrangement', subsection: 'Arrange' },
+      { id: 'rhythmic-displacement', label: 'Rhythmic Displacement', icon: '⟳', desc: 'Displace a pattern by any subdivision — polyrhythm 3:2 and 4:3 visualizer', subsection: 'Arrange' },
     ],
   },
   {
@@ -1024,6 +1026,7 @@ export default function App() {
         {activeTab === 'voiceleading'  && <VoiceLeadingFeature />}
         {activeTab === 'groove'        && <GrooveKitchenFeature />}
         {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}
+        {activeTab === 'rhythmic-displacement' && <RhythmicDisplacementFeature />}
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
