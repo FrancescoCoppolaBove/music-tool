@@ -360,3 +360,26 @@ export function degreeToChord(key: string, degree: string, qualityOverride?: str
   const quality = qualityOverride ?? MAJOR_DIATONIC_QUALITY[degree] ?? 'maj7';
   return { root, quality, symbol: `${root}${quality === 'maj' ? '' : quality}` };
 }
+
+// ─── Chord Parsing ───────────────────────────────────────────────────────────
+
+export interface ParsedChord {
+  root: string;
+  quality: string;
+  symbol: string;
+}
+
+export function parseChord(raw: string): ParsedChord | null {
+  const m = raw.trim().match(/^([A-G][b#]?)(.*)$/);
+  if (!m) return null;
+  return { root: m[1], quality: m[2].trim(), symbol: raw.trim() };
+}
+
+export function parseProgression(text: string): ParsedChord[] {
+  return text
+    .split(/[\s,]+/)
+    .map(t => t.trim())
+    .filter(t => t.length > 0)
+    .map(parseChord)
+    .filter((c): c is ParsedChord => c !== null);
+}
