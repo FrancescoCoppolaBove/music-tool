@@ -347,6 +347,221 @@ function buildChordNames(root: string, mode: string, numerals: string[]): string
   return numerals.map(n => numeralToChordName(n, scale.notes));
 }
 
+// ─── Form & Energy Map ──────────────────────────────────────────────────────
+
+interface FormSection {
+  id: string;
+  name: string;
+  bars: number;
+  feel: string;
+  energy: 1 | 2 | 3 | 4 | 5;
+}
+
+const FORM_TEMPLATES: Record<string, Omit<FormSection, 'id'>[]> = {
+  AABA: [
+    { name: 'A', bars: 8, feel: 'main theme', energy: 3 },
+    { name: 'A', bars: 8, feel: 'main theme (varied)', energy: 4 },
+    { name: 'B', bars: 8, feel: 'bridge, contrast', energy: 5 },
+    { name: 'A', bars: 8, feel: 'return', energy: 3 },
+  ],
+  'Verse-Chorus': [
+    { name: 'Intro', bars: 4, feel: 'sparse', energy: 2 },
+    { name: 'Verse', bars: 8, feel: 'building', energy: 3 },
+    { name: 'Chorus', bars: 8, feel: 'peak, tutti', energy: 5 },
+    { name: 'Verse', bars: 8, feel: 'returning', energy: 3 },
+    { name: 'Chorus', bars: 8, feel: 'peak, tutti', energy: 5 },
+  ],
+  'Modal Vamp': [
+    { name: 'Intro', bars: 4, feel: 'sparse, open', energy: 2 },
+    { name: 'Vamp', bars: 16, feel: 'modal groove', energy: 3 },
+    { name: 'Peak', bars: 8, feel: 'full band', energy: 5 },
+  ],
+  'Through-Composed': [
+    { name: 'A', bars: 8, feel: 'introduction', energy: 2 },
+    { name: 'B', bars: 8, feel: 'development', energy: 3 },
+    { name: 'C', bars: 8, feel: 'intensification', energy: 4 },
+    { name: 'D', bars: 8, feel: 'climax', energy: 5 },
+  ],
+};
+
+let _sectionId = 0;
+function mkId() { return String(++_sectionId); }
+
+function withIds(rows: Omit<FormSection, 'id'>[]): FormSection[] {
+  return rows.map(r => ({ ...r, id: mkId() }));
+}
+
+function EnergyChart({ sections }: { sections: FormSection[] }) {
+  if (sections.length === 0) return null;
+  const W = Math.max(280, sections.length * 56);
+  const H = 60;
+  const barW = W / sections.length - 4;
+
+  return (
+    <svg width={W} height={H} style={{ overflow: 'visible' }}>
+      {sections.map((s, i) => {
+        const barH = Math.max(4, (s.energy / 5) * (H - 18));
+        const x = i * (W / sections.length) + 2;
+        const y = H - barH - 14;
+        const alpha = 0.3 + (s.energy / 5) * 0.7;
+        return (
+          <g key={s.id}>
+            <rect x={x} y={y} width={barW} height={barH}
+              fill={`rgba(124, 58, 237, ${alpha})`} rx={3} />
+            <text x={x + barW / 2} y={H - 2} textAnchor="middle"
+              fill="#6b7280" fontSize={9}>{s.name}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function FormEnergyMapSection() {
+  const [sections, setSections] = useState<FormSection[]>([]);
+  const [confirmTemplate, setConfirmTemplate] = useState<string | null>(null);
+
+  function addSection() {
+    setSections(prev => [...prev, { id: mkId(), name: 'A', bars: 8, feel: '', energy: 3 }]);
+  }
+
+  function removeSection(id: string) {
+    setSections(prev => prev.filter(s => s.id !== id));
+  }
+
+  function updateSection(id: string, field: keyof FormSection, value: string | number) {
+    setSections(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
+  }
+
+  function moveSection(id: string, dir: -1 | 1) {
+    setSections(prev => {
+      const idx = prev.findIndex(s => s.id === id);
+      if (idx < 0) return prev;
+      const next = [...prev];
+      const swap = idx + dir;
+      if (swap < 0 || swap >= next.length) return prev;
+      [next[idx], next[swap]] = [next[swap], next[idx]];
+      return next;
+    });
+  }
+
+  function applyTemplate(name: string) {
+    if (sections.length > 0 && confirmTemplate !== name) {
+      setConfirmTemplate(name);
+      return;
+    }
+    setSections(withIds(FORM_TEMPLATES[name]));
+    setConfirmTemplate(null);
+  }
+
+  const totalBars = sections.reduce((acc, s) => acc + (Number(s.bars) || 0), 0);
+
+  return (
+    <div>
+      {/* Template buttons */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+        {Object.keys(FORM_TEMPLATES).map(name => (
+          <button
+            key={name}
+            onClick={() => applyTemplate(name)}
+            style={{
+              padding: '5px 14px',
+              background: confirmTemplate === name ? '#7c3aed40' : '#161b22',
+              border: `1px solid ${confirmTemplate === name ? '#7c3aed' : '#30363d'}`,
+              borderRadius: 8, cursor: 'pointer',
+              color: confirmTemplate === name ? '#c4b5fd' : '#8b949e',
+              fontSize: 12,
+            }}
+          >
+            {confirmTemplate === name ? `⚠ Conferma: ${name}` : name}
+          </button>
+        ))}
+        {confirmTemplate && (
+          <button onClick={() => setConfirmTemplate(null)} style={{
+            padding: '5px 12px', background: 'none', border: '1px solid #30363d',
+            borderRadius: 8, cursor: 'pointer', color: '#6b7280', fontSize: 12,
+          }}>Annulla</button>
+        )}
+      </div>
+
+      {/* Table */}
+      {sections.length === 0 ? (
+        <p style={{ fontSize: 13, color: '#6b7280', margin: '0 0 12px' }}>
+          Aggiungi sezioni manualmente o scegli un template.
+        </p>
+      ) : (
+        <div style={{ overflowX: 'auto', marginBottom: 14 }}>
+          <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 13 }}>
+            <thead>
+              <tr style={{ color: '#6b7280' }}>
+                {['', 'Sezione', 'Battute', 'Feel', 'Energia', ''].map((h, i) => (
+                  <th key={i} style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 600, fontSize: 11 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sections.map((s, idx) => (
+                <tr key={s.id} style={{ borderTop: '1px solid #21262d' }}>
+                  <td style={{ padding: '4px 6px', whiteSpace: 'nowrap' }}>
+                    <button onClick={() => moveSection(s.id, -1)} disabled={idx === 0}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: 12, padding: '0 2px' }}>▲</button>
+                    <button onClick={() => moveSection(s.id, 1)} disabled={idx === sections.length - 1}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: 12, padding: '0 2px' }}>▼</button>
+                  </td>
+                  <td style={{ padding: '4px 8px' }}>
+                    <input value={s.name} onChange={e => updateSection(s.id, 'name', e.target.value)}
+                      style={{ width: 60, padding: '4px 6px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#e6edf3', fontSize: 13, outline: 'none' }} />
+                  </td>
+                  <td style={{ padding: '4px 8px' }}>
+                    <input type="number" min={1} max={128} value={s.bars}
+                      onChange={e => updateSection(s.id, 'bars', parseInt(e.target.value) || 1)}
+                      style={{ width: 52, padding: '4px 6px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#e6edf3', fontSize: 13, outline: 'none' }} />
+                  </td>
+                  <td style={{ padding: '4px 8px' }}>
+                    <input value={s.feel} placeholder="funk pocket, sparse…"
+                      onChange={e => updateSection(s.id, 'feel', e.target.value)}
+                      style={{ width: 160, padding: '4px 6px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#e6edf3', fontSize: 13, outline: 'none' }} />
+                  </td>
+                  <td style={{ padding: '4px 8px' }}>
+                    <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                      {[1, 2, 3, 4, 5].map(v => (
+                        <button key={v} onClick={() => updateSection(s.id, 'energy', v as 1|2|3|4|5)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14,
+                            color: s.energy >= v ? '#7c3aed' : '#30363d', padding: 0 }}>●</button>
+                      ))}
+                    </div>
+                  </td>
+                  <td style={{ padding: '4px 8px' }}>
+                    <button onClick={() => removeSection(s.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 16, padding: 0, lineHeight: 1 }}>×</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Add button */}
+      <button onClick={addSection} style={{
+        padding: '6px 16px', background: '#161b22', border: '1px dashed #30363d',
+        borderRadius: 8, cursor: 'pointer', color: '#8b949e', fontSize: 13, marginBottom: 16,
+      }}>+ Sezione</button>
+
+      {/* Energy curve */}
+      {sections.length > 0 && (
+        <div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 6 }}>Curva energia</div>
+          <EnergyChart sections={sections} />
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 8 }}>
+            Totale: <span style={{ color: '#e6edf3', fontWeight: 600 }}>{totalBars} battute</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function SongArchitectFeature() {
@@ -689,6 +904,16 @@ export default function SongArchitectFeature() {
               <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.55 }}>{item.tip}</div>
             </div>
           ))}
+        </div>
+      </details>
+
+      {/* Form & Energy Map */}
+      <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 18px' }}>
+        <summary style={{ cursor: 'pointer', fontSize: 13, color: '#8b949e', fontWeight: 600, listStyle: 'none' }}>
+          🗺 Form & Energy Map — pianifica la struttura e la curva di energia del brano
+        </summary>
+        <div style={{ marginTop: 14 }}>
+          <FormEnergyMapSection />
         </div>
       </details>
     </div>
