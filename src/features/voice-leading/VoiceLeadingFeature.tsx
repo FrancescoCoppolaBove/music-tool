@@ -699,6 +699,11 @@ function distColor(d: number): string {
   return '#ef4444';
 }
 
+const PC_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+function absToName(abs: number): string {
+  return PC_NAMES[((abs % 12) + 12) % 12];
+}
+
 function GuideToneLinesSection() {
   const [text, setText] = useState('Cmaj7 Am7 Dm7 G7');
   const [points, setPoints] = useState<Array<{
@@ -707,12 +712,20 @@ function GuideToneLinesSection() {
   }>>([]);
 
   function analyze() {
-    const chords = parseProgression(text);
+    const tokens = text.split(/[\s,]+/).filter(t => t.length > 0);
     let prevThird = 64; // E4
     let prevSeventh = 59; // B3
 
-    const resolved = chords.map(c => {
+    const resolved = tokens.map(token => {
+      const parsed = parseProgression(token);
+      if (parsed.length === 0) {
+        return { chord: token, third: null, seventh: null, thirdAbs: null, seventhAbs: null };
+      }
+      const c = parsed[0];
       const { third, seventh } = getGuideTones(c.root, c.quality);
+      if (third === null && seventh === null) {
+        return { chord: token, third: null, seventh: null, thirdAbs: null, seventhAbs: null };
+      }
       let thirdAbs: number | null = null;
       let seventhAbs: number | null = null;
 
@@ -729,10 +742,10 @@ function GuideToneLinesSection() {
     setPoints(resolved);
   }
 
-  const allAbs = points.flatMap(p => [p.thirdAbs, p.seventhAbs]).filter((v): v is number => v !== null);
-  const minAbs = allAbs.length ? Math.min(...allAbs) - 2 : 55;
-  const maxAbs = allAbs.length ? Math.max(...allAbs) + 2 : 74;
-  const range = maxAbs - minAbs || 1;
+  // Fix 3: fixed Y axis range C3–C6
+  const minAbs = 48; // C3
+  const maxAbs = 84; // C6
+  const range = maxAbs - minAbs; // 36
 
   const W = Math.max(360, points.length * 90);
   const H = 150;
@@ -744,7 +757,7 @@ function GuideToneLinesSection() {
   function yOf(abs: number) { return TOP + (1 - (abs - minAbs) / range) * plotH; }
   function xOf(i: number)   { return colW * i + colW / 2; }
 
-  const smoothestLine = (() => {
+  const smoothestLineResult = (() => {
     if (points.length < 2) return null;
     const thirdLeaps = points.slice(0, -1)
       .map((p, i) => p.thirdAbs !== null && points[i + 1].thirdAbs !== null
@@ -756,7 +769,14 @@ function GuideToneLinesSection() {
         : 0);
     const avgThird = thirdLeaps.reduce((a, b) => a + b, 0) / thirdLeaps.length;
     const avgSeventh = seventhLeaps.reduce((a, b) => a + b, 0) / seventhLeaps.length;
-    return avgThird <= avgSeventh ? '3rd line' : '7th line';
+    const isThird = avgThird <= avgSeventh;
+    const label = isThird ? '3rd line' : '7th line';
+    const noteSeq = points
+      .map(p => isThird
+        ? (p.thirdAbs !== null ? absToName(p.thirdAbs) : '?')
+        : (p.seventhAbs !== null ? absToName(p.seventhAbs) : '?'))
+      .join('→');
+    return { label, noteSeq };
   })();
 
   return (
@@ -856,6 +876,18 @@ function GuideToneLinesSection() {
               );
             })}
 
+            {/* Invalid chord placeholder (grey dot + "?") */}
+            {points.map((p, i) => {
+              if (p.thirdAbs !== null || p.seventhAbs !== null) return null;
+              const y = TOP + plotH / 2;
+              return (
+                <g key={`inv${i}`}>
+                  <circle cx={xOf(i)} cy={y} r={5} fill="#374151" />
+                  <text x={xOf(i)} y={y - 9} textAnchor="middle" fill="#6b7280" fontSize={11}>?</text>
+                </g>
+              );
+            })}
+
             {/* Chord labels */}
             {points.map((p, i) => (
               <text key={i} x={xOf(i)} y={H - 4} textAnchor="middle"
@@ -872,9 +904,10 @@ function GuideToneLinesSection() {
             <span><span style={{ color: '#ef4444' }}>■</span> ≥5 semitones (leap)</span>
           </div>
 
-          {smoothestLine && (
+          {smoothestLineResult && (
             <p style={{ marginTop: 8, fontSize: 12, color: '#6b7280' }}>
-              Smoothest voice: <span style={{ color: '#e6edf3', fontWeight: 600 }}>{smoothestLine}</span>
+              Smoothest voice: <span style={{ color: '#e6edf3', fontWeight: 600 }}>{smoothestLineResult.label}</span>
+              {' '}(<span style={{ color: '#e6edf3' }}>{smoothestLineResult.noteSeq}</span>)
               {' '}— use as a horn counter-melody or inner keyboard line.
             </p>
           )}
