@@ -993,6 +993,132 @@ function ProgressionChordCard({
   );
 }
 
+// ─── Pentatonic Superimposition ──────────────────────────────────────────────
+
+const MINOR_PENT_INTERVALS = [0, 3, 5, 7, 10];
+const MAJOR_PENT_INTERVALS = [0, 2, 4, 7, 9];
+
+interface PentatonicEntry {
+  label: string;
+  rootSemitones: number;
+  type: 'minor' | 'major';
+  color: string;
+  tip: string;
+}
+
+const PENT_MAP: Record<string, PentatonicEntry[]> = {
+  maj7: [
+    { label: 'Minor pent on 3rd', rootSemitones: 4, type: 'minor', color: 'Lydian — #11, 9, 6. Floating, modern.', tip: 'Cory Henry / Snarky Puppy signature over maj7' },
+    { label: 'Minor pent on 7th', rootSemitones: 11, type: 'minor', color: 'Rich Lydian — maj7, #11, 9. Dense extensions.', tip: 'Full lydian palette including leading-tone colour' },
+    { label: 'Major pent on root', rootSemitones: 0, type: 'major', color: 'Ionian — 1, 2, 3, 5, 6. Clean, open.', tip: 'Safe classical approach, Kenny Burrell' },
+  ],
+  'maj7#11': [
+    { label: 'Minor pent on 3rd', rootSemitones: 4, type: 'minor', color: 'Core Lydian — #11, 9, 6. Bright.', tip: 'Jacob Collier, Snarky Puppy on Lydian vamps' },
+    { label: 'Minor pent on 7th', rootSemitones: 11, type: 'minor', color: 'Extended Lydian — adds maj7 + #11.', tip: 'Full Lydian spectrum with leading tone' },
+    { label: 'Minor pent on #4', rootSemitones: 6, type: 'minor', color: 'Outside Lydian — #11, 13, 9. Modern jazz tension.', tip: 'Advanced fusion tension over Lydian' },
+  ],
+  m7: [
+    { label: 'Minor pent on root', rootSemitones: 0, type: 'minor', color: 'Natural minor — home sound, safe.', tip: 'Classic blues-jazz, Wes Montgomery' },
+    { label: 'Minor pent on 4th', rootSemitones: 5, type: 'minor', color: 'Dorian 6th — warm, funky character note.', tip: 'Snarky Puppy dorian vamps, Herbie Hancock' },
+    { label: 'Major pent on b3', rootSemitones: 3, type: 'major', color: 'Relative major — bright contrast over minor.', tip: 'Creates major-feel lift over minor chord' },
+    { label: 'Minor pent on 5th', rootSemitones: 7, type: 'minor', color: 'Upper extensions — 5, b7, 1, 9, 4. Airy.', tip: 'Suspended, floating — Yussef Dayes style' },
+  ],
+  '7': [
+    { label: 'Minor pent on 2nd', rootSemitones: 2, type: 'minor', color: 'Mixolydian extensions — 9, 11, 13. Clean.', tip: 'Classic dominant jazz sound, no clash' },
+    { label: 'Minor pent on 5th', rootSemitones: 7, type: 'minor', color: 'Suspended dominant — 5, b7, 1, 9, 11.', tip: 'Funky suspended feel — Vulfpeck, The Meters' },
+    { label: 'Major pent on b3', rootSemitones: 3, type: 'major', color: 'Bluesy — adds b3, 4, 5. Gritty tension.', tip: 'Blues-rock over dominant, BB King' },
+    { label: 'Major pent on b7', rootSemitones: 10, type: 'major', color: 'IV pentatonic = IV over V. Soul gospel.', tip: 'Gospel/soul dominant colour, Stevie Wonder' },
+  ],
+  '7alt': [
+    { label: 'Major pent on b2', rootSemitones: 1, type: 'major', color: 'Altered tensions — b9, #9, b13. Maximum tension.', tip: 'Coltrane altered dominant, Wayne Shorter' },
+    { label: 'Minor pent on b6', rootSemitones: 8, type: 'minor', color: 'Tritone sub color — b13, b7, b9. Dark.', tip: 'Outside playing, Metheny, Scofield' },
+    { label: 'Minor pent on b2', rootSemitones: 1, type: 'minor', color: 'Super-altered — b9, #9, #11, b13. Fully outside.', tip: 'Maximum alteration, free jazz tension' },
+  ],
+  m7b5: [
+    { label: 'Minor pent on b3', rootSemitones: 3, type: 'minor', color: 'Locrian #2 — avoids b2, smooth half-dim sound.', tip: 'Half-dim jazz sound, minor ii-V-i context' },
+    { label: 'Minor pent on b7', rootSemitones: 10, type: 'minor', color: 'Upper extensions — b7, 1, b3, b5. Darker.', tip: 'Darker colouring over half-diminished' },
+  ],
+  dim7: [
+    { label: 'Minor pent on root', rootSemitones: 0, type: 'minor', color: 'Diminished base sound.', tip: 'Passing tone feel, symmetric base' },
+    { label: 'Minor pent on b3', rootSemitones: 3, type: 'minor', color: 'Symmetrical shift (dim repeats every b3).', tip: 'Exploit symmetry: same harmonic result' },
+    { label: 'Minor pent on tritone', rootSemitones: 6, type: 'minor', color: 'Another symmetrical axis of the dim chord.', tip: 'Dramatic shift that stays harmonically in-key' },
+  ],
+  sus4: [
+    { label: 'Major pent on root', rootSemitones: 0, type: 'major', color: 'Open, floating — no 3rd tension.', tip: 'Modal, ambient — ECM Records sound' },
+    { label: 'Major pent on 4th', rootSemitones: 5, type: 'major', color: 'Quartal feel — 4, 5, 6, 1, 2.', tip: 'McCoy Tyner quartal voicing colour' },
+  ],
+  '7sus4': [
+    { label: 'Major pent on root', rootSemitones: 0, type: 'major', color: 'Bright sus — 1, 2, 3, 5, 6. Open funk.', tip: 'Funk sus dominant, open feel' },
+    { label: 'Minor pent on 5th', rootSemitones: 7, type: 'minor', color: 'Deep suspension — b7, 1, b3, 4. Dark sus.', tip: 'Darker suspended dominant colour' },
+    { label: 'Major pent on 4th', rootSemitones: 5, type: 'major', color: 'IV over V = float chord. Lush, suspended.', tip: 'IVmaj7/V bass = Snarky Puppy float chord' },
+  ],
+  maj9: [
+    { label: 'Minor pent on 3rd', rootSemitones: 4, type: 'minor', color: 'Lydian + 9 already voiced. Bright.', tip: 'Same as maj7 — Lydian pent is gold standard' },
+    { label: 'Major pent on root', rootSemitones: 0, type: 'major', color: 'Perfect alignment — all 5 notes are chord tones or extensions.', tip: 'Every note is harmonically justified' },
+  ],
+  m9: [
+    { label: 'Minor pent on root', rootSemitones: 0, type: 'minor', color: 'Natural minor with 9 already voiced.', tip: 'Safe home base over m9' },
+    { label: 'Minor pent on 4th', rootSemitones: 5, type: 'minor', color: 'Dorian upper — 6, b7, 1, 9, 4. Full dorian palette.', tip: 'Herbie Hancock dorian approach over m9' },
+  ],
+  '9': [
+    { label: 'Minor pent on 2nd', rootSemitones: 2, type: 'minor', color: 'Dominant 9 extensions — 9, 11, 13. Full Mixolydian.', tip: 'Complete Mixolydian pentatonic colour' },
+    { label: 'Minor pent on 5th', rootSemitones: 7, type: 'minor', color: 'Suspended dominant feel.', tip: 'Funky sus over 9 chord — Ghost Note style' },
+  ],
+  '6': [
+    { label: 'Major pent on root', rootSemitones: 0, type: 'major', color: 'Perfect — 1, 2, 3, 5, 6. All chord tones.', tip: 'No tension, complete harmonic alignment' },
+    { label: 'Minor pent on 3rd', rootSemitones: 4, type: 'minor', color: 'Extensions — adds 9th and #11. Lydian brightness.', tip: 'Colours a 6th chord with Lydian extensions' },
+  ],
+  m6: [
+    { label: 'Minor pent on root', rootSemitones: 0, type: 'minor', color: 'Minor base — b3, 4, 5, b7. Safe.', tip: 'Natural minor, classic base' },
+    { label: 'Major pent on 4th', rootSemitones: 5, type: 'major', color: 'Dorian character — natural 6th is the defining note.', tip: 'The Dorian sound — essential for Dm6 (Miles Davis)' },
+  ],
+  add9: [
+    { label: 'Major pent on root', rootSemitones: 0, type: 'major', color: 'Natural — 1, 2, 3, 5, 6. Clean and open.', tip: 'All basic chord tones covered' },
+    { label: 'Minor pent on 3rd', rootSemitones: 4, type: 'minor', color: 'Lydian brightness — #11, 9, 6.', tip: 'Colour an add9 with Lydian extensions' },
+  ],
+};
+
+function PentatonicColorsSection({ root, quality }: { root: string; quality: string }) {
+  const entries = PENT_MAP[quality];
+  if (!entries || entries.length === 0) return null;
+
+  return (
+    <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
+      <summary style={{ cursor: 'pointer', fontSize: 13, color: '#8b949e', fontWeight: 600, listStyle: 'none' }}>
+        🎸 Pentatonic Colors — superimposition guide
+      </summary>
+      <p style={{ margin: '10px 0', fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>
+        Each pentatonic scale, played over {root}{quality}, produces a distinct harmonic colour.
+        All notes shown in the current root ({root}).
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {entries.map((entry, i) => {
+          const pentRoot = transposeNote(root, entry.rootSemitones);
+          const intervals = entry.type === 'minor' ? MINOR_PENT_INTERVALS : MAJOR_PENT_INTERVALS;
+          const notes = intervals.map(s => transposeNote(pentRoot, s)).join('  ');
+          const pentLabel = `${pentRoot} ${entry.type} pentatonic`;
+          return (
+            <div key={i} style={{
+              background: '#0d1117', border: '1px solid #21262d',
+              borderRadius: 8, padding: '10px 12px',
+              display: 'grid', gridTemplateColumns: '180px 1fr', gap: 12, alignItems: 'start',
+            }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#c4b5fd', marginBottom: 4 }}>{pentLabel}</div>
+                <div style={{ fontSize: 12, color: '#6b7280', fontFamily: 'monospace', letterSpacing: 2 }}>{notes}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 12, color: '#e6edf3', marginBottom: 4 }}>{entry.color}</div>
+                <div style={{ fontSize: 11, color: '#6b7280' }}>💡 {entry.tip}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </details>
+  );
+}
+
 // ─── Main Feature ────────────────────────────────────────────────────────────
 
 type Mode = 'single' | 'progression';
@@ -1289,6 +1415,11 @@ export default function ScaleAdvisorFeature() {
           ))}
         </div>
       </details>
+
+      {/* Pentatonic Colors — only in single mode */}
+      {mode === 'single' && (
+        <PentatonicColorsSection root={root} quality={quality} />
+      )}
     </div>
   );
 }
