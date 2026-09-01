@@ -237,13 +237,13 @@ export default function RhythmicDisplacementFeature() {
           <div>
             {polyRows.map((row, i) => (
               <div key={i} style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 11, color: '#67e8f9', marginBottom: 6, fontWeight: 600 }}>
+                <div style={{ fontSize: 11, color: i === 0 ? '#c4b5fd' : '#67e8f9', marginBottom: 6, fontWeight: 600 }}>
                   {row.label}
                 </div>
                 <PatternGrid
                   cells={row.cells.map(c => c.active)}
                   accent={row.cells.map(c => c.accent ?? c.active)}
-                  color="#06b6d4"
+                  color={i === 0 ? '#7c3aed' : '#06b6d4'}
                 />
               </div>
             ))}
