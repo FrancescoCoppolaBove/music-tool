@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Chord, Note } from 'tonal';
-import { parseProgression } from '@shared/utils/musicTheory';
+import { parseProgression, parseChord } from '@shared/utils/musicTheory';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -717,11 +717,10 @@ function GuideToneLinesSection() {
     let prevSeventh = 59; // B3
 
     const resolved = tokens.map(token => {
-      const parsed = parseProgression(token);
-      if (parsed.length === 0) {
+      const c = parseChord(token);
+      if (!c) {
         return { chord: token, third: null, seventh: null, thirdAbs: null, seventhAbs: null };
       }
-      const c = parsed[0];
       const { third, seventh } = getGuideTones(c.root, c.quality);
       if (third === null && seventh === null) {
         return { chord: token, third: null, seventh: null, thirdAbs: null, seventhAbs: null };
@@ -730,12 +729,12 @@ function GuideToneLinesSection() {
       let seventhAbs: number | null = null;
 
       if (third) {
-        const pc = NOTE_PC[third] ?? -1;
-        if (pc >= 0) { thirdAbs = resolveAbsPitch(pc, prevThird); prevThird = thirdAbs; }
+        const pc = Note.chroma(third);
+        if (pc !== undefined) { thirdAbs = resolveAbsPitch(pc, prevThird); prevThird = thirdAbs; }
       }
       if (seventh) {
-        const pc = NOTE_PC[seventh] ?? -1;
-        if (pc >= 0) { seventhAbs = resolveAbsPitch(pc, prevSeventh); prevSeventh = seventhAbs; }
+        const pc = Note.chroma(seventh);
+        if (pc !== undefined) { seventhAbs = resolveAbsPitch(pc, prevSeventh); prevSeventh = seventhAbs; }
       }
       return { chord: c.symbol, third, seventh, thirdAbs, seventhAbs };
     });
