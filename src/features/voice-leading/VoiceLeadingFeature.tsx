@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Chord, Note } from 'tonal';
+import { parseProgression } from '@shared/utils/musicTheory';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -667,6 +668,222 @@ function GuideTonePanel({ notesA, notesB, chordA, chordB }: {
   );
 }
 
+// ─── Guide Tone Lines ────────────────────────────────────────────────────────
+
+const NOTE_PC: Record<string, number> = {
+  C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5,
+  'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11,
+};
+
+function resolveAbsPitch(pc: number, prevAbs: number): number {
+  const ref = Math.floor(prevAbs / 12) * 12;
+  const candidates = [ref + pc - 12, ref + pc, ref + pc + 12];
+  return candidates.reduce((best, c) =>
+    Math.abs(c - prevAbs) < Math.abs(best - prevAbs) ? c : best
+  );
+}
+
+function getGuideTones(root: string, quality: string): { third: string | null; seventh: string | null } {
+  const chord = Chord.get(`${root}${quality}`);
+  if (chord.empty || chord.notes.length < 3) return { third: null, seventh: null };
+  return {
+    third: chord.notes[1] ?? null,
+    seventh: chord.notes.length >= 4 ? chord.notes[3] : null,
+  };
+}
+
+function distColor(d: number): string {
+  const abs = Math.abs(d);
+  if (abs <= 2) return '#10b981';
+  if (abs <= 4) return '#f59e0b';
+  return '#ef4444';
+}
+
+function GuideToneLinesSection() {
+  const [text, setText] = useState('Cmaj7 Am7 Dm7 G7');
+  const [points, setPoints] = useState<Array<{
+    chord: string; third: string | null; seventh: string | null;
+    thirdAbs: number | null; seventhAbs: number | null;
+  }>>([]);
+
+  function analyze() {
+    const chords = parseProgression(text);
+    let prevThird = 64; // E4
+    let prevSeventh = 59; // B3
+
+    const resolved = chords.map(c => {
+      const { third, seventh } = getGuideTones(c.root, c.quality);
+      let thirdAbs: number | null = null;
+      let seventhAbs: number | null = null;
+
+      if (third) {
+        const pc = NOTE_PC[third] ?? -1;
+        if (pc >= 0) { thirdAbs = resolveAbsPitch(pc, prevThird); prevThird = thirdAbs; }
+      }
+      if (seventh) {
+        const pc = NOTE_PC[seventh] ?? -1;
+        if (pc >= 0) { seventhAbs = resolveAbsPitch(pc, prevSeventh); prevSeventh = seventhAbs; }
+      }
+      return { chord: c.symbol, third, seventh, thirdAbs, seventhAbs };
+    });
+    setPoints(resolved);
+  }
+
+  const allAbs = points.flatMap(p => [p.thirdAbs, p.seventhAbs]).filter((v): v is number => v !== null);
+  const minAbs = allAbs.length ? Math.min(...allAbs) - 2 : 55;
+  const maxAbs = allAbs.length ? Math.max(...allAbs) + 2 : 74;
+  const range = maxAbs - minAbs || 1;
+
+  const W = Math.max(360, points.length * 90);
+  const H = 150;
+  const TOP = 18;
+  const BOT = 22;
+  const plotH = H - TOP - BOT;
+  const colW = W / Math.max(points.length, 1);
+
+  function yOf(abs: number) { return TOP + (1 - (abs - minAbs) / range) * plotH; }
+  function xOf(i: number)   { return colW * i + colW / 2; }
+
+  const smoothestLine = (() => {
+    if (points.length < 2) return null;
+    const thirdLeaps = points.slice(0, -1)
+      .map((p, i) => p.thirdAbs !== null && points[i + 1].thirdAbs !== null
+        ? Math.abs(points[i + 1].thirdAbs! - p.thirdAbs!)
+        : 0);
+    const seventhLeaps = points.slice(0, -1)
+      .map((p, i) => p.seventhAbs !== null && points[i + 1].seventhAbs !== null
+        ? Math.abs(points[i + 1].seventhAbs! - p.seventhAbs!)
+        : 0);
+    const avgThird = thirdLeaps.reduce((a, b) => a + b, 0) / thirdLeaps.length;
+    const avgSeventh = seventhLeaps.reduce((a, b) => a + b, 0) / seventhLeaps.length;
+    return avgThird <= avgSeventh ? '3rd line' : '7th line';
+  })();
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        <input
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && analyze()}
+          placeholder="e.g. Cmaj7 Am7 Dm7 G7"
+          style={{
+            flex: 1, padding: '8px 12px',
+            background: '#0d1117', border: '1px solid #30363d',
+            borderRadius: 8, color: '#e6edf3', fontSize: 14, outline: 'none',
+          }}
+        />
+        <button
+          onClick={analyze}
+          style={{
+            padding: '8px 20px', background: '#7c3aed20', border: '1px solid #7c3aed',
+            borderRadius: 8, cursor: 'pointer', color: '#c4b5fd', fontSize: 13, fontWeight: 600,
+          }}
+        >Analyze</button>
+      </div>
+
+      {points.length === 0 && (
+        <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>
+          Enter a chord progression (space or comma separated) and press Analyze.
+        </p>
+      )}
+
+      {points.length > 0 && (
+        <>
+          <svg width={W} height={H} style={{ overflow: 'visible', maxWidth: '100%' }}>
+            {/* Grid columns */}
+            {points.map((_, i) => (
+              <line key={i}
+                x1={xOf(i)} y1={TOP} x2={xOf(i)} y2={H - BOT}
+                stroke="#21262d" strokeDasharray="3 3" />
+            ))}
+
+            {/* 3rd line */}
+            {points.map((p, i) => {
+              if (p.thirdAbs === null) return null;
+              const next = points[i + 1];
+              const y = yOf(p.thirdAbs);
+              return (
+                <g key={`t${i}`}>
+                  {next?.thirdAbs != null && (
+                    <>
+                      <line
+                        x1={xOf(i)} y1={y} x2={xOf(i + 1)} y2={yOf(next.thirdAbs)}
+                        stroke="#7c3aed" strokeWidth={2} />
+                      <text
+                        x={(xOf(i) + xOf(i + 1)) / 2}
+                        y={(y + yOf(next.thirdAbs)) / 2 - 5}
+                        textAnchor="middle" fontSize={10}
+                        fill={distColor(next.thirdAbs - p.thirdAbs)}>
+                        {next.thirdAbs - p.thirdAbs > 0
+                          ? `+${next.thirdAbs - p.thirdAbs}`
+                          : `${next.thirdAbs - p.thirdAbs}`}
+                      </text>
+                    </>
+                  )}
+                  <circle cx={xOf(i)} cy={y} r={5} fill="#7c3aed" />
+                  <text x={xOf(i)} y={y - 9} textAnchor="middle" fill="#c4b5fd" fontSize={11}>{p.third}</text>
+                </g>
+              );
+            })}
+
+            {/* 7th line */}
+            {points.map((p, i) => {
+              if (p.seventhAbs === null) return null;
+              const next = points[i + 1];
+              const y = yOf(p.seventhAbs);
+              return (
+                <g key={`s${i}`}>
+                  {next?.seventhAbs != null && (
+                    <>
+                      <line
+                        x1={xOf(i)} y1={y} x2={xOf(i + 1)} y2={yOf(next.seventhAbs)}
+                        stroke="#f59e0b" strokeWidth={2} />
+                      <text
+                        x={(xOf(i) + xOf(i + 1)) / 2}
+                        y={(y + yOf(next.seventhAbs)) / 2 + 14}
+                        textAnchor="middle" fontSize={10}
+                        fill={distColor(next.seventhAbs - p.seventhAbs)}>
+                        {next.seventhAbs - p.seventhAbs > 0
+                          ? `+${next.seventhAbs - p.seventhAbs}`
+                          : `${next.seventhAbs - p.seventhAbs}`}
+                      </text>
+                    </>
+                  )}
+                  <circle cx={xOf(i)} cy={y} r={5} fill="#f59e0b" />
+                  <text x={xOf(i)} y={y + 19} textAnchor="middle" fill="#fcd34d" fontSize={11}>{p.seventh}</text>
+                </g>
+              );
+            })}
+
+            {/* Chord labels */}
+            {points.map((p, i) => (
+              <text key={i} x={xOf(i)} y={H - 4} textAnchor="middle"
+                fill="#8b949e" fontSize={11} fontWeight={600}>{p.chord}</text>
+            ))}
+          </svg>
+
+          {/* Legend */}
+          <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: '#6b7280', flexWrap: 'wrap' }}>
+            <span><span style={{ color: '#7c3aed' }}>●</span> 3rd</span>
+            <span><span style={{ color: '#f59e0b' }}>●</span> 7th</span>
+            <span><span style={{ color: '#10b981' }}>■</span> ≤2 semitones (smooth)</span>
+            <span><span style={{ color: '#f59e0b' }}>■</span> 3–4 semitones</span>
+            <span><span style={{ color: '#ef4444' }}>■</span> ≥5 semitones (leap)</span>
+          </div>
+
+          {smoothestLine && (
+            <p style={{ marginTop: 8, fontSize: 12, color: '#6b7280' }}>
+              Smoothest voice: <span style={{ color: '#e6edf3', fontWeight: 600 }}>{smoothestLine}</span>
+              {' '}— use as a horn counter-melody or inner keyboard line.
+            </p>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── Main ──────────────────────────────────────────────────────────────────────
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');`;
@@ -879,6 +1096,16 @@ export default function VoiceLeadingFeature() {
             ))}
           </div>
         </div>
+
+        {/* Guide Tone Lines */}
+        <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
+          <summary style={{ cursor: 'pointer', fontSize: 13, color: '#8b949e', fontWeight: 600, listStyle: 'none' }}>
+            📊 Guide Tone Lines — voice the 3rds and 7ths across a progression
+          </summary>
+          <div style={{ marginTop: 14 }}>
+            <GuideToneLinesSection />
+          </div>
+        </details>
       </div>
     </div>
   );
