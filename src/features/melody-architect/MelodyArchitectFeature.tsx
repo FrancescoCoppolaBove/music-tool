@@ -985,9 +985,10 @@ interface TransformCardProps {
   notes: { note: string; semi?: number }[];
   tip: string;
   dimmed?: boolean;
+  rhythmSymbol?: string;
 }
 
-function TransformCard({ title, notes, tip, dimmed }: TransformCardProps) {
+function TransformCard({ title, notes, tip, dimmed, rhythmSymbol }: TransformCardProps) {
   return (
     <div style={{
       background: '#0d1117', border: '1px solid #21262d',
@@ -996,8 +997,16 @@ function TransformCard({ title, notes, tip, dimmed }: TransformCardProps) {
     }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: '#8b949e', marginBottom: 6 }}>{title}</div>
       {dimmed
-        ? <div style={{ fontSize: 12, color: '#6b7280', fontStyle: 'italic' }}>
-            {notes.length > 0 ? `${notes.map(n => n.note).join('  ')} (valori ritmici)` : '—'}
+        ? <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {notes.map((n, i) => (
+              <span key={i} style={{
+                padding: '2px 10px', borderRadius: 99,
+                background: '#1a1030', border: '1px solid #374151',
+                color: '#9ca3af', fontSize: 13, fontWeight: 700,
+              }}>
+                {n.note}{rhythmSymbol ? ` ${rhythmSymbol}` : ''}
+              </span>
+            ))}
           </div>
         : <MotifNotePills notes={notes} />
       }
@@ -1054,7 +1063,6 @@ function MotifLabSection() {
 
       {motif.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <TransformCard title="Originale" notes={motif} tip="Il motivo di partenza" />
           <TransformCard title="Inversione" notes={inverted} tip="Ogni intervallo capovolto attorno alla prima nota" />
           <TransformCard title="Retrogrado" notes={reversed} tip="Suona il motivo al contrario" />
           <TransformCard title="Retrogrado Inverso" notes={retroInverted} tip="Rovescia poi capovolge — tecnica contrappuntistica" />
@@ -1065,12 +1073,14 @@ function MotifLabSection() {
             notes={motif}
             tip="I valori ritmici raddoppiano — le note rimangono le stesse"
             dimmed
+            rhythmSymbol="×2"
           />
           <TransformCard
             title="Diminution ÷2 (stesse altezze, durata dimezzata)"
             notes={motif}
             tip="I valori ritmici si dimezzano — le note rimangono le stesse"
             dimmed
+            rhythmSymbol="÷2"
           />
         </div>
       )}
