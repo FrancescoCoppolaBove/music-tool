@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Scale, Note } from 'tonal';
+import { noteToSemitone, semitoneToNote, notePreferFlat } from '@shared/utils/musicTheory';
 
 // ─── Data Structures ────────────────────────────────────────────────────────
 
@@ -898,6 +899,185 @@ function ModeCharacterGrid() {
   );
 }
 
+// ─── Motif Lab ───────────────────────────────────────────────────────────────
+
+const DEGREE_TO_SEMI: Record<string, number> = {
+  '1': 0, 'b2': 1, '2': 2, 'b3': 3, '#2': 3, '3': 4, '4': 5,
+  '#4': 6, 'b5': 6, '5': 7, '#5': 8, 'b6': 8, '6': 9, 'b7': 10, '7': 11,
+};
+
+const MAJOR_SCALE_STEPS = [0, 2, 4, 5, 7, 9, 11];
+
+function parseDegrees(input: string, globalKey: string): { note: string; semi: number }[] {
+  const tokens = input.trim().split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return [];
+
+  const isNoteNames = /^[A-Ga-g][b#]?$/.test(tokens[0]);
+  const keySemi = noteToSemitone(globalKey);
+
+  if (isNoteNames) {
+    return tokens
+      .map(t => {
+        const note = t.charAt(0).toUpperCase() + t.slice(1);
+        const semi = noteToSemitone(note);
+        return semi >= 0 ? { note, semi: keySemi + ((semi - keySemi + 12) % 12) } : null;
+      })
+      .filter((x): x is { note: string; semi: number } => x !== null);
+  }
+
+  return tokens
+    .map(t => {
+      const ds = DEGREE_TO_SEMI[t];
+      if (ds === undefined) return null;
+      const absSemi = keySemi + ds;
+      const note = semitoneToNote(((absSemi % 12) + 12) % 12, notePreferFlat(globalKey));
+      return { note, semi: absSemi };
+    })
+    .filter((x): x is { note: string; semi: number } => x !== null);
+}
+
+function invertMotif(notes: { note: string; semi: number }[], globalKey: string): { note: string; semi: number }[] {
+  if (notes.length === 0) return [];
+  const first = notes[0].semi;
+  return notes.map(n => {
+    const newSemi = first - (n.semi - first);
+    return { note: semitoneToNote(((newSemi % 12) + 12) % 12, notePreferFlat(globalKey)), semi: newSemi };
+  });
+}
+
+function diatonicShift(
+  notes: { note: string; semi: number }[],
+  keySemi: number,
+  steps: number,
+  globalKey: string,
+): { note: string; semi: number }[] {
+  return notes.map(({ semi }) => {
+    const rel = ((semi - keySemi) % 12 + 12) % 12;
+    let scaleIdx = MAJOR_SCALE_STEPS.indexOf(rel);
+    if (scaleIdx < 0) {
+      scaleIdx = MAJOR_SCALE_STEPS.reduce((bi, s, i) =>
+        Math.abs(s - rel) < Math.abs(MAJOR_SCALE_STEPS[bi] - rel) ? i : bi, 0);
+    }
+    const newIdx = scaleIdx + steps;
+    const octaveOff = Math.floor(newIdx / 7) * 12;
+    const wrappedIdx = ((newIdx % 7) + 7) % 7;
+    const newSemi = keySemi + MAJOR_SCALE_STEPS[wrappedIdx] + octaveOff;
+    return { note: semitoneToNote(((newSemi % 12) + 12) % 12, notePreferFlat(globalKey)), semi: newSemi };
+  });
+}
+
+function MotifNotePills({ notes }: { notes: { note: string }[] }) {
+  return (
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      {notes.map((n, i) => (
+        <span key={i} style={{
+          padding: '2px 10px', borderRadius: 99,
+          background: '#1a1030', border: '1px solid #7c3aed',
+          color: '#c4b5fd', fontSize: 13, fontWeight: 700,
+        }}>{n.note}</span>
+      ))}
+    </div>
+  );
+}
+
+interface TransformCardProps {
+  title: string;
+  notes: { note: string; semi?: number }[];
+  tip: string;
+  dimmed?: boolean;
+}
+
+function TransformCard({ title, notes, tip, dimmed }: TransformCardProps) {
+  return (
+    <div style={{
+      background: '#0d1117', border: '1px solid #21262d',
+      borderRadius: 8, padding: '10px 14px',
+      opacity: dimmed ? 0.6 : 1,
+    }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: '#8b949e', marginBottom: 6 }}>{title}</div>
+      {dimmed
+        ? <div style={{ fontSize: 12, color: '#6b7280', fontStyle: 'italic' }}>
+            {notes.length > 0 ? `${notes.map(n => n.note).join('  ')} (valori ritmici)` : '—'}
+          </div>
+        : <MotifNotePills notes={notes} />
+      }
+      <div style={{ fontSize: 11, color: '#6b7280', marginTop: 6 }}>💡 {tip}</div>
+    </div>
+  );
+}
+
+function MotifLabSection() {
+  const { globalKey } = useGlobalKey();
+  const [input, setInput] = useState('1 3 5 b7');
+  const [motif, setMotif] = useState<{ note: string; semi: number }[]>([]);
+  const keySemi = noteToSemitone(globalKey);
+
+  function analyze() {
+    setMotif(parseDegrees(input, globalKey));
+  }
+
+  const inverted = invertMotif(motif, globalKey);
+  const reversed = [...motif].reverse();
+  const retroInverted = invertMotif(reversed, globalKey);
+  const seqUp = diatonicShift(motif, keySemi, 1, globalKey);
+  const seqDown = diatonicShift(motif, keySemi, -2, globalKey);
+
+  return (
+    <div>
+      <p style={{ margin: '0 0 12px', fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>
+        Inserisci gradi della scala (<code style={{ color: '#c4b5fd' }}>1 3 5 b7</code>) o nomi di nota
+        (<code style={{ color: '#c4b5fd' }}>C E G Bb</code>) — la key globale è <strong style={{ color: '#e6edf3' }}>{globalKey}</strong>.
+      </p>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && analyze()}
+          placeholder="e.g. 1 3 5 b7  or  C E G Bb"
+          style={{
+            flex: 1, padding: '8px 12px',
+            background: '#0d1117', border: '1px solid #30363d',
+            borderRadius: 8, color: '#e6edf3', fontSize: 14, outline: 'none',
+          }}
+        />
+        <button onClick={analyze} style={{
+          padding: '8px 20px', background: '#7c3aed20', border: '1px solid #7c3aed',
+          borderRadius: 8, cursor: 'pointer', color: '#c4b5fd', fontSize: 13, fontWeight: 600,
+        }}>Analizza</button>
+      </div>
+
+      {motif.length === 0 && (
+        <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>
+          Inserisci il motivo e premi Analizza.
+        </p>
+      )}
+
+      {motif.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <TransformCard title="Originale" notes={motif} tip="Il motivo di partenza" />
+          <TransformCard title="Inversione" notes={inverted} tip="Ogni intervallo capovolto attorno alla prima nota" />
+          <TransformCard title="Retrogrado" notes={reversed} tip="Suona il motivo al contrario" />
+          <TransformCard title="Retrogrado Inverso" notes={retroInverted} tip="Rovescia poi capovolge — tecnica contrappuntistica" />
+          <TransformCard title="Sequenza +1° (diatonica)" notes={seqUp} tip={`Motivo trasportato su di un grado nella scala di ${globalKey} maggiore`} />
+          <TransformCard title="Sequenza –3° (diatonica)" notes={seqDown} tip="Motivo trasportato giù di una terza diatonica" />
+          <TransformCard
+            title="Augmentation ×2 (stesse altezze, durata doppia)"
+            notes={motif}
+            tip="I valori ritmici raddoppiano — le note rimangono le stesse"
+            dimmed
+          />
+          <TransformCard
+            title="Diminution ÷2 (stesse altezze, durata dimezzata)"
+            notes={motif}
+            tip="I valori ritmici si dimezzano — le note rimangono le stesse"
+            dimmed
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function MelodyArchitectFeature() {
@@ -1121,6 +1301,16 @@ export default function MelodyArchitectFeature() {
         />
         <ModeCharacterGrid />
       </div>
+
+      {/* Motif Lab */}
+      <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
+        <summary style={{ cursor: 'pointer', fontSize: 13, color: '#8b949e', fontWeight: 600, listStyle: 'none' }}>
+          🧬 Motif Lab — inversion, retrograde, sequences
+        </summary>
+        <div style={{ marginTop: 14 }}>
+          <MotifLabSection />
+        </div>
+      </details>
 
     </div>
   );
