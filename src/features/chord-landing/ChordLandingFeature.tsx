@@ -1034,95 +1034,6 @@ export default function ChordLandingFeature() {
         </p>
       </div>
 
-      {/* Target chord selector */}
-      <div style={{
-        background: '#161b22',
-        border: '1px solid #21262d',
-        borderRadius: 10,
-        padding: '20px 24px',
-        marginBottom: 20,
-      }}>
-        <div style={{
-          fontFamily: "'Syne', sans-serif",
-          fontSize: 13,
-          fontWeight: 700,
-          color: '#8b949e',
-          letterSpacing: '1px',
-          textTransform: 'uppercase',
-          marginBottom: 14,
-        }}>
-          Target Chord
-        </div>
-
-        {/* Preview */}
-        <div style={{
-          display: 'inline-block',
-          background: '#7c3aed',
-          borderRadius: 8,
-          padding: '8px 20px',
-          fontFamily: "'Syne', sans-serif",
-          fontSize: 22,
-          fontWeight: 800,
-          color: '#fff',
-          letterSpacing: '-0.5px',
-          marginBottom: 18,
-          boxShadow: '0 0 20px #7c3aed55',
-        }}>
-          {targetChord || targetRoot}
-        </div>
-
-        {/* Root selector */}
-        <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, color: '#4b5563', marginBottom: 8, letterSpacing: '0.5px' }}>ROOT</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {NOTES.map(n => (
-              <button
-                key={n}
-                onClick={() => setTargetRoot(n)}
-                style={{
-                  ...btnStyle(targetRoot === n),
-                  minWidth: 40,
-                  textAlign: 'center',
-                }}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Quality selector */}
-        <div>
-          <div style={{ fontSize: 11, color: '#4b5563', marginBottom: 8, letterSpacing: '0.5px' }}>QUALITY</div>
-          {(['major', 'minor', 'dominant', 'suspended', 'halfdiminished', 'diminished', 'augmented'] as const).map(cat => {
-            const catQualities = QUALITIES.filter(q => q.cat === cat);
-            if (!catQualities.length) return null;
-            const catColor =
-              cat === 'major' ? '#10b981' :
-              cat === 'minor' ? '#06b6d4' :
-              cat === 'dominant' ? '#f59e0b' :
-              cat === 'suspended' ? '#a78bfa' :
-              '#ef4444';
-            return (
-              <div key={cat} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 10, color: catColor, minWidth: 80, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  {CAT_LABELS[cat] ?? cat}
-                </span>
-                {catQualities.map(q => (
-                  <button
-                    key={q.value}
-                    onClick={() => setTargetQuality(q.value)}
-                    style={btnStyle(targetQuality === q.value, catColor)}
-                  >
-                    {q.label}
-                  </button>
-                ))}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* From Chord panel */}
       <div style={{
         background: '#161b22',
@@ -1335,6 +1246,95 @@ export default function ChordLandingFeature() {
           )}
         </div>
       )}
+
+      {/* Target chord selector */}
+      <div style={{
+        background: '#161b22',
+        border: '1px solid #21262d',
+        borderRadius: 10,
+        padding: '20px 24px',
+        marginBottom: 20,
+      }}>
+        <div style={{
+          fontFamily: "'Syne', sans-serif",
+          fontSize: 13,
+          fontWeight: 700,
+          color: '#8b949e',
+          letterSpacing: '1px',
+          textTransform: 'uppercase',
+          marginBottom: 14,
+        }}>
+          Target Chord
+        </div>
+
+        {/* Preview */}
+        <div style={{
+          display: 'inline-block',
+          background: '#7c3aed',
+          borderRadius: 8,
+          padding: '8px 20px',
+          fontFamily: "'Syne', sans-serif",
+          fontSize: 22,
+          fontWeight: 800,
+          color: '#fff',
+          letterSpacing: '-0.5px',
+          marginBottom: 18,
+          boxShadow: '0 0 20px #7c3aed55',
+        }}>
+          {targetChord || targetRoot}
+        </div>
+
+        {/* Root selector */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 11, color: '#4b5563', marginBottom: 8, letterSpacing: '0.5px' }}>ROOT</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {NOTES.map(n => (
+              <button
+                key={n}
+                onClick={() => setTargetRoot(n)}
+                style={{
+                  ...btnStyle(targetRoot === n),
+                  minWidth: 40,
+                  textAlign: 'center',
+                }}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Quality selector */}
+        <div>
+          <div style={{ fontSize: 11, color: '#4b5563', marginBottom: 8, letterSpacing: '0.5px' }}>QUALITY</div>
+          {(['major', 'minor', 'dominant', 'suspended', 'halfdiminished', 'diminished', 'augmented'] as const).map(cat => {
+            const catQualities = QUALITIES.filter(q => q.cat === cat);
+            if (!catQualities.length) return null;
+            const catColor =
+              cat === 'major' ? '#10b981' :
+              cat === 'minor' ? '#06b6d4' :
+              cat === 'dominant' ? '#f59e0b' :
+              cat === 'suspended' ? '#a78bfa' :
+              '#ef4444';
+            return (
+              <div key={cat} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 10, color: catColor, minWidth: 80, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  {CAT_LABELS[cat] ?? cat}
+                </span>
+                {catQualities.map(q => (
+                  <button
+                    key={q.value}
+                    onClick={() => setTargetQuality(q.value)}
+                    style={btnStyle(targetQuality === q.value, catColor)}
+                  >
+                    {q.label}
+                  </button>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Filters */}
       <div style={{
