@@ -12,6 +12,7 @@ export type Tab =
   | 'analysis'
   | 'riff'
   | 'melody'
+  | 'mel-harm'
   | 'quiz'
   | 'score'
   | 'landing'

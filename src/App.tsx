@@ -43,6 +43,7 @@ import ExamTemplatesFeature from './features/exam-templates/ExamTemplatesFeature
 import TeacherDashboardFeature from './features/teacher-dashboard/TeacherDashboardFeature';
 import HarmoniaCourseFeature from './features/harmonia-course/HarmoniaCourseFeature';
 import ReharmonizationFeature from './features/reharmonization/ReharmonizationFeature';
+import MelodyHarmonizerFeature from './features/melody-harmonizer/MelodyHarmonizerFeature';
 import { useUserProfile } from './shared/context/UserProfileContext';
 import type { UserRole } from './shared/types/conservatory.types';
 
@@ -192,6 +193,7 @@ const GROUPS: GroupDef[] = [
       { id: 'score',         label: 'Score → iReal Pro',   icon: '📄', desc: 'Import a score photo and export to iReal Pro',                    subsection: 'Harmony' },
       { id: 'riff',          label: 'Riff Architect',      icon: '🎵', desc: 'Build a riff from rhythm, style & scale degrees',                 subsection: 'Arrange' },
       { id: 'melody',        label: 'Melody Architect',    icon: '〰️', desc: 'Shape a melody with contour, approach & motif',                   subsection: 'Arrange' },
+      { id: 'mel-harm',      label: 'Melody Harmonizer',   icon: '🎼', desc: 'Armonizza una melodia nota per nota — Four-Way Close e 3-Horn Writing', subsection: 'Arrange' },
       { id: 'architect',     label: 'Song Architect',      icon: '🏗️', desc: 'Develop harmonic sections B and C from your A section',           subsection: 'Arrange' },
       { id: 'groove',        label: 'Groove Kitchen',      icon: '🥁', desc: 'Drum + bass patterns for Snarky Puppy, Ghost Note, Vulfpeck, Yussef Dayes', subsection: 'Arrange' },
       { id: 'arrangement',   label: 'Arrangement Blueprint', icon: '🎼', desc: 'What each instrument plays — from idea to complete arrangement', subsection: 'Arrange' },
@@ -1007,6 +1009,7 @@ export default function App() {
         {activeTab === 'analysis'      && <HarmonicAnalysisFeature />}
         {activeTab === 'riff'          && <RiffArchitectFeature />}
         {activeTab === 'melody'        && <MelodyArchitectFeature />}
+        {activeTab === 'mel-harm'      && <MelodyHarmonizerFeature />}
         {activeTab === 'quiz'          && <IntervalQuizFeature />}
         {activeTab === 'score'         && <ScoreToIRealFeature />}
         {activeTab === 'landing'       && <ChordLandingFeature />}
