@@ -29,7 +29,7 @@ function midiBelow(pc: number, below: number): number {
 // Convert MIDI to note name without octave, preferring flats.
 // Note.fromMidi already returns flats (Db4, Bb3, etc.) — strip the trailing digit.
 function midiToName(midi: number): string {
-  return Note.fromMidi(midi).replace(/\d+$/, '');
+  return Note.fromMidi(midi).replace(/-?\d+$/, '');
 }
 
 // Pitch classes [0–11] of all chord tones, in chord-tone order (root, 3rd, 5th, 7th…).
@@ -39,7 +39,7 @@ function getChordPCs(chordSymbol: string): number[] {
   if (!chord.notes || chord.notes.length === 0) return [0, 4, 7, 10];
   return chord.notes
     .map(n => Note.get(n).chroma)
-    .filter((c): c is number => c !== undefined);
+    .filter((c): c is number => Number.isFinite(c));
 }
 
 // Label a MIDI note as its interval role within a chord ('root', '3rd', '5th', '7th', 'tension').
