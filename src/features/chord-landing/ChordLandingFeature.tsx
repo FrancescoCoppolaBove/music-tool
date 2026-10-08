@@ -99,6 +99,41 @@ const COMPLEXITY_COLORS: Record<number, string> = {
 // Intervals are measured FROM the target root going UP.
 // e.g. For target C: '5P' → G (the V7), '2m' → Db (the bII7), '2M' → D (the ii7)
 const APPROACHES: Approach[] = [
+  {
+    id: 'ascending-leading-diminished', name: 'Leading-Tone Diminished Approach', complexity: 2,
+    steps: [{ interval: '7M', quality: 'dim7', role: 'vii dim7 of target' }],
+    moods: ['jazz', 'classical', 'chromatic'], genres: ['Jazz', 'Soul', 'Classical'],
+    theory: 'The dim7 a semitone below the target acts like the upper four notes of its V7b9. Into C, B-D-F-Ab can lead to C-E-G, with B rising to C and Ab falling to G. Choose the remaining voice motions to suit the target quality.',
+    tip: 'Resolve one tension at a time. For a minor target, F can descend to Eb rather than E.', worksFor: ['major', 'minor'],
+  },
+  {
+    id: 'descending-passing-diminished', name: 'Descending Chromatic Diminished', complexity: 3,
+    steps: [{ interval: '2M', quality: 'm7', role: 'Upper minor chord' }, { interval: '2m', quality: 'dim7', role: 'Descending passing dim7' }],
+    moods: ['jazz', 'chromatic'], genres: ['Jazz', 'Soul', 'Bossa Nova'],
+    theory: 'Into Dm7, Em7-Ebdim7-Dm7 gives a descending E-Eb-D bass. Keep G as a common tone where possible and resolve the other voices by small steps. This passing function need not be interpreted as a rootless dominant.',
+    tip: 'Start with short passing-chord duration. A sustained melody must also fit the passing voicing.', worksFor: ['minor'],
+  },
+  {
+    id: 'common-tone-diminished-return', name: 'Common-Tone Diminished Return', complexity: 3,
+    steps: [{ interval: '1P', quality: '6', role: 'Tonic colour' }, { interval: '1P', quality: 'dim7', role: 'Common-tone dim7' }],
+    moods: ['gospel', 'jazz', 'chromatic'], genres: ['Gospel', 'Jazz', 'Soul'],
+    theory: 'Keep the target root in the bass. C6-Cdim7-C6 decorates a stable tonic: Eb rises to E and Gb rises to G while C and A/Bbb remain. For a maj7 destination, the final seventh changes the voice-leading options.',
+    tip: 'Select a major-sixth target first, then compare maj7. This is tonic decoration, not a modulation.', worksFor: ['major'],
+  },
+  {
+    id: 'minor-cadence-leading-dim', name: 'Half-Diminished to Rootless Dominant', complexity: 3,
+    steps: [{ interval: '2M', quality: 'm7b5', role: 'ii m7b5' }, { interval: '7M', quality: 'dim7', role: 'Rootless V7b9' }],
+    moods: ['jazz', 'cinematic'], genres: ['Jazz', 'Film Score'],
+    theory: 'Into Cm, Dm7b5-Bdim7-Cm retains D, F and Ab while C falls to B. Bdim7 supplies the upper notes of G7b9 without its root. This links a predominant half-diminished chord to a dominant-function fully diminished chord.',
+    tip: 'First play G under Bdim7 to hear the dominant relationship, then remove that bass note.', worksFor: ['minor'],
+  },
+  {
+    id: 'extended-diminished-minor-cadence', name: 'Five-Chord Minor Preparation', complexity: 4,
+    steps: [{ interval: '4P', quality: 'm7', role: 'iv7' }, { interval: '2M', quality: 'm7b5', role: 'ii m7b5' }, { interval: '5P', quality: '7sus4', role: 'V7sus4' }, { interval: '5P', quality: '7alt', role: 'V7alt' }, { interval: '7M', quality: 'dim7', role: 'Rootless V7b9' }],
+    moods: ['jazz', 'cinematic', 'gospel'], genres: ['Jazz', 'Soul', 'Film Score'],
+    theory: 'Move from minor predominant harmony through suspension and altered dominance, then reduce the texture to the leading-tone diminished chord before landing. The perfect fifth in the final dim7 implies a switch from the altered palette to a V7b9 colour.',
+    tip: 'Use a slower harmonic rhythm at the start and shorter dominant events near the target. Do not sustain incompatible altered extensions across the palette change.', worksFor: ['minor'],
+  },
   // ── Complexity 1 ─────────────────────────────────────────────────────────────
   {
     id: 'perfect-cadence',
@@ -274,7 +309,7 @@ const APPROACHES: Approach[] = [
     ],
     moods: ['jazz', 'chromatic', 'experimental'],
     genres: ['Modern Jazz', 'Post-Bop', 'Fusion', 'Contemporary'],
-    theory: 'The V7alt uses all four altered tensions simultaneously: b9, #9, b13 (#5), and #11. These come from the altered scale (7th mode of melodic minor). This is the maximum tension achievable before resolving to the tonic.',
+    theory: 'V7alt offers b9, #9, b5/#11 and #5/b13 from melodic minor mode 7. Choose a subset according to the melody and the destination; simultaneous use of every alteration is not required. Preserve the third and minor seventh to establish dominant quality.',
     tip: 'The b13 of V7alt is enharmonically the same as the #5 — in key of C, the Eb is the b13 of G7alt, and it resolves to E (3rd of Cmaj7). Voice leading is built in.',
     worksFor: ['major', 'any'],
   },
@@ -303,7 +338,7 @@ const APPROACHES: Approach[] = [
     ],
     moods: ['gospel', 'classical', 'jazz'],
     genres: ['Gospel', 'Soul', 'R&B', 'Jazz', 'Blues'],
-    theory: 'The passing diminished (#iv°7 = F#dim7 in key of C) connects IV to V via chromatic voice leading. The #iv°7 is enharmonically identical to V7b9 without the root — it\'s a rootless dominant with b9. Inner voices move by half-steps in a chain.',
+    theory: 'F#dim7 connects F to G7 through an ascending chromatic bass. Its notes F#-A-C-Eb are the upper notes of D7b9, the secondary dominant of G, not of G7b9. The leading tone F# rises to G while other voices remain or move by small steps.',
     tip: 'The characteristic gospel sound: F → F#dim7 → G7 → C. Without the dim7 it\'s ordinary; with it, it\'s gospel. The F#dim7 can also be spelled as Adim7, Cdim7, or Ebdim7 — all the same chord.',
     worksFor: ['major', 'any'],
   },

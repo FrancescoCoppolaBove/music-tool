@@ -1,4 +1,5 @@
 import type { Level } from './types';
+import { diminishedLessons } from './diminishedLessons';
 import type { Tab } from '@shared/types/navigation.types';
 
 // ─── Livello 0 — Alfabetizzazione Musicale Assoluta ─────────────────────────
@@ -2137,6 +2138,8 @@ Melodia di 4 note Do–Mi–Sol–La → 4 accordi drop 2 paralleli`,
 
 export const ALL_LEVELS: Level[] = [
   level0, level1, level2, level3, level4, level5, level6,
-  level7, level8, level9, level10, level11, level12, level13,
+  { ...level7, subsections: [...level7.subsections, ...diminishedLessons.slice(0, 2)] },
+  { ...level8, subsections: [...level8.subsections, diminishedLessons[2]] },
+  level9, level10, level11, level12, level13,
   level14, level15, level16, level17,
 ];

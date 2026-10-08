@@ -1,6 +1,52 @@
 import type { ProgressionTemplate } from '../types/progression.types';
 
 export const TEMPLATES: ProgressionTemplate[] = [
+  {
+    id: 'dim-leading-tone-release', name: 'Leading-Tone Diminished Release',
+    chords: [
+      { degree: 'VII', quality: 'dim7', function: 'Dominant', technique: 'dim_pedal' },
+      { degree: 'I', quality: 'maj7', function: 'Tonic' },
+    ],
+    style: 'classic', mode: 'major', techniques: ['dim_pedal'], lengths: [2], artists: [],
+    feel: 'Compact chromatic release',
+    description: 'Bdim7-Cmaj7 in C: the diminished chord supplies the upper voices of G7b9. Resolve B to C and Ab to G; use inversions to keep the other voices close.',
+  },
+  {
+    id: 'dim-descending-inner-line', name: 'Descending Diminished Connection',
+    chords: [
+      { degree: 'III', quality: 'm7', function: 'Tonic' },
+      { degree: 'bIII', quality: 'dim7', function: 'Color', technique: 'dim_pedal' },
+      { degree: 'II', quality: 'm7', function: 'Subdominant' },
+    ],
+    style: 'classic', mode: 'major', techniques: ['dim_pedal'], lengths: [3], artists: [],
+    feel: 'Descending chromatic bass',
+    description: 'Em7-Ebdim7-Dm7 in C. Treat the dim7 as a short descending connector, not automatically as a secondary dominant. Retain common tones and let the bass provide direction.',
+  },
+  {
+    id: 'half-dim-altered-minor-release', name: 'Minor Cadence with Altered Release',
+    chords: [
+      { degree: 'IV', quality: 'm7', function: 'Subdominant' },
+      { degree: 'II', quality: 'm7b5', function: 'Subdominant' },
+      { degree: 'V', quality: '7alt', function: 'Dominant', technique: 'altered_dominant' },
+      { degree: 'I', quality: 'm6', function: 'Tonic' },
+    ],
+    style: 'modern', mode: 'minor', techniques: ['altered_dominant'], lengths: [4], artists: [],
+    feel: 'Minor tension and warm release',
+    description: 'Fm7-Dm7b5-G7alt-Cm6 in C minor. The half-diminished chord prepares rather than replaces the dominant. Resolve Ab to G while Eb can remain as the minor tonic third.',
+  },
+  {
+    id: 'dim-secondary-to-altered-five', name: 'Diminished Preparation into Altered Cadence',
+    chords: [
+      { degree: 'VI', quality: 'm7', function: 'Tonic' },
+      { degree: '#I', quality: 'dim7', function: 'Dominant', technique: 'dim_pedal' },
+      { degree: 'II', quality: 'm7', function: 'Subdominant' },
+      { degree: 'V', quality: '7alt', function: 'Dominant', technique: 'altered_dominant' },
+      { degree: 'I', quality: 'maj7', function: 'Tonic' },
+    ],
+    style: 'modern', mode: 'major', techniques: ['dim_pedal', 'altered_dominant'], lengths: [5], artists: [],
+    feel: 'Two-stage chromatic resolution',
+    description: 'Am7-C#dim7-Dm7-G7alt-Cmaj7 in C. The diminished chord acts as rootless A7b9 into ii, then the altered V leads home. Shape each tension peak independently instead of keeping every chord equally dense.',
+  },
   // ── CLASSIC / TONAL ──────────────────────────────────────────────────────
   {
     id: 'ii-V-I',

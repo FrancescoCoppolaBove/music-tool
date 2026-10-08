@@ -289,7 +289,7 @@ export function getScaleNotes(root: string, scaleKey: string): string[] {
 export type Degree = 'I' | 'bII' | 'II' | 'bIII' | 'III' | 'IV' | '#IV' | 'bV' | 'V' | 'bVI' | 'VI' | 'bVII' | 'VII';
 
 export const DEGREE_SEMITONE: Record<string, number> = {
-  'I': 0, 'bII': 1, 'II': 2, 'bIII': 3, 'III': 4, 'IV': 5,
+  'I': 0, '#I': 1, 'bII': 1, 'II': 2, 'bIII': 3, 'III': 4, 'IV': 5,
   '#IV': 6, 'bV': 6, 'V': 7, 'bVI': 8, 'VI': 9, 'bVII': 10, 'VII': 11,
 };
 
