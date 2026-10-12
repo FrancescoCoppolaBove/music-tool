@@ -37,4 +37,6 @@ export type Tab =
   | 'reharm'
   | 'cycles'
   | 'chordfinder'
-  | 'rhythmic-displacement';
+  | 'rhythmic-displacement'
+  | 'harmony-lab'
+  | 'harmony-cheat-sheet';

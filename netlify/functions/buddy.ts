@@ -55,10 +55,15 @@ export const handler: Handler = async (event: HandlerEvent) => {
       { role: 'user', content: `${contextNote}${message}` },
     ];
 
+    const structuredHarmonyRequest = context === 'HARMONY_LAB_PROPOSAL';
+    const system = structuredHarmonyRequest
+      ? `${SYSTEM_PROMPT}\n\nFor HARMONY_LAB_PROPOSAL requests, return only one valid JSON object with exactly these fields: {"title":string,"explanation":string,"tonic":string,"mode":string,"bpm":number,"meter":string,"chords":string[]}. Do not wrap it in markdown. Use standard chord symbols. Do not claim the proposal has been validated; the application will validate chord symbols and settings. Keep the user's key, mode, tempo, and meter unless their request asks to change them. If the request is musically ambiguous, make a reasonable proposal and state your assumption in explanation.`
+      : SYSTEM_PROMPT;
+
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 512,
-      system: SYSTEM_PROMPT,
+      system,
       messages,
     });
 

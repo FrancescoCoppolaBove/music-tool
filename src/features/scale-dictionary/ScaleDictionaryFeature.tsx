@@ -1,3 +1,5 @@
+import ScaleComparison from './ScaleComparison';
+import { WorldMusicExplorer } from '../harmony-composition-lab/WorldMusicExplorer';
 import { useState, useMemo, useEffect } from 'react';
 import { ScaleType, Scale, Interval } from 'tonal';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
@@ -94,7 +96,9 @@ export default function ScaleDictionaryFeature() {
   const [search, setSearch] = useState('');
   const [showIntervals, setShowIntervals] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
-  const [selectedScale, setSelectedScale] = useState<ScaleEntry | null>(null);
+  const [selectedScaleEntry, setSelectedScale] = useState<ScaleEntry | null>(null);
+
+  const selectedScale = selectedScaleEntry ? { ...selectedScaleEntry, notes: Scale.get(`${selectedKey} ${selectedScaleEntry.name}`).notes } : null;
 
   // All 92 scale types from Tonal
   const allScaleTypes = useMemo(() => ScaleType.all().filter(s => !s.empty), []);
@@ -276,6 +280,7 @@ export default function ScaleDictionaryFeature() {
               </div>
             ))}
           </div>
+          <ScaleComparison tonic={selectedKey} name={selectedScale.name} />
           {/* Step pattern */}
           <div style={{ fontSize: 12, color: '#6b7280' }}>
             <span style={{ color: '#8b949e', fontWeight: 600 }}>Step pattern: </span>
@@ -358,6 +363,10 @@ export default function ScaleDictionaryFeature() {
           </div>
         )}
       </div>
+      <details style={{ color: '#e6edf3', border: '1px solid #30363d', borderRadius: 10, padding: 14 }}>
+        <summary style={{ cursor: 'pointer' }}>Traditions and listening references · World Music Explorer</summary>
+        <WorldMusicExplorer />
+      </details>
     </div>
   );
 }

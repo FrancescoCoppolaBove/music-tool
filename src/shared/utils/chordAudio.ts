@@ -199,6 +199,49 @@ export class AudioPlayer {
     }
   }
 
+  /** Schedule an audition on the shared audio clock, including cancel during sample loading. */
+  playPhrase(notes: string[], secondsPerNote: number, onEnd: () => void): { stop: () => void } {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const sources: AudioBufferSourceNode[] = [];
+    const stop = () => {
+      if (cancelled) return;
+      cancelled = true;
+      clearTimeout(timer);
+      sources.forEach(source => { try { source.stop(); } catch { /* already ended */ } });
+      onEnd();
+    };
+    void (async () => {
+      await this.initAudioContext();
+      await this.resumeAudioContext();
+      const decoded = await Promise.all(notes.slice(0, 64).map(async note => {
+        const resolved = resolveNote(note);
+        return resolved ? { ...resolved, buffer: await this.getBuffer(resolved.filePath) } : null;
+      }));
+      if (cancelled) return;
+      const context = this.audioContext;
+      if (!context || !this.masterGain) { stop(); return; }
+      const duration = Math.max(0.08, Math.min(4, secondsPerNote));
+      const start = context.currentTime + 0.04;
+      decoded.forEach((item, index) => {
+        if (!item?.buffer) return;
+        const at = start + index * duration;
+        const source = context.createBufferSource();
+        source.buffer = item.buffer; source.playbackRate.value = item.playbackRate;
+        const gain = context.createGain();
+        gain.gain.setValueAtTime(0.7, at);
+        gain.gain.setValueAtTime(0.7, at + duration * 0.8);
+        gain.gain.linearRampToValueAtTime(0, at + duration);
+        source.connect(gain); gain.connect(this.masterGain!);
+        sources.push(source); this.activeSources.add(source);
+        source.onended = () => { this.activeSources.delete(source); source.disconnect(); gain.disconnect(); };
+        source.start(at); source.stop(at + duration);
+      });
+      timer = setTimeout(stop, (decoded.length * duration + 0.05) * 1000);
+    })().catch(stop);
+    return { stop };
+  }
+
   /** Play notes sequentially with a delay between each. */
   async playSequence(notes: string[], delayMs = 600, volume = 1.0): Promise<void> {
     for (const note of notes) {
@@ -211,6 +254,24 @@ export class AudioPlayer {
   async playChord(notes: string[]): Promise<void> {
     const volume = 0.8 / Math.sqrt(notes.length);
     await Promise.all(notes.map(note => this.playNote(note, volume)));
+  }
+
+  /** Play a short metronome click through the shared Web Audio context. */
+  async playClick(accent = false): Promise<void> {
+    if (!this.audioContext) await this.initAudioContext();
+    await this.resumeAudioContext();
+    if (!this.audioContext || !this.masterGain) return;
+    const oscillator = this.audioContext.createOscillator();
+    const gain = this.audioContext.createGain();
+    const now = this.audioContext.currentTime;
+    oscillator.type = 'square';
+    oscillator.frequency.value = accent ? 1320 : 880;
+    gain.gain.setValueAtTime(accent ? 0.12 : 0.07, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+    oscillator.connect(gain);
+    gain.connect(this.masterGain);
+    oscillator.start(now);
+    oscillator.stop(now + 0.05);
   }
 
   delay(ms: number): Promise<void> {

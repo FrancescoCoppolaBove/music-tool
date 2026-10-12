@@ -1,3 +1,7 @@
+import CompositionImportNotice from '../my-compositions/CompositionImportNotice';
+import { saveComposition } from '../my-compositions/compositionRepository';
+import type { CompositionSnapshot } from '../harmony-composition-lab/projectVersioning';
+import AiProgressionProposal from './AiProgressionProposal';
 import { useState } from 'react';
 import { Progression } from 'tonal';
 import ProgressionSettings from './components/ProgressionSettings';
@@ -13,13 +17,23 @@ export default function ChordProgressionFeature() {
     style, setStyle,
     techniques, toggleTechnique,
     spice, setSpice,
-    results, selectedId, setSelectedId,
+    results, selectedId, setSelectedId, resultMode,
     generate,
     regenerateVariant,
     availableTechniques,
   } = useChordProgression();
 
   const [withExtensions, setWithExtensions] = useState(false);
+  const [imported, setImported] = useState<{ id: string; snapshot: CompositionSnapshot } | null>(null);
+  const [saveStatus, setSaveStatus] = useState('');
+  const [projectTitle, setProjectTitle] = useState('Progression idea');
+  const selected = results.find(result => result.id === selectedId) ?? results[0];
+  const selectedChords = selected?.chords.map(chord => chord.symbol) ?? [];
+  function saveSelected() {
+    saveComposition({ title: projectTitle.trim() || selected?.template.name || 'Progression idea', tonic: selected?.key ?? key, mode: resultMode.replace(/_/g, ' '), bpm: 100, meter: '4/4', chords: selectedChords, sections: [] });
+    setSaveStatus('Progression saved in My compositions.');
+  }
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -31,6 +45,14 @@ export default function ChordProgressionFeature() {
         </p>
       </div>
 
+      <CompositionImportNotice target="progressions" onImport={request => { setImported({ id: request.projectId, snapshot: request.snapshot }); setSaveStatus(''); }} />
+      {imported && <section style={{ padding: 16, background: '#161b22', border: '1px solid #7c3aed', borderRadius: 10, color: '#e6edf3' }}>
+        <h3>{imported.snapshot.title} · saved progression</h3>
+        <label>Chord symbols<input aria-label="Saved progression chord symbols" style={{ display: 'block', width: '100%', boxSizing: 'border-box', margin: '8px 0' }} value={imported.snapshot.chords.join(' ')} onChange={e => setImported({ ...imported, snapshot: { ...imported.snapshot, chords: e.target.value.split(/[\s,]+/).filter(Boolean) } })} /></label>
+        <p>These are the project's main chords. Individual song sections keep their own progressions.</p>
+        <button onClick={() => { saveComposition(imported.snapshot, imported.id); setSaveStatus('Saved a new revision of the imported composition.'); }}>Save revision</button>{' '}
+        <button disabled={!selectedChords.length} onClick={() => setImported({ ...imported, snapshot: { ...imported.snapshot, tonic: selected?.key ?? key, mode: resultMode.replace(/_/g, ' '), chords: selectedChords } })}>Use selected generated progression</button>
+      </section>}
       {/* Technique Legend */}
       <div style={{
         background: '#161b22', border: '1px solid #30363d', borderRadius: 10,
@@ -66,6 +88,15 @@ export default function ChordProgressionFeature() {
         withExtensions={withExtensions}
       />
 
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', color: '#e6edf3' }}>
+        <label>Idea title <input value={projectTitle} onChange={e => setProjectTitle(e.target.value)} /></label>
+        <button disabled={!selectedChords.length} onClick={saveSelected}>Save selected progression to My compositions</button>
+        {saveStatus && <span role="status">{saveStatus}</span>}
+      </div>
+      <details style={{ padding: 14, border: '1px solid #30363d', borderRadius: 10, color: '#e6edf3' }}>
+        <summary>AI alternatives for this progression</summary>
+        <AiProgressionProposal tonic={imported?.snapshot.tonic ?? selected?.key ?? key} mode={imported?.snapshot.mode ?? resultMode.replace(/_/g, ' ')} bpm={imported?.snapshot.bpm ?? 100} meter={imported?.snapshot.meter ?? '4/4'} chords={imported?.snapshot.chords ?? selectedChords} onAccept={proposal => { saveComposition({ ...proposal, sections: [] }); setSaveStatus('AI proposal saved in My compositions.'); }} />
+      </details>
       {/* Modulation Cycles */}
       <ModulationCycles />
 

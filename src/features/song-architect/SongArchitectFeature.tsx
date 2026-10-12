@@ -1,3 +1,7 @@
+import ExpressiveDirections from './ExpressiveDirections';
+import CompositionImportNotice from '../my-compositions/CompositionImportNotice';
+import { saveComposition } from '../my-compositions/compositionRepository';
+import type { CompositionSnapshot, CompositionSectionKind } from '../harmony-composition-lab/projectVersioning';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Note, Scale } from 'tonal';
@@ -355,6 +359,9 @@ interface FormSection {
   bars: number;
   feel: string;
   energy: 1 | 2 | 3 | 4 | 5;
+  kind?: CompositionSectionKind;
+  chords?: string[];
+  melody?: string[];
 }
 
 const FORM_TEMPLATES: Record<string, Omit<FormSection, 'id'>[]> = {
@@ -384,8 +391,7 @@ const FORM_TEMPLATES: Record<string, Omit<FormSection, 'id'>[]> = {
   ],
 };
 
-let _sectionId = 0;
-function mkId() { return String(++_sectionId); }
+function mkId() { return crypto.randomUUID(); }
 
 function withIds(rows: Omit<FormSection, 'id'>[]): FormSection[] {
   return rows.map(r => ({ ...r, id: mkId() }));
@@ -417,8 +423,7 @@ function EnergyChart({ sections }: { sections: FormSection[] }) {
   );
 }
 
-function FormEnergyMapSection() {
-  const [sections, setSections] = useState<FormSection[]>([]);
+function FormEnergyMapSection({ sections, setSections }: { sections: FormSection[]; setSections: React.Dispatch<React.SetStateAction<FormSection[]>> }) {
   const [confirmTemplate, setConfirmTemplate] = useState<string | null>(null);
 
   function addSection() {
@@ -494,7 +499,7 @@ function FormEnergyMapSection() {
           <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 13 }}>
             <thead>
               <tr style={{ color: '#6b7280' }}>
-                {['', 'Sezione', 'Battute', 'Feel', 'Energia', ''].map((h, i) => (
+                {['', 'Sezione', 'Battute', 'Accordi', 'Feel', 'Energia', ''].map((h, i) => (
                   <th key={i} style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 600, fontSize: 11 }}>{h}</th>
                 ))}
               </tr>
@@ -509,13 +514,16 @@ function FormEnergyMapSection() {
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: 12, padding: '0 2px' }}>▼</button>
                   </td>
                   <td style={{ padding: '4px 8px' }}>
-                    <input value={s.name} onChange={e => updateSection(s.id, 'name', e.target.value)}
+                    <input maxLength={80} value={s.name} onChange={e => updateSection(s.id, 'name', e.target.value)}
                       style={{ width: 60, padding: '4px 6px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#e6edf3', fontSize: 13, outline: 'none' }} />
                   </td>
                   <td style={{ padding: '4px 8px' }}>
                     <input type="number" min={1} max={128} value={s.bars}
-                      onChange={e => updateSection(s.id, 'bars', parseInt(e.target.value) || 1)}
+                      onChange={e => updateSection(s.id, 'bars', Math.min(128, Math.max(1, parseInt(e.target.value) || 1)))}
                       style={{ width: 52, padding: '4px 6px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#e6edf3', fontSize: 13, outline: 'none' }} />
+                  </td>
+                  <td style={{ padding: '4px 8px' }}>
+                    <input aria-label={`Accordi ${s.name}`} placeholder="Cm9 F13" value={(s.chords ?? []).join(' ')} onChange={e => setSections(rows => rows.map(row => row.id === s.id ? { ...row, chords: e.target.value.split(/[\s,]+/).filter(Boolean).slice(0, 64) } : row))} style={{ minWidth: 160, background: '#0d1117', color: '#e6edf3', border: '1px solid #30363d', padding: 5 }} />
                   </td>
                   <td style={{ padding: '4px 8px' }}>
                     <input value={s.feel} placeholder="funk pocket, sparse…"
@@ -565,7 +573,7 @@ function FormEnergyMapSection() {
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function SongArchitectFeature() {
-  const { globalKey } = useGlobalKey();
+  const { globalKey, setGlobalKey } = useGlobalKey();
 
   const saved = useRef(storageGet<SASession | null>(SA_KEY, null));
 
@@ -575,6 +583,22 @@ export default function SongArchitectFeature() {
   const [homeMode, setHomeMode] = useState(saved.current?.homeMode ?? 'dorian');
   const [activeStyles, setActiveStyles] = useState<StyleTag[]>(saved.current?.activeStyles ?? []);
   const [selectedId, setSelectedId] = useState<string | null>(saved.current?.selectedId ?? 'min3-up');
+  const [sessionDraft] = useState(() => storageGet<{ id?: string; snapshot?: CompositionSnapshot; sections: FormSection[]; title: string }>('song_architect_composition_draft', { sections: [], title: 'Song idea' }));
+  const [formSections, setFormSections] = useState<FormSection[]>(sessionDraft.sections);
+  const [projectTitle, setProjectTitle] = useState(sessionDraft.title);
+  const [projectId, setProjectId] = useState(sessionDraft.id);
+  const [baseSnapshot, setBaseSnapshot] = useState(sessionDraft.snapshot);
+  const [projectStatus, setProjectStatus] = useState('');
+  useEffect(() => { storageSet('song_architect_composition_draft', { id: projectId, snapshot: baseSnapshot, sections: formSections, title: projectTitle }); }, [projectId, baseSnapshot, formSections, projectTitle]);
+  function saveSong() {
+    const project = saveComposition({ ...baseSnapshot, title: projectTitle.trim() || 'Song idea', tonic: homeKey, mode: homeMode,
+      bpm: baseSnapshot?.bpm ?? 100, meter: baseSnapshot?.meter ?? '4/4',
+      chords: baseSnapshot?.chords ?? formSections[0]?.chords ?? [],
+      sections: formSections.map(row => ({ ...row, name: row.name.trim() || 'Section', kind: row.kind ?? 'verse', chords: row.chords ?? [] })),
+    }, projectId);
+    setProjectId(project.id); setBaseSnapshot(project); setProjectStatus('Saved in My compositions with its revision history.');
+  }
+
 
   // Persist on change
   useEffect(() => {
@@ -640,6 +664,17 @@ export default function SongArchitectFeature() {
       </div>
 
       {/* A Section + Song Map */}
+      <CompositionImportNotice target="architect" onImport={request => {
+        const snapshot = request.snapshot;
+        setProjectId(request.projectId); setBaseSnapshot(snapshot); setProjectTitle(snapshot.title);
+        setHomeKey(snapshot.tonic); setGlobalKey(snapshot.tonic); setHomeMode(snapshot.mode);
+        setFormSections((snapshot.sections?.length ? snapshot.sections : [{ id: mkId(), kind: 'verse' as const, name: 'A', bars: Math.max(1, snapshot.chords.length), chords: snapshot.chords }]).map(row => ({ ...row, feel: (row as FormSection).feel ?? '', energy: (row as FormSection).energy ?? 3 })));
+        setProjectStatus('Loaded into Form & Energy Map.');
+      }} />
+      <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 14, color: '#e6edf3' }}>
+        <summary style={{ cursor: 'pointer' }}>Explore an expressive direction</summary>
+        <ExpressiveDirections tonic={homeKey} onChoose={(newMode, chords, title) => { setHomeMode(newMode); setFormSections(rows => [...rows, { id: mkId(), name: title, bars: 4, feel: '', energy: 3, chords }]); setProjectStatus(`Added ${title} to the form.`); }} />
+      </details>
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
         {/* A Section Input */}
         <div style={{ flex: '1 1 340px', background: '#161b22', border: `1px solid ${homeModeColor}40`, borderRadius: 12, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -907,13 +942,19 @@ export default function SongArchitectFeature() {
         </div>
       </details>
 
+      {projectStatus && <p role="status" style={{ color: '#c4b5fd' }}>{projectStatus}</p>}
       {/* Form & Energy Map */}
       <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 18px' }}>
         <summary style={{ cursor: 'pointer', fontSize: 13, color: '#8b949e', fontWeight: 600, listStyle: 'none' }}>
           🗺 Form & Energy Map — pianifica la struttura e la curva di energia del brano
         </summary>
         <div style={{ marginTop: 14 }}>
-          <FormEnergyMapSection />
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12, color: '#e6edf3' }}>
+            <label>Project title <input value={projectTitle} onChange={e => setProjectTitle(e.target.value)} /></label>
+            <button disabled={!formSections.length} onClick={saveSong}>{projectId ? 'Save revision' : 'Save composition'}</button>
+            <button onClick={() => { setProjectId(undefined); setBaseSnapshot(undefined); setProjectTitle('Song idea'); setFormSections([]); setProjectStatus('New draft ready. Saved compositions remain in the archive.'); }}>New draft</button>
+          </div>
+          <FormEnergyMapSection sections={formSections} setSections={setFormSections} />
         </div>
       </details>
     </div>

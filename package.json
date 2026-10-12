@@ -9,6 +9,7 @@
     "build": "tsc && vite build",
     "build:netlify": "npm run build",
     "preview": "vite preview",
+    "test:theory": "node --import tsx --test src/features/harmony-composition-lab/*.test.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {

@@ -1,0 +1,47 @@
+import { modeFormula, type ModalFamily } from './theory';
+import type { ScaleReference, Genre, Emotion } from './types';
+
+type ModeSeed = [id: string, name: string, chords: string, sound: string, use: string, benefit: string, caution: string, genres: Genre[], emotions: Emotion[]];
+const SEEDS: Record<ModalFamily, ModeSeed[]> = {
+  major: [
+    ['ionian', 'Ionico', 'Cmaj7 · C6/9', 'Apertura e stabilità', 'Tema cantabile; I–vi–ii–V per un ritornello.', 'La triade maggiore dà un centro immediato.', 'La 4 contro la 3 può creare attrito: conta durata e risoluzione.', ['Jazz','Soul','Gospel','R&B'], ['Gioia','Speranza','Serenità']],
+    ['dorian', 'Dorico', 'Cm7 · Cm9 · F7', 'Minore mobile e luminoso', 'Vamp Cm9–F13; evidenzia A naturale nella melodia.', 'La 6 naturale distingue il colore dall’eolio.', 'Un Ab prolungato cambia il colore; un vamp non richiede V–i.', ['Funk','Soul','Nu-jazz','Jazz'], ['Sensualità','Nostalgia','Energia']],
+    ['phrygian', 'Frigio', 'Cm7 · Db/C', 'Tensione raccolta attorno alla tonica', 'Pedale di C e risposta Db–C nel tema.', 'La ♭2 rende riconoscibile un motivo brevissimo.', 'La ♭9 su Cm7 è una scelta espressiva da dosare nel voicing.', ['Nu-jazz','World-fusion','Jazz'], ['Mistero','Tensione']],
+    ['lydian', 'Lidio', 'Cmaj7(#11) · D/C', 'Apertura sospesa', 'Tieni C al basso e fai emergere F# nel tema.', 'La ♯4 offre colore senza cambiare centro.', 'F naturale in una voce importante può oscurare il colore lidio.', ['Jazz','Nu-jazz','Soul'], ['Speranza','Sospensione','Serenità']],
+    ['mixolydian', 'Misolidio', 'C7 · C9 · Bb/C', 'Maggiore con spinta blues', 'Vamp C9–Bb/C; risposta melodica sulla ♭7.', 'Un accordo dominante può essere il centro del brano.', 'C7 non deve risolvere per forza a F: distingui vamp e funzione V.', ['Funk','Soul','Gospel','Jazz'], ['Gioia','Energia','Sensualità']],
+    ['aeolian', 'Eolio', 'Cm7 · Abmaj7 · Bb', 'Minore morbido e discendente', 'Cm9–Abmaj7–Fm7; linea G–Ab–G–Eb.', 'La ♭6 dà un contrasto chiaro con il dorico.', 'G7 contiene B naturale, esterno all’eolio: è una scelta tonale.', ['Soul','R&B','Nu-jazz','Jazz'], ['Malinconia','Nostalgia']],
+    ['locrian', 'Locrio', 'Cm7b5', 'Instabilità concentrata', 'Passaggio su iiø in minore o ostinato deliberatamente instabile.', 'La ♭5 caratterizza un accordo semidiminuito.', 'La ♭2 contro la fondamentale richiede attenzione; non è una tonica minore stabile.', ['Jazz','Nu-jazz'], ['Tensione','Mistero']],
+  ],
+  melodic: [
+    ['melodic-minor', 'Minore melodica', 'Cm(maj7) · Cm6/9', 'Minore teso ma aperto', 'Tema su Cm(maj9), mettendo B e A in risalto.', '6 e 7 naturali ampliano il minore.', 'Qui è la forma jazz: stessa collezione in salita e discesa.', ['Jazz','Nu-jazz','Soul'], ['Mistero','Sospensione','Sensualità']],
+    ['dorian-b2', 'Dorico ♭2', 'Cm7 · C7sus4(b9), senza 3', 'Frizione delicata sulla ♭2', 'Un pedale con Db che risolve a C e A naturale come apertura.', 'Combina ♭2 e 6 naturale.', 'La ♭9 è incisiva; non confondere questo modo con il frigio e la sua ♭6.', ['Jazz','Nu-jazz','World-fusion'], ['Mistero','Tensione']],
+    ['lydian-augmented', 'Lidio aumentato', 'Cmaj7(#5) · Cmaj7(#5,#11)', 'Luce instabile', 'Voicing aumentato con melodia F#–G#–B.', '♯4 e ♯5 danno un colore immediato.', 'La quinta giusta G non appartiene alla collezione.', ['Jazz','Nu-jazz'], ['Sospensione','Mistero']],
+    ['lydian-dominant', 'Lidio dominante', 'C7(#11) · C13(#11)', 'Dominante arioso', 'Vamp di dominante con F#; utile anche sul sostituto di tritono.', 'Conserva 3 e ♭7, aggiungendo ♯11.', 'La funzione dipende dalla progressione; non implica sempre una sostituzione.', ['Funk','Jazz','Nu-jazz','Soul'], ['Energia','Sospensione']],
+    ['mixolydian-b6', 'Misolidio ♭6', 'C7(b13) · C9(b13)', 'Maggiore con ombra minore', 'Dominante verso Fm, o vamp con Ab come nota lunga.', 'La ♭13 introduce contrasto senza alterare la 9.', 'G e Ab ravvicinati nel voicing producono un attrito da scegliere.', ['Jazz','Soul','Nu-jazz'], ['Nostalgia','Tensione']],
+    ['locrian-natural2', 'Locrio ♮2', 'Cm7b5(9)', 'Semidiminuito più aperto', 'iiø con D naturale nella linea superiore.', 'La 9 naturale attenua la frizione della ♭2 locria.', 'Resta una quinta diminuita: la 9 non rende l’accordo una tonica stabile.', ['Jazz','Nu-jazz'], ['Sospensione','Mistero']],
+    ['altered', 'Alterata / Superlocrio', 'C7alt · C7(b9,#9,b5,b13)', 'Massima tensione di dominante', 'Su C7alt risolvi E→F e Bb→Ab verso Fm.', 'Le tensioni alterate offrono risoluzioni per semitono.', 'Grafia modale: ♭4 = Fb. Come dominante si rilegge E (3); ♭3 = Eb si rilegge D# (♯9).', ['Jazz','Gospel','Nu-jazz'], ['Tensione','Energia']],
+  ],
+  harmonicMinor: [
+    ['harmonic-minor', 'Minore armonica', 'Cm(maj7) · G7(b9)', 'Minore con richiamo alla tonica', 'Cadenza Dm7b5–G7b9–Cm.', 'La 7 naturale produce una sensibile diretta.', 'Ab–B è una seconda aumentata; scegli come cantarla o aggirarla.', ['Jazz','Soul','World-fusion'], ['Malinconia','Tensione']],
+    ['locrian-natural6', 'Locrio ♮6', 'Cm7b5(13)', 'Instabilità con una nota aperta', 'Su semidiminuito prova A naturale come colore breve.', 'La 6 naturale modifica il profilo locrio.', '♭2 e 13 non sono neutre: verifica le voci vicine.', ['Jazz','Nu-jazz'], ['Mistero','Sospensione']],
+    ['ionian-sharp5', 'Ionico ♯5', 'Cmaj7(#5)', 'Maggiore aumentato', 'Fai salire G# verso A nella voce superiore.', 'La ♯5 porta movimento dentro un accordo maggiore.', '4 e 3 insieme possono essere densi; il colore differisce dal lidio aumentato.', ['Jazz','Nu-jazz'], ['Sospensione','Mistero']],
+    ['dorian-sharp4', 'Dorico ♯4', 'Cm6(#11) · Cm7(#11)', 'Minore acceso', 'Un riff C–Eb–F#–A sopra un pedale.', '♯4 e 6 naturale generano un profilo angolare.', 'F# contro G può essere molto esposto in una melodia lenta.', ['Jazz','Nu-jazz','World-fusion'], ['Energia','Mistero']],
+    ['phrygian-dominant', 'Frigio dominante', 'C7(b9,b13)', 'Dominante con ♭2 e terza maggiore', 'Vamp su C o dominante verso Fm; motivo Db–E–F.', 'La seconda aumentata ♭2–3 è un tratto forte.', 'Non equivale a un maqam Hijaz: fraseggio e intonazione sono altra cosa.', ['World-fusion','Nu-jazz','Jazz'], ['Tensione','Mistero','Energia']],
+    ['lydian-sharp2', 'Lidio ♯2', 'Cmaj7(#9,#11)', 'Maggiore luminoso e pungente', 'Usa D# come nota di approccio a E su Cmaj7.', 'Due gradi alzati danno una firma melodica.', '♯2 e 3 distano un semitono; la densità va controllata.', ['Jazz','Nu-jazz'], ['Sospensione','Tensione']],
+    ['ultralocrian', 'Ultralocrio', 'Cdim7', 'Simmetria diminuita interrotta', 'Materiale di passaggio su un accordo diminuito.', 'La ♭♭7 completa la settima diminuita.', 'Non è l’alterata: Bbb (♭♭7) suona A, non Bb.', ['Jazz','Nu-jazz'], ['Tensione','Mistero']],
+  ],
+  harmonicMajor: [
+    ['harmonic-major', 'Maggiore armonica', 'Cmaj7 · Fm(maj7) · G7(b9)', 'Maggiore con una piega nostalgica', 'Alterna I maggiore e iv minore mantenendo B naturale.', 'La ♭6 permette un contrasto maggiore/minore.', 'Ab–B è una seconda aumentata; non trattarla come maggiore diatonica.', ['Soul','Gospel','Jazz','Nu-jazz'], ['Nostalgia','Speranza']],
+    ['dorian-b5', 'Dorico ♭5', 'Cm7b5(9,13)', 'Semidiminuito mobile', 'Linea D–Eb–Gb–A sopra Cm7b5.', '9 e 13 naturali aprono il semidiminuito.', 'La ♭5 rende diverso il centro rispetto al dorico ordinario.', ['Jazz','Nu-jazz'], ['Mistero','Sospensione']],
+    ['phrygian-b4', 'Frigio ♭4', 'C7alt, con quinta giusta', 'Dominante alterato particolare', 'Leggi Fb come E su C7; usa Db ed Eb come tensioni.', 'Unisce ♭9, ♯9 e ♭13 con G naturale.', 'La grafia teorica ♭4 evita di confonderlo con il frigio dominante.', ['Jazz','Nu-jazz'], ['Tensione','Mistero']],
+    ['lydian-b3', 'Lidio ♭3', 'Cm(maj7,#11) · Cm6(#11)', 'Minore sospeso con sensibile', 'Vamp Cm(maj7) e linea Eb–F#–G–B.', '♯4 e 7 naturale creano una forte identità.', 'Non è dorico ♯4: qui la settima è maggiore.', ['Jazz','Nu-jazz'], ['Mistero','Sospensione']],
+    ['mixolydian-b2', 'Misolidio ♭2', 'C13(b9)', 'Dominante teso con 13 naturale', 'Db risolve a C mentre A rimane nella voce alta.', 'Distingue la ♭9 dalla ♭13 del frigio dominante.', 'Controlla Db contro C; nessuna nota è vietata in assoluto.', ['Jazz','Gospel','Nu-jazz'], ['Tensione','Energia']],
+    ['lydian-augmented-sharp2', 'Lidio aumentato ♯2', 'Cmaj7(#5,#9,#11)', 'Maggiore molto instabile', 'Colore breve prima di un accordo più semplice.', '♯2, ♯4 e ♯5 producono molto contrasto.', 'Più alterazioni non significano un risultato migliore: lascia spazio alla melodia.', ['Jazz','Nu-jazz'], ['Sospensione','Mistero']],
+    ['locrian-bb7', 'Locrio ♭♭7', 'Cdim7', 'Diminuito con quarta giusta', 'Passaggio Cdim7 usando F come nota di collegamento.', 'Alternativa diatonica a sette note alla scala diminuita.', 'Differisce dall’ultralocrio per la quarta: F invece di Fb.', ['Jazz','Nu-jazz'], ['Tensione','Mistero']],
+  ],
+};
+const RECOMMENDED = new Set(['dorian','mixolydian','lydian','lydian-dominant','melodic-minor','phrygian-dominant']);
+export const MODES: ScaleReference[] = (Object.entries(SEEDS) as [ModalFamily, ModeSeed[]][]).flatMap(([family, modes]) => modes.map(([id,name,chords,sound,use,benefit,caution,genres,emotions],degree) => ({
+  id, name, family, degree, formula: modeFormula(family,degree), chords, sound, use, benefit, caution, genres, emotions, recommended: RECOMMENDED.has(id),
+  aliases: [id.replace(/-/g,' '), family === 'major' && degree === 0 ? 'maggiore major ionian' : '', family === 'major' && degree === 5 ? 'minore naturale minor aeolian' : ''],
+})));

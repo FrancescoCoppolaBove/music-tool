@@ -1,3 +1,4 @@
+import HarmonyCheatSheetFeature from './features/harmony-cheat-sheet/HarmonyCheatSheetFeature';
 import { useState, useEffect } from 'react';
 import { computeStreak } from './shared/hooks/useExerciseScore';
 import { useAuth } from './shared/context/AuthContext';
@@ -44,6 +45,7 @@ import TeacherDashboardFeature from './features/teacher-dashboard/TeacherDashboa
 import HarmoniaCourseFeature from './features/harmonia-course/HarmoniaCourseFeature';
 import ReharmonizationFeature from './features/reharmonization/ReharmonizationFeature';
 import MelodyHarmonizerFeature from './features/melody-harmonizer/MelodyHarmonizerFeature';
+import MyCompositionsFeature from './features/my-compositions/MyCompositionsFeature';
 import { useUserProfile } from './shared/context/UserProfileContext';
 import type { UserRole } from './shared/types/conservatory.types';
 
@@ -182,6 +184,7 @@ const GROUPS: GroupDef[] = [
     label: 'Composition',
     icon: '✍️',
     tabs: [
+      { id: 'harmony-lab', label: 'My compositions', icon: '🗂️', desc: 'Saved compositions, revisions and exports', subsection: 'Workspace' },
       { id: 'scaleadvisor',  label: 'Scale Advisor',       icon: '🧭', desc: 'Find the right scale over any chord',                              subsection: 'Harmony' },
       { id: 'cycles',        label: 'Harmonic Cycles',     icon: '🔁', desc: 'Progressions by fourths, thirds, Giant Steps & more',               subsection: 'Harmony' },
       { id: 'chordfinder',   label: 'Chord Finder',        icon: '🎯', desc: 'Find all chords that contain a given note or set of notes',            subsection: 'Harmony' },
@@ -225,6 +228,7 @@ const GROUPS: GroupDef[] = [
     label: 'Armonia',
     icon: '📖',
     tabs: [
+      { id: 'harmony-cheat-sheet', label: 'Harmony Cheat Sheet', icon: '🗺️', desc: 'Prontuario di tonalità, modi e idee per iniziare un brano' },
       { id: 'harmonia',      label: 'Corso di Armonia',       icon: '📚', desc: 'Percorso completo da zero agli argomenti avanzati' },
       { id: 'harmonization', label: 'Scale Harmony',          icon: '🎶', desc: 'See how chords relate to their scale' },
       { id: 'modal',         label: 'Modal Interchange',      icon: '🔄', desc: 'Borrow chords from parallel modes' },
@@ -993,6 +997,7 @@ export default function App() {
         boxSizing: 'border-box',
       }}>
         {activeTab === 'home'          && <HomePage onNavigate={handleSelectTab} />}
+        {activeTab === 'harmony-lab'   && <MyCompositionsFeature onNavigate={handleSelectTab} />}
         {activeTab === 'voicings'      && <ChordVoicingsFeature />}
         {activeTab === 'scales'        && <ScaleRecognitionFeature />}
         {activeTab === 'dictionary'    && <ScaleDictionaryFeature />}
@@ -1025,6 +1030,7 @@ export default function App() {
         {activeTab === 'profile'       && (firebaseEnabled ? <ProfileFeature />         : <LocalModeNotice feature="Profile" />)}
         {activeTab === 'examtemplates'    && <ExamTemplatesFeature />}
         {activeTab === 'teacherdashboard' && (firebaseEnabled ? <TeacherDashboardFeature /> : <LocalModeNotice feature="Dashboard Docente" />)}
+        {activeTab === 'harmony-cheat-sheet' && <HarmonyCheatSheetFeature onNavigate={handleSelectTab} />}
         {activeTab === 'harmonia'       && <HarmoniaCourseFeature onNavigate={handleSelectTab} />}
         {activeTab === 'voiceleading'  && <VoiceLeadingFeature />}
         {activeTab === 'groove'        && <GrooveKitchenFeature />}

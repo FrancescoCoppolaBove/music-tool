@@ -22,6 +22,7 @@ export function useChordProgression() {
   const [techniques, setTechniques] = useState<Technique[]>([]);
   const [spice, setSpice] = useState<number>(saved.current?.spice ?? 1);
   const [results, setResults] = useState<GeneratedProgression[]>([]);
+  const [resultMode, setResultMode] = useState<KeyMode>(saved.current?.mode ?? 'major');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const generate = useCallback(() => {
@@ -32,6 +33,7 @@ export function useChordProgression() {
     };
     const r = generateProgressions(filter);
     setResults(r);
+    setResultMode(mode);
     setSelectedId(r[0]?.id ?? null);
   }, [key, mode, length, style, techniques, spice]);
 
@@ -65,7 +67,7 @@ export function useChordProgression() {
     style, setStyle,
     techniques, toggleTechnique,
     spice, setSpice,
-    results, selectedId, setSelectedId, selected,
+    results, selectedId, setSelectedId, selected, resultMode,
     generate,
     regenerateVariant,
     availableTechniques,

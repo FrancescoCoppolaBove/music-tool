@@ -1,4 +1,9 @@
-import { useState, useEffect } from 'react';
+import { audioPlayer } from '@shared/utils/chordAudio';
+import { storageGet, storageSet } from '@shared/utils/storage';
+import CompositionImportNotice from '../my-compositions/CompositionImportNotice';
+import { readEditorRequest, saveComposition } from '../my-compositions/compositionRepository';
+import type { CompositionSnapshot } from '../harmony-composition-lab/projectVersioning';
+import { useState, useEffect, useRef } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Scale, Note } from 'tonal';
 import { noteToSemitone, semitoneToNote, notePreferFlat } from '@shared/utils/musicTheory';
@@ -912,13 +917,15 @@ function parseDegrees(input: string, globalKey: string): { note: string; semi: n
   const tokens = input.trim().split(/\s+/).filter(Boolean);
   if (tokens.length === 0) return [];
 
-  const isNoteNames = /^[A-Ga-g][b#]?$/.test(tokens[0]);
+  const isNoteNames = /^[A-Ga-g][b#]?-?\d*$/.test(tokens[0]);
   const keySemi = noteToSemitone(globalKey);
 
   if (isNoteNames) {
     return tokens
       .map(t => {
         const note = t.charAt(0).toUpperCase() + t.slice(1);
+        const explicitMidi = Note.midi(note);
+        if (explicitMidi !== null) return { note: Note.pitchClass(note), semi: explicitMidi - 60 };
         const semi = noteToSemitone(note);
         return semi >= 0 ? { note, semi: keySemi + ((semi - keySemi + 12) % 12) } : null;
       })
@@ -961,7 +968,8 @@ function diatonicShift(
     const newIdx = scaleIdx + steps;
     const octaveOff = Math.floor(newIdx / 7) * 12;
     const wrappedIdx = ((newIdx % 7) + 7) % 7;
-    const newSemi = keySemi + MAJOR_SCALE_STEPS[wrappedIdx] + octaveOff;
+    const sourceOctave = Math.floor((semi - keySemi) / 12) * 12;
+    const newSemi = keySemi + MAJOR_SCALE_STEPS[wrappedIdx] + octaveOff + sourceOctave;
     return { note: semitoneToNote(((newSemi % 12) + 12) % 12, notePreferFlat(globalKey)), semi: newSemi };
   });
 }
@@ -986,9 +994,11 @@ interface TransformCardProps {
   tip: string;
   dimmed?: boolean;
   rhythmSymbol?: string;
+  onPlay?: () => void;
+  onUse?: () => void;
 }
 
-function TransformCard({ title, notes, tip, dimmed, rhythmSymbol }: TransformCardProps) {
+function TransformCard({ title, notes, tip, dimmed, rhythmSymbol, onPlay, onUse }: TransformCardProps) {
   return (
     <div style={{
       background: '#0d1117', border: '1px solid #21262d',
@@ -1011,13 +1021,37 @@ function TransformCard({ title, notes, tip, dimmed, rhythmSymbol }: TransformCar
         : <MotifNotePills notes={notes} />
       }
       <div style={{ fontSize: 11, color: '#6b7280', marginTop: 6 }}>💡 {tip}</div>
+      {onPlay && <button type="button" onClick={onPlay} style={{ marginTop: 8 }}>▶ Ascolta</button>}
+      {onUse && <button type="button" onClick={onUse} style={{ marginLeft: 8 }}>Usa come motivo</button>}
     </div>
   );
 }
 
-function MotifLabSection() {
-  const { globalKey } = useGlobalKey();
-  const [input, setInput] = useState('1 3 5 b7');
+function MotifLabSection({ tonic, mode, onTonicChange, onModeChange }: { tonic: string; mode: string; onTonicChange: (key: string) => void; onModeChange: (mode: string) => void }) {
+  const globalKey = tonic;
+  const [input, setInput] = useState(() => storageGet('melody_architect_motif', '1 3 5 b7'));
+  const [imported, setImported] = useState<{ id: string; snapshot: CompositionSnapshot } | null>(null);
+  const [sectionIndex, setSectionIndex] = useState(0);
+  const [status, setStatus] = useState('');
+  const [playing, setPlaying] = useState(false);
+  const [bpm, setBpm] = useState(100);
+  const player = useRef<{ stop: () => void } | null>(null);
+  useEffect(() => { storageSet('melody_architect_motif', input); }, [input]);
+  useEffect(() => () => player.current?.stop(), []);
+  useEffect(() => { player.current?.stop(); }, [tonic, bpm]);
+  function play(notes: { semi: number }[], multiplier = 1) {
+    player.current?.stop(); setPlaying(true);
+    player.current = audioPlayer.playPhrase(notes.map(n => Note.fromMidi(60 + n.semi)), 30 / bpm * multiplier, () => setPlaying(false));
+  }
+  function useMotif(notes: { semi: number }[]) { player.current?.stop(); setInput(notes.map(n => Note.fromMidi(60 + n.semi)).join(' ')); setMotif(notes.map(n => ({ ...n, note: Note.pitchClass(Note.fromMidi(60 + n.semi)) }))); }
+  function saveMotif() {
+    const notes = parseDegrees(input, tonic).map(n => Note.fromMidi(60 + n.semi));
+    if (!notes.length) { setStatus('Inserisci un motivo valido prima di salvare.'); return; }
+    const snapshot = imported?.snapshot;
+    const sections = snapshot?.sections?.length ? snapshot.sections : [{ id: crypto.randomUUID(), kind: 'verse' as const, name: 'A', bars: 4, chords: snapshot?.chords ?? [] }];
+    const project = saveComposition({ ...snapshot, title: snapshot?.title ?? 'Melodic idea', tonic, mode: mode, bpm, meter: snapshot?.meter ?? '4/4', chords: snapshot?.chords ?? [], sections: sections.map((section, index) => index === sectionIndex ? { ...section, melody: notes } : section) }, imported?.id);
+    setImported({ id: project.id, snapshot: project }); setStatus('Motivo salvato in My compositions.');
+  }
   const [motif, setMotif] = useState<{ note: string; semi: number }[]>([]);
   const keySemi = noteToSemitone(globalKey);
 
@@ -1033,14 +1067,29 @@ function MotifLabSection() {
 
   return (
     <div>
+      <CompositionImportNotice target="melody" onImport={request => {
+        player.current?.stop(); setImported({ id: request.projectId, snapshot: request.snapshot }); onTonicChange(request.snapshot.tonic); onModeChange(request.snapshot.mode); setBpm(request.snapshot.bpm);
+        const index = Math.max(0, request.snapshot.sections?.findIndex(s => s.melody?.length) ?? 0); setSectionIndex(index);
+        const text = request.snapshot.sections?.[index]?.melody?.join(' ') || ''; setInput(text); setMotif(parseDegrees(text, request.snapshot.tonic));
+      }} />
+      {imported && <label>Sezione di {imported.snapshot.title} <select value={sectionIndex} onChange={e => { const index = Number(e.target.value); setSectionIndex(index); const text = imported.snapshot.sections?.[index]?.melody?.join(' ') ?? ''; setInput(text); setMotif(parseDegrees(text, tonic)); player.current?.stop(); }}>
+        {(imported.snapshot.sections?.length ? imported.snapshot.sections : [{ id: 'new', name: 'A' }]).map((section, index) => <option key={section.id} value={index}>{section.name}</option>)}
+      </select></label>}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '12px 0', color: '#e6edf3' }}>
+        <label>BPM <input type="number" min={30} max={300} value={bpm} onChange={e => setBpm(Math.max(30, Math.min(300, Number(e.target.value) || 100)))} style={{ width: 60 }} /></label>
+        <button disabled={!parseDegrees(input, tonic).length} onClick={() => play(parseDegrees(input, tonic))}>▶ Ascolta motivo</button>
+        <button disabled={!playing} onClick={() => player.current?.stop()}>Stop</button>
+        <button onClick={saveMotif}>Salva motivo</button>
+      </div>
+      {status && <p role="status">{status}</p>}
       <p style={{ margin: '0 0 12px', fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>
         Inserisci gradi della scala (<code style={{ color: '#c4b5fd' }}>1 3 5 b7</code>) o nomi di nota
-        (<code style={{ color: '#c4b5fd' }}>C E G Bb</code>) — la key globale è <strong style={{ color: '#e6edf3' }}>{globalKey}</strong>.
+        (<code style={{ color: '#c4b5fd' }}>C E G Bb</code>) — la tonica selezionata è <strong style={{ color: '#e6edf3' }}>{globalKey}</strong>.
       </p>
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
         <input
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={e => { setInput(e.target.value); setMotif([]); player.current?.stop(); }}
           onKeyDown={e => e.key === 'Enter' && analyze()}
           placeholder="e.g. 1 3 5 b7  or  C E G Bb"
           style={{
@@ -1063,17 +1112,18 @@ function MotifLabSection() {
 
       {motif.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <TransformCard title="Inversione" notes={inverted} tip="Ogni intervallo capovolto attorno alla prima nota" />
-          <TransformCard title="Retrogrado" notes={reversed} tip="Suona il motivo al contrario" />
-          <TransformCard title="Retrogrado Inverso" notes={retroInverted} tip="Rovescia poi capovolge — tecnica contrappuntistica" />
-          <TransformCard title="Sequenza +1° (diatonica)" notes={seqUp} tip={`Motivo trasportato su di un grado nella scala di ${globalKey} maggiore`} />
-          <TransformCard title="Sequenza –3° (diatonica)" notes={seqDown} tip="Motivo trasportato giù di una terza diatonica" />
+          <TransformCard title="Inversione" notes={inverted} onPlay={() => play(inverted)} onUse={() => useMotif(inverted)} tip="Ogni intervallo capovolto attorno alla prima nota" />
+          <TransformCard title="Retrogrado" notes={reversed} onPlay={() => play(reversed)} onUse={() => useMotif(reversed)} tip="Suona il motivo al contrario" />
+          <TransformCard title="Retrogrado Inverso" notes={retroInverted} onPlay={() => play(retroInverted)} onUse={() => useMotif(retroInverted)} tip="Rovescia poi capovolge — tecnica contrappuntistica" />
+          <TransformCard title="Sequenza +1° (diatonica)" notes={seqUp} onPlay={() => play(seqUp)} onUse={() => useMotif(seqUp)} tip={`Motivo trasportato su di un grado nella scala di ${globalKey} maggiore`} />
+          <TransformCard title="Sequenza –3° (diatonica)" notes={seqDown} onPlay={() => play(seqDown)} onUse={() => useMotif(seqDown)} tip="Motivo trasportato giù di una terza diatonica" />
           <TransformCard
             title="Augmentation ×2 (stesse altezze, durata doppia)"
             notes={motif}
             tip="I valori ritmici raddoppiano — le note rimangono le stesse"
             dimmed
             rhythmSymbol="×2"
+            onPlay={() => play(motif, 2)}
           />
           <TransformCard
             title="Diminution ÷2 (stesse altezze, durata dimezzata)"
@@ -1081,6 +1131,7 @@ function MotifLabSection() {
             tip="I valori ritmici si dimezzano — le note rimangono le stesse"
             dimmed
             rhythmSymbol="÷2"
+            onPlay={() => play(motif, 0.5)}
           />
         </div>
       )}
@@ -1097,6 +1148,7 @@ export default function MelodyArchitectFeature() {
   useEffect(() => { setRoot(globalKey); }, [globalKey]);
   const [mode, setMode] = useState('major');
   const [contourId, setContourId] = useState('arch');
+  const [openMotif, setOpenMotif] = useState(() => Boolean(readEditorRequest('melody')));
   const [structureId, setStructureId] = useState('qa');
   const [activeApproachId, setActiveApproachId] = useState<string | null>(null);
 
@@ -1152,6 +1204,7 @@ export default function MelodyArchitectFeature() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <label style={{ fontSize: 13, fontWeight: 600, color: '#8b949e' }}>Mode</label>
           <select value={mode} onChange={e => setMode(e.target.value)} style={selectStyle}>
+            {!MODES.some(m => m.id === mode) && <option value={mode}>{mode}</option>}
             {MODES.map(m => (
               <option key={m.id} value={m.id}>{m.label}</option>
             ))}
@@ -1313,12 +1366,12 @@ export default function MelodyArchitectFeature() {
       </div>
 
       {/* Motif Lab */}
-      <details style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
+      <details open={openMotif} onToggle={event => setOpenMotif(event.currentTarget.open)} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: '14px 16px' }}>
         <summary style={{ cursor: 'pointer', fontSize: 13, color: '#8b949e', fontWeight: 600, listStyle: 'none' }}>
           🧬 Motif Lab — inversion, retrograde, sequences
         </summary>
         <div style={{ marginTop: 14 }}>
-          <MotifLabSection />
+          <MotifLabSection tonic={root} mode={mode} onTonicChange={setRoot} onModeChange={setMode} />
         </div>
       </details>
 
