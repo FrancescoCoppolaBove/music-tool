@@ -1,5 +1,5 @@
 // src/features/secondary-dominants/components/DegreeCard.tsx
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   audioPlayer,
   voiceChord,
@@ -15,8 +15,12 @@ interface Props {
 export function DegreeCard({ data }: Props) {
   const [playingRow, setPlayingRow] = useState<string | null>(null);
   const seqRef = useRef<SequenceHandle | null>(null);
+  const cancelRef = useRef(false);
+
+  useEffect(() => () => { seqRef.current?.stop(); }, []);
 
   function stopCurrent() {
+    cancelRef.current = true;
     seqRef.current?.stop();
     seqRef.current = null;
     audioPlayer.stopAll();
@@ -25,9 +29,10 @@ export function DegreeCard({ data }: Props) {
 
   async function playSingle(rowId: string, notes: string[]) {
     stopCurrent();
+    cancelRef.current = false;
     setPlayingRow(rowId);
     await audioPlayer.playChord(voiceChord(notes));
-    setPlayingRow(null);
+    if (!cancelRef.current) setPlayingRow(null);
   }
 
   function playSeq(rowId: string, chords: { notes: string[] }[]) {
