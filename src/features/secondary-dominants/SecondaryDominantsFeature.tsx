@@ -1,13 +1,14 @@
 // src/features/secondary-dominants/SecondaryDominantsFeature.tsx
 import { useState } from 'react';
-import { useGlobalKey } from '@shared/context/GlobalKeyContext';
+import { useGlobalKey, CHROMATIC_KEYS } from '@shared/context/GlobalKeyContext';
 import { getSecondaryDominants } from './utils/secondaryDominants';
 import { DegreeCard } from './components/DegreeCard';
 
 export default function SecondaryDominantsFeature() {
-  const { globalKey } = useGlobalKey();
+  const { globalKey, setGlobalKey } = useGlobalKey();
   const [mode, setMode] = useState<'major' | 'minor'>('major');
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [keyOpen, setKeyOpen] = useState(false);
 
   const degrees = getSecondaryDominants(globalKey, mode);
 
@@ -25,16 +26,55 @@ export default function SecondaryDominantsFeature() {
         flexWrap: 'wrap',
       }}>
         <span style={{ color: '#777', fontSize: 13 }}>Tonalità:</span>
-        <span style={{
-          background: '#7c6af7',
-          color: 'white',
-          padding: '4px 14px',
-          borderRadius: 20,
-          fontWeight: 'bold',
-          fontSize: 15,
-        }}>
-          {globalKey}
-        </span>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setKeyOpen(o => !o)}
+            style={{
+              background: '#7c6af7',
+              color: 'white',
+              padding: '4px 14px',
+              borderRadius: 20,
+              fontWeight: 'bold',
+              fontSize: 15,
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            {globalKey} ▾
+          </button>
+          {keyOpen && (
+            <>
+              <div style={{ position: 'fixed', inset: 0, zIndex: 300 }} onClick={() => setKeyOpen(false)} />
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 301,
+                background: '#1c2128', border: '1px solid #30363d', borderRadius: 12,
+                padding: 10, minWidth: 180,
+                boxShadow: '0 12px 36px rgba(0,0,0,0.5)',
+              }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5 }}>
+                  {CHROMATIC_KEYS.map(k => (
+                    <button
+                      key={k}
+                      onClick={() => { setGlobalKey(k); setKeyOpen(false); }}
+                      style={{
+                        padding: '7px 4px',
+                        borderRadius: 7,
+                        border: `1px solid ${globalKey === k ? '#7c6af7' : '#30363d'}`,
+                        background: globalKey === k ? '#7c6af722' : 'none',
+                        color: globalKey === k ? '#c4b5fd' : '#e6edf3',
+                        cursor: 'pointer',
+                        fontSize: 13,
+                        fontWeight: globalKey === k ? 700 : 400,
+                      }}
+                    >
+                      {k}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Mode toggle */}
         <div style={{ display: 'flex', gap: 6, marginLeft: 8 }}>
