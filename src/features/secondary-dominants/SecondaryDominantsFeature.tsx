@@ -57,7 +57,7 @@ export default function SecondaryDominantsFeature() {
           ))}
         </div>
 
-        <span style={{ marginLeft: 'auto', color: '#444', fontSize: 11 }}>
+        <span style={{ marginLeft: 'auto', color: '#666', fontSize: 11 }}>
           {degrees.length} dominanti secondarie
         </span>
       </div>
@@ -65,7 +65,7 @@ export default function SecondaryDominantsFeature() {
       {/* Card grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
         gap: 16,
       }}>
         {degrees.map(d => (
