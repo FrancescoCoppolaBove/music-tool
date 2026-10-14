@@ -17,8 +17,28 @@ export interface DegreeData {
 
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 
+// Normalize enharmonically weird roots that tonal produces for theoretical keys (e.g. F# major)
+const ROOT_NORMALIZE: Record<string, string> = {
+  'B#': 'C',  'E#': 'F',  'Cb': 'B',  'Fb': 'E',
+  'B##': 'C#', 'C##': 'D', 'D##': 'E', 'E##': 'F#',
+  'F##': 'G',  'G##': 'A', 'A##': 'B',
+  'Cbb': 'Bb', 'Dbb': 'C', 'Ebb': 'D', 'Fbb': 'Eb', 'Gbb': 'F', 'Abb': 'G', 'Bbb': 'A',
+};
+
+function normalizeChordName(name: string): string {
+  const m = name.match(/^([A-G][#b]{0,2})(.*)/);
+  if (!m) return name;
+  const root = ROOT_NORMALIZE[m[1]] ?? m[1];
+  return root + m[2];
+}
+
+function normalizeNote(n: string): string {
+  return ROOT_NORMALIZE[n] ?? n;
+}
+
 function buildChordInfo(name: string): ChordInfo {
-  return { name, notes: Chord.get(name).notes };
+  const clean = normalizeChordName(name);
+  return { name: clean, notes: Chord.get(clean).notes.map(normalizeNote) };
 }
 
 function tritoneSubOf(dom7Root: string): ChordInfo {

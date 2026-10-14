@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState } from 'react';
 
-export const CHROMATIC_KEYS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+export const CHROMATIC_KEYS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+
+// Migrate any stale C# value saved before the Db rename
+const LEGACY_KEY_MAP: Record<string, string> = { 'C#': 'Db' };
 
 interface GlobalKeyContextValue {
   globalKey: string;
@@ -14,7 +17,8 @@ const GlobalKeyContext = createContext<GlobalKeyContextValue>({
 
 export function GlobalKeyProvider({ children }: { children: React.ReactNode }) {
   const [globalKey, setGlobalKeyState] = useState<string>(() => {
-    return localStorage.getItem('tonic_global_key') ?? 'C';
+    const saved = localStorage.getItem('tonic_global_key') ?? 'C';
+    return LEGACY_KEY_MAP[saved] ?? saved;
   });
 
   function setGlobalKey(key: string) {
