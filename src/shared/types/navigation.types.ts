@@ -39,4 +39,5 @@ export type Tab =
   | 'chordfinder'
   | 'rhythmic-displacement'
   | 'harmony-lab'
-  | 'harmony-cheat-sheet';
+  | 'harmony-cheat-sheet'
+  | 'secondary-dominants';

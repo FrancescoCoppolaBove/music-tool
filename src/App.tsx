@@ -45,6 +45,7 @@ import TeacherDashboardFeature from './features/teacher-dashboard/TeacherDashboa
 import HarmoniaCourseFeature from './features/harmonia-course/HarmoniaCourseFeature';
 import ReharmonizationFeature from './features/reharmonization/ReharmonizationFeature';
 import MelodyHarmonizerFeature from './features/melody-harmonizer/MelodyHarmonizerFeature';
+import SecondaryDominantsFeature from './features/secondary-dominants/SecondaryDominantsFeature';
 import MyCompositionsFeature from './features/my-compositions/MyCompositionsFeature';
 import { useUserProfile } from './shared/context/UserProfileContext';
 import type { UserRole } from './shared/types/conservatory.types';
@@ -190,6 +191,7 @@ const GROUPS: GroupDef[] = [
       { id: 'chordfinder',   label: 'Chord Finder',        icon: '🎯', desc: 'Find all chords that contain a given note or set of notes',            subsection: 'Harmony' },
       { id: 'progressions',  label: 'Chord Progressions',  icon: '🎸', desc: 'Build jazz, modal & cinematic progressions',                       subsection: 'Harmony' },
       { id: 'analysis',      label: 'Harmonic Analysis',   icon: '🔬', desc: 'Analyse key, Roman numerals & chord function',                     subsection: 'Harmony' },
+      { id: 'secondary-dominants', label: 'Secondary Dominants', icon: '🎯', desc: 'Dominanti secondarie, tritone sub e ii–V per ogni grado della tonalità', subsection: 'Harmony' },
       { id: 'landing',       label: 'Chord Landing',       icon: '🎯', desc: 'Find the best way to approach any target chord',                   subsection: 'Harmony' },
       { id: 'reharm',        label: 'Reharmonization Lab', icon: '🔀', desc: 'Journey vs Destination — add passing chords to any progression',      subsection: 'Harmony' },
       { id: 'voiceleading',  label: 'Voice Leading Lab',   icon: '↔️', desc: 'How to move voices smoothly between any two chords',              subsection: 'Harmony' },
@@ -1012,6 +1014,7 @@ export default function App() {
         {activeTab === 'cycles'        && <HarmonicCyclesFeature />}
         {activeTab === 'chordfinder'   && <ChordFinderFeature />}
         {activeTab === 'analysis'      && <HarmonicAnalysisFeature />}
+        {activeTab === 'secondary-dominants' && <SecondaryDominantsFeature />}
         {activeTab === 'riff'          && <RiffArchitectFeature />}
         {activeTab === 'melody'        && <MelodyArchitectFeature />}
         {activeTab === 'mel-harm'      && <MelodyHarmonizerFeature />}
