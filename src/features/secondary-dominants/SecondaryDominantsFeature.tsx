@@ -7,6 +7,7 @@ import { DegreeCard } from './components/DegreeCard';
 export default function SecondaryDominantsFeature() {
   const { globalKey } = useGlobalKey();
   const [mode, setMode] = useState<'major' | 'minor'>('major');
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
   const degrees = getSecondaryDominants(globalKey, mode);
 
@@ -69,7 +70,7 @@ export default function SecondaryDominantsFeature() {
         gap: 16,
       }}>
         {degrees.map(d => (
-          <DegreeCard key={d.degree} data={d} />
+          <DegreeCard key={d.degree} data={d} playingId={playingId} setPlayingId={setPlayingId} />
         ))}
       </div>
 

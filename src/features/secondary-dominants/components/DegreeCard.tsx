@@ -1,5 +1,5 @@
 // src/features/secondary-dominants/components/DegreeCard.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   audioPlayer,
   voiceChord,
@@ -10,10 +10,11 @@ import type { DegreeData } from '../utils/secondaryDominants';
 
 interface Props {
   data: DegreeData;
+  playingId: string | null;
+  setPlayingId: (id: string | null) => void;
 }
 
-export function DegreeCard({ data }: Props) {
-  const [playingRow, setPlayingRow] = useState<string | null>(null);
+export function DegreeCard({ data, playingId, setPlayingId }: Props) {
   const seqRef = useRef<SequenceHandle | null>(null);
   const cancelRef = useRef(false);
 
@@ -24,22 +25,23 @@ export function DegreeCard({ data }: Props) {
     seqRef.current?.stop();
     seqRef.current = null;
     audioPlayer.stopAll();
-    setPlayingRow(null);
+    setPlayingId(null);
   }
 
   async function playSingle(rowId: string, notes: string[]) {
     stopCurrent();
     cancelRef.current = false;
-    setPlayingRow(rowId);
+    setPlayingId(rowId);
     await audioPlayer.playChord(voiceChord(notes));
-    if (!cancelRef.current) setPlayingRow(null);
+    if (!cancelRef.current) setPlayingId(null);
   }
 
   function playSeq(rowId: string, chords: { notes: string[] }[]) {
     stopCurrent();
-    setPlayingRow(rowId);
+    cancelRef.current = false;
+    setPlayingId(rowId);
     seqRef.current = playChordSequence(chords, 100, undefined, () => {
-      setPlayingRow(null);
+      setPlayingId(null);
       seqRef.current = null;
     });
   }
@@ -125,7 +127,7 @@ export function DegreeCard({ data }: Props) {
           </span>
           <span style={{ fontSize: 14, fontWeight: 'bold', flex: 1, color: '#f7c948' }}>{secDom.name}</span>
           <span style={{ fontSize: 10, color: '#555', marginRight: 4 }}>{secDom.notes.join(' ')}</span>
-          <button style={playBtnStyle(playingRow === 'secdom')} onClick={() => void playSingle('secdom', secDom.notes)}>▶</button>
+          <button style={playBtnStyle(playingId === `${degree}-secdom`)} onClick={() => void playSingle(`${degree}-secdom`, secDom.notes)}>▶</button>
         </div>
 
         {/* Tritone sub row */}
@@ -135,7 +137,7 @@ export function DegreeCard({ data }: Props) {
           </span>
           <span style={{ fontSize: 14, fontWeight: 'bold', flex: 1, color: '#6af7c9' }}>{tritoneSub.name}</span>
           <span style={{ fontSize: 10, color: '#555', marginRight: 4 }}>{tritoneSub.notes.join(' ')}</span>
-          <button style={playBtnStyle(playingRow === 'tritone')} onClick={() => void playSingle('tritone', tritoneSub.notes)}>▶</button>
+          <button style={playBtnStyle(playingId === `${degree}-tritone`)} onClick={() => void playSingle(`${degree}-tritone`, tritoneSub.notes)}>▶</button>
         </div>
 
         {/* ii–V row */}
@@ -145,8 +147,8 @@ export function DegreeCard({ data }: Props) {
           </span>
           <span style={{ fontSize: 13, fontWeight: 'bold', flex: 1, color: '#f796c0' }}>{iiChord.name} – {secDom.name}</span>
           <button
-            style={playBtnStyle(playingRow === 'iiv')}
-            onClick={() => playSeq('iiv', [{ notes: iiChord.notes }, { notes: secDom.notes }])}
+            style={playBtnStyle(playingId === `${degree}-iiv`)}
+            onClick={() => playSeq(`${degree}-iiv`, [{ notes: iiChord.notes }, { notes: secDom.notes }])}
           >▶</button>
         </div>
       </div>
@@ -159,15 +161,15 @@ export function DegreeCard({ data }: Props) {
           gap: 6,
           margin: '0 14px 10px',
           padding: 7,
-          background: playingRow === 'seq' ? '#1a1a50' : '#1a1a38',
-          border: `1px dashed ${playingRow === 'seq' ? '#7c6af7' : '#333'}`,
+          background: playingId === `${degree}-seq` ? '#1a1a50' : '#1a1a38',
+          border: `1px dashed ${playingId === `${degree}-seq` ? '#7c6af7' : '#333'}`,
           borderRadius: 7,
-          color: playingRow === 'seq' ? '#aaa' : '#555',
+          color: playingId === `${degree}-seq` ? '#aaa' : '#555',
           fontSize: 11,
           cursor: 'pointer',
           width: 'calc(100% - 28px)',
         }}
-        onClick={() => playSeq('seq', [
+        onClick={() => playSeq(`${degree}-seq`, [
           { notes: iiChord.notes },
           { notes: secDom.notes },
           { notes: targetNotes },
