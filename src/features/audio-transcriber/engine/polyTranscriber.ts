@@ -11,8 +11,8 @@ import { INSTRUMENT_CONFIG, type InstrumentKind, type NoteEvent } from '../types
 const HOP = 1024;
 const HARMONICS = 10;
 const MAX_POLY = 6;          // max note simultanee
-const SALIENCE_RATIO = 0.45; // stop quando la salience scende sotto questa frazione della prima
-const SALIENCE_FLOOR = 0.4;  // floor assoluto (spettro normalizzato a max=1)
+const SALIENCE_RATIO = 0.5;  // stop quando la salience scende sotto questa frazione della prima
+const SALIENCE_FLOOR = 0.5;  // floor assoluto (spettro normalizzato a max=1)
 const MIN_FRAMES = 3;        // isteresi: una nota esiste se vista in ≥3 frame
 const MAX_GAP = 2;           //            e sopravvive a 2 frame di assenza
 const SUBTRACT_FACTOR = 0.1; // attenuazione dei bin armonici dopo ogni estrazione
@@ -53,52 +53,12 @@ function findPitchesInFrame(
   minMidi: number,
   maxMidi: number,
 ): FramePitch[] {
-  // rawSpec: un-whitened magnitude per il controllo di presenza del fondamentale
-  const rawSpec = Float32Array.from(mag);
-  let rawMax = 0;
-  for (let i = 0; i < rawSpec.length; i++) if (rawSpec[i] > rawMax) rawMax = rawSpec[i];
-  if (rawMax < 1e-6) return [];
-  for (let i = 0; i < rawSpec.length; i++) rawSpec[i] /= rawMax;
-
   const spec = Float32Array.from(mag);
   // normalizza a max=1; frame quasi silenziosi → niente note
   let mx = 0;
   for (let i = 0; i < spec.length; i++) if (spec[i] > mx) mx = spec[i];
+  if (mx < 1e-6) return [];
   for (let i = 0; i < spec.length; i++) spec[i] /= mx;
-
-  // Pre-compute salience for all candidates using raw spectrum to build
-  // a "harmonic suppression" map: a candidate is excluded if a lower note
-  // with a stronger raw fundamental explains it as an integer harmonic.
-  const candidateSalRaw = new Map<number, number>();
-  for (let m = minMidi; m <= maxMidi; m++) {
-    const f0 = midiToFreq(m);
-    const fundBin = Math.round(f0 / binHz);
-    if (fundBin < 1 || fundBin >= rawSpec.length - 1) continue;
-    if (peakNear(rawSpec, fundBin) < 0.05) continue;
-    let sal = 0;
-    for (let h = 1; h <= HARMONICS; h++) {
-      const b = Math.round((h * f0) / binHz);
-      if (b >= rawSpec.length - 1) break;
-      sal += peakNear(rawSpec, b) / h;
-    }
-    candidateSalRaw.set(m, sal);
-  }
-  // Build suppression set: remove any candidate that is an integer harmonic (2x–10x)
-  // of a candidate with stronger raw salience.
-  const suppressed = new Set<number>();
-  for (const [m, sal] of candidateSalRaw) {
-    const f0 = midiToFreq(m);
-    for (const [mLow, salLow] of candidateSalRaw) {
-      if (mLow >= m) continue;
-      const fLow = midiToFreq(mLow);
-      const ratio = f0 / fLow;
-      const nearestInt = Math.round(ratio);
-      if (nearestInt >= 2 && nearestInt <= HARMONICS && Math.abs(ratio - nearestInt) < 0.05 && salLow > sal * 0.5) {
-        suppressed.add(m);
-        break;
-      }
-    }
-  }
 
   const out: FramePitch[] = [];
   let firstSal = 0;
@@ -106,11 +66,11 @@ function findPitchesInFrame(
   for (let iter = 0; iter < MAX_POLY; iter++) {
     let bestMidi = -1, bestSal = 0;
     for (let m = minMidi; m <= maxMidi; m++) {
-      if (!candidateSalRaw.has(m)) continue;
-      if (suppressed.has(m)) continue;
       const f0 = midiToFreq(m);
       const fundBin = Math.round(f0 / binHz);
       if (fundBin < 1 || fundBin >= spec.length - 1) continue;
+      // Fundamental presence check: skip if the fundamental bin is too weak
+      if (peakNear(spec, fundBin) < 0.05) continue;
       // Sub-harmonic guard: skip if any already-found pitch explains this as a harmonic
       let isHarmonicOfFound = false;
       for (const found of out) {
@@ -123,6 +83,19 @@ function findPitchesInFrame(
         }
       }
       if (isHarmonicOfFound) continue;
+      // Sub-harmonic check: skip if a valid note exists at f0/h (h≥2) and its
+      // fundamental bin is present. This prevents harmonics from being picked
+      // before their actual fundamental note.
+      let hasSubharmonicFundamental = false;
+      for (let h = 2; h <= HARMONICS; h++) {
+        const subF = f0 / h;
+        const subBin = Math.round(subF / binHz);
+        if (subBin < 1) break;
+        const subMidi = Math.round(freqToMidi(subF));
+        if (subMidi < minMidi || subMidi > maxMidi) continue;
+        if (peakNear(spec, subBin) > 0.05) { hasSubharmonicFundamental = true; break; }
+      }
+      if (hasSubharmonicFundamental) continue;
       let sal = 0;
       for (let h = 1; h <= HARMONICS; h++) {
         const b = Math.round((h * f0) / binHz);
@@ -148,7 +121,7 @@ function findPitchesInFrame(
     for (let h = 1; h <= HARMONICS; h++) {
       const b = Math.round((h * f0) / binHz);
       if (b >= spec.length - 1) break;
-      spec[b - 1] *= SUBTRACT_FACTOR;
+      if (b > 0) spec[b - 1] *= SUBTRACT_FACTOR;
       spec[b] *= SUBTRACT_FACTOR;
       spec[b + 1] *= SUBTRACT_FACTOR;
     }
