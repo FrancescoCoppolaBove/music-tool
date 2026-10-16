@@ -3,6 +3,7 @@ import type { InstrumentKind, NoteEvent, ChordEvent, TranscriptionResult } from 
 import { analyzeAudio } from './engine/workerClient';
 import { quantizeNotes } from './engine/quantizer';
 import { analyzeChords } from './engine/chordAnalyzer';
+import ExportBar from './components/ExportBar';
 
 type AppState = 'idle' | 'loaded' | 'analyzing' | 'ready' | 'error';
 
@@ -306,6 +307,14 @@ export default function AudioTranscriberFeature() {
           </div>
         )}
       </div>
+
+      {/* ExportBar always visible at bottom */}
+      <ExportBar
+        appState={appState}
+        progress={analysisProgress}
+        fileName={fileName}
+        hasNotes={notes.length > 0}
+      />
 
     </div>
   );
