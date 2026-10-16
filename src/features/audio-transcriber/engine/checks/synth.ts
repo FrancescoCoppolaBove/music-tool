@@ -36,6 +36,7 @@ export function concat(...sigs: Float32Array[]): Float32Array {
 }
 
 export function mix(...sigs: Float32Array[]): Float32Array {
+  if (!sigs.length) return new Float32Array(0);
   const len = Math.max(...sigs.map(s => s.length));
   const out = new Float32Array(len);
   for (const s of sigs) for (let i = 0; i < s.length; i++) out[i] += s[i];
