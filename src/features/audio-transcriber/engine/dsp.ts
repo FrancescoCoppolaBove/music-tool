@@ -65,6 +65,7 @@ export function freqToMidi(freq: number): number { return 69 + 12 * Math.log2(fr
 export function midiToFreq(midi: number): number { return A4 * Math.pow(2, (midi - 69) / 12); }
 
 export function median(arr: number[]): number {
+  if (!arr.length) return 0;
   const s = [...arr].sort((a, b) => a - b);
   const m = s.length >> 1;
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
@@ -79,5 +80,5 @@ export function mean(arr: ArrayLike<number>): number {
 export function rms(arr: Float32Array): number {
   let s = 0;
   for (let i = 0; i < arr.length; i++) s += arr[i] * arr[i];
-  return Math.sqrt(s / arr.length);
+  return arr.length ? Math.sqrt(s / arr.length) : 0;
 }
