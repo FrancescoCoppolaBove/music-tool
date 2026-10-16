@@ -219,6 +219,96 @@ export default function PianoRoll(props: PianoRollProps) {
     return () => ro.disconnect();
   }, []);
 
+  // Wheel zoom
+  useEffect(() => {
+    const canvas: HTMLCanvasElement | null = canvasRef.current;
+    if (!canvas) return;
+    const cv: HTMLCanvasElement = canvas;
+    function onWheel(e: WheelEvent) {
+      e.preventDefault();
+      const s = stateRef.current;
+      const delta = e.deltaY > 0 ? 0.85 : 1 / 0.85;
+      const mouseX = e.offsetX - GUTTER;
+      const timeBefore = (mouseX + s.scrollX) / s.zoomX;
+      s.zoomX = Math.max(20, Math.min(2000, s.zoomX * delta));
+      s.scrollX = Math.max(0, timeBefore * s.zoomX - mouseX);
+      drawAll(cv, s);
+    }
+    cv.addEventListener('wheel', onWheel, { passive: false });
+    return () => cv.removeEventListener('wheel', onWheel);
+  }, []);
+
+  // Drag scroll + note hit-test + click-to-select + click-to-seek
+  useEffect(() => {
+    const canvas: HTMLCanvasElement | null = canvasRef.current;
+    if (!canvas) return;
+    const cv: HTMLCanvasElement = canvas;
+
+    let dragging = false;
+    let lastX = 0;
+    let didDrag = false;
+
+    function hitTestNote(mouseX: number, mouseY: number): string | null {
+      const s = stateRef.current;
+      const numRows = Math.max(MIN_ROWS,
+        s.notes.length === 0 ? MIN_ROWS :
+        (Math.max(...s.notes.map(n => n.midi)) - Math.min(...s.notes.map(n => n.midi)) + 7));
+      const maxMidi = (s.notes.length === 0 ? 72 : Math.max(...s.notes.map(n => n.midi))) + 3;
+      const H = cv.height;
+      const rowH = H / numRows;
+      for (let i = s.notes.length - 1; i >= 0; i--) {
+        const note = s.notes[i];
+        const x = GUTTER + note.startSec * s.zoomX - s.scrollX;
+        const w = Math.max(4, note.durationSec * s.zoomX);
+        const y = (maxMidi - note.midi) * rowH;
+        if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + rowH) return note.id;
+      }
+      return null;
+    }
+
+    function onMouseDown(e: MouseEvent) {
+      if (e.button !== 0) return;
+      dragging = true;
+      didDrag = false;
+      lastX = e.clientX;
+    }
+
+    function onMouseMove(e: MouseEvent) {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      if (Math.abs(dx) > 3) didDrag = true;
+      lastX = e.clientX;
+      stateRef.current.scrollX = Math.max(0, stateRef.current.scrollX - dx);
+      drawAll(cv, stateRef.current);
+    }
+
+    function onMouseUp(e: MouseEvent) {
+      if (!dragging) return;
+      dragging = false;
+      if (!didDrag) {
+        const rect = cv.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const hitId = hitTestNote(mx, my);
+        if (hitId !== null) {
+          propsRef.current.onSelectNote(hitId, e.shiftKey || e.metaKey);
+        } else if (my < 14 && mx > GUTTER) {
+          const sec = (mx - GUTTER + stateRef.current.scrollX) / stateRef.current.zoomX;
+          propsRef.current.onSeek(Math.max(0, sec));
+        }
+      }
+    }
+
+    cv.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      cv.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, []);
+
   return (
     <div
       ref={containerRef}
