@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import type { InstrumentKind, NoteEvent, ChordEvent, TranscriptionResult } from './types';
 import { analyzeAudio } from './engine/workerClient';
 import { quantizeNotes } from './engine/quantizer';
@@ -66,6 +66,9 @@ export default function AudioTranscriberFeature() {
   const startTimeRef     = useRef(0);
   const pausePositionRef = useRef(0);
   const rafRef           = useRef(0);
+  const isPlayingRef     = useRef(false);
+  const handlePlayRef    = useRef<() => void>(() => {});
+  const handlePauseRef   = useRef<() => void>(() => {});
 
   function stopSource() {
     try { sourceRef.current?.stop(); } catch { /* already stopped */ }
@@ -231,26 +234,32 @@ export default function AudioTranscriberFeature() {
     setIsPlaying(false);
   }
 
+  useLayoutEffect(() => {
+    isPlayingRef.current   = isPlaying;
+    handlePlayRef.current  = handlePlay;
+    handlePauseRef.current = handlePause;
+  });
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       if (e.key === ' ') {
         e.preventDefault();
-        isPlaying ? handlePause() : handlePlay();
+        isPlayingRef.current ? handlePauseRef.current() : handlePlayRef.current();
       }
       if (e.key === 'a' || e.key === 'A') {
         const ctx = audioCtxRef.current;
-        if (ctx) setLoopA(ctx.currentTime - startTimeRef.current);
+        if (ctx && isPlayingRef.current) setLoopA(ctx.currentTime - startTimeRef.current);
       }
       if (e.key === 'b' || e.key === 'B') {
         const ctx = audioCtxRef.current;
-        if (ctx) setLoopB(ctx.currentTime - startTimeRef.current);
+        if (ctx && isPlayingRef.current) setLoopB(ctx.currentTime - startTimeRef.current);
       }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  });
+  }, []);
 
   function handleSelectNote(id: string, addToSelection: boolean) {
     setSelectedIds(prev => {
