@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { NoteEvent, ChordEvent } from '../types';
 
 const CHORD_PALETTE = [
@@ -20,6 +21,7 @@ function beatsToRhythm(beats: number | undefined): string {
   if (Math.abs(beats - 0.25) < 0.06) return '♬';
   if (Math.abs(beats - 2/3)  < 0.06) return '♩₃';
   if (Math.abs(beats - 1/3)  < 0.06) return '♪₃';
+  if (Math.abs(beats - 1/6)  < 0.04) return '♬₃';
   return beats.toFixed(2) + 'b';
 }
 
@@ -52,7 +54,10 @@ const HDR: React.CSSProperties = {
 };
 
 export default function NoteTable({ notes, chords, selectedIds, onSelectNote }: NoteTableProps) {
-  const sorted = [...notes].sort((a, b) => a.startSec - b.startSec);
+  const sorted = useMemo(
+    () => [...notes].sort((a, b) => a.startSec - b.startSec),
+    [notes],
+  );
 
   return (
     <div style={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>
