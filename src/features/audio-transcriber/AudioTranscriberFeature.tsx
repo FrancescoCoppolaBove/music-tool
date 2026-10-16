@@ -1,5 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { InstrumentKind, NoteEvent, ChordEvent, TranscriptionResult } from './types';
+import { analyzeAudio } from './engine/workerClient';
+import { quantizeNotes } from './engine/quantizer';
+import { analyzeChords } from './engine/chordAnalyzer';
 
 type AppState = 'idle' | 'loaded' | 'analyzing' | 'ready' | 'error';
 
@@ -105,6 +108,39 @@ export default function AudioTranscriberFeature() {
     if (file) decodeFile(file);
   }
 
+  const [editedBpm, setEditedBpm] = useState<string>('');
+  const [bpmEditActive, setBpmEditActive] = useState(false);
+  const tempoRef = useRef<{ bpm: number; beatOffsetSec: number } | null>(null);
+
+  const runAnalysis = useCallback(async () => {
+    const buf = audioBufferRef.current;
+    if (!buf) return;
+    setAppState('analyzing');
+    setProgress(0);
+    setSelectedIds(new Set());
+    try {
+      const signal = downmixToMono(buf);
+      const res = await analyzeAudio(signal, buf.sampleRate, instrument, setProgress);
+      if (res.notes.length === 0) {
+        setErrorMsg('Nessuna nota rilevata. Prova a selezionare un altro strumento o verificare il file audio.');
+        setAppState('error');
+        return;
+      }
+      tempoRef.current = res.bpm !== null
+        ? { bpm: res.bpm, beatOffsetSec: 0 }
+        : null;
+      setEditedBpm(res.bpm !== null ? res.bpm.toFixed(1) : '');
+      setResult(res);
+      setNotes([...res.notes]);
+      setChords([...res.chords]);
+      setHasUnsavedEdits(false);
+      setAppState('ready');
+    } catch (err) {
+      setErrorMsg(`Errore durante l'analisi: ${err instanceof Error ? err.message : String(err)}`);
+      setAppState('error');
+    }
+  }, [instrument]);
+
   const canAnalyze = appState === 'loaded' || appState === 'ready';
 
   return (
@@ -161,12 +197,59 @@ export default function AudioTranscriberFeature() {
 
         {/* Analyze button */}
         <button
-          onClick={() => {/* wired in Task 3 */}}
+          onClick={() => runAnalysis()}
           disabled={!canAnalyze}
           style={btnStyle(canAnalyze ? '#7c3aed' : '#21262d', canAnalyze ? '#fff' : '#4b5563')}
         >
           {appState === 'analyzing' ? '⏳ Analisi…' : '🔍 Analizza'}
         </button>
+
+        {/* BPM display / edit */}
+        {result !== null && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 12, color: '#6b7280' }}>BPM</span>
+            <input
+              value={editedBpm}
+              onChange={e => setEditedBpm(e.target.value)}
+              onFocus={() => setBpmEditActive(true)}
+              onBlur={() => {
+                setBpmEditActive(false);
+                const parsed = parseFloat(editedBpm);
+                if (!isNaN(parsed) && parsed > 0 && tempoRef.current) {
+                  tempoRef.current = { bpm: parsed, beatOffsetSec: tempoRef.current.beatOffsetSec };
+                  const updated = notes.map(n => ({ ...n }));
+                  quantizeNotes(updated, parsed, tempoRef.current.beatOffsetSec);
+                  const updatedChords = analyzeChords(updated);
+                  setNotes(updated);
+                  setChords(updatedChords);
+                  setHasUnsavedEdits(true);
+                  setResult(r => r ? { ...r, bpm: parsed } : r);
+                }
+              }}
+              onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+              style={{
+                width: 64, background: bpmEditActive ? '#1c2128' : '#0d1117',
+                border: '1px solid #30363d', borderRadius: 6,
+                color: '#e6edf3', fontSize: 13, padding: '3px 8px',
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+            />
+          </div>
+        )}
+
+        {/* Rianalizza */}
+        {appState === 'ready' && (
+          <button onClick={() => runAnalysis()} style={btnStyle('#21262d', '#8b949e')}>
+            🔄 Rianalizza
+          </button>
+        )}
+
+        {/* Key display */}
+        {result?.key && (
+          <span style={{ fontSize: 13, color: '#c4b5fd', fontWeight: 600 }}>
+            🎵 {result.key}
+          </span>
+        )}
       </div>
 
       {/* ── Body ── */}
@@ -205,6 +288,11 @@ export default function AudioTranscriberFeature() {
         {/* Loaded / ready / analyzing: split layout placeholder */}
         {(appState === 'loaded' || appState === 'analyzing' || appState === 'ready') && (
           <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 16px 0' }}>
+            {appState === 'analyzing' && (
+              <div style={{ height: 3, background: '#21262d', margin: '0 16px' }}>
+                <div style={{ height: '100%', width: `${Math.round(analysisProgress * 100)}%`, background: '#7c3aed', transition: 'width 0.1s' }} />
+              </div>
+            )}
             <div style={{ flex: 1, display: 'flex', gap: 12, minHeight: 400 }}>
               {/* Piano roll placeholder */}
               <div style={{ flex: 3, background: '#161b22', border: '1px solid #21262d', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', fontSize: 14 }}>
