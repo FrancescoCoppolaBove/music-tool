@@ -77,7 +77,7 @@ function findPitchesInFrame(
         const fLow = midiToFreq(found.midi);
         const ratio = f0 / fLow;
         const nearestInt = Math.round(ratio);
-        if (nearestInt >= 2 && Math.abs(ratio - nearestInt) < 0.05) {
+        if (nearestInt >= 3 && Math.abs(ratio - nearestInt) < 0.05) {
           isHarmonicOfFound = true;
           break;
         }
@@ -87,7 +87,7 @@ function findPitchesInFrame(
       // fundamental bin is present. This prevents harmonics from being picked
       // before their actual fundamental note.
       let hasSubharmonicFundamental = false;
-      for (let h = 2; h <= HARMONICS; h++) {
+      for (let h = 3; h <= HARMONICS; h++) {
         const subF = f0 / h;
         const subBin = Math.round(subF / binHz);
         if (subBin < 1) break;
