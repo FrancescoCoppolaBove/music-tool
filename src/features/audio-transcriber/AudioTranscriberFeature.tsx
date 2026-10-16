@@ -5,6 +5,7 @@ import { quantizeNotes } from './engine/quantizer';
 import { analyzeChords } from './engine/chordAnalyzer';
 import ExportBar from './components/ExportBar';
 import PianoRoll from './components/PianoRoll';
+import TransportBar from './components/TransportBar';
 
 const ROLL_CSS = `
   .at-split { display: flex; gap: 12px; flex: 1; min-height: 400px; }
@@ -57,8 +58,26 @@ export default function AudioTranscriberFeature() {
   const fileInputRef   = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
+  const [isPlaying, setIsPlaying]     = useState(false);
+  const [playheadSec, setPlayheadSec] = useState(0);
+  const [loopA, setLoopA]             = useState<number | null>(null);
+  const [loopB, setLoopB]             = useState<number | null>(null);
+  const sourceRef        = useRef<AudioBufferSourceNode | null>(null);
+  const startTimeRef     = useRef(0);
+  const pausePositionRef = useRef(0);
+  const rafRef           = useRef(0);
+
+  function stopSource() {
+    try { sourceRef.current?.stop(); } catch { /* already stopped */ }
+    sourceRef.current = null;
+    cancelAnimationFrame(rafRef.current);
+  }
+
   useEffect(() => {
-    return () => { audioCtxRef.current?.close(); };
+    return () => {
+      stopSource();
+      audioCtxRef.current?.close();
+    };
   }, []);
 
   async function decodeFile(file: File) {
@@ -153,7 +172,85 @@ export default function AudioTranscriberFeature() {
 
   const canAnalyze = appState === 'loaded' || appState === 'ready';
 
-  const getPlayheadSec = useCallback(() => 0, []);
+  const getPlayheadSecCb = useCallback((): number => {
+    const ctx = audioCtxRef.current;
+    if (!isPlaying || !ctx) return pausePositionRef.current;
+    return ctx.currentTime - startTimeRef.current;
+  }, [isPlaying]);
+
+  const getPlayheadSec = getPlayheadSecCb;
+
+  function handleStop() {
+    stopSource();
+    pausePositionRef.current = 0;
+    setIsPlaying(false);
+    setPlayheadSec(0);
+  }
+
+  function handlePlay() {
+    const ctx = audioCtxRef.current;
+    const buf = audioBufferRef.current;
+    if (!ctx || !buf) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    stopSource();
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    if (loopA !== null && loopB !== null && loopB > loopA) {
+      src.loop = true;
+      src.loopStart = loopA;
+      src.loopEnd = loopB;
+    }
+    src.connect(ctx.destination);
+    const offset = Math.min(pausePositionRef.current, buf.duration);
+    startTimeRef.current = ctx.currentTime - offset;
+    src.start(0, offset);
+    sourceRef.current = src;
+    src.onended = () => {
+      if (sourceRef.current === src) {
+        pausePositionRef.current = 0;
+        setIsPlaying(false);
+        setPlayheadSec(0);
+      }
+    };
+    setIsPlaying(true);
+    const ctxCapture = ctx;
+    const bufDuration = buf.duration;
+    function tick() {
+      const sec = ctxCapture.currentTime - startTimeRef.current;
+      setPlayheadSec(Math.min(sec, bufDuration));
+      rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+  }
+
+  function handlePause() {
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    pausePositionRef.current = ctx.currentTime - startTimeRef.current;
+    stopSource();
+    setIsPlaying(false);
+  }
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.key === ' ') {
+        e.preventDefault();
+        isPlaying ? handlePause() : handlePlay();
+      }
+      if (e.key === 'a' || e.key === 'A') {
+        const ctx = audioCtxRef.current;
+        if (ctx) setLoopA(ctx.currentTime - startTimeRef.current);
+      }
+      if (e.key === 'b' || e.key === 'B') {
+        const ctx = audioCtxRef.current;
+        if (ctx) setLoopB(ctx.currentTime - startTimeRef.current);
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 
   function handleSelectNote(id: string, addToSelection: boolean) {
     setSelectedIds(prev => {
@@ -162,7 +259,11 @@ export default function AudioTranscriberFeature() {
       return next;
     });
   }
-  function handleSeek(_sec: number) { /* wired in Task 6 */ }
+  function handleSeek(sec: number) {
+    pausePositionRef.current = Math.max(0, Math.min(sec, audioBufferRef.current?.duration ?? 0));
+    if (isPlaying) handlePlay();
+    else setPlayheadSec(pausePositionRef.current);
+  }
   function handleEditNote(_id: string, _changes: Partial<Pick<NoteEvent, 'midi' | 'startSec' | 'durationSec'>>) {
     /* wired in Task 9 */
   }
@@ -341,7 +442,7 @@ export default function AudioTranscriberFeature() {
                     bpm={result?.bpm ?? null}
                     duration={audioBufferRef.current?.duration ?? 0}
                     selectedIds={selectedIds}
-                    isPlaying={false}
+                    isPlaying={isPlaying}
                     getPlayheadSec={getPlayheadSec}
                     onSelectNote={handleSelectNote}
                     onSeek={handleSeek}
@@ -357,6 +458,18 @@ export default function AudioTranscriberFeature() {
                 Note table — Task 8
               </div>
             </div>
+            <TransportBar
+              isPlaying={isPlaying}
+              playheadSec={playheadSec}
+              duration={audioBufferRef.current?.duration ?? 0}
+              loopA={loopA}
+              loopB={loopB}
+              disabled={appState !== 'ready'}
+              onPlay={handlePlay}
+              onPause={handlePause}
+              onStop={handleStop}
+              onClearLoop={() => { setLoopA(null); setLoopB(null); }}
+            />
           </div>
         )}
       </div>
