@@ -34,6 +34,11 @@ export function analyzeAudio(
       worker.terminate();
       reject(new Error(err.message || 'Worker error'));
     };
-    worker.postMessage({ signal, sampleRate, instrument }, [signal.buffer]);
+    try {
+      worker.postMessage({ signal, sampleRate, instrument }, [signal.buffer]);
+    } catch (err) {
+      worker.terminate();
+      reject(err instanceof Error ? err : new Error(String(err)));
+    }
   });
 }
