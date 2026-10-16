@@ -4,6 +4,14 @@ import { analyzeAudio } from './engine/workerClient';
 import { quantizeNotes } from './engine/quantizer';
 import { analyzeChords } from './engine/chordAnalyzer';
 import ExportBar from './components/ExportBar';
+import PianoRoll from './components/PianoRoll';
+
+const ROLL_CSS = `
+  .at-split { display: flex; gap: 12px; flex: 1; min-height: 400px; }
+  @media (max-width: 768px) {
+    .at-split { flex-direction: column; }
+  }
+`;
 
 type AppState = 'idle' | 'loaded' | 'analyzing' | 'ready' | 'error';
 
@@ -42,6 +50,7 @@ export default function AudioTranscriberFeature() {
   const [chords, setChords]             = useState<ChordEvent[]>([]);
   const [selectedIds, setSelectedIds]   = useState<Set<string>>(new Set());
   const [hasUnsavedEdits, setHasUnsavedEdits] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
   const audioCtxRef    = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
@@ -144,8 +153,27 @@ export default function AudioTranscriberFeature() {
 
   const canAnalyze = appState === 'loaded' || appState === 'ready';
 
+  const getPlayheadSec = useCallback(() => 0, []);
+
+  function handleSelectNote(id: string, addToSelection: boolean) {
+    setSelectedIds(prev => {
+      const next = addToSelection ? new Set(prev) : new Set<string>();
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+  function handleSeek(_sec: number) { /* wired in Task 6 */ }
+  function handleEditNote(_id: string, _changes: Partial<Pick<NoteEvent, 'midi' | 'startSec' | 'durationSec'>>) {
+    /* wired in Task 9 */
+  }
+  function handleDeleteNotes(_ids: string[]) { /* wired in Task 9 */ }
+  function handleCreateNote(_note: Omit<NoteEvent, 'id' | 'chordId' | 'startBeat' | 'durationBeats' | 'velocity'>) {
+    /* wired in Task 9 */
+  }
+
   return (
     <div style={{ minHeight: 'calc(100vh - 58px)', display: 'flex', flexDirection: 'column', background: '#0d1117' }}>
+      <style>{ROLL_CSS}</style>
 
       {/* Hidden file input */}
       <input
@@ -294,10 +322,35 @@ export default function AudioTranscriberFeature() {
                 <div style={{ height: '100%', width: `${Math.round(analysisProgress * 100)}%`, background: '#7c3aed', transition: 'width 0.1s' }} />
               </div>
             )}
-            <div style={{ flex: 1, display: 'flex', gap: 12, minHeight: 400 }}>
-              {/* Piano roll placeholder */}
-              <div style={{ flex: 3, background: '#161b22', border: '1px solid #21262d', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', fontSize: 14 }}>
-                {appState === 'loaded' ? 'Clicca Analizza per avviare la trascrizione' : appState === 'analyzing' ? `Analisi… ${Math.round(analysisProgress * 100)}%` : 'Piano roll — Task 5'}
+            <div className="at-split">
+              {/* Piano roll */}
+              <div style={{ flex: 3, display: 'flex', flexDirection: 'column', minHeight: 400 }}>
+                {/* Edit mode toggle */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
+                  <button
+                    onClick={() => setEditMode(m => !m)}
+                    style={btnStyle(editMode ? '#7c3aed' : '#21262d', editMode ? '#fff' : '#8b949e')}
+                  >
+                    ✏️ {editMode ? 'Modifica attiva' : 'Modifica'}
+                  </button>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <PianoRoll
+                    notes={notes}
+                    chords={chords}
+                    bpm={result?.bpm ?? null}
+                    duration={audioBufferRef.current?.duration ?? 0}
+                    selectedIds={selectedIds}
+                    isPlaying={false}
+                    getPlayheadSec={getPlayheadSec}
+                    onSelectNote={handleSelectNote}
+                    onSeek={handleSeek}
+                    editMode={editMode}
+                    onEditNote={handleEditNote}
+                    onDeleteNotes={handleDeleteNotes}
+                    onCreateNote={handleCreateNote}
+                  />
+                </div>
               </div>
               {/* Note table placeholder */}
               <div style={{ flex: 2, background: '#161b22', border: '1px solid #21262d', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', fontSize: 14 }}>
