@@ -268,6 +268,7 @@ export default function PianoRoll(props: PianoRollProps) {
 
     function onMouseDown(e: MouseEvent) {
       if (e.button !== 0) return;
+      if (stateRef.current.editMode) return;
       dragging = true;
       didDrag = false;
       lastX = e.clientX;
