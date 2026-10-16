@@ -4,6 +4,7 @@ import { analyzeAudio } from './engine/workerClient';
 import { quantizeNotes } from './engine/quantizer';
 import { analyzeChords } from './engine/chordAnalyzer';
 import ExportBar from './components/ExportBar';
+import NoteTable from './components/NoteTable';
 import PianoRoll from './components/PianoRoll';
 import TransportBar from './components/TransportBar';
 
@@ -462,9 +463,17 @@ export default function AudioTranscriberFeature() {
                   />
                 </div>
               </div>
-              {/* Note table placeholder */}
-              <div style={{ flex: 2, background: '#161b22', border: '1px solid #21262d', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563', fontSize: 14 }}>
-                Note table — Task 8
+              {/* Note table */}
+              <div style={{
+                flex: 2, background: '#161b22', border: '1px solid #21262d',
+                borderRadius: 12, overflow: 'hidden', minHeight: 400,
+              }}>
+                <NoteTable
+                  notes={notes}
+                  chords={chords}
+                  selectedIds={selectedIds}
+                  onSelectNote={handleSelectNote}
+                />
               </div>
             </div>
             <TransportBar
