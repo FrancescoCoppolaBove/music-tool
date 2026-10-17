@@ -1,6 +1,6 @@
 // src/features/audio-transcriber/types.ts
 
-export type InstrumentKind = 'bass' | 'voice' | 'winds' | 'keyboard' | 'guitar';
+export type InstrumentKind = 'bass' | 'voice' | 'winds' | 'winds-section' | 'keyboard' | 'guitar';
 
 export interface NoteEvent {
   id: string;
@@ -40,9 +40,10 @@ export interface InstrumentConfig {
 }
 
 export const INSTRUMENT_CONFIG: Record<InstrumentKind, InstrumentConfig> = {
-  bass:     { poly: false, minF0: 30,   maxF0: 400,  windowSize: 4096 },
-  voice:    { poly: false, minF0: 65,   maxF0: 1200, windowSize: 2048 },
-  winds:    { poly: false, minF0: 100,  maxF0: 2000, windowSize: 2048 },
-  keyboard: { poly: true,  minF0: 27.5, maxF0: 2000, windowSize: 8192 },
-  guitar:   { poly: true,  minF0: 73,   maxF0: 1320, windowSize: 8192 },
+  bass:            { poly: false, minF0: 30,   maxF0: 400,  windowSize: 4096 },
+  voice:           { poly: false, minF0: 65,   maxF0: 1200, windowSize: 2048 },
+  winds:           { poly: false, minF0: 100,  maxF0: 2000, windowSize: 2048 },
+  'winds-section': { poly: true,  minF0: 65,   maxF0: 2000, windowSize: 4096 },
+  keyboard:        { poly: true,  minF0: 27.5, maxF0: 2000, windowSize: 8192 },
+  guitar:          { poly: true,  minF0: 73,   maxF0: 1320, windowSize: 8192 },
 };

@@ -24,11 +24,12 @@ const GATE_LOOKAHEAD     = 2;     // frame di anticipo all'apertura del gate
 
 // ─── Soglie noise gate per strumento ────────────────────────────────────────
 const GATE: Record<InstrumentKind, { open: number; close: number }> = {
-  bass:     { open: 0.07,  close: 0.010 }, // close basso: gate aperto durante il decay naturale
-  voice:    { open: 0.04,  close: 0.015 },
-  winds:    { open: 0.05,  close: 0.020 },
-  keyboard: { open: 0.07,  close: 0.025 }, // fallback (path poly)
-  guitar:   { open: 0.07,  close: 0.025 }, // fallback (path poly)
+  bass:            { open: 0.07,  close: 0.010 }, // close basso: gate aperto durante il decay naturale
+  voice:           { open: 0.04,  close: 0.015 },
+  winds:           { open: 0.05,  close: 0.020 },
+  'winds-section': { open: 0.05,  close: 0.020 },
+  keyboard:        { open: 0.07,  close: 0.025 }, // fallback (path poly)
+  guitar:          { open: 0.07,  close: 0.025 }, // fallback (path poly)
 };
 
 interface PitchFrame { midi: number; clarity: number; rmsVal: number }
