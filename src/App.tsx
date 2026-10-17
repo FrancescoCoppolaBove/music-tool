@@ -143,9 +143,9 @@ const HEADER_STYLES = `
 
 .nav-dropdown-item-desc {
   font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   color: #6b7280;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .header-cta {
@@ -273,7 +273,7 @@ function NavDropdownItem({ tab, activeTab, onSelect }: { tab: TabDef; activeTab:
         borderRadius: '3px 0 0 3px',
         flexShrink: 0, marginRight: 14,
       }} />
-      <span style={{ flex: 1, padding: '12px 16px 12px 0' }}>
+      <span style={{ flex: 1, padding: '8px 14px 8px 0' }}>
         <span className="nav-dropdown-item-name" style={{ display: 'block' }}>{tab.label}</span>
         <span className="nav-dropdown-item-desc" style={{ display: 'block' }}>{tab.desc}</span>
       </span>
@@ -324,33 +324,35 @@ function NavGroup({
             overflow: 'hidden',
           }}
         >
-          {isTwoCol ? (
-            <div style={{ display: 'flex' }}>
-              {subsections.map((sub, colIdx) => (
-                <div key={sub} style={{ flex: 1, borderLeft: colIdx > 0 ? '1px solid #21262d' : 'none' }}>
-                  <div style={{
-                    padding: '10px 17px 6px',
-                    fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
-                    textTransform: 'uppercase', color: '#4b5563',
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}>
-                    {sub}
+          <div style={{ maxHeight: 'min(72vh, 480px)', overflowY: 'auto' }}>
+            {isTwoCol ? (
+              <div style={{ display: 'flex' }}>
+                {subsections.map((sub, colIdx) => (
+                  <div key={sub} style={{ flex: 1, borderLeft: colIdx > 0 ? '1px solid #21262d' : 'none' }}>
+                    <div style={{
+                      padding: '8px 17px 5px',
+                      fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+                      textTransform: 'uppercase', color: '#4b5563',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}>
+                      {sub}
+                    </div>
+                    <div style={{ padding: '0 6px 6px' }}>
+                      {group.tabs.filter(t => t.subsection === sub).map(tab => (
+                        <NavDropdownItem key={tab.id} tab={tab} activeTab={activeTab} onSelect={onSelect} />
+                      ))}
+                    </div>
                   </div>
-                  <div style={{ padding: '0 6px 6px' }}>
-                    {group.tabs.filter(t => t.subsection === sub).map(tab => (
-                      <NavDropdownItem key={tab.id} tab={tab} activeTab={activeTab} onSelect={onSelect} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ padding: '6px' }}>
-              {group.tabs.map(tab => (
-                <NavDropdownItem key={tab.id} tab={tab} activeTab={activeTab} onSelect={onSelect} />
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '6px' }}>
+                {group.tabs.map(tab => (
+                  <NavDropdownItem key={tab.id} tab={tab} activeTab={activeTab} onSelect={onSelect} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
