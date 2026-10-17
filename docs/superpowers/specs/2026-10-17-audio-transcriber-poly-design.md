@@ -131,7 +131,7 @@ export async function transcribeAudio(
 
 Quando `cfg.poly === true`, passa `options?.voiceCount` a `transcribePoly`.
 Per `keyboard` e `guitar` (poly senza dropdown UI), il valore è `undefined` →
-`transcribePoly` usa il default interno `4`.
+`transcribePoly` usa il default interno `6` (invariato rispetto all'attuale `MAX_POLY = 6`).
 
 ### `polyTranscriber.ts`
 
@@ -141,11 +141,12 @@ export function transcribePoly(
   sampleRate: number,
   instrument: InstrumentKind,
   onProgress?: (p: number) => void,
-  voiceCount = 4,
+  voiceCount = 6,
 ): NoteEvent[]
 ```
 
-`voiceCount` diventa `MAX_POLY` a runtime.
+`voiceCount` diventa `MAX_POLY` a runtime. Default `6` = backward compat con
+l'attuale `MAX_POLY = 6` (usato da keyboard e guitar quando la UI non passa il valore).
 
 ---
 
