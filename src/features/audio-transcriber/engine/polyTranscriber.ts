@@ -2,20 +2,33 @@
 // Multi-pitch stile Klapuri: STFT → whitening spettrale → salience function
 // (somma pesata 1/h dell'energia alle posizioni armoniche) → stima iterativa
 // con sottrazione del pettine armonico → tracking temporale con isteresi.
-// Il fondamentale deve essere presente nello spettro: elimina i subarmonici
-// fantasma (es. C3 "spiegato" da C4+G4).
+//
+// Pass 1: energy gate con isteresi → regioni attive
+// Pass 2: Klapuri (STFT + salience + comb) solo nelle regioni attive
+// Pass 3: tracking temporale — invariato rispetto alla versione precedente
 
-import { hannWindow, magnitudeSpectrum, parabolicBin, freqToMidi, midiToFreq } from './dsp';
+import { hannWindow, magnitudeSpectrum, parabolicBin, freqToMidi, midiToFreq, rms } from './dsp';
 import { INSTRUMENT_CONFIG, type InstrumentKind, type NoteEvent } from '../types';
+
+let _noteIdCounter = 0;
 
 const HOP = 1024;
 const HARMONICS = 10;
-const MAX_POLY = 6;          // max note simultanee
-const SALIENCE_RATIO = 0.5;  // stop quando la salience scende sotto questa frazione della prima
-const SALIENCE_FLOOR = 0.5;  // floor assoluto (spettro normalizzato a max=1)
+const SALIENCE_RATIO = 0.5;
+const SALIENCE_FLOOR = 0.5;
 const MIN_FRAMES = 3;        // isteresi: una nota esiste se vista in ≥3 frame
 const MAX_GAP = 2;           //            e sopravvive a 2 frame di assenza
 const SUBTRACT_FACTOR = 0.1; // attenuazione dei bin armonici dopo ogni estrazione
+
+const GATE_LOOKAHEAD = 2;
+const MIN_REGION_FRAMES = 4;
+
+const POLY_GATE: Partial<Record<InstrumentKind, { open: number; close: number }>> = {
+  keyboard:        { open: 0.07, close: 0.025 },
+  guitar:          { open: 0.07, close: 0.025 },
+  'winds-section': { open: 0.05, close: 0.020 },
+};
+const DEFAULT_POLY_GATE = { open: 0.07, close: 0.025 };
 
 interface FramePitch { midi: number; cents: number; salience: number; }
 
@@ -52,9 +65,9 @@ function findPitchesInFrame(
   binHz: number,
   minMidi: number,
   maxMidi: number,
+  maxPoly: number,
 ): FramePitch[] {
   const spec = Float32Array.from(mag);
-  // normalizza a max=1; frame quasi silenziosi → niente note
   let mx = 0;
   for (let i = 0; i < spec.length; i++) if (spec[i] > mx) mx = spec[i];
   if (mx < 1e-6) return [];
@@ -63,15 +76,13 @@ function findPitchesInFrame(
   const out: FramePitch[] = [];
   let firstSal = 0;
 
-  for (let iter = 0; iter < MAX_POLY; iter++) {
+  for (let iter = 0; iter < maxPoly; iter++) {
     let bestMidi = -1, bestSal = 0;
     for (let m = minMidi; m <= maxMidi; m++) {
       const f0 = midiToFreq(m);
       const fundBin = Math.round(f0 / binHz);
       if (fundBin < 1 || fundBin >= spec.length - 1) continue;
-      // Fundamental presence check: skip if the fundamental bin is too weak
       if (peakNear(spec, fundBin) < 0.05) continue;
-      // Sub-harmonic guard: skip if any already-found pitch explains this as a harmonic
       let isHarmonicOfFound = false;
       for (const found of out) {
         const fLow = midiToFreq(found.midi);
@@ -83,9 +94,6 @@ function findPitchesInFrame(
         }
       }
       if (isHarmonicOfFound) continue;
-      // Sub-harmonic check: skip if a valid note exists at f0/h (h≥2) and its
-      // fundamental bin is present. This prevents harmonics from being picked
-      // before their actual fundamental note.
       let hasSubharmonicFundamental = false;
       for (let h = 3; h <= HARMONICS; h++) {
         const subF = f0 / h;
@@ -108,7 +116,6 @@ function findPitchesInFrame(
     if (iter === 0) firstSal = bestSal;
     if (bestSal < SALIENCE_RATIO * firstSal || bestSal < SALIENCE_FLOOR) break;
 
-    // cents dal picco raffinato (interpolazione parabolica al fondamentale)
     const f0 = midiToFreq(bestMidi);
     const fb = Math.round(f0 / binHz);
     const refinedFreq = parabolicBin(spec, fb) * binHz;
@@ -117,7 +124,6 @@ function findPitchesInFrame(
 
     out.push({ midi: bestMidi, cents, salience: bestSal });
 
-    // sottrazione del pettine armonico
     for (let h = 1; h <= HARMONICS; h++) {
       const b = Math.round((h * f0) / binHz);
       if (b >= spec.length - 1) break;
@@ -134,8 +140,10 @@ export function transcribePoly(
   sampleRate: number,
   instrument: InstrumentKind,
   onProgress?: (p: number) => void,
+  voiceCount = 6,
 ): NoteEvent[] {
   const cfg = INSTRUMENT_CONFIG[instrument];
+  const gate = POLY_GATE[instrument] ?? DEFAULT_POLY_GATE;
   const windowSize = cfg.windowSize;
   const binHz = sampleRate / windowSize;
   const win = hannWindow(windowSize);
@@ -143,6 +151,42 @@ export function transcribePoly(
   const minMidi = Math.ceil(freqToMidi(cfg.minF0));
   const maxMidi = Math.floor(freqToMidi(cfg.maxF0));
 
+  // ── Pass 1: energy gate con isteresi ──────────────────────────────────────
+  const tmpFrame = new Float32Array(windowSize);
+  const frameRms = new Float32Array(nFrames);
+  for (let i = 0; i < nFrames; i++) {
+    tmpFrame.set(signal.subarray(i * HOP, i * HOP + windowSize));
+    frameRms[i] = rms(tmpFrame);
+  }
+
+  const sortedRms = Float32Array.from(frameRms).sort();
+  const peakRms = sortedRms[Math.floor(sortedRms.length * 0.97)] ?? 0;
+  if (peakRms === 0) return [];
+
+  const gateOpen = peakRms * gate.open;
+  const gateClose = peakRms * gate.close;
+  const activeRegions: Array<{ start: number; end: number }> = [];
+  let gateIsOpen = false;
+  let regionStart = 0;
+  let prevRegionEnd = 0;
+
+  for (let i = 0; i < nFrames; i++) {
+    if (!gateIsOpen && frameRms[i] >= gateOpen) {
+      gateIsOpen = true;
+      regionStart = Math.max(prevRegionEnd, i - GATE_LOOKAHEAD);
+    } else if (gateIsOpen && frameRms[i] < gateClose) {
+      gateIsOpen = false;
+      if (i - regionStart >= MIN_REGION_FRAMES) {
+        activeRegions.push({ start: regionStart, end: i });
+        prevRegionEnd = i;
+      }
+    }
+  }
+  if (gateIsOpen && nFrames - regionStart >= MIN_REGION_FRAMES) {
+    activeRegions.push({ start: regionStart, end: nFrames });
+  }
+
+  // ── Pass 2 + 3: Klapuri + tracking solo nelle regioni attive ──────────────
   const open = new Map<number, Track>();
   const notes: NoteEvent[] = [];
   let globalMaxSal = 1e-9;
@@ -150,47 +194,57 @@ export function transcribePoly(
   const closeTrack = (t: Track) => {
     if (t.count >= MIN_FRAMES) {
       notes.push({
-        id: Math.random().toString(36).slice(2),
+        id: `n${_noteIdCounter++}`,
         midi: t.midi,
         cents: Math.max(-50, Math.min(50, t.centsSum / t.count)),
         startSec: (t.startFrame * HOP) / sampleRate,
         durationSec: ((t.lastFrame - t.startFrame + 1) * HOP) / sampleRate,
-        velocity: t.salSum / t.count, // normalizzata a fine funzione
+        velocity: t.salSum / t.count,
       });
     }
   };
 
+  const totalActiveFrames = activeRegions.reduce((s, r) => s + r.end - r.start, 0);
+  let processedFrames = 0;
+
   const frame = new Float32Array(windowSize);
-  for (let f = 0; f < nFrames; f++) {
-    frame.set(signal.subarray(f * HOP, f * HOP + windowSize));
-    const mag = magnitudeSpectrum(frame, win);
-    whiten(mag);
-    const found = findPitchesInFrame(mag, binHz, minMidi, maxMidi);
+  for (const region of activeRegions) {
+    for (let f = region.start; f < region.end; f++) {
+      frame.set(signal.subarray(f * HOP, f * HOP + windowSize));
+      const mag = magnitudeSpectrum(frame, win);
+      whiten(mag);
+      const found = findPitchesInFrame(mag, binHz, minMidi, maxMidi, voiceCount);
 
-    const seen = new Set<number>();
-    for (const p of found) {
-      globalMaxSal = Math.max(globalMaxSal, p.salience);
-      const t = open.get(p.midi);
-      if (t) {
-        t.lastFrame = f; t.count++; t.salSum += p.salience; t.centsSum += p.cents; t.gap = 0;
-      } else {
-        open.set(p.midi, {
-          midi: p.midi, startFrame: f, lastFrame: f,
-          count: 1, salSum: p.salience, centsSum: p.cents, gap: 0,
-        });
+      const seen = new Set<number>();
+      for (const p of found) {
+        globalMaxSal = Math.max(globalMaxSal, p.salience);
+        const t = open.get(p.midi);
+        if (t) {
+          t.lastFrame = f; t.count++; t.salSum += p.salience; t.centsSum += p.cents; t.gap = 0;
+        } else {
+          open.set(p.midi, {
+            midi: p.midi, startFrame: f, lastFrame: f,
+            count: 1, salSum: p.salience, centsSum: p.cents, gap: 0,
+          });
+        }
+        seen.add(p.midi);
       }
-      seen.add(p.midi);
-    }
-    for (const [midi, t] of open) {
-      if (!seen.has(midi)) {
-        t.gap++;
-        if (t.gap > MAX_GAP) { closeTrack(t); open.delete(midi); }
+      for (const [midi, t] of open) {
+        if (!seen.has(midi)) {
+          t.gap++;
+          if (t.gap > MAX_GAP) { closeTrack(t); open.delete(midi); }
+        }
       }
-    }
 
-    if (onProgress && f % 20 === 0) onProgress(f / nFrames);
+      processedFrames++;
+      if (onProgress && processedFrames % 20 === 0) {
+        onProgress(processedFrames / (totalActiveFrames || 1));
+      }
+    }
+    // Flush tracce aperte a fine regione: il silenzio tra regioni resetta lo stato
+    for (const t of open.values()) closeTrack(t);
+    open.clear();
   }
-  for (const t of open.values()) closeTrack(t);
 
   for (const n of notes) n.velocity = Math.min(1, n.velocity / globalMaxSal);
   return notes.sort((a, b) => a.startSec - b.startSec);
