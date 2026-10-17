@@ -183,7 +183,7 @@ export function transcribeMono(
   // Scarta note sotto il 5° percentile energetico (risonanze residue)
   const byVel = [...notes].sort((a, b) => a.velocity - b.velocity);
   const p5    = byVel[Math.floor(byVel.length * 0.05)]?.velocity ?? 0;
-  notes = notes.filter(n => n.velocity > p5);
+  notes = notes.filter(n => n.velocity >= p5);
 
   // Fondi note adiacenti con stesso pitch e gap breve
   let merged = true;
