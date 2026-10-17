@@ -43,11 +43,14 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
   const W = canvas.width;
   const H = canvas.height;
 
-  // Compute MIDI range from notes
+  // Compute MIDI range from notes (loop, not spread: notes can be thousands)
   let minMidi = 60, maxMidi = 72;
   if (s.notes.length > 0) {
-    minMidi = Math.min(...s.notes.map(n => n.midi));
-    maxMidi = Math.max(...s.notes.map(n => n.midi));
+    minMidi = Infinity; maxMidi = -Infinity;
+    for (const n of s.notes) {
+      if (n.midi < minMidi) minMidi = n.midi;
+      if (n.midi > maxMidi) maxMidi = n.midi;
+    }
   }
   minMidi -= 3;
   maxMidi += 3;
@@ -111,8 +114,11 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
   }
 
   // ── Notes ─────────────────────────────────────────────────
+  const chordIdxById = new Map<string, number>();
+  s.chords.forEach((c, i) => chordIdxById.set(c.id, i));
+
   for (const note of s.notes) {
-    const chordIdx = s.chords.findIndex(c => c.id === note.chordId);
+    const chordIdx = note.chordId !== undefined ? (chordIdxById.get(note.chordId) ?? -1) : -1;
     const color = chordIdx >= 0
       ? CHORD_PALETTE[chordIdx % CHORD_PALETTE.length]
       : '#4b5563';
@@ -125,13 +131,14 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
     if (x + w < GUTTER || x > W) continue;
 
     const isSelected = s.selectedIds.has(note.id);
-    ctx.fillStyle = color;
-    ctx.globalAlpha = isSelected ? 1 : 0.75;
+    const isSounding = s.playheadSec >= note.startSec && s.playheadSec < note.startSec + note.durationSec;
+    ctx.fillStyle = isSounding && chordIdx < 0 ? '#9ca3af' : color;
+    ctx.globalAlpha = isSelected || isSounding ? 1 : 0.75;
     ctx.fillRect(x, y, w, h);
     ctx.globalAlpha = 1;
 
-    if (isSelected) {
-      ctx.strokeStyle = '#ffffff';
+    if (isSelected || isSounding) {
+      ctx.strokeStyle = isSelected ? '#ffffff' : '#ef4444';
       ctx.lineWidth = 1.5;
       ctx.strokeRect(x + 0.75, y + 0.75, w - 1.5, h - 1.5);
     }
@@ -171,6 +178,7 @@ export default function PianoRoll(props: PianoRollProps) {
     playheadSec: 0, editMode: false,
   });
   const propsRef = useRef(props);
+  const hadNotesRef = useRef(false);
 
   // Keep propsRef in sync (used by interaction effects in later tasks)
   useLayoutEffect(() => {
@@ -183,7 +191,16 @@ export default function PianoRoll(props: PianoRollProps) {
       duration: props.duration,
       selectedIds: props.selectedIds,
       editMode: props.editMode,
+      playheadSec: props.getPlayheadSec(),
     };
+    // Dopo un'analisi (0 → N note) porta in vista la prima nota: l'audio può
+    // iniziare con molti secondi di silenzio.
+    if (!hadNotesRef.current && props.notes.length > 0) {
+      let first = Infinity;
+      for (const n of props.notes) if (n.startSec < first) first = n.startSec;
+      stateRef.current.scrollX = Math.max(0, first * stateRef.current.zoomX - 60);
+    }
+    hadNotesRef.current = props.notes.length > 0;
     if (canvasRef.current) drawAll(canvasRef.current, stateRef.current);
   });
 
@@ -196,13 +213,24 @@ export default function PianoRoll(props: PianoRollProps) {
     }
     let raf: number;
     function tick() {
-      stateRef.current.playheadSec = propsRef.current.getPlayheadSec();
-      if (canvasRef.current) drawAll(canvasRef.current, stateRef.current);
+      const s = stateRef.current;
+      s.playheadSec = propsRef.current.getPlayheadSec();
+      const canvas = canvasRef.current;
+      if (canvas) {
+        // Auto-follow: se il playhead esce dalla zona visibile (o torna
+        // indietro per il loop), riposiziona lo scroll al 15% da sinistra.
+        const W = canvas.width;
+        const phPx = GUTTER + s.playheadSec * s.zoomX - s.scrollX;
+        if (phPx > W * 0.8 || phPx < GUTTER) {
+          s.scrollX = Math.max(0, s.playheadSec * s.zoomX - (W - GUTTER) * 0.15);
+        }
+        drawAll(canvas, s);
+      }
       raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [props.isPlaying, props.getPlayheadSec]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [props.isPlaying, props.getPlayheadSec]);
 
   // ResizeObserver: resize canvas to container and redraw
   useEffect(() => {
@@ -211,8 +239,10 @@ export default function PianoRoll(props: PianoRollProps) {
     const ro = new ResizeObserver(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      canvas.width  = el.clientWidth;
-      canvas.height = el.clientHeight;
+      // Cap difensivo: oltre ~16k px Chrome non alloca il buffer e il canvas
+      // muore (placeholder bianco). Nessun layout legittimo arriva qui.
+      canvas.width  = Math.min(el.clientWidth, 8192);
+      canvas.height = Math.min(el.clientHeight, 4096);
       drawAll(canvas, stateRef.current);
     });
     ro.observe(el);

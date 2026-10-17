@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import type { NoteEvent, ChordEvent } from '../types';
 
 const CHORD_PALETTE = [
@@ -37,6 +37,8 @@ interface NoteTableProps {
   chords: ChordEvent[];
   selectedIds: Set<string>;
   onSelectNote: (id: string, addToSelection: boolean) => void;
+  playheadSec: number;
+  isPlaying: boolean;
 }
 
 const COL: React.CSSProperties = {
@@ -53,14 +55,104 @@ const HDR: React.CSSProperties = {
   position: 'sticky', top: 0,
 };
 
-export default function NoteTable({ notes, chords, selectedIds, onSelectNote }: NoteTableProps) {
+/* Riga memoizzata: durante il playback la tabella si aggiorna ~8 volte al
+   secondo — senza memo ogni tick ri-renderizzerebbe migliaia di righe. */
+const NoteRow = memo(function NoteRow({
+  note, chordSymbol, chordColor, isSelected, isCurrent, onSelectNote,
+}: {
+  note: NoteEvent;
+  chordSymbol: string | null;
+  chordColor: string | undefined;
+  isSelected: boolean;
+  isCurrent: boolean;
+  onSelectNote: (id: string, addToSelection: boolean) => void;
+}) {
+  const a = Math.abs(note.cents);
+  const centsColor = a < 15 ? '#34d399' : a < 30 ? '#fbbf24' : '#f87171';
+
+  return (
+    <tr
+      data-current={isCurrent || undefined}
+      onClick={e => onSelectNote(note.id, e.shiftKey || e.metaKey)}
+      style={{
+        cursor: 'pointer',
+        background: isSelected
+          ? 'rgba(124,58,237,0.12)'
+          : isCurrent ? 'rgba(239,68,68,0.10)' : 'transparent',
+        borderLeft: `2px solid ${isSelected ? '#7c3aed' : isCurrent ? '#ef4444' : 'transparent'}`,
+      }}
+    >
+      <td style={{ ...COL, fontWeight: 700, color: '#e6edf3' }}>
+        {midiToNoteName(note.midi)}
+      </td>
+      <td style={{ ...COL, color: centsColor, fontVariantNumeric: 'tabular-nums' as const }}>
+        {note.cents > 0 ? '+' : ''}{note.cents.toFixed(0)}
+      </td>
+      <td style={{ ...COL, maxWidth: 120 }}>
+        {chordSymbol ? (
+          <span style={{
+            display: 'inline-block', background: chordColor + '22',
+            border: `1px solid ${chordColor}55`, borderRadius: 4,
+            padding: '1px 6px', fontSize: 11, color: chordColor,
+            maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis',
+          }}>
+            {chordSymbol}
+          </span>
+        ) : <span style={{ color: '#4b5563' }}>—</span>}
+      </td>
+      <td style={{ ...COL, color: '#8b949e', fontVariantNumeric: 'tabular-nums' as const }}>
+        {formatPosition(note.startBeat)}
+      </td>
+      <td style={{ ...COL, color: '#8b949e' }}>
+        {beatsToRhythm(note.durationBeats)}
+      </td>
+      <td style={{ ...COL }}>
+        <div style={{
+          width: 32, height: 4, background: '#21262d', borderRadius: 2, overflow: 'hidden',
+        }}>
+          <div style={{ width: `${Math.round(note.velocity * 100)}%`, height: '100%', background: '#7c3aed' }} />
+        </div>
+      </td>
+    </tr>
+  );
+});
+
+export default function NoteTable({
+  notes, chords, selectedIds, onSelectNote, playheadSec, isPlaying,
+}: NoteTableProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const sorted = useMemo(
     () => [...notes].sort((a, b) => a.startSec - b.startSec),
     [notes],
   );
 
+  const chordById = useMemo(() => {
+    const m = new Map<string, { symbol: string; color: string }>();
+    chords.forEach((c, i) => m.set(c.id, { symbol: c.symbol, color: CHORD_PALETTE[i % CHORD_PALETTE.length] }));
+    return m;
+  }, [chords]);
+
+  // Note che stanno suonando sotto il playhead
+  const currentIds = useMemo(() => {
+    const s = new Set<string>();
+    for (const n of sorted) {
+      if (n.startSec > playheadSec) break;
+      if (playheadSec < n.startSec + n.durationSec) s.add(n.id);
+    }
+    return s;
+  }, [sorted, playheadSec]);
+
+  // In riproduzione la tabella segue la nota corrente
+  useEffect(() => {
+    if (!isPlaying || currentIds.size === 0) return;
+    containerRef.current
+      ?.querySelector('[data-current]')
+      ?.scrollIntoView({ block: 'nearest' });
+  }, [isPlaying, currentIds]);
+
   return (
-    <div style={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>
+    <div ref={containerRef} style={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
@@ -74,55 +166,17 @@ export default function NoteTable({ notes, chords, selectedIds, onSelectNote }: 
         </thead>
         <tbody>
           {sorted.map(note => {
-            const chordIdx = chords.findIndex(c => c.id === note.chordId);
-            const chord = chordIdx >= 0 ? chords[chordIdx] : null;
-            const chordColor = chordIdx >= 0 ? CHORD_PALETTE[chordIdx % CHORD_PALETTE.length] : undefined;
-            const isSelected = selectedIds.has(note.id);
-            const a = Math.abs(note.cents);
-            const centsColor = a < 15 ? '#34d399' : a < 30 ? '#fbbf24' : '#f87171';
-
+            const chord = note.chordId !== undefined ? chordById.get(note.chordId) : undefined;
             return (
-              <tr
+              <NoteRow
                 key={note.id}
-                onClick={e => onSelectNote(note.id, e.shiftKey || e.metaKey)}
-                style={{
-                  cursor: 'pointer',
-                  background: isSelected ? 'rgba(124,58,237,0.12)' : 'transparent',
-                  borderLeft: `2px solid ${isSelected ? '#7c3aed' : 'transparent'}`,
-                }}
-              >
-                <td style={{ ...COL, fontWeight: 700, color: '#e6edf3' }}>
-                  {midiToNoteName(note.midi)}
-                </td>
-                <td style={{ ...COL, color: centsColor, fontVariantNumeric: 'tabular-nums' as const }}>
-                  {note.cents > 0 ? '+' : ''}{note.cents.toFixed(0)}
-                </td>
-                <td style={{ ...COL, maxWidth: 120 }}>
-                  {chord ? (
-                    <span style={{
-                      display: 'inline-block', background: chordColor + '22',
-                      border: `1px solid ${chordColor}55`, borderRadius: 4,
-                      padding: '1px 6px', fontSize: 11, color: chordColor,
-                      maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis',
-                    }}>
-                      {chord.symbol}
-                    </span>
-                  ) : <span style={{ color: '#4b5563' }}>—</span>}
-                </td>
-                <td style={{ ...COL, color: '#8b949e', fontVariantNumeric: 'tabular-nums' as const }}>
-                  {formatPosition(note.startBeat)}
-                </td>
-                <td style={{ ...COL, color: '#8b949e' }}>
-                  {beatsToRhythm(note.durationBeats)}
-                </td>
-                <td style={{ ...COL }}>
-                  <div style={{
-                    width: 32, height: 4, background: '#21262d', borderRadius: 2, overflow: 'hidden',
-                  }}>
-                    <div style={{ width: `${Math.round(note.velocity * 100)}%`, height: '100%', background: '#7c3aed' }} />
-                  </div>
-                </td>
-              </tr>
+                note={note}
+                chordSymbol={chord?.symbol ?? null}
+                chordColor={chord?.color}
+                isSelected={selectedIds.has(note.id)}
+                isCurrent={currentIds.has(note.id)}
+                onSelectNote={onSelectNote}
+              />
             );
           })}
         </tbody>

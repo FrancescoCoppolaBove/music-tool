@@ -9,6 +9,7 @@ import { estimateTempo } from './tempoEstimator';
 import { estimateKey } from './keyEstimator';
 import { quantizeNotes } from './quantizer';
 import { analyzeChords } from './chordAnalyzer';
+import { cleanMonoNotes } from './postProcess';
 import { INSTRUMENT_CONFIG, type InstrumentKind, type TranscriptionResult } from '../types';
 
 const ONSET_SNAP_SEC = 0.08; // attacco nota agganciato all'onset più vicino entro 80ms
@@ -23,7 +24,7 @@ export function transcribe(
   const cfg = INSTRUMENT_CONFIG[instrument];
   const sub = (a: number, b: number) => (p: number) => onProgress?.(a + p * (b - a));
 
-  const notes = cfg.poly
+  let notes = cfg.poly
     ? transcribePoly(signal, sampleRate, instrument, sub(0, 0.6))
     : transcribeMono(signal, sampleRate, instrument, sub(0, 0.6));
   onProgress?.(0.6);
@@ -46,7 +47,19 @@ export function transcribe(
     }
   }
 
-  if (tempo.bpm !== null) quantizeNotes(notes, tempo.bpm, tempo.beatOffsetSec);
+  // Lo snap può incollare frammenti allo stesso onset: pulizia solo mono.
+  if (!cfg.poly) notes = cleanMonoNotes(notes);
+
+  // La fase stimata può cadere un periodo dopo il primo attacco reale
+  // (clampare a 0 schiaccerebbe le prime note sullo stesso beat).
+  let beatOffsetSec = tempo.beatOffsetSec;
+  if (tempo.bpm !== null && notes.length > 0) {
+    const beatDur = 60 / tempo.bpm;
+    const firstStart = notes[0].startSec;
+    while (beatOffsetSec > firstStart + 1e-6) beatOffsetSec -= beatDur;
+  }
+
+  if (tempo.bpm !== null) quantizeNotes(notes, tempo.bpm, beatOffsetSec);
   const key = estimateKey(notes);
   const chords = analyzeChords(notes);
   onProgress?.(1);
@@ -56,6 +69,7 @@ export function transcribe(
     chords,
     bpm: tempo.bpm,
     bpmConfidence: tempo.confidence,
+    beatOffsetSec,
     key,
     timeSignature: '4/4',
   };

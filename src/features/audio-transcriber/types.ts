@@ -27,6 +27,7 @@ export interface TranscriptionResult {
   chords: ChordEvent[];
   bpm: number | null;    // null se confidence sotto soglia
   bpmConfidence: number;
+  beatOffsetSec: number; // offset del primo beat (per ri-quantizzare)
   key: string | null;    // "C major", "B minor"
   timeSignature: string; // default "4/4"
 }

@@ -8,10 +8,17 @@ import NoteTable from './components/NoteTable';
 import PianoRoll from './components/PianoRoll';
 import TransportBar from './components/TransportBar';
 
+/* Altezze esplicite: la tabella può avere migliaia di righe e, senza una
+   catena di altezze definita, allungherebbe .at-split (e quindi il canvas
+   del piano roll) fino a superare il limite di dimensione dei canvas. */
 const ROLL_CSS = `
-  .at-split { display: flex; gap: 12px; flex: 1; min-height: 400px; }
+  .at-split { display: flex; gap: 12px; height: clamp(380px, calc(100vh - 310px), 800px); }
+  .at-roll-pane { flex: 3; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+  .at-table-pane { flex: 2; background: #161b22; border: 1px solid #21262d; border-radius: 12px; overflow: hidden; min-height: 0; min-width: 0; }
   @media (max-width: 768px) {
-    .at-split { flex-direction: column; }
+    .at-split { flex-direction: column; height: auto; }
+    .at-roll-pane { height: 52vh; }
+    .at-table-pane { height: 40vh; }
   }
 `;
 
@@ -156,6 +163,8 @@ export default function AudioTranscriberFeature() {
     setAppState('analyzing');
     setProgress(0);
     setSelectedIds(new Set());
+    setNotes([]);
+    setChords([]);
     try {
       const signal = downmixToMono(buf);
       const res = await analyzeAudio(signal, buf.sampleRate, instrument, setProgress);
@@ -165,7 +174,7 @@ export default function AudioTranscriberFeature() {
         return;
       }
       tempoRef.current = res.bpm !== null
-        ? { bpm: res.bpm, beatOffsetSec: 0 }
+        ? { bpm: res.bpm, beatOffsetSec: res.beatOffsetSec }
         : null;
       setEditedBpm(res.bpm !== null ? res.bpm.toFixed(1) : '');
       setResult(res);
@@ -184,8 +193,14 @@ export default function AudioTranscriberFeature() {
   const getPlayheadSecCb = useCallback((): number => {
     const ctx = audioCtxRef.current;
     if (!isPlaying || !ctx) return pausePositionRef.current;
-    return ctx.currentTime - startTimeRef.current;
-  }, [isPlaying]);
+    const elapsed = ctx.currentTime - startTimeRef.current;
+    // Con il loop A-B attivo l'AudioBufferSourceNode riavvolge da solo:
+    // ripiega il tempo trascorso dentro la finestra di loop.
+    if (loopA !== null && loopB !== null && loopB > loopA && elapsed > loopB) {
+      return loopA + ((elapsed - loopA) % (loopB - loopA));
+    }
+    return elapsed;
+  }, [isPlaying, loopA, loopB]);
 
   const getPlayheadSec = getPlayheadSecCb;
 
@@ -224,9 +239,19 @@ export default function AudioTranscriberFeature() {
     setIsPlaying(true);
     const ctxCapture = ctx;
     const bufDuration = buf.duration;
+    const loopActive = loopA !== null && loopB !== null && loopB > loopA;
+    const la = loopA ?? 0;
+    const lb = loopB ?? 0;
+    let lastShown = -1;
     function tick() {
-      const sec = ctxCapture.currentTime - startTimeRef.current;
-      setPlayheadSec(Math.min(sec, bufDuration));
+      let sec = ctxCapture.currentTime - startTimeRef.current;
+      if (loopActive && sec > lb) sec = la + ((sec - la) % (lb - la));
+      // Lo stato React alimenta transport e tabella: aggiornarlo a 60fps
+      // ridisegnerebbe migliaia di righe — bastano ~8 aggiornamenti al secondo.
+      if (Math.abs(sec - lastShown) > 0.12) {
+        lastShown = sec;
+        setPlayheadSec(Math.min(sec, bufDuration));
+      }
       rafRef.current = requestAnimationFrame(tick);
     }
     rafRef.current = requestAnimationFrame(tick);
@@ -287,13 +312,15 @@ export default function AudioTranscriberFeature() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  function handleSelectNote(id: string, addToSelection: boolean) {
+  // Stabile (useCallback []): le righe memoizzate della NoteTable la ricevono
+  // come prop e non devono ri-renderizzare a ogni render del parent.
+  const handleSelectNote = useCallback((id: string, addToSelection: boolean) => {
     setSelectedIds(prev => {
       const next = addToSelection ? new Set(prev) : new Set<string>();
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
-  }
+  }, []);
   function handleSeek(sec: number) {
     pausePositionRef.current = Math.max(0, Math.min(sec, audioBufferRef.current?.duration ?? 0));
     if (isPlaying) handlePlay();
@@ -509,7 +536,7 @@ export default function AudioTranscriberFeature() {
             )}
             <div className="at-split">
               {/* Piano roll */}
-              <div style={{ flex: 3, display: 'flex', flexDirection: 'column', minHeight: 400 }}>
+              <div className="at-roll-pane">
                 {/* Edit mode toggle */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 6 }}>
                   <button
@@ -535,7 +562,7 @@ export default function AudioTranscriberFeature() {
                     </>
                   )}
                 </div>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, minHeight: 0 }}>
                   <PianoRoll
                     notes={notes}
                     chords={chords}
@@ -554,15 +581,14 @@ export default function AudioTranscriberFeature() {
                 </div>
               </div>
               {/* Note table */}
-              <div style={{
-                flex: 2, background: '#161b22', border: '1px solid #21262d',
-                borderRadius: 12, overflow: 'hidden', minHeight: 400,
-              }}>
+              <div className="at-table-pane">
                 <NoteTable
                   notes={notes}
                   chords={chords}
                   selectedIds={selectedIds}
                   onSelectNote={handleSelectNote}
+                  playheadSec={playheadSec}
+                  isPlaying={isPlaying}
                 />
               </div>
             </div>
