@@ -8,6 +8,8 @@ import { PitchDetector } from 'pitchy';
 import { freqToMidi, median, mean, rms, rollingMedian } from './dsp';
 import { INSTRUMENT_CONFIG, type InstrumentKind, type NoteEvent } from '../types';
 
+let _noteIdCounter = 0;
+
 // ─── Soglie globali ──────────────────────────────────────────────────────────
 const CLARITY_MIN        = 0.82;  // più selettivo del precedente 0.75
 const PITCH_JUMP_ST      = 0.7;   // semitoni: sopra = boundary di nota
@@ -64,25 +66,30 @@ export function transcribeMono(
     if (frameRms[i] > peakRms) peakRms = frameRms[i];
   }
 
+  if (peakRms === 0) return [];
+
   const gateOpen  = peakRms * gate.open;
   const gateClose = peakRms * gate.close;
   const activeRegions: Array<{ start: number; end: number }> = [];
   let gateIsOpen = false;
   let regionStart = 0;
+  let prevRegionEnd = 0;
 
   for (let i = 0; i < nFrames; i++) {
     if (!gateIsOpen && frameRms[i] >= gateOpen) {
       gateIsOpen  = true;
-      regionStart = Math.max(0, i - GATE_LOOKAHEAD);
+      regionStart = Math.max(prevRegionEnd, i - GATE_LOOKAHEAD);
     } else if (gateIsOpen && frameRms[i] < gateClose) {
       gateIsOpen = false;
       if (i - regionStart >= MIN_REGION_FRAMES) {
         activeRegions.push({ start: regionStart, end: i });
+        prevRegionEnd = i;
       }
     }
   }
   if (gateIsOpen && nFrames - regionStart >= MIN_REGION_FRAMES) {
     activeRegions.push({ start: regionStart, end: nFrames });
+    prevRegionEnd = nFrames;
   }
 
   onProgress?.(0.2);
@@ -123,7 +130,7 @@ export function transcribeMono(
     const med  = median(seg.midis);
     const midi = Math.round(med);
     candidates.push({
-      id:          Math.random().toString(36).slice(2),
+      id:          `n${_noteIdCounter++}`,
       midi,
       cents:       Math.max(-50, Math.min(50, (med - midi) * 100)),
       startSec:    (seg.startFrame * hop) / sampleRate,
