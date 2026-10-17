@@ -305,24 +305,20 @@ export default function AudioTranscriberFeature() {
   }
 
   function handleEditNote(id: string, changes: Partial<Pick<NoteEvent, 'midi' | 'startSec' | 'durationSec'>>) {
-    setNotes(prev => {
-      pushUndo(prev);
-      const updated = prev.map(n => n.id === id ? { ...n, ...changes } : n);
-      setChords(analyzeChords(updated));
-      setHasUnsavedEdits(true);
-      return updated;
-    });
+    pushUndo(notes);
+    const updated = notes.map(n => n.id === id ? { ...n, ...changes } : n);
+    setNotes(updated);
+    setChords(analyzeChords(updated));
+    setHasUnsavedEdits(true);
   }
 
   function handleDeleteNotesImpl(ids: string[]) {
-    setNotes(prev => {
-      pushUndo(prev);
-      const updated = prev.filter(n => !ids.includes(n.id));
-      setChords(analyzeChords(updated));
-      setSelectedIds(new Set());
-      setHasUnsavedEdits(true);
-      return updated;
-    });
+    pushUndo(notes);
+    const updated = notes.filter(n => !ids.includes(n.id));
+    setNotes(updated);
+    setChords(analyzeChords(updated));
+    setSelectedIds(new Set());
+    setHasUnsavedEdits(true);
   }
 
   function handleDeleteNotes(ids: string[]) {
@@ -335,41 +331,29 @@ export default function AudioTranscriberFeature() {
       id: Math.random().toString(36).slice(2),
       velocity: 0.7,
     };
-    setNotes(prev => {
-      pushUndo(prev);
-      const updated = [...prev, newNote].sort((a, b) => a.startSec - b.startSec);
-      setChords(analyzeChords(updated));
-      setHasUnsavedEdits(true);
-      return updated;
-    });
+    pushUndo(notes);
+    const updated = [...notes, newNote].sort((a, b) => a.startSec - b.startSec);
+    setNotes(updated);
+    setChords(analyzeChords(updated));
+    setHasUnsavedEdits(true);
   }
 
   function handleUndo() {
-    setUndoStack(s => {
-      if (!s.length) return s;
-      const prev = s[s.length - 1];
-      const next = s.slice(0, -1);
-      setNotes(current => {
-        setRedoStack(r => [current, ...r]);
-        setChords(analyzeChords(prev));
-        return prev;
-      });
-      return next;
-    });
+    if (!undoStack.length) return;
+    const prev = undoStack[undoStack.length - 1];
+    setUndoStack(s => s.slice(0, -1));
+    setRedoStack(r => [notes, ...r]);
+    setNotes(prev);
+    setChords(analyzeChords(prev));
   }
 
   function handleRedo() {
-    setRedoStack(s => {
-      if (!s.length) return s;
-      const next = s[0];
-      const rest = s.slice(1);
-      setNotes(current => {
-        setUndoStack(u => [...u, current]);
-        setChords(analyzeChords(next));
-        return next;
-      });
-      return rest;
-    });
+    if (!redoStack.length) return;
+    const next = redoStack[0];
+    setRedoStack(s => s.slice(1));
+    setUndoStack(u => [...u, notes]);
+    setNotes(next);
+    setChords(analyzeChords(next));
   }
 
   return (
