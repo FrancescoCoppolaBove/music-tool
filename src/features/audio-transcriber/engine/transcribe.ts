@@ -24,7 +24,7 @@ export function transcribe(
   const cfg = INSTRUMENT_CONFIG[instrument];
   const sub = (a: number, b: number) => (p: number) => onProgress?.(a + p * (b - a));
 
-  let notes = cfg.poly
+  const notes = cfg.poly
     ? transcribePoly(signal, sampleRate, instrument, sub(0, 0.6), options?.voiceCount)
     : transcribeMono(signal, sampleRate, instrument, sub(0, 0.6));
   onProgress?.(0.6);
