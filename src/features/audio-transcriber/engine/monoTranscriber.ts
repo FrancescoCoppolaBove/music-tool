@@ -14,11 +14,11 @@ let _noteIdCounter = 0;
 const CLARITY_MIN        = 0.82;  // più selettivo del precedente 0.75
 const PITCH_JUMP_ST      = 0.7;   // semitoni: sopra = boundary di nota
 const UNVOICED_TOLERANCE = 3;     // frame null consecutivi tollerati in nota
-const MIN_FRAMES         = 4;     // frame minimi per validare una nota
-const MEDIAN_WINDOW      = 8;     // finestra mediana mobile (stabilizza vibrato)
+const MIN_FRAMES         = 2;     // frame minimi per validare una nota (~46ms a hop=1024)
+const MEDIAN_WINDOW      = 4;     // finestra mediana mobile — 4 frame (~93ms) reagisce a frasi veloci
 const MIN_REGION_FRAMES  = 4;     // scarta regioni attive troppo brevi
-const MIN_NOTE_SEC       = 0.06;  // durata minima nota finale
-const MERGE_GAP_SEC      = 0.04;  // fondi note adiacenti con gap ≤ 40ms …
+const MIN_NOTE_SEC       = 0.04;  // durata minima nota finale
+const MERGE_GAP_SEC      = 0.015; // fondi note adiacenti solo se gap ≤ 15ms (quasi zero) …
 const MERGE_PITCH_ST     = 0.5;   // … se diff di pitch ≤ 0.5 semitoni
 const GATE_LOOKAHEAD     = 2;     // frame di anticipo all'apertura del gate
 
