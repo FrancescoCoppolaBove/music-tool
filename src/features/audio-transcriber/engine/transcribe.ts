@@ -9,7 +9,6 @@ import { estimateTempo } from './tempoEstimator';
 import { estimateKey } from './keyEstimator';
 import { quantizeNotes } from './quantizer';
 import { analyzeChords } from './chordAnalyzer';
-import { cleanMonoNotes } from './postProcess';
 import { INSTRUMENT_CONFIG, type InstrumentKind, type TranscriptionResult } from '../types';
 
 const ONSET_SNAP_SEC = 0.08; // attacco nota agganciato all'onset più vicino entro 80ms
@@ -46,9 +45,6 @@ export function transcribe(
       n.durationSec = Math.max(MIN_NOTE_SEC, end - best);
     }
   }
-
-  // Lo snap può incollare frammenti allo stesso onset: pulizia solo mono.
-  if (!cfg.poly) notes = cleanMonoNotes(notes);
 
   // La fase stimata può cadere un periodo dopo il primo attacco reale
   // (clampare a 0 schiaccerebbe le prime note sullo stesso beat).
