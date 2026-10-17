@@ -13,6 +13,7 @@ export function analyzeAudio(
   sampleRate: number,
   instrument: InstrumentKind,
   onProgress?: (p: number) => void,
+  options?: { voiceCount?: number },
 ): Promise<TranscriptionResult> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL('./transcriber.worker.ts', import.meta.url), {
@@ -35,7 +36,10 @@ export function analyzeAudio(
       reject(new Error(err.message || 'Worker error'));
     };
     try {
-      worker.postMessage({ signal, sampleRate, instrument }, [signal.buffer]);
+      worker.postMessage(
+        { signal, sampleRate, instrument, voiceCount: options?.voiceCount },
+        [signal.buffer],
+      );
     } catch (err) {
       worker.terminate();
       reject(err instanceof Error ? err : new Error(String(err)));

@@ -19,12 +19,13 @@ export function transcribe(
   sampleRate: number,
   instrument: InstrumentKind,
   onProgress?: (p: number) => void,
+  options?: { voiceCount?: number },
 ): TranscriptionResult {
   const cfg = INSTRUMENT_CONFIG[instrument];
   const sub = (a: number, b: number) => (p: number) => onProgress?.(a + p * (b - a));
 
   let notes = cfg.poly
-    ? transcribePoly(signal, sampleRate, instrument, sub(0, 0.6))
+    ? transcribePoly(signal, sampleRate, instrument, sub(0, 0.6), options?.voiceCount)
     : transcribeMono(signal, sampleRate, instrument, sub(0, 0.6));
   onProgress?.(0.6);
 
