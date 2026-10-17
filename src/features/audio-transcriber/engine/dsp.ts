@@ -82,3 +82,12 @@ export function rms(arr: Float32Array): number {
   for (let i = 0; i < arr.length; i++) s += arr[i] * arr[i];
   return arr.length ? Math.sqrt(s / arr.length) : 0;
 }
+
+/** Mantiene un buffer circolare di al massimo `size` valori e ritorna la
+ *  mediana corrente. Muta `buf` in-place — il chiamante alloca l'array vuoto
+ *  e lo riusa frame per frame. */
+export function rollingMedian(buf: number[], newVal: number, size: number): number {
+  buf.push(newVal);
+  if (buf.length > size) buf.shift();
+  return median(buf);
+}
