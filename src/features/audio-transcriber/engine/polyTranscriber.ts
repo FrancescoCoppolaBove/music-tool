@@ -178,8 +178,8 @@ export function transcribePoly(
       gateIsOpen = false;
       if (i - regionStart >= MIN_REGION_FRAMES) {
         activeRegions.push({ start: regionStart, end: i });
-        prevRegionEnd = i;
       }
+      prevRegionEnd = i;
     }
   }
   if (gateIsOpen && nFrames - regionStart >= MIN_REGION_FRAMES) {
@@ -203,6 +203,11 @@ export function transcribePoly(
       });
     }
   };
+
+  if (activeRegions.length === 0) {
+    onProgress?.(1);
+    return [];
+  }
 
   const totalActiveFrames = activeRegions.reduce((s, r) => s + r.end - r.start, 0);
   let processedFrames = 0;
