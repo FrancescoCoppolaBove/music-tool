@@ -51,6 +51,8 @@ export default function AudioTranscriberFeature() {
   const [notes, setNotes]               = useState<NoteEvent[]>([]);
   const [chords, setChords]             = useState<ChordEvent[]>([]);
   const [selectedIds, setSelectedIds]   = useState<Set<string>>(new Set());
+  const [undoStack, setUndoStack] = useState<NoteEvent[][]>([]);
+  const [redoStack, setRedoStack] = useState<NoteEvent[][]>([]);
   const [hasUnsavedEdits, setHasUnsavedEdits] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
@@ -70,6 +72,9 @@ export default function AudioTranscriberFeature() {
   const isPlayingRef     = useRef(false);
   const handlePlayRef    = useRef<() => void>(() => {});
   const handlePauseRef   = useRef<() => void>(() => {});
+  const handleUndoRef    = useRef<() => void>(() => {});
+  const handleRedoRef    = useRef<() => void>(() => {});
+  const deleteSelectedRef = useRef<() => void>(() => {});
 
   function stopSource() {
     try { sourceRef.current?.stop(); } catch { /* already stopped */ }
@@ -236,18 +241,38 @@ export default function AudioTranscriberFeature() {
   }
 
   useLayoutEffect(() => {
-    isPlayingRef.current   = isPlaying;
-    handlePlayRef.current  = handlePlay;
-    handlePauseRef.current = handlePause;
+    isPlayingRef.current       = isPlaying;
+    handlePlayRef.current      = handlePlay;
+    handlePauseRef.current     = handlePause;
+    handleUndoRef.current      = handleUndo;
+    handleRedoRef.current      = handleRedo;
+    deleteSelectedRef.current  = () => {
+      if (selectedIds.size > 0) handleDeleteNotesImpl([...selectedIds]);
+    };
   });
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'z') {
+        e.preventDefault();
+        handleUndoRef.current();
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'z') {
+        e.preventDefault();
+        handleRedoRef.current();
+        return;
+      }
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        deleteSelectedRef.current();
+        return;
+      }
       if (e.key === ' ') {
         e.preventDefault();
-        isPlayingRef.current ? handlePauseRef.current() : handlePlayRef.current();
+        if (isPlayingRef.current) handlePauseRef.current(); else handlePlayRef.current();
       }
       if (e.key === 'a' || e.key === 'A') {
         const ctx = audioCtxRef.current;
@@ -274,12 +299,77 @@ export default function AudioTranscriberFeature() {
     if (isPlaying) handlePlay();
     else setPlayheadSec(pausePositionRef.current);
   }
-  function handleEditNote(_id: string, _changes: Partial<Pick<NoteEvent, 'midi' | 'startSec' | 'durationSec'>>) {
-    /* wired in Task 9 */
+  function pushUndo(snapshot: NoteEvent[]) {
+    setUndoStack(s => [...s.slice(-99), snapshot]);
+    setRedoStack([]);
   }
-  function handleDeleteNotes(_ids: string[]) { /* wired in Task 9 */ }
-  function handleCreateNote(_note: Omit<NoteEvent, 'id' | 'chordId' | 'startBeat' | 'durationBeats' | 'velocity'>) {
-    /* wired in Task 9 */
+
+  function handleEditNote(id: string, changes: Partial<Pick<NoteEvent, 'midi' | 'startSec' | 'durationSec'>>) {
+    setNotes(prev => {
+      pushUndo(prev);
+      const updated = prev.map(n => n.id === id ? { ...n, ...changes } : n);
+      setChords(analyzeChords(updated));
+      setHasUnsavedEdits(true);
+      return updated;
+    });
+  }
+
+  function handleDeleteNotesImpl(ids: string[]) {
+    setNotes(prev => {
+      pushUndo(prev);
+      const updated = prev.filter(n => !ids.includes(n.id));
+      setChords(analyzeChords(updated));
+      setSelectedIds(new Set());
+      setHasUnsavedEdits(true);
+      return updated;
+    });
+  }
+
+  function handleDeleteNotes(ids: string[]) {
+    handleDeleteNotesImpl(ids);
+  }
+
+  function handleCreateNote(note: Omit<NoteEvent, 'id' | 'chordId' | 'startBeat' | 'durationBeats' | 'velocity'>) {
+    const newNote: NoteEvent = {
+      ...note,
+      id: Math.random().toString(36).slice(2),
+      velocity: 0.7,
+    };
+    setNotes(prev => {
+      pushUndo(prev);
+      const updated = [...prev, newNote].sort((a, b) => a.startSec - b.startSec);
+      setChords(analyzeChords(updated));
+      setHasUnsavedEdits(true);
+      return updated;
+    });
+  }
+
+  function handleUndo() {
+    setUndoStack(s => {
+      if (!s.length) return s;
+      const prev = s[s.length - 1];
+      const next = s.slice(0, -1);
+      setNotes(current => {
+        setRedoStack(r => [current, ...r]);
+        setChords(analyzeChords(prev));
+        return prev;
+      });
+      return next;
+    });
+  }
+
+  function handleRedo() {
+    setRedoStack(s => {
+      if (!s.length) return s;
+      const next = s[0];
+      const rest = s.slice(1);
+      setNotes(current => {
+        setUndoStack(u => [...u, current]);
+        setChords(analyzeChords(next));
+        return next;
+      });
+      return rest;
+    });
   }
 
   return (
@@ -444,6 +534,22 @@ export default function AudioTranscriberFeature() {
                   >
                     ✏️ {editMode ? 'Modifica attiva' : 'Modifica'}
                   </button>
+                  {editMode && (
+                    <>
+                      <button
+                        onClick={handleUndo}
+                        disabled={!undoStack.length}
+                        style={btnStyle('#21262d', undoStack.length ? '#8b949e' : '#4b5563')}
+                        title="Undo (⌘Z)"
+                      >↩</button>
+                      <button
+                        onClick={handleRedo}
+                        disabled={!redoStack.length}
+                        style={btnStyle('#21262d', redoStack.length ? '#8b949e' : '#4b5563')}
+                        title="Redo (⌘⇧Z)"
+                      >↪</button>
+                    </>
+                  )}
                 </div>
                 <div style={{ flex: 1 }}>
                   <PianoRoll

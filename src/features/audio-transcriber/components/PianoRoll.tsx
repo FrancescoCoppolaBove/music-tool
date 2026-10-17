@@ -189,20 +189,20 @@ export default function PianoRoll(props: PianoRollProps) {
 
   // rAF loop for playhead when playing
   useEffect(() => {
-    if (!props.isPlaying) {
-      stateRef.current.playheadSec = props.getPlayheadSec();
+    if (!propsRef.current.isPlaying) {
+      stateRef.current.playheadSec = propsRef.current.getPlayheadSec();
       if (canvasRef.current) drawAll(canvasRef.current, stateRef.current);
       return;
     }
     let raf: number;
     function tick() {
-      stateRef.current.playheadSec = props.getPlayheadSec();
+      stateRef.current.playheadSec = propsRef.current.getPlayheadSec();
       if (canvasRef.current) drawAll(canvasRef.current, stateRef.current);
       raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [props.isPlaying, props.getPlayheadSec]);
+  }, [props.isPlaying, props.getPlayheadSec]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ResizeObserver: resize canvas to container and redraw
   useEffect(() => {
@@ -308,6 +308,141 @@ export default function PianoRoll(props: PianoRollProps) {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
+  }, []);
+
+  // Edit-mode mouse interactions
+  useEffect(() => {
+    const canvas: HTMLCanvasElement | null = canvasRef.current;
+    if (!canvas) return;
+    const cv: HTMLCanvasElement = canvas;
+
+    type DragOp =
+      | { kind: 'time';  noteId: string; startX: number; origStart: number }
+      | { kind: 'dur';   noteId: string; startX: number; origDur: number };
+
+    let drag: DragOp | null = null;
+
+    function getGeometry() {
+      const s = stateRef.current;
+      const n = s.notes;
+      const numRows = n.length === 0 ? MIN_ROWS :
+        Math.max(MIN_ROWS, Math.max(...n.map(x => x.midi)) - Math.min(...n.map(x => x.midi)) + 7);
+      const maxMidi = (n.length === 0 ? 72 : Math.max(...n.map(x => x.midi))) + 3;
+      const rowH = cv.height / numRows;
+      return { numRows, maxMidi, rowH };
+    }
+
+    function hitTestEdit(mx: number, my: number): { noteId: string; region: 'edge' | 'body' } | null {
+      const s = stateRef.current;
+      const { maxMidi, rowH } = getGeometry();
+      for (let i = s.notes.length - 1; i >= 0; i--) {
+        const note = s.notes[i];
+        const x = GUTTER + note.startSec * s.zoomX - s.scrollX;
+        const w = Math.max(4, note.durationSec * s.zoomX);
+        const y = (maxMidi - note.midi) * rowH;
+        if (mx >= x && mx <= x + w && my >= y && my <= y + rowH) {
+          const edgeW = Math.min(8, w * 0.3);
+          return { noteId: note.id, region: mx >= x + w - edgeW ? 'edge' : 'body' };
+        }
+      }
+      return null;
+    }
+
+    function onMouseDown(e: MouseEvent) {
+      if (!propsRef.current.editMode) return;
+      if (e.button !== 0) return;
+      const rect = cv.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const hit = hitTestEdit(mx, my);
+      if (!hit) return;
+      e.stopPropagation();
+      const s = stateRef.current;
+      const note = s.notes.find(n => n.id === hit.noteId);
+      if (!note) return;
+      if (hit.region === 'edge') {
+        drag = { kind: 'dur', noteId: note.id, startX: e.clientX, origDur: note.durationSec };
+      } else {
+        drag = { kind: 'time', noteId: note.id, startX: e.clientX, origStart: note.startSec };
+      }
+    }
+
+    function onMouseMove(e: MouseEvent) {
+      if (!drag) return;
+      const s = stateRef.current;
+      const dx = e.clientX - drag.startX;
+      if (drag.kind === 'dur') {
+        const newDur = Math.max(0.02, drag.origDur + dx / s.zoomX);
+        propsRef.current.onEditNote(drag.noteId, { durationSec: newDur });
+      } else {
+        const newStart = Math.max(0, drag.origStart + dx / s.zoomX);
+        propsRef.current.onEditNote(drag.noteId, { startSec: newStart });
+      }
+    }
+
+    function onMouseUp() { drag = null; }
+
+    function onDblClick(e: MouseEvent) {
+      if (!propsRef.current.editMode) return;
+      const rect = cv.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      if (hitTestEdit(mx, my)) return;
+      const s = stateRef.current;
+      const { maxMidi, rowH } = getGeometry();
+      const sec = Math.max(0, (mx - GUTTER + s.scrollX) / s.zoomX);
+      const midi = Math.round(maxMidi - my / rowH);
+      propsRef.current.onCreateNote({ midi, cents: 0, startSec: sec, durationSec: 0.5 });
+    }
+
+    cv.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    cv.addEventListener('dblclick', onDblClick);
+    return () => {
+      cv.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      cv.removeEventListener('dblclick', onDblClick);
+    };
+  }, []);
+
+  // Cursor changes based on editMode and hover
+  useEffect(() => {
+    const canvas: HTMLCanvasElement | null = canvasRef.current;
+    if (!canvas) return;
+    const cv: HTMLCanvasElement = canvas;
+
+    function onMove(e: MouseEvent) {
+      const s = stateRef.current;
+      if (!s.editMode) {
+        cv.style.cursor = 'default';
+        return;
+      }
+      const rect = cv.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const n = s.notes;
+      if (n.length === 0) { cv.style.cursor = 'crosshair'; return; }
+      const numRows = Math.max(MIN_ROWS, Math.max(...n.map(x => x.midi)) - Math.min(...n.map(x => x.midi)) + 7);
+      const maxMidi = Math.max(...n.map(x => x.midi)) + 3;
+      const rowH = cv.height / numRows;
+      for (let i = n.length - 1; i >= 0; i--) {
+        const note = n[i];
+        const x = GUTTER + note.startSec * s.zoomX - s.scrollX;
+        const w = Math.max(4, note.durationSec * s.zoomX);
+        const y = (maxMidi - note.midi) * rowH;
+        if (mx >= x && mx <= x + w && my >= y && my <= y + rowH) {
+          const edgeW = Math.min(8, w * 0.3);
+          cv.style.cursor = mx >= x + w - edgeW ? 'ew-resize' : 'grab';
+          return;
+        }
+      }
+      cv.style.cursor = 'crosshair';
+    }
+
+    cv.addEventListener('mousemove', onMove);
+    return () => cv.removeEventListener('mousemove', onMove);
   }, []);
 
   return (
