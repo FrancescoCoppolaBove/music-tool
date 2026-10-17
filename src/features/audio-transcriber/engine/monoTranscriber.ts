@@ -5,17 +5,17 @@
 // 3. Segmentazione della pitch curve → NoteEvent[]
 
 import { PitchDetector } from 'pitchy';
-import { freqToMidi, median, mean, rms, rollingMedian } from './dsp';
+import { freqToMidi, median, mean, rms } from './dsp';
 import { INSTRUMENT_CONFIG, type InstrumentKind, type NoteEvent } from '../types';
 
 let _noteIdCounter = 0;
 
 // ─── Soglie globali ──────────────────────────────────────────────────────────
-const CLARITY_MIN        = 0.82;  // più selettivo del precedente 0.75
-const PITCH_JUMP_ST      = 0.7;   // semitoni: sopra = boundary di nota
+const CLARITY_MIN        = 0.80;  // leggermente rilassato per fondamentali bassi gravi
+const PITCH_JUMP_ST      = 0.65;  // semitoni: sopra = boundary di nota
 const UNVOICED_TOLERANCE = 3;     // frame null consecutivi tollerati in nota
 const MIN_FRAMES         = 2;     // frame minimi per validare una nota (~46ms a hop=1024)
-const MEDIAN_WINDOW      = 4;     // finestra mediana mobile — 4 frame (~93ms) reagisce a frasi veloci
+const LOCK_FRAMES        = 3;     // frame per bloccare il pitch di riferimento della nota
 const MIN_REGION_FRAMES  = 4;     // scarta regioni attive troppo brevi
 const MIN_NOTE_SEC       = 0.04;  // durata minima nota finale
 const MERGE_GAP_SEC      = 0.015; // fondi note adiacenti solo se gap ≤ 15ms (quasi zero) …
@@ -24,7 +24,7 @@ const GATE_LOOKAHEAD     = 2;     // frame di anticipo all'apertura del gate
 
 // ─── Soglie noise gate per strumento ────────────────────────────────────────
 const GATE: Record<InstrumentKind, { open: number; close: number }> = {
-  bass:     { open: 0.07,  close: 0.025 },
+  bass:     { open: 0.07,  close: 0.010 }, // close basso: gate aperto durante il decay naturale
   voice:    { open: 0.04,  close: 0.015 },
   winds:    { open: 0.05,  close: 0.020 },
   keyboard: { open: 0.07,  close: 0.025 }, // fallback (path poly)
@@ -37,7 +37,7 @@ interface OpenSeg {
   midis: number[];
   rmsVals: number[];
   startFrame: number;
-  medBuf: number[];
+  establishedMidi: number | null; // pitch bloccato dopo LOCK_FRAMES (stabile per note lunghe)
   unvoicedRun: number;
 }
 
@@ -59,12 +59,15 @@ export function transcribeMono(
 
   // ── Passo 1: energy curve + noise gate con isteresi ────────────────────────
   const frameRms = new Float32Array(nFrames);
-  let peakRms = 0;
   for (let i = 0; i < nFrames; i++) {
     frame.set(signal.subarray(i * hop, i * hop + windowSize));
     frameRms[i] = rms(frame);
-    if (frameRms[i] > peakRms) peakRms = frameRms[i];
   }
+
+  // 97° percentile: più robusto di max() contro transienti isolati molto forti
+  // che alzerebbero le soglie del gate e farebbero perdere le note più quiete.
+  const sortedRms = Float32Array.from(frameRms).sort();
+  const peakRms   = sortedRms[Math.floor(sortedRms.length * 0.97)] ?? 0;
 
   if (peakRms === 0) return [];
 
@@ -153,14 +156,22 @@ export function transcribeMono(
 
     if (seg === null) {
       seg = { midis: [pf.midi], rmsVals: [pf.rmsVal], startFrame: i,
-              medBuf: [pf.midi], unvoicedRun: 0 };
+              establishedMidi: null, unvoicedRun: 0 };
     } else {
       seg.unvoicedRun = 0;
-      const stableMed = rollingMedian(seg.medBuf, pf.midi, MEDIAN_WINDOW);
-      if (Math.abs(pf.midi - stableMed) > PITCH_JUMP_ST) {
+
+      // Dopo LOCK_FRAMES frame, blocca il pitch di riferimento sulla mediana
+      // dei primi frame stabili. Così le note lunghe con vibrato o micro-variazioni
+      // non generano falsi boundary; le transizioni vere divergono subito dal ref.
+      if (seg.establishedMidi === null && seg.midis.length >= LOCK_FRAMES) {
+        seg.establishedMidi = median(seg.midis);
+      }
+      const ref = seg.establishedMidi ?? median(seg.midis);
+
+      if (Math.abs(pf.midi - ref) > PITCH_JUMP_ST) {
         closeSeg(i);
         seg = { midis: [pf.midi], rmsVals: [pf.rmsVal], startFrame: i,
-                medBuf: [pf.midi], unvoicedRun: 0 };
+                establishedMidi: null, unvoicedRun: 0 };
       } else {
         seg.midis.push(pf.midi);
         seg.rmsVals.push(pf.rmsVal);
