@@ -25,11 +25,12 @@ const ROLL_CSS = `
 type AppState = 'idle' | 'loaded' | 'analyzing' | 'ready' | 'error';
 
 const INSTRUMENTS: { id: InstrumentKind; label: string; icon: string }[] = [
-  { id: 'keyboard', label: 'Tastiera', icon: '🎹' },
-  { id: 'bass',     label: 'Basso',    icon: '🎸' },
-  { id: 'guitar',   label: 'Chitarra', icon: '🪕' },
-  { id: 'voice',    label: 'Voce',     icon: '🎤' },
-  { id: 'winds',    label: 'Fiati',    icon: '🎺' },
+  { id: 'keyboard',      label: 'Tastiera',     icon: '🎹' },
+  { id: 'bass',          label: 'Basso',         icon: '🎸' },
+  { id: 'guitar',        label: 'Chitarra',      icon: '🪕' },
+  { id: 'voice',         label: 'Voce',          icon: '🎤' },
+  { id: 'winds',         label: 'Fiati',         icon: '🎺' },
+  { id: 'winds-section', label: 'Sezione Fiati', icon: '🎷' },
 ];
 
 const LARGE_FILE_BYTES = 50 * 1024 * 1024;  // 50 MB
@@ -51,6 +52,7 @@ function downmixToMono(buffer: AudioBuffer): Float32Array {
 export default function AudioTranscriberFeature() {
   const [appState, setAppState]         = useState<AppState>('idle');
   const [instrument, setInstrument]     = useState<InstrumentKind>('keyboard');
+  const [voiceCount, setVoiceCount]     = useState(4);
   const [fileName, setFileName]         = useState('');
   const [errorMsg, setErrorMsg]         = useState<string | null>(null);
   const [analysisProgress, setProgress] = useState(0);
@@ -167,7 +169,13 @@ export default function AudioTranscriberFeature() {
     setChords([]);
     try {
       const signal = downmixToMono(buf);
-      const res = await analyzeAudio(signal, buf.sampleRate, instrument, setProgress);
+      const res = await analyzeAudio(
+        signal,
+        buf.sampleRate,
+        instrument,
+        setProgress,
+        instrument === 'winds-section' ? { voiceCount } : undefined,
+      );
       if (res.notes.length === 0) {
         setErrorMsg('Nessuna nota rilevata. Prova a selezionare un altro strumento o verificare il file audio.');
         setAppState('error');
@@ -186,7 +194,7 @@ export default function AudioTranscriberFeature() {
       setErrorMsg(`Errore durante l'analisi: ${err instanceof Error ? err.message : String(err)}`);
       setAppState('error');
     }
-  }, [instrument]);
+  }, [instrument, voiceCount]);
 
   const canAnalyze = appState === 'loaded' || appState === 'ready';
 
@@ -433,6 +441,26 @@ export default function AudioTranscriberFeature() {
             </button>
           ))}
         </div>
+
+        {instrument === 'winds-section' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 12, color: '#6b7280' }}>Voci</span>
+            <select
+              value={voiceCount}
+              onChange={e => setVoiceCount(Number(e.target.value))}
+              style={{
+                background: '#21262d', color: '#e6edf3',
+                border: '1px solid #30363d', borderRadius: 8,
+                padding: '5px 10px', fontSize: 13,
+                fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
+              }}
+            >
+              {[2, 3, 4, 5, 6].map(n => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div style={{ flex: 1 }} />
 
