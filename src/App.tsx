@@ -46,6 +46,7 @@ import HarmoniaCourseFeature from './features/harmonia-course/HarmoniaCourseFeat
 import ReharmonizationFeature from './features/reharmonization/ReharmonizationFeature';
 import MelodyHarmonizerFeature from './features/melody-harmonizer/MelodyHarmonizerFeature';
 import SecondaryDominantsFeature from './features/secondary-dominants/SecondaryDominantsFeature';
+import AudioTranscriberFeature from './features/audio-transcriber/AudioTranscriberFeature';
 import MyCompositionsFeature from './features/my-compositions/MyCompositionsFeature';
 import { useUserProfile } from './shared/context/UserProfileContext';
 import type { UserRole } from './shared/types/conservatory.types';
@@ -241,6 +242,7 @@ const GROUPS: GroupDef[] = [
       { id: 'quiz',          label: 'Scale Degree Quiz',      icon: '🎯', desc: 'Train your knowledge of major scale degrees' },
       { id: 'chorddetect',   label: 'Chord Detection',        icon: '🎙️', desc: 'Play a chord — app identifies it in real time' },
       { id: 'nailpitch',     label: 'Nail the Pitch',         icon: '🎤', desc: 'Sing and see which notes you hit, Melodyne-style' },
+      { id: 'audio-transcriber', label: 'Audio Transcriber', icon: '🎙️', desc: 'Upload audio → detect notes, chords, BPM, key — Melodyne-style piano roll' },
     ],
   },
   {
@@ -992,10 +994,10 @@ export default function App() {
       {/* ── Main content ────────────────────────────────────────── */}
       <main style={{
         flex: 1,
-        maxWidth: activeTab === 'home' ? '100%' : 1200,
+        maxWidth: activeTab === 'home' || activeTab === 'audio-transcriber' ? '100%' : 1200,
         width: '100%',
         margin: '0 auto',
-        padding: activeTab === 'home' ? '0' : '24px 16px',
+        padding: activeTab === 'home' || activeTab === 'audio-transcriber' ? '0' : '24px 16px',
         boxSizing: 'border-box',
       }}>
         {activeTab === 'home'          && <HomePage onNavigate={handleSelectTab} />}
@@ -1030,6 +1032,7 @@ export default function App() {
         {activeTab === 'songs'         && (firebaseEnabled ? <SongLibraryFeature />     : <LocalModeNotice feature="Song Library" />)}
         {activeTab === 'chorddetect'   && <ChordDetectionFeature onNavigateToScaleAdvisor={handleChordDetectToScaleAdvisor} />}
         {activeTab === 'nailpitch'     && <NailThePitchFeature />}
+        {activeTab === 'audio-transcriber' && <AudioTranscriberFeature />}
         {activeTab === 'profile'       && (firebaseEnabled ? <ProfileFeature />         : <LocalModeNotice feature="Profile" />)}
         {activeTab === 'examtemplates'    && <ExamTemplatesFeature />}
         {activeTab === 'teacherdashboard' && (firebaseEnabled ? <TeacherDashboardFeature /> : <LocalModeNotice feature="Dashboard Docente" />)}

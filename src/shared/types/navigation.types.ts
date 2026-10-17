@@ -40,4 +40,5 @@ export type Tab =
   | 'rhythmic-displacement'
   | 'harmony-lab'
   | 'harmony-cheat-sheet'
-  | 'secondary-dominants';
+  | 'secondary-dominants'
+  | 'audio-transcriber';
