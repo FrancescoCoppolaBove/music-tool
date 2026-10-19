@@ -3,28 +3,27 @@
 // snap degli attacchi agli onset → quantizzazione → tonalità → accordi.
 
 import { transcribeMono } from './monoTranscriber';
-import { transcribePoly } from './polyTranscriber';
 import { detectOnsets } from './onsetDetector';
 import { estimateTempo } from './tempoEstimator';
 import { estimateKey } from './keyEstimator';
 import { quantizeNotes } from './quantizer';
 import { analyzeChords } from './chordAnalyzer';
-import { INSTRUMENT_CONFIG, type InstrumentKind, type TranscriptionResult } from '../types';
+import { INSTRUMENT_CONFIG, type InstrumentKind, type TranscriptionResult, type TranscriptionOptions } from '../types';
 
 const MIN_NOTE_SEC = 0.05;
 
-export function transcribe(
+export async function transcribe(
   signal: Float32Array,
   sampleRate: number,
   instrument: InstrumentKind,
   onProgress?: (p: number) => void,
-  options?: { voiceCount?: number },
-): TranscriptionResult {
+  options?: TranscriptionOptions,
+): Promise<TranscriptionResult> {
   const cfg = INSTRUMENT_CONFIG[instrument];
   const sub = (a: number, b: number) => (p: number) => onProgress?.(a + p * (b - a));
 
-  let notes = cfg.poly
-    ? transcribePoly(signal, sampleRate, instrument, sub(0, 0.6), options?.voiceCount)
+  const notes = cfg.poly
+    ? await (await import('./polyTranscriber')).transcribePoly(signal, sampleRate, instrument, sub(0, 0.6), options)
     : transcribeMono(signal, sampleRate, instrument, sub(0, 0.6));
   onProgress?.(0.6);
 
@@ -37,7 +36,9 @@ export function transcribe(
   // introduce un lag di rilevamento di ~80-120ms rispetto all'attacco reale.
   // Lo snap in avanti (onset dopo startSec) produceva note fantasma da 50ms.
   const snapBack = cfg.poly ? 0.15 : 0.08;
-  for (const n of notes) {
+  // Neural predictions have pitch-specific onsets. Global flux snapping would move
+  // an independent voice onto another note's attack and damage scales/arpeggios.
+  for (const n of cfg.poly ? [] : notes) {
     let best = -1, bestDist = snapBack;
     for (const o of onsets) {
       const d = n.startSec - o; // positivo solo se l'onset precede l'attacco rilevato
@@ -72,5 +73,7 @@ export function transcribe(
     beatOffsetSec,
     key,
     timeSignature: '4/4',
+    timeSignatureSource: 'default',
+    engine: cfg.poly ? 'basic-pitch' : 'mpm',
   };
 }

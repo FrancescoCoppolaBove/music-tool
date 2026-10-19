@@ -2,6 +2,13 @@
 
 export type InstrumentKind = 'bass' | 'voice' | 'winds' | 'winds-section' | 'keyboard' | 'guitar';
 
+export type DetectionSensitivity = 'precise' | 'balanced' | 'sensitive';
+
+export interface TranscriptionOptions {
+  voiceCount?: number;
+  sensitivity?: DetectionSensitivity;
+}
+
 export interface NoteEvent {
   id: string;
   midi: number;          // pitch MIDI intero
@@ -9,6 +16,7 @@ export interface NoteEvent {
   startSec: number;      // tempo raw rilevato
   durationSec: number;
   velocity: number;      // 0..1 stimata dall'energia
+  confidence?: number;  // model activation, not a calibrated probability
   startBeat?: number;    // posizione in beat dal downbeat (dopo quantizzazione)
   durationBeats?: number;
   chordId?: string;      // gruppo accordo di appartenenza
@@ -20,6 +28,7 @@ export interface ChordEvent {
   symbol: string;        // es. "Cmaj7"
   voicing: string;       // es. "drop 2, 1° rivolto"
   startSec: number;
+  durationSec?: number;
 }
 
 export interface TranscriptionResult {
@@ -30,6 +39,8 @@ export interface TranscriptionResult {
   beatOffsetSec: number; // offset del primo beat (per ri-quantizzare)
   key: string | null;    // "C major", "B minor"
   timeSignature: string; // default "4/4"
+  timeSignatureSource?: 'default';
+  engine?: 'mpm' | 'basic-pitch';
 }
 
 export interface InstrumentConfig {
@@ -44,6 +55,6 @@ export const INSTRUMENT_CONFIG: Record<InstrumentKind, InstrumentConfig> = {
   voice:           { poly: false, minF0: 65,   maxF0: 1200, windowSize: 2048 },
   winds:           { poly: false, minF0: 100,  maxF0: 2000, windowSize: 2048 },
   'winds-section': { poly: true,  minF0: 65,   maxF0: 2000, windowSize: 4096 },
-  keyboard:        { poly: true,  minF0: 27.5, maxF0: 2000, windowSize: 4096 },
+  keyboard:        { poly: true,  minF0: 27.5, maxF0: 4186.01, windowSize: 4096 },
   guitar:          { poly: true,  minF0: 73,   maxF0: 1320, windowSize: 4096 },
 };

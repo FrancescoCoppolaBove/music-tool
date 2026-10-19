@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
-import type { InstrumentKind, NoteEvent, ChordEvent, TranscriptionResult } from './types';
+import { Upload, Search, Square, RotateCcw, Pencil, Undo2, Redo2, Music2 } from 'lucide-react';
+import { INSTRUMENT_CONFIG, type DetectionSensitivity, type InstrumentKind, type NoteEvent, type ChordEvent, type TranscriptionResult } from './types';
 import { analyzeAudio } from './engine/workerClient';
 import { quantizeNotes } from './engine/quantizer';
 import { analyzeChords } from './engine/chordAnalyzer';
@@ -25,12 +26,12 @@ const ROLL_CSS = `
 type AppState = 'idle' | 'loaded' | 'analyzing' | 'ready' | 'error';
 
 const INSTRUMENTS: { id: InstrumentKind; label: string; icon: string }[] = [
-  { id: 'keyboard',      label: 'Tastiera',     icon: '🎹' },
-  { id: 'bass',          label: 'Basso',         icon: '🎸' },
-  { id: 'guitar',        label: 'Chitarra',      icon: '🪕' },
-  { id: 'voice',         label: 'Voce',          icon: '🎤' },
-  { id: 'winds',         label: 'Fiati',         icon: '🎺' },
-  { id: 'winds-section', label: 'Sezione Fiati', icon: '🎷' },
+  { id: 'keyboard',      label: 'Keyboard',     icon: '' },
+  { id: 'bass',          label: 'Bass',         icon: '' },
+  { id: 'guitar',        label: 'Guitar',       icon: '' },
+  { id: 'voice',         label: 'Voice',        icon: '' },
+  { id: 'winds',         label: 'Solo wind',    icon: '' },
+  { id: 'winds-section', label: 'Wind section', icon: '' },
 ];
 
 const LARGE_FILE_BYTES = 50 * 1024 * 1024;  // 50 MB
@@ -53,6 +54,9 @@ export default function AudioTranscriberFeature() {
   const [appState, setAppState]         = useState<AppState>('idle');
   const [instrument, setInstrument]     = useState<InstrumentKind>('keyboard');
   const [voiceCount, setVoiceCount]     = useState(4);
+  const [sensitivity, setSensitivity] = useState<DetectionSensitivity>('balanced');
+  const analysisAbortRef = useRef<AbortController | null>(null);
+  const loadIdRef = useRef(0);
   const [fileName, setFileName]         = useState('');
   const [errorMsg, setErrorMsg]         = useState<string | null>(null);
   const [analysisProgress, setProgress] = useState(0);
@@ -93,6 +97,8 @@ export default function AudioTranscriberFeature() {
 
   useEffect(() => {
     return () => {
+      analysisAbortRef.current?.abort();
+      loadIdRef.current++;
       stopSource();
       audioCtxRef.current?.close();
     };
@@ -100,8 +106,16 @@ export default function AudioTranscriberFeature() {
 
   async function decodeFile(file: File) {
     if (hasUnsavedEdits && appState === 'ready') {
-      if (!window.confirm('Ci sono modifiche non esportate. Caricare un nuovo file le perderà. Continuare?')) return;
+      if (!window.confirm('Loading a new file will discard your edits. Continue?')) return;
     }
+    analysisAbortRef.current?.abort();
+    const loadId = ++loadIdRef.current;
+    stopSource();
+    setIsPlaying(false);
+    pausePositionRef.current = 0;
+    setPlayheadSec(0);
+    setLoopA(null); setLoopB(null);
+    setUndoStack([]); setRedoStack([]);
     audioCtxRef.current?.close();
     const ctx = new AudioContext();
     audioCtxRef.current = ctx;
@@ -117,7 +131,7 @@ export default function AudioTranscriberFeature() {
     audioBufferRef.current = null;
 
     if (file.size > LARGE_FILE_BYTES) {
-      if (!window.confirm(`Il file è grande (${(file.size / 1024 / 1024).toFixed(0)} MB). L'analisi potrebbe essere lenta. Continuare?`)) {
+      if (!window.confirm(`This file is ${(file.size / 1024 / 1024).toFixed(0)} MB. Analysis may take a while. Continue?`)) {
         setAppState('idle');
         return;
       }
@@ -126,9 +140,10 @@ export default function AudioTranscriberFeature() {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+      if (loadId !== loadIdRef.current) return;
 
       if (audioBuffer.duration > LARGE_DURATION_SEC) {
-        if (!window.confirm(`La traccia dura ${(audioBuffer.duration / 60).toFixed(0)} min. Continuare?`)) {
+        if (!window.confirm(`This recording is ${(audioBuffer.duration / 60).toFixed(0)} minutes long. Continue?`)) {
           setAppState('idle');
           return;
         }
@@ -137,7 +152,8 @@ export default function AudioTranscriberFeature() {
       audioBufferRef.current = audioBuffer;
       setAppState('loaded');
     } catch {
-      setErrorMsg('Impossibile decodificare il file. Formati supportati: WAV, MP3, OGG, M4A/AAC, FLAC.');
+      if (loadId !== loadIdRef.current) return;
+      setErrorMsg('Could not decode this file. Audio format support depends on your browser. Try a WAV or MP3 file.');
       setAppState('error');
     }
   }
@@ -162,6 +178,14 @@ export default function AudioTranscriberFeature() {
   const runAnalysis = useCallback(async () => {
     const buf = audioBufferRef.current;
     if (!buf) return;
+    analysisAbortRef.current?.abort();
+    const controller = new AbortController();
+    analysisAbortRef.current = controller;
+    stopSource();
+    setIsPlaying(false);
+    setResult(null);
+    setErrorMsg(null);
+    setUndoStack([]); setRedoStack([]);
     setAppState('analyzing');
     setProgress(0);
     setSelectedIds(new Set());
@@ -174,10 +198,11 @@ export default function AudioTranscriberFeature() {
         buf.sampleRate,
         instrument,
         setProgress,
-        instrument === 'winds-section' ? { voiceCount } : undefined,
+        { voiceCount: instrument === 'winds-section' ? voiceCount : undefined, sensitivity, signal: controller.signal },
       );
+      if (controller.signal.aborted) return;
       if (res.notes.length === 0) {
-        setErrorMsg('Nessuna nota rilevata. Prova a selezionare un altro strumento o verificare il file audio.');
+        setErrorMsg('No notes detected. Try Sensitive detection or a clearer, isolated instrument recording.');
         setAppState('error');
         return;
       }
@@ -191,12 +216,13 @@ export default function AudioTranscriberFeature() {
       setHasUnsavedEdits(false);
       setAppState('ready');
     } catch (err) {
-      setErrorMsg(`Errore durante l'analisi: ${err instanceof Error ? err.message : String(err)}`);
+      if (controller.signal.aborted) return;
+      setErrorMsg(`Analysis failed: ${err instanceof Error ? err.message : String(err)}`);
       setAppState('error');
     }
-  }, [instrument, voiceCount]);
+  }, [instrument, voiceCount, sensitivity]);
 
-  const canAnalyze = appState === 'loaded' || appState === 'ready';
+  const canAnalyze = (appState === 'loaded' || appState === 'ready' || appState === 'error') && !!audioBufferRef.current;
 
   const getPlayheadSecCb = useCallback((): number => {
     const ctx = audioCtxRef.current;
@@ -416,36 +442,40 @@ export default function AudioTranscriberFeature() {
           onClick={() => fileInputRef.current?.click()}
           style={btnStyle('#30363d', '#8b949e')}
         >
-          📂 Carica file
+          <Upload size={16} /> Upload audio
         </button>
 
         {/* File chip */}
         {fileName && (
           <span style={{ fontSize: 13, color: '#8b949e', background: '#21262d', borderRadius: 6, padding: '4px 10px', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            🎵 {fileName}
+            {fileName}
           </span>
         )}
 
         {/* Instrument pills */}
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {INSTRUMENTS.map(ins => (
             <button
               key={ins.id}
+              disabled={appState === 'analyzing'}
+              aria-pressed={instrument === ins.id}
               onClick={() => setInstrument(ins.id)}
               style={btnStyle(
                 instrument === ins.id ? '#7c3aed' : '#21262d',
                 instrument === ins.id ? '#e6edf3' : '#8b949e',
               )}
             >
-              {ins.icon} {ins.label}
+              {ins.label}
             </button>
           ))}
         </div>
 
         {instrument === 'winds-section' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 12, color: '#6b7280' }}>Voci</span>
+            <span style={{ fontSize: 12, color: '#8b949e' }}>Max voices</span>
             <select
+              aria-label="Maximum voices"
+              disabled={appState === 'analyzing'}
               value={voiceCount}
               onChange={e => setVoiceCount(Number(e.target.value))}
               style={{
@@ -462,6 +492,19 @@ export default function AudioTranscriberFeature() {
           </div>
         )}
 
+        {INSTRUMENT_CONFIG[instrument].poly && (
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#8b949e' }}>
+            Detection
+            <select value={sensitivity} disabled={appState === 'analyzing'}
+              onChange={e => setSensitivity(e.target.value as DetectionSensitivity)}
+              style={{ background: '#21262d', color: '#e6edf3', border: '1px solid #30363d', borderRadius: 6, padding: '6px 8px' }}>
+              <option value="precise">Precise</option>
+              <option value="balanced">Balanced</option>
+              <option value="sensitive">Sensitive</option>
+            </select>
+          </label>
+        )}
+
         <div style={{ flex: 1 }} />
 
         {/* Analyze button */}
@@ -470,8 +513,12 @@ export default function AudioTranscriberFeature() {
           disabled={!canAnalyze}
           style={btnStyle(canAnalyze ? '#7c3aed' : '#21262d', canAnalyze ? '#fff' : '#4b5563')}
         >
-          {appState === 'analyzing' ? '⏳ Analisi…' : '🔍 Analizza'}
+          <Search size={16} /> {appState === 'analyzing' ? 'Analyzing...' : 'Analyze'}
         </button>
+        {appState === 'analyzing' && (
+          <button onClick={() => { analysisAbortRef.current?.abort(); setAppState('loaded'); }}
+            style={btnStyle('#21262d', '#e6edf3')}><Square size={14} /> Cancel</button>
+        )}
 
         {/* BPM display / edit */}
         {result !== null && (
@@ -509,16 +556,22 @@ export default function AudioTranscriberFeature() {
         {/* Rianalizza */}
         {appState === 'ready' && (
           <button onClick={() => runAnalysis()} style={btnStyle('#21262d', '#8b949e')}>
-            🔄 Rianalizza
+            <RotateCcw size={16} /> Reanalyze
           </button>
         )}
 
         {/* Key display */}
         {result?.key && (
           <span style={{ fontSize: 13, color: '#c4b5fd', fontWeight: 600 }}>
-            🎵 {result.key}
+            {result.key}
           </span>
         )}
+      </div>
+      <div role="status" style={{ padding: '8px 16px', fontSize: 12, color: '#8b949e', borderBottom: '1px solid #21262d' }}>
+        {appState === 'analyzing'
+          ? (analysisProgress < 0.03 && INSTRUMENT_CONFIG[instrument].poly ? 'Loading transcription model...' : 'Analyzing audio locally...')
+          : result ? `${notes.length} notes · ${chords.length} chord regions · ${result.engine === 'basic-pitch' ? 'Basic Pitch' : 'Monophonic'} · 4/4 grid (assumed)`
+          : 'Audio stays on your device. For best results, use an isolated instrument track.'}
       </div>
 
       {/* ── Body ── */}
@@ -533,15 +586,15 @@ export default function AudioTranscriberFeature() {
             onClick={() => fileInputRef.current?.click()}
             style={{
               border: `2px dashed ${dragging ? '#7c3aed' : '#30363d'}`,
-              borderRadius: 16, padding: '60px 80px',
+              borderRadius: 8, padding: '48px 24px', maxWidth: '100%', boxSizing: 'border-box',
               textAlign: 'center', cursor: 'pointer',
               background: dragging ? 'rgba(124,58,237,0.05)' : 'transparent',
               transition: 'all 0.2s',
             }}
           >
-            <div style={{ fontSize: 48, marginBottom: 16 }}>🎵</div>
+            <Music2 size={40} style={{ marginBottom: 16 }} />
             <div style={{ fontSize: 18, fontWeight: 700, color: '#e6edf3', marginBottom: 8, fontFamily: "'Syne', sans-serif" }}>
-              Carica una traccia audio
+              Upload an audio track
             </div>
             <div style={{ fontSize: 13, color: '#6b7280' }}>
               WAV · MP3 · OGG · M4A/AAC · FLAC
@@ -571,7 +624,7 @@ export default function AudioTranscriberFeature() {
                     onClick={() => setEditMode(m => !m)}
                     style={btnStyle(editMode ? '#7c3aed' : '#21262d', editMode ? '#fff' : '#8b949e')}
                   >
-                    ✏️ {editMode ? 'Modifica attiva' : 'Modifica'}
+                    <Pencil size={14} /> {editMode ? 'Editing' : 'Edit'}
                   </button>
                   {editMode && (
                     <>
@@ -580,13 +633,13 @@ export default function AudioTranscriberFeature() {
                         disabled={!undoStack.length}
                         style={btnStyle('#21262d', undoStack.length ? '#8b949e' : '#4b5563')}
                         title="Undo (⌘Z)"
-                      >↩</button>
+                      aria-label="Undo"><Undo2 size={16} /></button>
                       <button
                         onClick={handleRedo}
                         disabled={!redoStack.length}
                         style={btnStyle('#21262d', redoStack.length ? '#8b949e' : '#4b5563')}
                         title="Redo (⌘⇧Z)"
-                      >↪</button>
+                      aria-label="Redo"><Redo2 size={16} /></button>
                     </>
                   )}
                 </div>
@@ -654,5 +707,6 @@ function btnStyle(bg: string, color: string): React.CSSProperties {
     padding: '6px 14px', fontSize: 13, fontWeight: 600,
     fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
     transition: 'opacity 0.15s', whiteSpace: 'nowrap',
+    display: 'inline-flex', alignItems: 'center', gap: 6,
   };
 }

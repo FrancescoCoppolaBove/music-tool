@@ -13,7 +13,7 @@ const chords1 = analyzeChords(close);
 assert(chords1.length === 1, `expected 1 chord, got ${chords1.length}`);
 assert(/maj7/i.test(chords1[0].symbol) || /M7/.test(chords1[0].symbol), `symbol "${chords1[0].symbol}"`);
 assert(chords1[0].voicing.includes('close'), `voicing "${chords1[0].voicing}"`);
-assert(chords1[0].voicing.includes('fondamentale'), `voicing "${chords1[0].voicing}"`);
+assert(chords1[0].voicing.includes('root position'), `voicing "${chords1[0].voicing}"`);
 assert(close.every(n => n.chordId === chords1[0].id), 'chordId non assegnato alle note');
 
 // Cmaj7 drop 2: G3 C4 E4 B4 (seconda voce dall'alto abbassata di ottava)

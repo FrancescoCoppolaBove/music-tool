@@ -1,0 +1,138 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { analyzeChords } from './chordAnalyzer';
+import { appendChunkNotes, estimateVelocities, resampleForModel } from './polyAudio';
+import { decodeModelNotes, limitPolyphony } from './polyTranscriber';
+import { transcribeMono } from './monoTranscriber';
+import { tone, SR } from './checks/synth';
+import type { NoteEvent } from '../types';
+
+const note = (midi: number, startSec = 0, durationSec = 1, id = String(midi) + '-' + startSec): NoteEvent =>
+  ({ id, midi, cents: 0, startSec, durationSec, velocity: 0.8 });
+
+test('a held bass and a melody are not combined into a fictional chord', () => {
+  assert.deepEqual(analyzeChords([note(48, 0, 3), note(60, 0, 0.8), note(64, 1, 0.8), note(67, 2, 0.8)]), []);
+});
+
+test('changing harmonies over a shared pedal remain separate chords', () => {
+  const chords = analyzeChords([note(48, 0, 2), note(64), note(67), note(65, 1), note(69, 1)]);
+  assert.equal(chords.length, 2);
+  assert.match(chords[0].symbol, /^C/);
+  assert.match(chords[1].symbol, /^F/);
+  assert.equal(chords[1].startSec, 1);
+});
+
+test('a short octave doubling does not split a sustained chord region', () => {
+  const notes = [note(60, 0, 0.8), note(64, 0, 0.8), note(67, 0, 0.8), note(72, 0, 0.12)];
+  const chords = analyzeChords(notes);
+  assert.equal(chords.length, 1);
+  assert.match(chords[0].symbol, /^C/);
+  assert.ok(Math.abs((chords[0].durationSec ?? 0) - 0.8) < 1e-6);
+});
+
+test('root position, inversion and drop voicings are described in English', () => {
+  const close = analyzeChords([60, 64, 67, 71].map(m => note(m)))[0];
+  assert.match(close.symbol, /C(M7|maj7)/);
+  assert.match(close.voicing, /root position/);
+  assert.match(analyzeChords([55, 60, 64, 71].map(m => note(m)))[0].voicing, /drop 2/);
+  assert.match(analyzeChords([64, 67, 72].map(m => note(m)))[0].voicing, /1st inversion/);
+});
+
+test('deleting chord tones clears obsolete chord membership', () => {
+  const notes = [60, 64, 67].map(m => note(m));
+  analyzeChords(notes);
+  assert.ok(notes[0].chordId);
+  analyzeChords(notes.slice(0, 2));
+  assert.equal(notes[0].chordId, undefined);
+});
+
+test('short overlaps between successive melody notes are not chords', () => {
+  assert.deepEqual(analyzeChords([note(60, 0, 0.5), note(64, 0.45, 0.5), note(67, 0.48, 0.5)]), []);
+});
+
+test('chunk joins preserve sustained notes and repeated attacks at the seam', () => {
+  const sustained = [note(60, 19, 1)];
+  appendChunkNotes(sustained, [note(60, 19.5, 2)], 20);
+  assert.equal(sustained.length, 1);
+  assert.equal(sustained[0].durationSec, 2.5);
+  const repeated = [note(60, 19, 1)];
+  appendChunkNotes(repeated, [note(60, 20, 0.5)], 20);
+  assert.equal(repeated.length, 2);
+});
+
+test('resampling preserves pitch, length and rejects high-frequency aliases', () => {
+  const sr = 48000;
+  const make = (frequency: number) => Float32Array.from({ length: sr }, (_, i) => Math.sin(2 * Math.PI * frequency * i / sr));
+  const low = resampleForModel(make(440), sr);
+  assert.equal(low.length, 22050);
+  let crossings = 0;
+  for (let i = 1; i < low.length; i++) if (low[i - 1] < 0 && low[i] >= 0) crossings++;
+  assert.ok(Math.abs(crossings - 440) <= 1);
+  const high = resampleForModel(make(18000), sr).slice(200, -200);
+  assert.ok(Math.sqrt(high.reduce((s, v) => s + v * v, 0) / high.length) < 0.01);
+  assert.throws(() => resampleForModel(low, 0), /sample rate/);
+});
+
+test('velocity follows audio energy, not normalized pitch salience', () => {
+  const notes = [note(60, 0, 0.1), note(60, 0.2, 0.1)];
+  const audio = Float32Array.from({ length: 4000 }, (_, i) => i < 1500 ? 0.1 : 0.8);
+  estimateVelocities(notes, audio, 10000);
+  assert.ok(notes[0].velocity < notes[1].velocity);
+  assert.ok(notes.every(n => n.velocity > 0 && n.velocity <= 1));
+});
+
+function posterior(events: { midi: number; start: number; end: number }[]) {
+  const frames = Array.from({ length: 100 }, () => Array(88).fill(0) as number[]);
+  const onsets = frames.map(row => [...row]);
+  for (const event of events) {
+    onsets[event.start][event.midi - 21] = 0.95;
+    for (let f = event.start; f < event.end; f++) frames[f][event.midi - 21] = 0.8;
+  }
+  return { frames, onsets };
+}
+
+test('polyphonic decoding preserves octave doublings', () => {
+  const { frames, onsets } = posterior([60, 64, 67, 72].map(midi => ({ midi, start: 3, end: 60 })));
+  const notes = decodeModelNotes(frames, onsets, [], 'keyboard');
+  assert.deepEqual(notes.map(n => n.midi).sort((a, b) => a - b), [60, 64, 67, 72]);
+});
+
+test('polyphonic decoding preserves short octave doublings for manual review', () => {
+  const { frames, onsets } = posterior([
+    { midi: 60, start: 3, end: 60 },
+    { midi: 72, start: 3, end: 10 },
+  ]);
+  for (let f = 3; f < 10; f++) frames[f][72 - 21] = 0.56;
+  const notes = decodeModelNotes(frames, onsets, [], 'keyboard');
+  assert.deepEqual(notes.map(n => n.midi).sort((a, b) => a - b), [60, 72]);
+});
+
+test('winds-section voice limit keeps the strongest simultaneous notes', () => {
+  const notes = [
+    { startSec: 0, durationSec: 1, midi: 60, confidence: 0.8 },
+    { startSec: 0, durationSec: 1, midi: 64, confidence: 0.95 },
+    { startSec: 0, durationSec: 1, midi: 67, confidence: 0.6 },
+  ];
+  assert.deepEqual(limitPolyphony(notes, 2).map(n => n.midi).sort(), [60, 64]);
+});
+
+test('polyphonic decoding preserves adjacent semitones in a voiced cluster', () => {
+  const { frames, onsets } = posterior([60, 61, 67].map(midi => ({ midi, start: 3, end: 60 })));
+  const notes = decodeModelNotes(frames, onsets, [], 'keyboard');
+  assert.deepEqual(notes.map(n => n.midi).sort((a, b) => a - b), [60, 61, 67]);
+});
+
+test('polyphonic decoding splits repeated notes', () => {
+  const { frames, onsets } = posterior([{ midi: 60, start: 3, end: 40 }, { midi: 60, start: 40, end: 80 }]);
+  assert.equal(decodeModelNotes(frames, onsets, [], 'keyboard').length, 2);
+});
+
+test('silence produces no neural note events', () => {
+  const { frames, onsets } = posterior([]);
+  assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard'), []);
+});
+
+test('existing monophonic bass path still detects A2', () => {
+  const notes = transcribeMono(tone(110, 1), SR, 'bass');
+  assert.ok(notes.some(n => n.midi === 45));
+});

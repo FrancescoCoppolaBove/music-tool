@@ -4,23 +4,24 @@
 //   out: { type: 'progress', progress } | { type: 'result', result } | { type: 'error', message }
 
 import { transcribe } from './transcribe';
-import type { InstrumentKind } from '../types';
+import type { InstrumentKind, TranscriptionOptions } from '../types';
 
 interface WorkerRequest {
   signal: Float32Array;
   sampleRate: number;
   instrument: InstrumentKind;
-  voiceCount?: number;
+  options?: TranscriptionOptions;
 }
 
-self.onmessage = (e: MessageEvent<WorkerRequest>) => {
-  const { signal, sampleRate, instrument, voiceCount } = e.data;
+self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
+  const { signal, sampleRate, instrument, options } = e.data;
   try {
-    const result = transcribe(signal, sampleRate, instrument, progress => {
+    const result = await transcribe(signal, sampleRate, instrument, progress => {
       self.postMessage({ type: 'progress', progress });
-    }, { voiceCount });
+    }, options);
     self.postMessage({ type: 'result', result });
   } catch (err) {
+    console.error('Transcription worker failed:', err);
     self.postMessage({ type: 'error', message: err instanceof Error ? err.message : String(err) });
   }
 };

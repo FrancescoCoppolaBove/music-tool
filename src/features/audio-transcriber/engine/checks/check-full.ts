@@ -13,7 +13,7 @@ const round = () => concat(bar(C), bar(F), bar(G), bar(C));
 const signal = concat(round(), round(), round());
 
 const progress: number[] = [];
-const result = transcribe(signal, SR, 'keyboard', p => progress.push(p));
+const result = await transcribe(signal, SR, 'keyboard', p => progress.push(p));
 
 assert(result.notes.length >= 12, `expected ≥12 notes, got ${result.notes.length}`);
 assert(result.notes.some(n => n.midi === 60), 'missing C4 in notes');

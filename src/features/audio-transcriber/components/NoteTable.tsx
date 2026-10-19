@@ -55,8 +55,8 @@ const HDR: React.CSSProperties = {
   position: 'sticky', top: 0,
 };
 
-/* Riga memoizzata: durante il playback la tabella si aggiorna ~8 volte al
-   secondo — senza memo ogni tick ri-renderizzerebbe migliaia di righe. */
+/* Playback updates the table several times per second; memo keeps large note
+   lists from re-rendering on every playhead tick. */
 const NoteRow = memo(function NoteRow({
   note, chordSymbol, chordColor, isSelected, isCurrent, onSelectNote,
 }: {
@@ -133,7 +133,7 @@ export default function NoteTable({
     return m;
   }, [chords]);
 
-  // Note che stanno suonando sotto il playhead
+  // Notes sounding beneath the playhead.
   const currentIds = useMemo(() => {
     const s = new Set<string>();
     for (const n of sorted) {
@@ -143,7 +143,7 @@ export default function NoteTable({
     return s;
   }, [sorted, playheadSec]);
 
-  // In riproduzione la tabella segue la nota corrente
+  // Keep the current note visible during playback.
   useEffect(() => {
     if (!isPlaying || currentIds.size === 0) return;
     containerRef.current
@@ -156,9 +156,9 @@ export default function NoteTable({
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th style={HDR}>Nota</th>
+            <th style={HDR}>Note</th>
             <th style={HDR}>Cents</th>
-            <th style={{ ...HDR, maxWidth: 120 }}>Accordo</th>
+            <th style={{ ...HDR, maxWidth: 120 }}>Chord</th>
             <th style={HDR}>Pos.</th>
             <th style={HDR}>Dur.</th>
             <th style={HDR}>Vel.</th>
@@ -183,7 +183,7 @@ export default function NoteTable({
       </table>
       {sorted.length === 0 && (
         <div style={{ padding: '40px 16px', textAlign: 'center', color: '#4b5563', fontSize: 13 }}>
-          Nessuna nota rilevata
+          No notes detected
         </div>
       )}
     </div>

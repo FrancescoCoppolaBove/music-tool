@@ -1,5 +1,5 @@
 // src/features/audio-transcriber/engine/checks/check-poly.ts
-import { transcribePoly } from '../polyTranscriber';
+import { transcribePoly } from './legacyPolyTranscriber';
 import { SR, tone, mix, concat, assert } from './synth';
 
 // Triade C4-E4-G4 (1s) poi F4-A4-C5 (1s), timbro con 3 armonici

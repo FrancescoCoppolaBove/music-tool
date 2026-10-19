@@ -33,7 +33,7 @@ export default function ExportBar({ appState, progress, fileName, hasNotes }: Ex
           <span style={{ fontSize: 12, color: '#4b5563', flex: 1 }}>
             {fileName && `${fileName}_transcription`}
           </span>
-          <div title={!hasNotes ? 'Nessuna nota da esportare' : 'Export MIDI — disponibile in Piano 3'}>
+          <div title={!hasNotes ? 'No notes to export' : 'MIDI export — planned for a future release'}>
             <button
               disabled={!hasNotes}
               style={{
@@ -48,7 +48,7 @@ export default function ExportBar({ appState, progress, fileName, hasNotes }: Ex
               ⬇ MIDI
             </button>
           </div>
-          <div title={!hasNotes ? 'Nessuna nota da esportare' : 'Export PDF — disponibile in Piano 3'}>
+          <div title={!hasNotes ? 'No notes to export' : 'PDF export — planned for a future release'}>
             <button
               disabled={!hasNotes}
               style={{
@@ -68,7 +68,7 @@ export default function ExportBar({ appState, progress, fileName, hasNotes }: Ex
 
       {!showProgress && !showButtons && (
         <span style={{ fontSize: 12, color: '#4b5563' }}>
-          Carica un file e avvia l'analisi per esportare
+          Upload a file and analyze it to see export options
         </span>
       )}
     </div>

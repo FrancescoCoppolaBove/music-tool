@@ -217,18 +217,18 @@ const GROUPS: GroupDef[] = [
   },
   {
     id: 'solfeggio',
-    label: 'Solfeggio',
+    label: 'Training',
     icon: '🎓',
     tabs: [
-      { id: 'eartrainingpro', label: 'Ear Training Pro', icon: '👂', desc: 'Intervalli, accordi, funzioni tonali — modalità Allenamento ed Esame' },
-      { id: 'solfeggiocan',   label: 'Solfeggio Cantato', icon: '🎵', desc: 'Canta scale e intervalli — pitchy valuta la tua intonazione' },
-      { id: 'setticlavio',    label: 'Setticlavio',         icon: '🗝️',  desc: 'Leggi note in chiave di contralto e tenore' },
-      { id: 'examtemplates',  label: 'Prove d\'Esame',      icon: '📝', desc: 'Simula un esame AFAM — domande miste su intervalli, accordi e cadenze' },
+      { id: 'eartrainingpro', label: 'Ear Training Pro', icon: '👂', desc: 'Intervals, chords, tonal functions — Practice and Exam modes' },
+      { id: 'solfeggiocan',   label: 'Sung Solfege', icon: '🎵', desc: 'Sing scales and intervals — Pitchy evaluates your intonation' },
+      { id: 'setticlavio',    label: 'Alto & Tenor Clef Trainer', icon: '🗝️', desc: 'Read notes in alto and tenor clefs' },
+      { id: 'examtemplates',  label: 'Exam Practice', icon: '📝', desc: 'Simulate an AFAM exam with mixed interval, chord, and cadence questions' },
     ],
   },
   {
     id: 'theory',
-    label: 'Armonia',
+    label: 'Theory',
     icon: '📖',
     tabs: [
       { id: 'harmony-cheat-sheet', label: 'Harmony Cheat Sheet', icon: '🗺️', desc: 'Prontuario di tonalità, modi e idee per iniziare un brano' },

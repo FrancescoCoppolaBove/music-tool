@@ -7,16 +7,7 @@ import { Chord, Note } from 'tonal';
 import type { ChordEvent, NoteEvent } from '../types';
 
 const NOTE_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
-const OVERLAP_MIN = 0.5;
-
-function overlapRatio(group: NoteEvent[], n: NoteEvent): number {
-  const gs = Math.min(...group.map(x => x.startSec));
-  const ge = Math.max(...group.map(x => x.startSec + x.durationSec));
-  const s = Math.max(gs, n.startSec);
-  const e = Math.min(ge, n.startSec + n.durationSec);
-  const ov = Math.max(0, e - s);
-  return ov / Math.min(ge - gs, n.durationSec);
-}
+const MIN_CHORD_SECONDS = 0.08;
 
 /**
  * Rango di drop: se rialzando di un'ottava la nota più grave il set risultante
@@ -45,34 +36,59 @@ function describeVoicing(pitches: number[], symbol: string): string {
     parts.push(span <= 12 ? 'close position' : 'open position');
   }
 
-  const info = Chord.get(symbol);
+  const info = Chord.get(symbol.split('/')[0]);
   if (info.tonic) {
     const rootPc = Note.chroma(info.tonic);
     const bassPc = ((pitches[0] % 12) + 12) % 12;
     if (rootPc === bassPc) {
-      parts.push('fondamentale');
+      parts.push('root position');
     } else {
       const idx = info.notes.findIndex(nn => Note.chroma(nn) === bassPc);
-      if (idx > 0) parts.push(`${idx}° rivolto`);
+      if (idx > 0) parts.push((['', '1st', '2nd', '3rd'][idx] ?? idx + 'th') + ' inversion');
     }
   }
   return parts.join(', ');
 }
 
+function pitchClassSignature(pitches: number[]): string {
+  return [...new Set(pitches.map(p => ((p % 12) + 12) % 12))].sort((a, b) => a - b).join(',');
+}
+
 export function analyzeChords(notes: NoteEvent[]): ChordEvent[] {
-  const sorted = [...notes].sort((a, b) => a.startSec - b.startSec);
-  const groups: NoteEvent[][] = [];
-  for (const n of sorted) {
-    const g = groups[groups.length - 1];
-    if (g && overlapRatio(g, n) > OVERLAP_MIN) g.push(n);
-    else groups.push([n]);
+  // Segment by notes actually sounding together. Union-of-overlap clustering
+  // incorrectly turns a pedal note plus a melody into one enormous chord.
+  for (const note of notes) delete note.chordId;
+  const events = notes.filter(n => Number.isFinite(n.startSec + n.durationSec) && n.durationSec > 0)
+    .flatMap(note => [{ time: note.startSec, note, on: true },
+      { time: note.startSec + note.durationSec, note, on: false }])
+    .sort((a, b) => a.time - b.time || Number(a.on) - Number(b.on));
+  const active = new Map<string, NoteEvent>();
+  const segments: { start: number; end: number; notes: NoteEvent[]; pitches: number[] }[] = [];
+  for (let i = 0; i < events.length;) {
+    const time = events[i].time;
+    while (i < events.length && events[i].time === time) {
+      const event = events[i++];
+      if (event.on) active.set(event.note.id, event.note); else active.delete(event.note.id);
+    }
+    if (i === events.length) break;
+    const pitches = [...new Set([...active.values()].map(n => n.midi))].sort((a, b) => a - b);
+    if (new Set(pitches.map(p => p % 12)).size < 3) continue;
+    const previous = segments[segments.length - 1];
+    if (previous && previous.end === time &&
+        pitchClassSignature(previous.pitches) === pitchClassSignature(pitches) &&
+        previous.notes.some(n => active.has(n.id))) {
+      previous.end = events[i].time;
+      previous.pitches = [...new Set([...previous.pitches, ...pitches])].sort((a, b) => a - b);
+      for (const note of active.values()) if (!previous.notes.includes(note)) previous.notes.push(note);
+    } else {
+      segments.push({ start: time, end: events[i].time, notes: [...active.values()], pitches });
+    }
   }
-
   const chords: ChordEvent[] = [];
-  for (const g of groups) {
-    const pitches = [...new Set(g.map(x => x.midi))].sort((a, b) => a - b);
-    if (pitches.length < 3) continue;
-
+  const memberships = new Map<string, { duration: number; chordId: string }>();
+  for (const segment of segments) {
+    const { pitches } = segment;
+    if (segment.end - segment.start < MIN_CHORD_SECONDS) continue;
     const orderedPcs: string[] = [];
     for (const p of pitches) {
       const name = NOTE_NAMES[((p % 12) + 12) % 12];
@@ -82,17 +98,32 @@ export function analyzeChords(notes: NoteEvent[]): ChordEvent[] {
 
     const detected = Chord.detect(orderedPcs);
     if (detected.length === 0) continue;
-    const symbol = detected[0];
+    // Tonal may rank Em#5 ahead of C/E. Prefer familiar chord families while
+    // retaining bass order (and therefore inversions) in the detected symbol.
+    const commonTypes = ['major', 'minor', 'major seventh', 'minor seventh', 'dominant seventh',
+      'diminished', 'half-diminished', 'diminished seventh', 'minor/major seventh', 'augmented'];
+    const symbol = [...detected].sort((a, b) => {
+      const rank = (s: string) => {
+        const index = commonTypes.indexOf(Chord.get(s.split('/')[0]).type);
+        return index < 0 ? 50 : index;
+      };
+      return rank(a) - rank(b);
+    })[0];
 
-    const id = Math.random().toString(36).slice(2);
-    for (const x of g) x.chordId = id;
+    const id = 'chord-' + chords.length;
+    for (const note of segment.notes) {
+      const duration = Math.min(segment.end, note.startSec + note.durationSec) - Math.max(segment.start, note.startSec);
+      if (duration > (memberships.get(note.id)?.duration ?? 0)) memberships.set(note.id, { duration, chordId: id });
+    }
     chords.push({
       id,
-      noteIds: g.map(x => x.id),
+      noteIds: segment.notes.map(x => x.id),
       symbol,
       voicing: describeVoicing(pitches, symbol),
-      startSec: Math.min(...g.map(x => x.startSec)),
+      startSec: segment.start,
+      durationSec: segment.end - segment.start,
     });
   }
+  for (const note of notes) note.chordId = memberships.get(note.id)?.chordId;
   return chords;
 }

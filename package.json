@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "prepare:transcription": "node scripts/prepare-transcription-assets.mjs",
+    "predev:client": "npm run prepare:transcription",
+    "prebuild": "npm run prepare:transcription",
+    "test:transcriber": "node --import tsx --test src/features/audio-transcriber/engine/*.test.ts",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "vite",
     "dev:server": "tsx watch src/api/server.ts",
@@ -14,6 +18,9 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
+    "@spotify/basic-pitch": "1.0.1",
+    "@tensorflow/tfjs": "3.21.0",
+    "@tensorflow/tfjs-backend-wasm": "3.21.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
