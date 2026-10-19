@@ -31,14 +31,15 @@ export default function TransportBar({
       borderTop: '1px solid #21262d',
       background: '#161b22',
       padding: '8px 16px',
-      display: 'flex', alignItems: 'center', gap: 12,
+      display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
     }}>
       {/* Play / Pause */}
       <button
         onClick={isPlaying ? onPause : onPlay}
         disabled={disabled}
         style={tbBtn(!disabled)}
-        title={isPlaying ? 'Pausa (Space)' : 'Play (Space)'}
+        title={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
+        aria-label={isPlaying ? 'Pause' : 'Play'}
       >
         {isPlaying ? '⏸' : '▶'}
       </button>
@@ -64,7 +65,7 @@ export default function TransportBar({
           <span style={{ fontSize: 12, color: '#a78bfa' }}>
             Loop {loopA !== null ? fmtTime(loopA) : '?'} → {loopB !== null ? fmtTime(loopB) : '?'}
           </span>
-          <button onClick={onClearLoop} style={tbBtn(true)} title="Rimuovi loop">✕</button>
+          <button onClick={onClearLoop} style={tbBtn(true)} title="Clear loop">✕</button>
         </div>
       )}
 

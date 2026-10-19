@@ -10,9 +10,9 @@ import { freqToMidi } from './dsp';
 export const CHUNK_SECONDS = 20;
 const CONTEXT_SECONDS = 1;
 const THRESHOLDS = {
-  precise: { onset: 0.6, frame: 0.35, minFrames: 6 },
-  balanced: { onset: 0.45, frame: 0.3, minFrames: 5 },
-  sensitive: { onset: 0.3, frame: 0.2, minFrames: 3 },
+  precise: { onset: 0.6, frame: 0.35, minFrames: 6, sustain: 0.5, sustainFrames: 10 },
+  balanced: { onset: 0.45, frame: 0.3, minFrames: 5, sustain: 0.42, sustainFrames: 8 },
+  sensitive: { onset: 0.3, frame: 0.2, minFrames: 3, sustain: 0.32, sustainFrames: 6 },
 };
 
 let predictorPromise: Promise<BasicPitch> | undefined;

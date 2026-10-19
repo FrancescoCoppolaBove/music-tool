@@ -140,6 +140,19 @@ test('silence produces no neural note events', () => {
   assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard'), []);
 });
 
+test('balanced recovers sustained quiet pitches without inventing notes from brief activity', () => {
+  const { frames, onsets } = posterior([]);
+  for (let f = 10; f < 40; f++) frames[f][64 - 21] = 0.44;
+  for (let f = 15; f < 20; f++) frames[f][76 - 21] = 0.44;
+  const recovered = decodeModelNotes(frames, onsets, [], 'keyboard');
+  assert.deepEqual(recovered.map(n => n.midi), [64]);
+  const reference = posterior([{ midi: 64, start: 10, end: 40 }]);
+  const expected = decodeModelNotes(reference.frames, reference.onsets, [], 'keyboard')[0];
+  assert.equal(recovered[0].startSec, expected.startSec);
+  assert.equal(recovered[0].durationSec, expected.durationSec);
+  assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard', { sensitivity: 'precise' }), []);
+});
+
 test('existing monophonic bass path still detects A2', () => {
   const notes = transcribeMono(tone(110, 1), SR, 'bass');
   assert.ok(notes.some(n => n.midi === 45));
