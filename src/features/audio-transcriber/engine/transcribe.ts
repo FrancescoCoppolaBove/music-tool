@@ -11,7 +11,6 @@ import { quantizeNotes } from './quantizer';
 import { analyzeChords } from './chordAnalyzer';
 import { INSTRUMENT_CONFIG, type InstrumentKind, type TranscriptionResult } from '../types';
 
-const ONSET_SNAP_SEC = 0.08; // attacco nota agganciato all'onset più vicino entro 80ms
 const MIN_NOTE_SEC = 0.05;
 
 export function transcribe(
@@ -24,7 +23,7 @@ export function transcribe(
   const cfg = INSTRUMENT_CONFIG[instrument];
   const sub = (a: number, b: number) => (p: number) => onProgress?.(a + p * (b - a));
 
-  const notes = cfg.poly
+  let notes = cfg.poly
     ? transcribePoly(signal, sampleRate, instrument, sub(0, 0.6), options?.voiceCount)
     : transcribeMono(signal, sampleRate, instrument, sub(0, 0.6));
   onProgress?.(0.6);
@@ -33,12 +32,16 @@ export function transcribe(
   onProgress?.(0.75);
   const tempo = estimateTempo(flux, frameRate);
 
-  // Gli onset dal flux sono più precisi del pitch tracking sugli attacchi.
+  // Snap dell'attacco all'onset più recente che precede la nota (snap esclusivamente
+  // all'indietro). Il finestra è più grande per poly perché la windowSize=8192
+  // introduce un lag di rilevamento di ~80-120ms rispetto all'attacco reale.
+  // Lo snap in avanti (onset dopo startSec) produceva note fantasma da 50ms.
+  const snapBack = cfg.poly ? 0.15 : 0.08;
   for (const n of notes) {
-    let best = -1, bestDist = ONSET_SNAP_SEC;
+    let best = -1, bestDist = snapBack;
     for (const o of onsets) {
-      const d = Math.abs(o - n.startSec);
-      if (d < bestDist) { bestDist = d; best = o; }
+      const d = n.startSec - o; // positivo solo se l'onset precede l'attacco rilevato
+      if (d >= 0 && d < bestDist) { bestDist = d; best = o; }
     }
     if (best >= 0) {
       const end = n.startSec + n.durationSec;
