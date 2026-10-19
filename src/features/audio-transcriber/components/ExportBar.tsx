@@ -1,5 +1,5 @@
 interface ExportBarProps {
-  appState: 'idle' | 'loaded' | 'analyzing' | 'ready' | 'error';
+  appState: 'idle' | 'loading' | 'loaded' | 'analyzing' | 'ready' | 'error';
   progress: number;
   fileName: string;
   hasNotes: boolean;
@@ -68,7 +68,7 @@ export default function ExportBar({ appState, progress, fileName, hasNotes }: Ex
 
       {!showProgress && !showButtons && (
         <span style={{ fontSize: 12, color: '#4b5563' }}>
-          Upload a file and analyze it to see export options
+          {appState === 'loading' ? 'Loading audio...' : 'Upload a file and analyze it to see export options'}
         </span>
       )}
     </div>

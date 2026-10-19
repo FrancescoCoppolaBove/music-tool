@@ -69,6 +69,7 @@ const NoteRow = memo(function NoteRow({
 }) {
   const a = Math.abs(note.cents);
   const centsColor = a < 15 ? '#34d399' : a < 30 ? '#fbbf24' : '#f87171';
+  const lowConfidence = (note.confidence ?? 1) < 0.4;
 
   return (
     <tr
@@ -83,6 +84,7 @@ const NoteRow = memo(function NoteRow({
       }}
     >
       <td style={{ ...COL, fontWeight: 700, color: '#e6edf3' }}>
+        {lowConfidence && <span title="Low model confidence — review this pitch" aria-label="Low model confidence" style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#fbbf24', marginRight: 6, verticalAlign: 'middle' }} />}
         {midiToNoteName(note.midi)}
       </td>
       <td style={{ ...COL, color: centsColor, fontVariantNumeric: 'tabular-nums' as const }}>
@@ -156,7 +158,7 @@ export default function NoteTable({
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th style={HDR}>Note</th>
+            <th style={HDR} title="Amber markers indicate lower-confidence pitch estimates">Note</th>
             <th style={HDR}>Cents</th>
             <th style={{ ...HDR, maxWidth: 120 }}>Chord</th>
             <th style={HDR}>Pos.</th>

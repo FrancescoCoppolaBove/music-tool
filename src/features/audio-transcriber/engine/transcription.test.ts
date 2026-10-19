@@ -127,6 +127,14 @@ test('polyphonic decoding splits repeated notes', () => {
   assert.equal(decodeModelNotes(frames, onsets, [], 'keyboard').length, 2);
 });
 
+test('balanced polyphonic detection rejects very short activation echoes but keeps short played notes', () => {
+  const echo = posterior([{ midi: 60, start: 3, end: 40 }, { midi: 72, start: 3, end: 7 }]);
+  assert.deepEqual(decodeModelNotes(echo.frames, echo.onsets, [], 'keyboard').map(n => n.midi), [60]);
+
+  const shortPlayedNote = posterior([{ midi: 60, start: 3, end: 40 }, { midi: 72, start: 3, end: 11 }]);
+  assert.deepEqual(decodeModelNotes(shortPlayedNote.frames, shortPlayedNote.onsets, [], 'keyboard').map(n => n.midi), [60, 72]);
+});
+
 test('silence produces no neural note events', () => {
   const { frames, onsets } = posterior([]);
   assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard'), []);

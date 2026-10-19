@@ -23,7 +23,7 @@ const ROLL_CSS = `
   }
 `;
 
-type AppState = 'idle' | 'loaded' | 'analyzing' | 'ready' | 'error';
+type AppState = 'idle' | 'loading' | 'loaded' | 'analyzing' | 'ready' | 'error';
 
 const INSTRUMENTS: { id: InstrumentKind; label: string; icon: string }[] = [
   { id: 'keyboard',      label: 'Keyboard',     icon: '' },
@@ -121,7 +121,7 @@ export default function AudioTranscriberFeature() {
     audioCtxRef.current = ctx;
 
     setErrorMsg(null);
-    setAppState('loaded');
+    setAppState('loading');
     setFileName(file.name.replace(/\.[^.]+$/, ''));
     setResult(null);
     setNotes([]);
@@ -457,7 +457,7 @@ export default function AudioTranscriberFeature() {
           {INSTRUMENTS.map(ins => (
             <button
               key={ins.id}
-              disabled={appState === 'analyzing'}
+              disabled={appState === 'analyzing' || appState === 'loading'}
               aria-pressed={instrument === ins.id}
               onClick={() => setInstrument(ins.id)}
               style={btnStyle(
@@ -475,7 +475,7 @@ export default function AudioTranscriberFeature() {
             <span style={{ fontSize: 12, color: '#8b949e' }}>Max voices</span>
             <select
               aria-label="Maximum voices"
-              disabled={appState === 'analyzing'}
+              disabled={appState === 'analyzing' || appState === 'loading'}
               value={voiceCount}
               onChange={e => setVoiceCount(Number(e.target.value))}
               style={{
@@ -495,7 +495,7 @@ export default function AudioTranscriberFeature() {
         {INSTRUMENT_CONFIG[instrument].poly && (
           <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#8b949e' }}>
             Detection
-            <select value={sensitivity} disabled={appState === 'analyzing'}
+            <select value={sensitivity} disabled={appState === 'analyzing' || appState === 'loading'}
               onChange={e => setSensitivity(e.target.value as DetectionSensitivity)}
               style={{ background: '#21262d', color: '#e6edf3', border: '1px solid #30363d', borderRadius: 6, padding: '6px 8px' }}>
               <option value="precise">Precise</option>
@@ -513,7 +513,7 @@ export default function AudioTranscriberFeature() {
           disabled={!canAnalyze}
           style={btnStyle(canAnalyze ? '#7c3aed' : '#21262d', canAnalyze ? '#fff' : '#4b5563')}
         >
-          <Search size={16} /> {appState === 'analyzing' ? 'Analyzing...' : 'Analyze'}
+          <Search size={16} /> {appState === 'loading' ? 'Loading...' : appState === 'analyzing' ? 'Analyzing...' : 'Analyze'}
         </button>
         {appState === 'analyzing' && (
           <button onClick={() => { analysisAbortRef.current?.abort(); setAppState('loaded'); }}
@@ -568,7 +568,8 @@ export default function AudioTranscriberFeature() {
         )}
       </div>
       <div role="status" style={{ padding: '8px 16px', fontSize: 12, color: '#8b949e', borderBottom: '1px solid #21262d' }}>
-        {appState === 'analyzing'
+        {appState === 'loading' ? 'Decoding audio file...'
+          : appState === 'analyzing'
           ? (analysisProgress < 0.03 && INSTRUMENT_CONFIG[instrument].poly ? 'Loading transcription model...' : 'Analyzing audio locally...')
           : result ? `${notes.length} notes · ${chords.length} chord regions · ${result.engine === 'basic-pitch' ? 'Basic Pitch' : 'Monophonic'} · 4/4 grid (assumed)`
           : 'Audio stays on your device. For best results, use an isolated instrument track.'}
@@ -608,11 +609,11 @@ export default function AudioTranscriberFeature() {
         )}
 
         {/* Loaded / ready / analyzing: split layout placeholder */}
-        {(appState === 'loaded' || appState === 'analyzing' || appState === 'ready') && (
+        {(appState === 'loading' || appState === 'loaded' || appState === 'analyzing' || appState === 'ready') && (
           <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 16px 0' }}>
-            {appState === 'analyzing' && (
+            {(appState === 'loading' || appState === 'analyzing') && (
               <div style={{ height: 3, background: '#21262d', margin: '0 16px' }}>
-                <div style={{ height: '100%', width: `${Math.round(analysisProgress * 100)}%`, background: '#7c3aed', transition: 'width 0.1s' }} />
+                <div style={{ height: '100%', width: `${appState === 'loading' ? 24 : Math.round(analysisProgress * 100)}%`, background: '#7c3aed', transition: 'width 0.1s' }} />
               </div>
             )}
             <div className="at-split">

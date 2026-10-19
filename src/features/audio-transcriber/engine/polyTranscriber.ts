@@ -10,8 +10,8 @@ import { freqToMidi } from './dsp';
 export const CHUNK_SECONDS = 20;
 const CONTEXT_SECONDS = 1;
 const THRESHOLDS = {
-  precise: { onset: 0.6, frame: 0.35, minFrames: 5 },
-  balanced: { onset: 0.45, frame: 0.3, minFrames: 4 },
+  precise: { onset: 0.6, frame: 0.35, minFrames: 6 },
+  balanced: { onset: 0.45, frame: 0.3, minFrames: 5 },
   sensitive: { onset: 0.3, frame: 0.2, minFrames: 3 },
 };
 

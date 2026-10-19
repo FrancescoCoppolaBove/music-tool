@@ -22,6 +22,7 @@ const CHORD_PALETTE = [
   '#8b5cf6','#6d28d9','#7e22ce','#d946ef',
 ];
 const BLACK_PCS = new Set([1,3,6,8,10]);
+const PITCH_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const GUTTER = 44;   // left label column width in px
 const MIN_ROWS = 12; // minimum pitch rows visible
 
@@ -74,15 +75,15 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
   ctx.fillStyle = '#21262d';
   ctx.fillRect(GUTTER - 1, 0, 1, H);
 
-  // C-note labels in gutter
-  ctx.font = `10px "DM Sans", sans-serif`;
+  // Label every pitch; include octave numbers on C rows as stable landmarks.
   ctx.textBaseline = 'middle';
   for (let m = minMidi; m <= maxMidi; m++) {
-    if (m % 12 === 0) {
-      const y = (maxMidi - m) * rowH + rowH / 2;
-      ctx.fillStyle = '#4b5563';
-      ctx.fillText(`C${Math.floor(m / 12) - 1}`, 4, y);
-    }
+    const y = (maxMidi - m) * rowH + rowH / 2;
+    const pitchName = PITCH_NAMES[((m % 12) + 12) % 12];
+    const label = pitchName === 'C' ? `C${Math.floor(m / 12) - 1}` : pitchName;
+    ctx.font = `${Math.max(6, Math.min(10, rowH * 0.78))}px "DM Sans", sans-serif`;
+    ctx.fillStyle = BLACK_PCS.has(m % 12) ? '#9ca3af' : '#6b7280';
+    ctx.fillText(label, 4, y, GUTTER - 8);
   }
 
   // ── Time grid ─────────────────────────────────────────────
@@ -117,6 +118,10 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
   const chordIdxById = new Map<string, number>();
   s.chords.forEach((c, i) => chordIdxById.set(c.id, i));
 
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(GUTTER, 0, W - GUTTER, H);
+  ctx.clip();
   for (const note of s.notes) {
     const chordIdx = note.chordId !== undefined ? (chordIdxById.get(note.chordId) ?? -1) : -1;
     const color = chordIdx >= 0
@@ -132,8 +137,9 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
 
     const isSelected = s.selectedIds.has(note.id);
     const isSounding = s.playheadSec >= note.startSec && s.playheadSec < note.startSec + note.durationSec;
+    const lowConfidence = (note.confidence ?? 1) < 0.4;
     ctx.fillStyle = isSounding && chordIdx < 0 ? '#9ca3af' : color;
-    ctx.globalAlpha = isSelected || isSounding ? 1 : 0.75;
+    ctx.globalAlpha = isSelected || isSounding ? 1 : lowConfidence ? 0.48 : 0.75;
     ctx.fillRect(x, y, w, h);
     ctx.globalAlpha = 1;
 
@@ -147,7 +153,25 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
     const a = Math.abs(note.cents);
     ctx.fillStyle = a < 15 ? '#34d399' : a < 30 ? '#fbbf24' : '#f87171';
     ctx.fillRect(x, y + h - 2, w, 2);
+
+    if (lowConfidence) {
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 2]);
+      ctx.strokeRect(x + 0.5, y + 0.5, Math.max(1, w - 1), Math.max(1, h - 1));
+      ctx.setLineDash([]);
+    }
+
+    if (w >= 28 && rowH >= 9) {
+      const midi = note.midi;
+      const noteName = `${PITCH_NAMES[((midi % 12) + 12) % 12]}${Math.floor(midi / 12) - 1}`;
+      ctx.font = `600 ${Math.min(11, Math.max(8, rowH * 0.7))}px "DM Sans", sans-serif`;
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(noteName, x + 4, y + h / 2, Math.max(0, w - 8));
+    }
   }
+  ctx.restore();
 
   // ── Playhead ──────────────────────────────────────────────
   const phX = GUTTER + s.playheadSec * s.zoomX - s.scrollX;
