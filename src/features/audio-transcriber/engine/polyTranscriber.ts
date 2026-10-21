@@ -2,7 +2,7 @@ import { BasicPitch, addPitchBendsToNoteEvents, noteFramesToTime } from '@spotif
 import * as tf from '@tensorflow/tfjs';
 import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm';
 import { INSTRUMENT_CONFIG, type InstrumentKind, type NoteEvent, type TranscriptionOptions } from '../types';
-import { appendChunkNotes, estimateVelocities, MODEL_SAMPLE_RATE, resampleForModel } from './polyAudio';
+import { appendChunkNotes, estimateVelocities, MODEL_SAMPLE_RATE, rejectBroadbandNotes, resampleForModel } from './polyAudio';
 import { decodeActivations } from './noteDecoder';
 import { freqToMidi } from './dsp';
 
@@ -73,8 +73,8 @@ export function decodeModelNotes(
   const threshold = THRESHOLDS[options.sensitivity ?? 'balanced'];
   const raw = decodeActivations(frames, onsets, {
     ...threshold, releaseFrames: instrument === 'winds-section' ? 7 : 5,
-    minMidi: Math.max(21, Math.ceil(freqToMidi(cfg.minF0))),
-    maxMidi: Math.min(108, Math.floor(freqToMidi(cfg.maxF0))),
+    minMidi: Math.max(21, Math.ceil(freqToMidi(cfg.minF0) - 1e-3)),
+    maxMidi: Math.min(108, Math.floor(freqToMidi(cfg.maxF0) + 1e-3)),
   });
   const bent = contours.length ? addPitchBendsToNoteEvents(contours, raw) : raw;
   const decoded = noteFramesToTime(bent).map((note, i) => {
@@ -164,7 +164,7 @@ export async function transcribePoly(
     appendChunkNotes(notes, owned, seam);
   }
 
-  const sorted = notes.filter(n => n.durationSec >= 0.04)
+  const sorted = rejectBroadbandNotes(notes.filter(n => n.durationSec >= 0.04), audio, MODEL_SAMPLE_RATE)
     .sort((a, b) => a.startSec - b.startSec || a.midi - b.midi);
   // Do not discard octave doublings or low-velocity notes using harmonic heuristics.
   sorted.forEach((note, index) => { note.id = 'n' + index; });

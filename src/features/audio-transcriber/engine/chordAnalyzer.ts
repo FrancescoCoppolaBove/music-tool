@@ -63,7 +63,7 @@ export function analyzeChords(notes: NoteEvent[]): ChordEvent[] {
       { time: note.startSec + note.durationSec, note, on: false }])
     .sort((a, b) => a.time - b.time || Number(a.on) - Number(b.on));
   const active = new Map<string, NoteEvent>();
-  const segments: { start: number; end: number; notes: NoteEvent[]; pitches: number[] }[] = [];
+  const segments: { start: number; end: number; notes: NoteEvent[]; pitches: number[]; voicingDuration: number }[] = [];
   for (let i = 0; i < events.length;) {
     const time = events[i].time;
     while (i < events.length && events[i].time === time) {
@@ -75,13 +75,19 @@ export function analyzeChords(notes: NoteEvent[]): ChordEvent[] {
     if (new Set(pitches.map(p => p % 12)).size < 3) continue;
     const previous = segments[segments.length - 1];
     if (previous && previous.end === time &&
+        previous.pitches[0] % 12 === pitches[0] % 12 &&
         pitchClassSignature(previous.pitches) === pitchClassSignature(pitches) &&
         previous.notes.some(n => active.has(n.id))) {
       previous.end = events[i].time;
-      previous.pitches = [...new Set([...previous.pitches, ...pitches])].sort((a, b) => a - b);
+      // Describe a voicing that actually sounded, not the union of transient
+      // octave doublings. A changed bass pitch class starts a new inversion.
+      if (events[i].time - time > previous.voicingDuration) {
+        previous.pitches = pitches;
+        previous.voicingDuration = events[i].time - time;
+      }
       for (const note of active.values()) if (!previous.notes.includes(note)) previous.notes.push(note);
     } else {
-      segments.push({ start: time, end: events[i].time, notes: [...active.values()], pitches });
+      segments.push({ start: time, end: events[i].time, notes: [...active.values()], pitches, voicingDuration: events[i].time - time });
     }
   }
   const chords: ChordEvent[] = [];

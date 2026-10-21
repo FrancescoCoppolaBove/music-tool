@@ -69,11 +69,48 @@ function getRowParams(notes: NoteEvent[], H: number, rowPx: number, scrollY: num
   return { minMidi, maxMidi, numRows, rowH, scrollY: sy, totalH };
 }
 
+const sceneCache = new WeakMap<HTMLCanvasElement, {
+  canvas: HTMLCanvasElement; state: RollState; key: string;
+}>();
+
 function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
   const ctx = canvas.getContext('2d');
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  if (!ctx || !W || !H) return;
+  const active = s.notes.filter(n => s.playheadSec >= n.startSec && s.playheadSec < n.startSec + n.durationSec).map(n => n.id).join(',');
+  const key = [canvas.width, canvas.height, W, H, s.bpm, s.duration, s.zoomX, s.scrollX, s.rowPx, s.scrollY, active].join('|');
+  let cached = sceneCache.get(canvas);
+  if (!cached || cached.key !== key || cached.state.notes !== s.notes ||
+    cached.state.chords !== s.chords || cached.state.selectedIds !== s.selectedIds) {
+    const scene = cached?.canvas ?? document.createElement('canvas');
+    scene.width = canvas.width;
+    scene.height = canvas.height;
+    drawScene(scene, s, W, H);
+    cached = { canvas: scene, state: { ...s }, key };
+    sceneCache.set(canvas, cached);
+  }
+  // Text and note geometry only change at note boundaries or viewport edits.
+  // During playback, composite the cached scene and move just the cursor.
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(cached.canvas, 0, 0);
+  ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+  const phX = GUTTER + s.playheadSec * s.zoomX - s.scrollX;
+  if (phX >= GUTTER && phX <= W) {
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(phX, 0, 1, H);
+    ctx.beginPath();
+    ctx.moveTo(phX - 5, 0);
+    ctx.lineTo(phX + 5, 0);
+    ctx.lineTo(phX, 8);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawScene(canvas: HTMLCanvasElement, s: RollState, W: number, H: number): void {
+  const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  const W = canvas.clientWidth;
-  const H = canvas.clientHeight;
   if (!W || !H) return;
   ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
   ctx.clearRect(0, 0, W, H);
@@ -203,24 +240,6 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
     }
   }
   ctx.restore();
-
-  // ── Playhead ──────────────────────────────────────────────
-  const phX = GUTTER + s.playheadSec * s.zoomX - s.scrollX;
-  if (phX >= GUTTER && phX <= W) {
-    ctx.strokeStyle = '#ef4444';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(phX, 0);
-    ctx.lineTo(phX, H);
-    ctx.stroke();
-    ctx.fillStyle = '#ef4444';
-    ctx.beginPath();
-    ctx.moveTo(phX - 5, 0);
-    ctx.lineTo(phX + 5, 0);
-    ctx.lineTo(phX, 8);
-    ctx.closePath();
-    ctx.fill();
-  }
 
   // ── Vertical scrollbar (when content overflows) ───────────
   if (s.rowPx > 0 && totalH > H) {

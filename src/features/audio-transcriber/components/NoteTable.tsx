@@ -148,9 +148,15 @@ export default function NoteTable({
   // Keep the current note visible during playback.
   useEffect(() => {
     if (!isPlaying || currentIds.size === 0) return;
-    containerRef.current
-      ?.querySelector('[data-current]')
-      ?.scrollIntoView({ block: 'nearest' });
+    const container = containerRef.current;
+    const row = container?.querySelector<HTMLElement>('[data-current]');
+    if (!container || !row) return;
+    const bounds = container.getBoundingClientRect();
+    const rect = row.getBoundingClientRect();
+    const headerHeight = container.querySelector('thead')?.getBoundingClientRect().height ?? 0;
+    // Scroll only this panel, never its ancestors or the entire page.
+    if (rect.top < bounds.top + headerHeight) container.scrollTop -= bounds.top + headerHeight - rect.top;
+    else if (rect.bottom > bounds.bottom) container.scrollTop += rect.bottom - bounds.bottom;
   }, [isPlaying, currentIds]);
 
   return (

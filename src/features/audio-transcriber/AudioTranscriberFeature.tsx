@@ -90,7 +90,9 @@ export default function AudioTranscriberFeature() {
   const deleteSelectedRef = useRef<() => void>(() => {});
 
   function stopSource() {
+    if (sourceRef.current) sourceRef.current.onended = null;
     try { sourceRef.current?.stop(); } catch { /* already stopped */ }
+    sourceRef.current?.disconnect();
     sourceRef.current = null;
     cancelAnimationFrame(rafRef.current);
   }
@@ -265,6 +267,9 @@ export default function AudioTranscriberFeature() {
     sourceRef.current = src;
     src.onended = () => {
       if (sourceRef.current === src) {
+        cancelAnimationFrame(rafRef.current);
+        src.disconnect();
+        sourceRef.current = null;
         pausePositionRef.current = 0;
         setIsPlaying(false);
         setPlayheadSec(0);
@@ -294,9 +299,10 @@ export default function AudioTranscriberFeature() {
   function handlePause() {
     const ctx = audioCtxRef.current;
     if (!ctx) return;
-    pausePositionRef.current = ctx.currentTime - startTimeRef.current;
+    pausePositionRef.current = getPlayheadSecCb();
     stopSource();
     setIsPlaying(false);
+    setPlayheadSec(pausePositionRef.current);
   }
 
   useLayoutEffect(() => {
