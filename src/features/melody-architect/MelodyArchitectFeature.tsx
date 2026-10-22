@@ -1043,7 +1043,7 @@ function MotifLabSection({ tonic, mode, onTonicChange, onModeChange }: { tonic: 
     player.current?.stop(); setPlaying(true);
     player.current = audioPlayer.playPhrase(notes.map(n => Note.fromMidi(60 + n.semi)), 30 / bpm * multiplier, () => setPlaying(false));
   }
-  function useMotif(notes: { semi: number }[]) { player.current?.stop(); setInput(notes.map(n => Note.fromMidi(60 + n.semi)).join(' ')); setMotif(notes.map(n => ({ ...n, note: Note.pitchClass(Note.fromMidi(60 + n.semi)) }))); }
+  function applyMotif(notes: { semi: number }[]) { player.current?.stop(); setInput(notes.map(n => Note.fromMidi(60 + n.semi)).join(' ')); setMotif(notes.map(n => ({ ...n, note: Note.pitchClass(Note.fromMidi(60 + n.semi)) }))); }
   function saveMotif() {
     const notes = parseDegrees(input, tonic).map(n => Note.fromMidi(60 + n.semi));
     if (!notes.length) { setStatus('Inserisci un motivo valido prima di salvare.'); return; }
@@ -1112,11 +1112,11 @@ function MotifLabSection({ tonic, mode, onTonicChange, onModeChange }: { tonic: 
 
       {motif.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <TransformCard title="Inversione" notes={inverted} onPlay={() => play(inverted)} onUse={() => useMotif(inverted)} tip="Ogni intervallo capovolto attorno alla prima nota" />
-          <TransformCard title="Retrogrado" notes={reversed} onPlay={() => play(reversed)} onUse={() => useMotif(reversed)} tip="Suona il motivo al contrario" />
-          <TransformCard title="Retrogrado Inverso" notes={retroInverted} onPlay={() => play(retroInverted)} onUse={() => useMotif(retroInverted)} tip="Rovescia poi capovolge — tecnica contrappuntistica" />
-          <TransformCard title="Sequenza +1° (diatonica)" notes={seqUp} onPlay={() => play(seqUp)} onUse={() => useMotif(seqUp)} tip={`Motivo trasportato su di un grado nella scala di ${globalKey} maggiore`} />
-          <TransformCard title="Sequenza –3° (diatonica)" notes={seqDown} onPlay={() => play(seqDown)} onUse={() => useMotif(seqDown)} tip="Motivo trasportato giù di una terza diatonica" />
+          <TransformCard title="Inversione" notes={inverted} onPlay={() => play(inverted)} onUse={() => applyMotif(inverted)} tip="Ogni intervallo capovolto attorno alla prima nota" />
+          <TransformCard title="Retrogrado" notes={reversed} onPlay={() => play(reversed)} onUse={() => applyMotif(reversed)} tip="Suona il motivo al contrario" />
+          <TransformCard title="Retrogrado Inverso" notes={retroInverted} onPlay={() => play(retroInverted)} onUse={() => applyMotif(retroInverted)} tip="Rovescia poi capovolge — tecnica contrappuntistica" />
+          <TransformCard title="Sequenza +1° (diatonica)" notes={seqUp} onPlay={() => play(seqUp)} onUse={() => applyMotif(seqUp)} tip={`Motivo trasportato su di un grado nella scala di ${globalKey} maggiore`} />
+          <TransformCard title="Sequenza –3° (diatonica)" notes={seqDown} onPlay={() => play(seqDown)} onUse={() => applyMotif(seqDown)} tip="Motivo trasportato giù di una terza diatonica" />
           <TransformCard
             title="Augmentation ×2 (stesse altezze, durata doppia)"
             notes={motif}

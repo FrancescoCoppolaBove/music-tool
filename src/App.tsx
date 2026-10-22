@@ -7,6 +7,7 @@ import { useStats } from './shared/context/StatsContext';
 import { useGlobalKey, CHROMATIC_KEYS } from './shared/context/GlobalKeyContext';
 import AuthGate from './features/auth/AuthGate';
 import LegalLinks from './shared/components/LegalLinks';
+import ErrorBoundary from './shared/components/ErrorBoundary';
 import PracticeJournalFeature from './features/practice-journal/PracticeJournalFeature';
 import SongLibraryFeature from './features/song-library/SongLibraryFeature';
 import DailyChallengeFeature from './features/daily-challenge/DailyChallengeFeature';
@@ -1002,6 +1003,8 @@ export default function App() {
         padding: activeTab === 'home' || activeTab === 'audio-transcriber' ? '0' : '24px 16px',
         boxSizing: 'border-box',
       }}>
+        {/* Keyed on the tab: navigating away resets a crashed tool. */}
+        <ErrorBoundary key={activeTab} label={activeToolLabel ?? undefined}>
         {activeTab === 'home'          && <HomePage onNavigate={handleSelectTab} />}
         {activeTab === 'harmony-lab'   && <MyCompositionsFeature onNavigate={handleSelectTab} />}
         {activeTab === 'voicings'      && <ChordVoicingsFeature />}
@@ -1044,6 +1047,7 @@ export default function App() {
         {activeTab === 'groove'        && <GrooveKitchenFeature />}
         {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}
         {activeTab === 'rhythmic-displacement' && <RhythmicDisplacementFeature />}
+        </ErrorBoundary>
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────── */}

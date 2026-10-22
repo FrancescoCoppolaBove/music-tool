@@ -1,0 +1,541 @@
+{
+  "src/features/audio-transcriber/AudioTranscriberFeature.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/features/cadence-trainer/CadenceTrainerFeature.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/chord-detection/ChordDetectionFeature.tsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/features/chord-detection/pitchDetector.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/features/chord-progression/components/ProgressionDisplay.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/chord-progression/hooks/useChordProgression.ts": {
+    "react-hooks/refs": {
+      "count": 18
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "src/features/circle-of-fifth/CircleOfFifthsFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/features/circle-of-fifth/components/KeySignatureTrainer.tsx": {
+    "react-hooks/purity": {
+      "count": 7
+    }
+  },
+  "src/features/composition-assistant/AdvancedModalAnalysisPanel.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/features/composition-assistant/CompositionAssistantFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    }
+  },
+  "src/features/composition-assistant/utils/advanced-modal-analysis.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    }
+  },
+  "src/features/composition-assistant/utils/modal-interchange-detector.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/features/composition-assistant/utils/passing-chord-logic.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/features/composition-assistant/utils/scale-matching.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/features/daily-challenge/DailyChallengeFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training-pro/components/ExamResults.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training-pro/components/ExamSession.tsx": {
+    "react-hooks/purity": {
+      "count": 4
+    },
+    "react-hooks/refs": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training-pro/components/TonalFunctionsExercise.tsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training-pro/data/index.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/EarTrainingFeature.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/components/BpmRecognitionExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 4
+    },
+    "react-hooks/immutability": {
+      "count": 3
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/components/ChordProgressionsExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 5
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/components/ChordsExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 5
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/components/IntervalsExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 4
+    }
+  },
+  "src/features/ear-training/components/IntervalsInContextExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 4
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/components/MelodicDictationExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 4
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/components/PerfectPitchExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 3
+    }
+  },
+  "src/features/ear-training/components/RhythmRecognitionExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 4
+    },
+    "react-hooks/immutability": {
+      "count": 3
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/components/ScaleDegreesExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 5
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/components/ScalesExercise.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 5
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/context/EarTrainingSettingsContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/features/ear-training/utils/interval-data.ts": {
+    "no-case-declarations": {
+      "count": 6
+    }
+  },
+  "src/features/ear-training/utils/random-with-history.ts": {
+    "no-case-declarations": {
+      "count": 6
+    }
+  },
+  "src/features/exam-templates/components/MultiModuleExamSession.tsx": {
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "src/features/exam-templates/components/SectionExamSession.tsx": {
+    "react-hooks/purity": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/groove-kitchen/GrooveKitchenFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/features/harmonia-course/HarmoniaDashboard.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/harmonia-course/data/levels.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 138
+    }
+  },
+  "src/features/harmonia-course/visuals/VisualRenderer.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/features/harmonic-cycles/HarmonicCyclesFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/features/harmony-composition-lab/musicXmlExport.ts": {
+    "no-useless-escape": {
+      "count": 1
+    }
+  },
+  "src/features/interval-quiz/IntervalQuizFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 3
+    }
+  },
+  "src/features/melody-architect/MelodyArchitectFeature.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/melody-harmonizer/StepSequencer.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/features/modal-interchange/ModalInterchangeFeature.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/modal-interchange/components/ModeTable.tsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/features/modal-interchange/services/modalInterchangeData.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/features/modal-interchange/services/progressionLibrary.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/features/nail-the-pitch/NailThePitchFeature.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    },
+    "react-hooks/purity": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "src/features/practice-journal/PracticeJournalFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/features/profile/ProfileFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/riff-architect/RiffArchitectFeature.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/scale-advisor/ScaleAdvisorFeature.tsx": {
+    "react-hooks/refs": {
+      "count": 12
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/scale-dictionary/ScaleDictionaryFeature.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/scale-dictionary/components/PianoKeyboard.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/features/scale-harmonization/ScaleHarmonizationFeature.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/scale-recognition/services/scale-recognition.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 5
+    }
+  },
+  "src/features/scale-recognition/test/scale-recognition.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/features/scales-harmonizations/ScalesHarmonizationFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/features/scales-harmonizations/components/ModalInfoPanel.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/features/scales-harmonizations/utils/scale-harmonization-data.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/features/song-architect/SongArchitectFeature.tsx": {
+    "react-hooks/refs": {
+      "count": 12
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/song-library/SongLibraryFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/features/teacher-dashboard/TeacherDashboardFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "react-hooks/purity": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/features/teacher-dashboard/components/AssignmentsPanel.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "src/features/teacher-dashboard/components/RosterPanel.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "src/features/transposing-instruments/TransposingInstrumentsFeature.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "src/features/voice-leading/VoiceLeadingFeature.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    }
+  },
+  "src/shared/context/AuthContext.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    },
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/shared/context/GlobalKeyContext.tsx": {
+    "react-refresh/only-export-components": {
+      "count": 2
+    }
+  },
+  "src/shared/context/StatsContext.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    },
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/shared/context/UserProfileContext.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    },
+    "react-refresh/only-export-components": {
+      "count": 1
+    }
+  },
+  "src/shared/hooks/useExerciseScore.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  }
+}

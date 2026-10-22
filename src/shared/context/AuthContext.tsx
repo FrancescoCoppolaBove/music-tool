@@ -9,6 +9,7 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import { auth, firebaseEnabled } from '../../firebase';
+import { setMonitoringUser } from '../../monitoring';
 
 interface AuthContextValue {
   user: User | null;
@@ -48,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setMonitoringUser(firebaseUser?.uid ?? null);
       setUser(firebaseUser);
       setLoading(false);
     });

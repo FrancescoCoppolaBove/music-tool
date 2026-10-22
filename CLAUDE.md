@@ -14,12 +14,16 @@ npm run dev:client   # frontend only
 npm run dev:server   # backend only (tsx watch)
 npm run build        # tsc + vite build
 npm run lint         # ESLint, zero warnings allowed
-npm run test:guard   # unit tests for the AI endpoint guard
-nvm exec 22 npm run test:rules   # Firestore rules tests (emulator; Firebase CLI needs Node ≥20, project is on 18)
-nvm exec 22 npm run test:account # GDPR export/delete against Firestore + Auth emulators
+npm test             # all unit tests (guard, theory, transcriber, harmony)
+npm run test:rules   # Firestore rules tests (emulator, needs Java)
+npm run test:account # GDPR export/delete against Firestore + Auth emulators
 ```
 
+Node 22 (`.nvmrc`; Firebase 12 and firebase-tools require ≥ 20). CI (`.github/workflows/ci.yml`) runs lint, build, `npm test` and the emulator suites on every PR.
+
 No UI test suite. Validate changes by running `npm run build` (catches TypeScript errors) then testing in the browser with `npm run dev`.
+
+**Lint baseline:** pre-existing violations are frozen in `eslint-suppressions.json` (ESLint bulk suppressions) — new ones fail `npm run lint`. After fixing old ones run `npx eslint . --prune-suppressions`. Never add to the baseline to get a change through.
 
 ## Architecture
 
@@ -38,8 +42,8 @@ Every feature lives in `src/features/<name>/` and exports a single `*Feature.tsx
 Firebase is **optional**. `src/firebase.ts` exports `firebaseEnabled` (true only when all `VITE_FIREBASE_*` env vars are present). Cloud-dependent features (Practice Journal, Song Library, Daily Challenge, Profile) are gated behind `firebaseEnabled` and show a `<LocalModeNotice>` in local mode. All offline tools work without any `.env`.
 
 ### Backend
-- **Dev**: Express at port 3001 (`src/api/server.ts`), proxied by Vite from port 3000.
-- **Production (Netlify)**: Netlify Functions in `netlify/functions/` (`buddy.ts`, `score.ts`, `voicings.ts`). The `netlify.toml` redirect maps `/api/*` → `/.netlify/functions/:splat`.
+- **Production (Netlify)**: Netlify Functions in `netlify/functions/` (`account.ts`, `buddy.ts`, `score.ts`), shared code in `netlify/lib/`. The `netlify.toml` redirect maps `/api/*` → `/.netlify/functions/:splat`.
+- **Dev**: `src/api/server.ts` (port 3001) runs the **same** Netlify handlers through a small Express adapter; Vite proxies `/api` and `/.netlify/functions` to it. There is one implementation per endpoint.
 - `AI_API_KEY` or `ANTHROPIC_API_KEY` is required server-side for Score → iReal Pro analysis and the AI chat (Modal Buddy).
 
 ### Path aliases (configured in `vite.config.ts`)
@@ -62,6 +66,7 @@ Copy `.env.example` to `.env` and fill in:
 | `AI_API_KEY` / `ANTHROPIC_API_KEY` | Anthropic key for score analysis + Modal Buddy |
 | `FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` | Admin SDK service account — verifies ID tokens + counts AI quotas. Without them AI endpoints return 503 |
 | `AI_DAILY_LIMIT_BUDDY` / `AI_DAILY_LIMIT_SCORE` | Per-user daily AI quotas (default 30 / 5) |
+| `VITE_SENTRY_DSN` | Sentry error monitoring (optional; off when unset) |
 | `AI_AUTH_DISABLED` | `true` = skip auth/quota in local dev only (ignored on Netlify production) |
 
 ### Security model
@@ -69,10 +74,12 @@ Copy `.env.example` to `.env` and fill in:
 - Account export/delete (GDPR) live in `netlify/lib/account.ts` → `POST /api/account/{export,delete}`; delete needs a sign-in < 5 min old. Any new per-user collection must be added to both `exportUserData` and `deleteUserAccount`.
 - Privacy: Firebase Analytics starts only after cookie consent (`src/shared/consent/`). Fonts are self-hosted via `@fontsource/*` — never add Google Fonts `@import`s. Legal docs are on Iubenda (`VITE_*_URL`, `src/config/legal.ts`).
 - `firestore.rules` is versioned in the repo: `role` / `plan` on `users/{uid}` are never client-writable. Change them only via Admin SDK / console. Deploy with `npx firebase deploy --only firestore:rules`.
+- Netlify builds fail without the `VITE_FIREBASE_*` config (`vite.config.ts`): local mode is dev-only.
+- Render errors are caught per tool by `ErrorBoundary` (keyed on `activeTab`) and reported via `src/monitoring.ts`.
 
 ## Adding a new feature
 
 1. Create `src/features/<name>/<Name>Feature.tsx`
 2. Add a `TabDef` entry to the appropriate group in `GROUPS` (`App.tsx`)
 3. Add a render branch in `<main>` in `App.tsx`
-4. If the feature requires a backend endpoint, add it in `src/api/server.ts` (dev) **and** create a matching Netlify function in `netlify/functions/` (production)
+4. If the feature requires a backend endpoint, create a Netlify function in `netlify/functions/` and register it in the `FUNCTIONS` map in `src/api/server.ts` (dev)

@@ -17,6 +17,10 @@ import '@fontsource/dm-mono/400-italic.css'
 import '@fontsource/dm-mono/500.css'
 import '@fontsource/playfair-display/400-italic.css'
 import './index.css'
+import { initMonitoring } from './monitoring'
+import ErrorBoundary from './shared/components/ErrorBoundary.tsx'
+
+initMonitoring()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -24,7 +28,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <UserProfileProvider>
         <StatsProvider>
           <GlobalKeyProvider>
-            <App />
+            <ErrorBoundary>
+              <App />
+            </ErrorBoundary>
           </GlobalKeyProvider>
         </StatsProvider>
       </UserProfileProvider>
