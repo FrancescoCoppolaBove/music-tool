@@ -1,16 +1,23 @@
+// Must be the first import: aiGuard reads the env at module load.
+import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
-
-dotenv.config();
+import {
+  assertOrigin, authenticate, consumeQuota, corsHeaders, parseScoreInput, toErrorResponse,
+} from '../../netlify/lib/aiGuard';
+import { SCORE_MODEL, SCORE_PROMPT } from '../../netlify/lib/scorePrompt';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: (origin, cb) => cb(null, !origin || 'Access-Control-Allow-Origin' in corsHeaders(origin)),
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+// Score uploads carry base64 images (max 6 × 5 MB).
+app.use(express.json({ limit: '40mb' }));
 
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
@@ -48,70 +55,33 @@ app.post('/api/voicings/ai', async (req: Request, res: Response) => {
 // ─── Score Analysis endpoint ──────────────────────────────────────────────────
 app.post('/api/score/analyze', async (req: Request, res: Response) => {
   try {
-    const { images } = req.body as { images: { base64: string; mimeType: string }[] };
-
-    if (!images || images.length === 0) {
-      return res.status(400).json({ error: 'No images provided' });
-    }
+    assertOrigin(req.headers.origin);
+    const caller = await authenticate(req.headers.authorization);
+    const images = parseScoreInput(req.body);
 
     const apiKey = process.env.AI_API_KEY || process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return res.status(503).json({
         error: 'Anthropic API key not configured. Add AI_API_KEY to server .env file.',
+        code: 'ai_not_configured',
       });
     }
+
+    await consumeQuota(caller, 'score');
 
     const anthropic = new Anthropic({ apiKey });
 
     const imageContents: Anthropic.ImageBlockParam[] = images.map(img => ({
       type: 'image',
-      source: {
-        type: 'base64',
-        media_type: img.mimeType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
-        data: img.base64,
-      },
+      source: { type: 'base64', media_type: img.mimeType, data: img.base64 },
     }));
 
     const response = await anthropic.messages.create({
-      model: 'claude-opus-4-5',
+      model: SCORE_MODEL,
       max_tokens: 4096,
       messages: [{
         role: 'user',
-        content: [
-          ...imageContents,
-          {
-            type: 'text',
-            text: `Analyze this chord chart / lead sheet carefully. Extract all musical information.
-
-Return ONLY a raw JSON object — no markdown code fences, no explanation, just the JSON.
-
-Required structure:
-{
-  "title": "song title (string, use 'Untitled' if not found)",
-  "composer": "composer name (string, use 'Unknown' if not found)",
-  "style": "one of: Jazz Swing, Medium Jazz, Fast Swing, Slow Swing, Latin, Bossa Nova, Samba, Jazz Ballad, Pop Ballad, Funk, Rock, R&B, Gospel, Blues, Afro-Cuban, Waltz, Even 8ths",
-  "key": "root note only, e.g. C, Bb, F#, Ab. For minor keys add dash: A-, D-, G-",
-  "timeSignature": "one of: 4/4, 3/4, 6/8, 5/4, 7/4, 2/4",
-  "sections": [
-    {
-      "type": "one of: Intro, A, B, C, D, Verse, Chorus, Bridge, Outro",
-      "repeat": false,
-      "bars": [
-        { "chords": ["chord1", "chord2"] }
-      ]
-    }
-  ]
-}
-
-Rules:
-- Use standard chord notation: Cmaj7, Dm7, G7, Am7b5, Ddim7, Gsus4, Cm, C
-- 1 chord in a bar's chords array = whole bar. 2 chords = half bar each. Up to 4.
-- If a bar has a repeat symbol (%) use the same chords as the previous bar
-- Analyze ALL pages if multiple images provided, combining into one complete sections array
-- If a section has a repeat barline, set "repeat": true
-- Return ONLY the JSON object, nothing else`,
-          },
-        ],
+        content: [...imageContents, { type: 'text', text: SCORE_PROMPT }],
       }],
     });
 
@@ -120,9 +90,8 @@ Rules:
     const songData = JSON.parse(jsonStr);
     res.json({ success: true, song: songData });
   } catch (error) {
-    console.error('Score analysis error:', error);
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ error: 'Analysis failed', details: msg });
+    const { status, body } = toErrorResponse(error, 'Score analysis error');
+    res.status(status).json(body);
   }
 });
 

@@ -1,15 +1,21 @@
 import { Handler, HandlerEvent } from '@netlify/functions';
 import Anthropic from '@anthropic-ai/sdk';
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+import {
+  assertOrigin,
+  authenticate,
+  consumeQuota,
+  corsHeaders,
+  parseScoreInput,
+  toErrorResponse,
+} from '../lib/aiGuard';
+import { SCORE_MODEL, SCORE_PROMPT } from '../lib/scorePrompt';
 
 export const handler: Handler = async (event: HandlerEvent) => {
+  const origin = event.headers.origin;
+  const CORS = corsHeaders(origin);
+
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 204, headers: CORS, body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
@@ -17,74 +23,38 @@ export const handler: Handler = async (event: HandlerEvent) => {
   }
 
   try {
-    const { images } = JSON.parse(event.body || '{}') as {
-      images: { base64: string; mimeType: string }[];
-    };
+    assertOrigin(origin);
+    const caller = await authenticate(event.headers.authorization);
 
-    if (!images || images.length === 0) {
-      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'No images provided' }) };
+    let body: unknown;
+    try {
+      body = JSON.parse(event.body || '{}');
+    } catch {
+      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON', code: 'invalid_input' }) };
     }
+    const images = parseScoreInput(body);
 
     const apiKey = process.env.AI_API_KEY || process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      return {
-        statusCode: 503,
-        headers: CORS,
-        body: JSON.stringify({ error: 'AI_API_KEY not configured in Netlify environment variables' }),
-      };
+      console.error('score: AI_API_KEY not configured');
+      return { statusCode: 503, headers: CORS, body: JSON.stringify({ error: 'AI service is not configured', code: 'ai_not_configured' }) };
     }
+
+    await consumeQuota(caller, 'score');
 
     const anthropic = new Anthropic({ apiKey });
 
     const imageContents: Anthropic.ImageBlockParam[] = images.map(img => ({
       type: 'image',
-      source: {
-        type: 'base64',
-        media_type: img.mimeType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
-        data: img.base64,
-      },
+      source: { type: 'base64', media_type: img.mimeType, data: img.base64 },
     }));
 
     const response = await anthropic.messages.create({
-      model: 'claude-opus-4-5',
+      model: SCORE_MODEL,
       max_tokens: 4096,
       messages: [{
         role: 'user',
-        content: [
-          ...imageContents,
-          {
-            type: 'text',
-            text: `Analyze this chord chart / lead sheet carefully. Extract all musical information.
-
-Return ONLY a raw JSON object — no markdown code fences, no explanation, just the JSON.
-
-Required structure:
-{
-  "title": "song title (string, use 'Untitled' if not found)",
-  "composer": "composer name (string, use 'Unknown' if not found)",
-  "style": "one of: Jazz Swing, Medium Jazz, Fast Swing, Slow Swing, Latin, Bossa Nova, Samba, Jazz Ballad, Pop Ballad, Funk, Rock, R&B, Gospel, Blues, Afro-Cuban, Waltz, Even 8ths",
-  "key": "root note only, e.g. C, Bb, F#, Ab. For minor keys add dash: A-, D-, G-",
-  "timeSignature": "one of: 4/4, 3/4, 6/8, 5/4, 7/4, 2/4",
-  "sections": [
-    {
-      "type": "one of: Intro, A, B, C, D, Verse, Chorus, Bridge, Outro",
-      "repeat": false,
-      "bars": [
-        { "chords": ["chord1", "chord2"] }
-      ]
-    }
-  ]
-}
-
-Rules:
-- Use standard chord notation: Cmaj7, Dm7, G7, Am7b5, Ddim7, Gsus4, Cm, C
-- 1 chord in a bar's chords array = whole bar. 2 chords = half bar each. Up to 4.
-- If a bar has a repeat symbol (%) use the same chords as the previous bar
-- Analyze ALL pages if multiple images provided, combining into one complete sections array
-- If a section has a repeat barline, set "repeat": true
-- Return ONLY the JSON object, nothing else`,
-          },
-        ],
+        content: [...imageContents, { type: 'text', text: SCORE_PROMPT }],
       }],
     });
 
@@ -94,18 +64,11 @@ Rules:
 
     return {
       statusCode: 200,
-      headers: CORS,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
       body: JSON.stringify({ success: true, song: songData }),
     };
-  } catch (error) {
-    console.error('Score analysis error:', error);
-    return {
-      statusCode: 500,
-      headers: CORS,
-      body: JSON.stringify({
-        error: 'Analysis failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    };
+  } catch (err) {
+    const { status, body } = toErrorResponse(err, 'Score analysis error');
+    return { statusCode: status, headers: CORS, body: JSON.stringify(body) };
   }
 };

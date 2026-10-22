@@ -1,0 +1,112 @@
+rules_version = '2';
+
+// Deploy: npx firebase deploy --only firestore:rules
+// Test:   npm run test:rules   (Firestore emulator)
+//
+// Principles
+// - Deny by default: anything not matched below is closed.
+// - Privileged fields (`role`, `plan`) are never writable from the client;
+//   they are changed only with the Admin SDK (console, scripts, webhooks).
+// - `aiUsage` (AI quota counters) is server-only.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isTeacher() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+    }
+
+    // ─── User profile ────────────────────────────────────────────────────────
+    match /users/{uid} {
+      // Teachers read profiles to show their students' names in the dashboard.
+      allow read: if isSelf(uid) || isTeacher();
+
+      // Self-registration always starts as a student, with no plan.
+      allow create: if isSelf(uid)
+        && request.resource.data.keys().hasOnly(['displayName', 'email', 'role', 'conservatory', 'createdAt'])
+        && request.resource.data.role == 'student'
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() <= 200
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 320;
+
+      allow update: if isSelf(uid)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['role', 'plan', 'createdAt', 'email']);
+
+      allow delete: if false;
+
+      // Private per-user data: songs, data/stats, data/daily, data/profile.
+      // `{sub}/` forces at least one segment: a bare `{document=**}` would also
+      // match users/{uid} itself and bypass the role/plan protection above.
+      match /{sub}/{document=**} {
+        allow read, write: if isSelf(uid);
+      }
+    }
+
+    // ─── Conservatory: classes ───────────────────────────────────────────────
+    match /classes/{classId} {
+      allow read: if signedIn()
+        && (resource.data.teacherId == request.auth.uid
+            || request.auth.uid in resource.data.studentIds);
+
+      allow create: if isTeacher()
+        && request.resource.data.teacherId == request.auth.uid
+        && request.resource.data.studentIds is list;
+
+      allow update: if isTeacher()
+        && resource.data.teacherId == request.auth.uid
+        && request.resource.data.teacherId == request.auth.uid;
+
+      allow delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
+    }
+
+    // ─── Conservatory: assignments ───────────────────────────────────────────
+    match /assignments/{assignmentId} {
+      allow read: if signedIn()
+        && (resource.data.teacherId == request.auth.uid
+            || request.auth.uid in get(/databases/$(database)/documents/classes/$(resource.data.classId)).data.studentIds);
+
+      allow create: if isTeacher()
+        && request.resource.data.teacherId == request.auth.uid
+        && get(/databases/$(database)/documents/classes/$(request.resource.data.classId)).data.teacherId == request.auth.uid;
+
+      allow update: if isTeacher()
+        && resource.data.teacherId == request.auth.uid
+        && request.resource.data.teacherId == request.auth.uid;
+
+      allow delete: if isTeacher() && resource.data.teacherId == request.auth.uid;
+    }
+
+    // ─── Exam submissions ────────────────────────────────────────────────────
+    match /submissions/{submissionId} {
+      // Owners read their own; teachers read students' results for the dashboard.
+      allow read: if signedIn() && (resource.data.userId == request.auth.uid || isTeacher());
+
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.score is number
+        && request.resource.data.score >= 0
+        && request.resource.data.score <= 100
+        && request.resource.data.answers is list
+        && request.resource.data.answers.size() <= 200;
+
+      // Results are immutable once submitted.
+      allow update, delete: if false;
+    }
+
+    // ─── Server-only collections ─────────────────────────────────────────────
+    match /aiUsage/{uid} {
+      allow read, write: if false;
+    }
+  }
+}

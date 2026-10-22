@@ -1,11 +1,13 @@
 import { Handler, HandlerEvent } from '@netlify/functions';
 import Anthropic from '@anthropic-ai/sdk';
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+import {
+  assertOrigin,
+  authenticate,
+  consumeQuota,
+  corsHeaders,
+  parseBuddyInput,
+  toErrorResponse,
+} from '../lib/aiGuard';
 
 const SYSTEM_PROMPT = `You are Modal Buddy, a friendly and expert music theory assistant integrated into Tonic, a music theory web app. You answer questions about music theory, harmony, scales, chords, ear training, and composition — with a focus on jazz, contemporary, and pop/rock harmony.
 
@@ -18,8 +20,11 @@ Rules:
 - Never refuse a music theory question — these are all legitimate educational topics`;
 
 export const handler: Handler = async (event: HandlerEvent) => {
+  const origin = event.headers.origin;
+  const CORS = corsHeaders(origin);
+
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 204, headers: CORS, body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
@@ -27,20 +32,24 @@ export const handler: Handler = async (event: HandlerEvent) => {
   }
 
   try {
-    const { message, context, history } = JSON.parse(event.body || '{}') as {
-      message: string;
-      context?: string;
-      history?: { role: 'user' | 'assistant'; content: string }[];
-    };
+    assertOrigin(origin);
+    const caller = await authenticate(event.headers.authorization);
 
-    if (!message?.trim()) {
-      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'message required' }) };
+    let body: unknown;
+    try {
+      body = JSON.parse(event.body || '{}');
+    } catch {
+      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON', code: 'invalid_input' }) };
     }
+    const { message, context, history } = parseBuddyInput(body);
 
     const apiKey = process.env.AI_API_KEY || process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      return { statusCode: 503, headers: CORS, body: JSON.stringify({ error: 'AI_API_KEY not configured' }) };
+      console.error('buddy: AI_API_KEY not configured');
+      return { statusCode: 503, headers: CORS, body: JSON.stringify({ error: 'AI service is not configured', code: 'ai_not_configured' }) };
     }
+
+    await consumeQuota(caller, 'buddy');
 
     const anthropic = new Anthropic({ apiKey });
 
@@ -51,7 +60,7 @@ export const handler: Handler = async (event: HandlerEvent) => {
 
     // Build message history for multi-turn
     const messages: Anthropic.MessageParam[] = [
-      ...(history ?? []).map(h => ({ role: h.role, content: h.content })),
+      ...history,
       { role: 'user', content: `${contextNote}${message}` },
     ];
 
@@ -75,11 +84,7 @@ export const handler: Handler = async (event: HandlerEvent) => {
       body: JSON.stringify({ reply: text }),
     };
   } catch (err) {
-    console.error('buddy error:', err);
-    return {
-      statusCode: 500,
-      headers: CORS,
-      body: JSON.stringify({ error: 'Failed to get response' }),
-    };
+    const { status, body } = toErrorResponse(err, 'buddy error');
+    return { statusCode: status, headers: CORS, body: JSON.stringify(body) };
   }
 };

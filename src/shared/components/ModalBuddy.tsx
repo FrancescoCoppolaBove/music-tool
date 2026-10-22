@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+import { aiFetch } from '../utils/aiFetch';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -136,14 +137,10 @@ export default function ModalBuddy({ context }: Props) {
     setLoading(true);
 
     try {
-      const res = await fetch('/.netlify/functions/buddy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: msg,
-          context,
-          history: messages.slice(-6), // send last 6 for multi-turn context
-        }),
+      const res = await aiFetch('/.netlify/functions/buddy', {
+        message: msg,
+        context,
+        history: messages.slice(-6), // send last 6 for multi-turn context
       });
       const data = await res.json() as { reply?: string; error?: string };
       const reply = data.reply ?? data.error ?? 'Something went wrong. Try again.';

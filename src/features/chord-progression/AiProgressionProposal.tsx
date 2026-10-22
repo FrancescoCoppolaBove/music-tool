@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { aiFetch } from '../../shared/utils/aiFetch';
 import { parseAiCompositionProposal, type AiCompositionProposal } from '../harmony-composition-lab/aiCompositionProposal';
 const MODES = [
   ['major', 'Ionian'], ['dorian', 'Dorian'], ['phrygian', 'Phrygian'], ['lydian', 'Lydian'],
@@ -36,10 +37,7 @@ export default function AiProgressionProposal({ tonic, mode, chords, bpm, meter,
       'Return one proposal in the required JSON schema. Use one chord per bar and keep every chord symbol valid.',
     ].join('\n');
     try {
-      const response = await fetch('/.netlify/functions/buddy', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: request, context: 'HARMONY_LAB_PROPOSAL' }),
-      });
+      const response = await aiFetch('/.netlify/functions/buddy', { message: request, context: 'HARMONY_LAB_PROPOSAL' });
       const payload = await response.json() as { reply?: string; error?: string };
       if (!response.ok || !payload.reply) throw new Error(payload.error || 'The assistant is unavailable. Check the AI service configuration and try again.');
       const proposal = parseAiCompositionProposal(payload.reply, KEYS, MODES.map(([id]) => id), ['4/4', '3/4', '5/4', '6/8', '7/8']);

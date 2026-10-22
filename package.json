@@ -14,7 +14,9 @@
     "build:netlify": "npm run build",
     "preview": "vite preview",
     "test:theory": "node --import tsx --test src/features/harmony-composition-lab/*.test.ts",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "test:guard": "node --import tsx --test tests/aiGuard.test.ts",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-tonic 'node --import tsx --test tests/firestore-rules.test.ts'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
@@ -25,6 +27,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "firebase": "^12.14.0",
+    "firebase-admin": "^13.10.0",
     "lucide-react": "^0.560.0",
     "pitchy": "^4.1.0",
     "react": "^18.3.1",
@@ -32,6 +35,8 @@
     "tonal": "^6.4.3"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "@netlify/functions": "^3.1.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.0",
@@ -42,6 +47,7 @@
     "eslint": "^9.15.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
+    "firebase-tools": "^14.27.0",
     "tsx": "^4.7.0",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.65.0",

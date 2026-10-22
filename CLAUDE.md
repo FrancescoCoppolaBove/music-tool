@@ -14,9 +14,11 @@ npm run dev:client   # frontend only
 npm run dev:server   # backend only (tsx watch)
 npm run build        # tsc + vite build
 npm run lint         # ESLint, zero warnings allowed
+npm run test:guard   # unit tests for the AI endpoint guard
+nvm exec 22 npm run test:rules   # Firestore rules tests (emulator; Firebase CLI needs Node ≥20, project is on 18)
 ```
 
-No test suite. Validate changes by running `npm run build` (catches TypeScript errors) then testing in the browser with `npm run dev`.
+No UI test suite. Validate changes by running `npm run build` (catches TypeScript errors) then testing in the browser with `npm run dev`.
 
 ## Architecture
 
@@ -57,6 +59,13 @@ Copy `.env.example` to `.env` and fill in:
 |---|---|
 | `VITE_FIREBASE_API_KEY` etc. | Firebase (optional — enables login + cloud sync) |
 | `AI_API_KEY` / `ANTHROPIC_API_KEY` | Anthropic key for score analysis + Modal Buddy |
+| `FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` | Admin SDK service account — verifies ID tokens + counts AI quotas. Without them AI endpoints return 503 |
+| `AI_DAILY_LIMIT_BUDDY` / `AI_DAILY_LIMIT_SCORE` | Per-user daily AI quotas (default 30 / 5) |
+| `AI_AUTH_DISABLED` | `true` = skip auth/quota in local dev only (ignored on Netlify production) |
+
+### Security model
+- AI endpoints go through `netlify/lib/aiGuard.ts` (CORS allowlist, Firebase ID token, input limits, daily quota in `aiUsage/{uid}`). Client calls must use `aiFetch` (`src/shared/utils/aiFetch.ts`), which attaches the token.
+- `firestore.rules` is versioned in the repo: `role` / `plan` on `users/{uid}` are never client-writable. Change them only via Admin SDK / console. Deploy with `npx firebase deploy --only firestore:rules`.
 
 ## Adding a new feature
 

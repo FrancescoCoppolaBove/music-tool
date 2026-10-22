@@ -1,4 +1,5 @@
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
+import { corsHeaders } from '../lib/aiGuard';
 
 interface VoicingsRequest {
   chordSymbol: string;
@@ -8,11 +9,7 @@ interface VoicingsRequest {
 
 export const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   // CORS headers
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
+  const headers = corsHeaders(event.headers.origin);
 
   // Handle OPTIONS request (CORS preflight)
   if (event.httpMethod === 'OPTIONS') {
@@ -94,7 +91,6 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       headers,
       body: JSON.stringify({
         error: 'Failed to generate AI voicings',
-        details: error instanceof Error ? error.message : 'Unknown error',
       }),
     };
   }

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
+import { aiFetch } from '../../shared/utils/aiFetch';
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');`;
@@ -576,11 +577,7 @@ export default function ScoreToIRealFeature() {
 
     try {
       const payload = images.map(img => ({ base64: img.base64, mimeType: img.mimeType }));
-      const resp = await fetch(`${API_URL}/api/score/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ images: payload }),
-      });
+      const resp = await aiFetch(`${API_URL}/api/score/analyze`, { images: payload });
 
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({ error: resp.statusText }));
