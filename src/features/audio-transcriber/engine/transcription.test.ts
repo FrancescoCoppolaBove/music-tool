@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { analyzeChords } from './chordAnalyzer';
-import { appendChunkNotes, estimateVelocities, resampleForModel } from './polyAudio';
+import { appendChunkNotes, estimateVelocities, rejectBroadbandNotes, resampleForModel } from './polyAudio';
 import { decodeModelNotes, limitPolyphony } from './polyTranscriber';
 import { transcribeMono } from './monoTranscriber';
 import { tone, SR } from './checks/synth';
@@ -127,6 +127,27 @@ test('polyphonic decoding splits repeated notes', () => {
   assert.equal(decodeModelNotes(frames, onsets, [], 'keyboard').length, 2);
 });
 
+test('a softer repeated key strike survives when frame energy rises after its onset', () => {
+  const { frames, onsets } = posterior([{ midi: 55, start: 3, end: 80 }]);
+  // The pitch remains above the sustain threshold, but the next key strike
+  // renews its energy. Its onset is weaker than a loud isolated attack.
+  const rise = [0.39, 0.36, 0.32, 0.30, 0.28, 0.27, 0.29, 0.32, 0.37, 0.44, 0.51, 0.57, 0.61, 0.64, 0.65];
+  rise.forEach((v, i) => { frames[30 + i][55 - 21] = v; });
+  onsets[40][55 - 21] = 0.61;
+  for (const sensitivity of ['balanced', 'precise'] as const) {
+    const notes = decodeModelNotes(frames, onsets, [], 'keyboard', { sensitivity });
+    assert.equal(notes.length, 2);
+    assert.ok(notes[1].startSec > notes[0].startSec);
+  }
+});
+
+test('a moderate onset during a decaying tail does not create a repeated note', () => {
+  const { frames, onsets } = posterior([{ midi: 55, start: 3, end: 80 }]);
+  for (let f = 20; f < 80; f++) frames[f][55 - 21] = 0.8 - (f - 20) * 0.005;
+  onsets[40][55 - 21] = 0.61;
+  assert.equal(decodeModelNotes(frames, onsets, [], 'keyboard').length, 1);
+});
+
 test('balanced polyphonic detection rejects very short activation echoes but keeps short played notes', () => {
   const echo = posterior([{ midi: 60, start: 3, end: 40 }, { midi: 72, start: 3, end: 7 }]);
   assert.deepEqual(decodeModelNotes(echo.frames, echo.onsets, [], 'keyboard').map(n => n.midi), [60]);
@@ -140,7 +161,109 @@ test('silence produces no neural note events', () => {
   assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard'), []);
 });
 
+test('balanced recovers sustained quiet pitches without inventing notes from brief activity', () => {
+  const { frames, onsets } = posterior([]);
+  for (let f = 10; f < 40; f++) frames[f][64 - 21] = 0.44;
+  for (let f = 15; f < 20; f++) frames[f][76 - 21] = 0.44;
+  const recovered = decodeModelNotes(frames, onsets, [], 'keyboard');
+  assert.deepEqual(recovered.map(n => n.midi), [64]);
+  const reference = posterior([{ midi: 64, start: 10, end: 40 }]);
+  const expected = decodeModelNotes(reference.frames, reference.onsets, [], 'keyboard')[0];
+  assert.equal(recovered[0].startSec, expected.startSec);
+  assert.equal(recovered[0].durationSec, expected.durationSec);
+  assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard', { sensitivity: 'precise' }), []);
+});
+
 test('existing monophonic bass path still detects A2', () => {
   const notes = transcribeMono(tone(110, 1), SR, 'bass');
   assert.ok(notes.some(n => n.midi === 45));
+});
+
+test('weak short attacks between chords survive with pitch-specific onset and frame support', () => {
+  const { frames, onsets } = posterior([60, 64, 67].flatMap(midi => [
+    { midi, start: 3, end: 25 }, { midi, start: 65, end: 95 },
+  ]));
+  for (const [midi, start] of [[62, 30], [65, 39], [69, 48]]) {
+    onsets[start][midi - 21] = 0.36;
+    for (let f = start; f < start + 6; f++) frames[f][midi - 21] = 0.44;
+  }
+  const notes = decodeModelNotes(frames, onsets, [], 'keyboard');
+  assert.equal(notes.length, 9);
+  assert.deepEqual(notes.slice(3, 6).map(n => n.midi), [62, 65, 69]);
+});
+
+test('weak onset noise without a fresh pitch rise does not split sustained notes', () => {
+  const { frames, onsets } = posterior([{ midi: 60, start: 3, end: 90 }]);
+  onsets[40][60 - 21] = 0.36;
+  onsets[40][72 - 21] = 0.36;
+  frames[40][72 - 21] = 0.44;
+  assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard').map(n => n.midi), [60]);
+});
+
+test('a double-peaked onset does not create a duplicate note', () => {
+  const { frames, onsets } = posterior([{ midi: 60, start: 10, end: 80 }]);
+  onsets[15][60 - 21] = 0.8;
+  assert.equal(decodeModelNotes(frames, onsets, [], 'keyboard').length, 1);
+});
+
+test('a weak onset on a held bass does not split it when another voice enters', () => {
+  const { frames, onsets } = posterior([{ midi: 48, start: 3, end: 95 }, { midi: 64, start: 45, end: 80 }]);
+  onsets[45][48 - 21] = 0.5;
+  const notes = decodeModelNotes(frames, onsets, [], 'keyboard');
+  assert.deepEqual(notes.map(n => n.midi), [48, 64]);
+});
+
+test('a quiet independent melody is recovered over sustained chord tones', () => {
+  const { frames, onsets } = posterior([48, 52, 55].map(midi => ({ midi, start: 3, end: 95 })));
+  onsets[45][67 - 21] = 0.7;
+  for (let f = 45; f < 55; f++) frames[f][67 - 21] = 0.25;
+  assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard').map(n => n.midi), [48, 52, 55, 67]);
+});
+
+test('an isolated quiet staccato note does not also recover its weak octave echo', () => {
+  const { frames, onsets } = posterior([]);
+  for (const midi of [64, 76]) {
+    onsets[10][midi - 21] = 0.8;
+    for (let f = 10; f < 17; f++) frames[f][midi - 21] = 0.25;
+  }
+  assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard').map(n => n.midi), [64]);
+});
+
+test('quiet simultaneous harmonic candidates do not receive the independent-melody threshold', () => {
+  const { frames, onsets } = posterior([{ midi: 48, start: 3, end: 80 }]);
+  onsets[3][60 - 21] = 0.7;
+  for (let f = 3; f < 30; f++) frames[f][60 - 21] = 0.25;
+  assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard').map(n => n.midi), [48]);
+});
+
+test('inversions change when the bass changes even if pitch classes stay the same', () => {
+  const chords = analyzeChords([note(48, 0, 0.5), note(52, 0, 1), note(55, 0, 1), note(60, 0, 1)]);
+  assert.equal(chords.length, 2);
+  assert.match(chords[0].voicing, /root position/);
+  assert.match(chords[1].voicing, /1st inversion/);
+  assert.equal(chords[1].startSec, 0.5);
+});
+
+test('a transient octave doubling does not make the stable voicing an open chord', () => {
+  const chords = analyzeChords([note(60), note(64), note(67), note(84, 0, 0.1)]);
+  assert.equal(chords.length, 1);
+  assert.match(chords[0].voicing, /close position/);
+});
+
+test('broadband noise and silence do not confirm pitches, but quiet tones do', () => {
+  let random = 12345;
+  const noise = Float32Array.from({ length: 22050 }, () => {
+    random = (Math.imul(1664525, random) + 1013904223) >>> 0;
+    return (random / 2 ** 32 * 2 - 1) * 0.002;
+  });
+  const candidate = note(69, 0.2, 0.5);
+  assert.deepEqual(rejectBroadbandNotes([candidate], noise, 22050), []);
+  assert.deepEqual(rejectBroadbandNotes([candidate], new Float32Array(22050), 22050), []);
+  const quietTone = Float32Array.from(noise, (v, i) => v + 0.005 * Math.sin(2 * Math.PI * 440 * i / 22050));
+  assert.equal(rejectBroadbandNotes([candidate], quietTone, 22050).length, 1);
+});
+
+test('rounded piano frequency limits retain the full 88-key range', () => {
+  const { frames, onsets } = posterior([21, 108].map(midi => ({ midi, start: 3, end: 80 })));
+  assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard').map(n => n.midi), [21, 108]);
 });
