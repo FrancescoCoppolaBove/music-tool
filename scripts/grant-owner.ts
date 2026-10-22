@@ -34,6 +34,19 @@ else claims.owner = true;
 await auth.setCustomUserClaims(user.uid, claims);
 
 // The teacher dashboard and its Firestore rules key off users/{uid}.role.
-await getFirestore(app).doc(`users/${user.uid}`).set({ role: revoke ? 'student' : 'teacher' }, { merge: true });
+// If the profile doesn't exist yet, create it complete (the app only creates
+// it on first sign-in when it's missing, so a role-only doc would stick).
+const profileRef = getFirestore(app).doc(`users/${user.uid}`);
+const role = revoke ? 'student' : 'teacher';
+if ((await profileRef.get()).exists) {
+  await profileRef.set({ role }, { merge: true });
+} else {
+  await profileRef.set({
+    displayName: user.displayName ?? user.email ?? 'Utente',
+    email: user.email ?? '',
+    role,
+    createdAt: Date.now(),
+  });
+}
 
 console.log(`${revoke ? 'Revoked' : 'Granted'} creator access for ${email} (uid ${user.uid}). Sign out and back in to apply.`);
