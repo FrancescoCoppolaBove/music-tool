@@ -8,12 +8,22 @@ import { EntitlementContext, UNLOCKED, type Entitlement } from './entitlement';
 const loadSync = () => import('./entitlementSync');
 
 interface Snapshot { uid: string; entitlement: Entitlement | null }
+interface Claims { uid: string; owner: boolean }
 
 /** Live view of `entitlements/{uid}`, so Pro unlocks the moment the webhook lands. */
 export function EntitlementProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const uid = billingEnabled && firebaseEnabled ? user?.uid ?? null : null;
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
+  const [claims, setClaims] = useState<Claims | null>(null);
+
+  // Creator account: `owner` custom claim in the (Google-signed) ID token.
+  useEffect(() => {
+    if (!uid || !user) return;
+    user.getIdTokenResult()
+      .then(r => setClaims({ uid, owner: r.claims.owner === true }))
+      .catch(() => setClaims({ uid, owner: false }));
+  }, [uid, user]);
 
   useEffect(() => {
     if (!uid) return;
@@ -33,9 +43,11 @@ export function EntitlementProvider({ children }: { children: React.ReactNode })
   // Derived, so switching accounts never shows the previous user's plan.
   const value = !uid
     ? UNLOCKED
-    : snapshot?.uid !== uid
-      ? { isPro: false, entitlement: null, loading: true }
-      : { isPro: snapshot.entitlement?.plan === 'pro', entitlement: snapshot.entitlement, loading: false };
+    : claims?.uid === uid && claims.owner
+      ? { isPro: true, isOwner: true, entitlement: null, loading: false }
+      : snapshot?.uid !== uid || claims?.uid !== uid
+        ? { isPro: false, isOwner: false, entitlement: null, loading: true }
+        : { isPro: snapshot.entitlement?.plan === 'pro', isOwner: false, entitlement: snapshot.entitlement, loading: false };
 
   return <EntitlementContext.Provider value={value}>{children}</EntitlementContext.Provider>;
 }

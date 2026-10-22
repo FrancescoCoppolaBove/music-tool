@@ -44,7 +44,7 @@ function FeatureList({ items, accent }: { items: string[]; accent: string }) {
 }
 
 export default function PricingFeature() {
-  const { isPro, entitlement, loading } = useEntitlement();
+  const { isPro, isOwner, entitlement, loading } = useEntitlement();
   const [interval, setInterval] = useState<Interval>('yearly');
   const [busy, setBusy] = useState(false);
   // Tagged with the view it belongs to, so a checkout error doesn't linger once Pro is active.
@@ -67,6 +67,16 @@ export default function PricingFeature() {
       <div style={{ ...card, maxWidth: 560, margin: '40px auto', textAlign: 'center' }}>
         <h1 style={{ margin: '0 0 8px', fontSize: 22, color: '#e6edf3' }}>tonic Pro is coming soon</h1>
         <p style={{ margin: 0, fontSize: 14, color: '#8b949e' }}>During the beta every tool is unlocked. Enjoy!</p>
+      </div>
+    );
+  }
+
+  if (isOwner) {
+    return (
+      <div style={{ ...card, maxWidth: 560, margin: '40px auto', textAlign: 'center' }}>
+        <div style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 100, background: '#7c3aed', color: '#fff', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em' }}>CREATOR</div>
+        <h1 style={{ margin: '12px 0 8px', fontSize: 22, color: '#e6edf3' }}>Creator account</h1>
+        <p style={{ margin: 0, fontSize: 14, color: '#8b949e', lineHeight: 1.6 }}>Every tool is unlocked, AI has no daily limits and nothing is ever billed.</p>
       </div>
     );
   }

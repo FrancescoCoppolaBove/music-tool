@@ -98,6 +98,12 @@ export interface Caller {
   authTime: number;
   /** True only in local dev with AI_AUTH_DISABLED — quotas are skipped. */
   anonymousDev: boolean;
+  /**
+   * The app's creator: `owner: true` custom claim (scripts/grant-owner.ts).
+   * Everything unlocked, no AI quotas. Claims are signed by Firebase, so a
+   * client cannot grant itself this.
+   */
+  owner?: boolean;
 }
 
 /** Verifies the Firebase ID token in the Authorization header. */
@@ -117,7 +123,7 @@ export async function authenticate(authorization: string | undefined): Promise<C
 
   try {
     const decoded = await getAuth(app).verifyIdToken(match[1], true);
-    return { uid: decoded.uid, authTime: decoded.auth_time, anonymousDev: false };
+    return { uid: decoded.uid, authTime: decoded.auth_time, anonymousDev: false, owner: decoded.owner === true };
   } catch {
     throw new GuardError(401, 'auth_invalid', 'Your session has expired — sign in again');
   }
@@ -147,7 +153,7 @@ function dailyLimit(feature: AiFeature, plan: Plan): number {
  * the Firestore rules deny all client access.
  */
 export async function consumeQuota(caller: Caller, feature: AiFeature, plan: Plan): Promise<void> {
-  if (caller.anonymousDev) return;
+  if (caller.anonymousDev || caller.owner) return;
   const app = adminApp();
   if (!app) throw new GuardError(503, 'ai_not_configured', 'AI service is not configured');
 

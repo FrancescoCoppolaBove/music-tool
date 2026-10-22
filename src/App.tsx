@@ -685,7 +685,7 @@ function GlobalKeyPicker() {
 
 function UserMenu({ onSignOut, onProfile, onPricing }: { onSignOut: () => void; onProfile: () => void; onPricing: () => void }) {
   const { user } = useAuth();
-  const { isPro } = useEntitlement();
+  const { isPro, isOwner } = useEntitlement();
   const [open, setOpen] = useState(false);
 
   if (!user) return null;
@@ -745,7 +745,7 @@ function UserMenu({ onSignOut, onProfile, onPricing }: { onSignOut: () => void; 
                   fontSize: 13, color: isPro ? '#e6edf3' : '#c4b5fd', fontWeight: isPro ? 400 : 600, borderRadius: 6,
                 }}
               >
-                ⭐ {isPro ? 'Subscription' : 'Upgrade to Pro'}
+                ⭐ {isOwner ? 'Creator account' : isPro ? 'Subscription' : 'Upgrade to Pro'}
               </button>
             )}
             <button

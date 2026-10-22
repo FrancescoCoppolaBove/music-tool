@@ -20,6 +20,9 @@ export const handler: Handler = async (event: HandlerEvent) => {
     assertOrigin(origin);
     const caller = await authenticate(event.headers.authorization);
     if (caller.anonymousDev) throw new GuardError(400, 'auth_required', 'Billing needs a real signed-in user');
+    if (caller.owner && event.path.endsWith('/checkout')) {
+      throw new GuardError(409, 'owner_account', 'Creator account: everything is already unlocked');
+    }
     const action = event.path.split('/').pop();
     const json = (data: unknown) => ({ statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
 

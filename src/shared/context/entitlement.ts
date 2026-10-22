@@ -10,13 +10,15 @@ export interface Entitlement {
 
 export interface EntitlementValue {
   isPro: boolean;
+  /** The app's creator (`owner` custom claim): everything unlocked, never billed. */
+  isOwner: boolean;
   /** null when there is no subscription document (or billing is off). */
   entitlement: Entitlement | null;
   loading: boolean;
 }
 
 // Without billing (local mode, pre-launch) everything is unlocked.
-export const UNLOCKED: EntitlementValue = { isPro: true, entitlement: null, loading: false };
+export const UNLOCKED: EntitlementValue = { isPro: true, isOwner: false, entitlement: null, loading: false };
 
 export const EntitlementContext = createContext<EntitlementValue>(UNLOCKED);
 

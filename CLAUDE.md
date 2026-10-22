@@ -86,6 +86,7 @@ Copy `.env.example` to `.env` and fill in:
 - Free vs Pro is one list: `PRO_TABS` in `src/config/plans.ts`. Locked tools render `ProGate` (their chunk is never downloaded); this is a product gate — real enforcement is server-side for AI quotas (`consumeQuota` by plan) and Firestore data.
 - Plan source of truth: `entitlements/{uid}`, written only by `netlify/functions/paddle-webhook.ts` (signature-verified, order-safe). Clients read it live via `EntitlementProvider` / `useEntitlement()` (`src/shared/context/entitlement.ts`).
 - Checkout: server creates a Paddle transaction with `custom_data.firebase_uid` (`/api/billing/checkout`), client opens Paddle.js (lazy-loaded). Portal: `/api/billing/portal`. Account deletion cancels the subscription first.
+- Creator account: `owner: true` custom claim, granted with `npx tsx scripts/grant-owner.ts <email>` (service-account env; `--revoke` to undo; user must sign out/in). Unlocks every tool (client), skips AI quotas and refuses checkout (server), sets `role: 'teacher'`. Never gate on an email list in the frontend.
 - Billing is off unless `PADDLE_API_KEY` (server) and `VITE_PADDLE_CLIENT_TOKEN` (client) are set — keep both sides consistent.
 
 ## Adding a new feature

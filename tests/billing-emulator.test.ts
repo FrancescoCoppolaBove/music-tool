@@ -49,3 +49,9 @@ test('AI quotas follow the plan: free gets upgrade_required, pro gets more', asy
   for (let i = 0; i < 10; i++) await consumeQuota(pro, 'score', 'pro');
   await assert.rejects(consumeQuota(pro, 'score', 'pro'), (e: unknown) => e instanceof GuardError && e.code === 'quota_exceeded' && e.status === 429);
 });
+
+test('creator account (owner claim) has no AI quota, even on a free plan', async () => {
+  const owner = { uid: 'quota-owner', authTime: 0, anonymousDev: false, owner: true };
+  for (let i = 0; i < 20; i++) await consumeQuota(owner, 'score', 'free');
+  assert.equal((await db.doc('aiUsage/quota-owner').get()).exists, false);
+});

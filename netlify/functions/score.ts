@@ -41,7 +41,7 @@ export const handler: Handler = async (event: HandlerEvent) => {
       return { statusCode: 503, headers: CORS, body: JSON.stringify({ error: 'AI service is not configured', code: 'ai_not_configured' }) };
     }
 
-    await consumeQuota(caller, 'score', caller.anonymousDev ? 'pro' : await getPlan(caller.uid));
+    await consumeQuota(caller, 'score', caller.anonymousDev || caller.owner ? 'pro' : await getPlan(caller.uid));
 
     const anthropic = new Anthropic({ apiKey });
 
