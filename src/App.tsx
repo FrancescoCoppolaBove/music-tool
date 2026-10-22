@@ -6,6 +6,7 @@ import { firebaseEnabled } from './firebase';
 import { useStats } from './shared/context/StatsContext';
 import { useGlobalKey, CHROMATIC_KEYS } from './shared/context/GlobalKeyContext';
 import AuthGate from './features/auth/AuthGate';
+import LegalLinks from './shared/components/LegalLinks';
 import PracticeJournalFeature from './features/practice-journal/PracticeJournalFeature';
 import SongLibraryFeature from './features/song-library/SongLibraryFeature';
 import DailyChallengeFeature from './features/daily-challenge/DailyChallengeFeature';
@@ -54,7 +55,6 @@ import type { UserRole } from './shared/types/conservatory.types';
 // ─── Theme styles ─────────────────────────────────────────────────────────────
 
 const HEADER_STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap');
 
 :root {
   --color-bg-base: #0d1117;
@@ -1054,7 +1054,8 @@ export default function App() {
         fontSize: 11,
         color: '#4b5563',
       }}>
-        tonic · Explore. Hear. Create.
+        <div style={{ marginBottom: 6 }}>tonic · Explore. Hear. Create.</div>
+        <LegalLinks />
       </footer>
 
       {/* ── Modal Buddy — floating AI chat ── */}

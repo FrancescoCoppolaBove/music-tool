@@ -8,7 +8,6 @@ interface HomePageProps { onNavigate: (tab: Tab) => void; }
 
 // ── Injected styles ───────────────────────────────────────────────────────────
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Playfair+Display:ital@1&display=swap');
 
   @keyframes float-down {
     0%, 100% { transform: translateY(0);   opacity: 0.4; }

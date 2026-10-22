@@ -4,6 +4,7 @@ import {
 } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { db } from '../../firebase';
+import { TERMS_VERSION } from '../../config/legal';
 import type { UserProfile, ClassDoc, AssignmentDoc, SubmissionDoc } from '../types/conservatory.types';
 
 function requireDb() {
@@ -28,6 +29,9 @@ export async function getOrCreateUserProfile(user: User): Promise<UserProfile> {
     email: user.email ?? '',
     role: 'student',
     createdAt: Date.now(),
+    // Signing in from AuthGate means accepting the Terms shown there.
+    termsVersion: TERMS_VERSION,
+    termsAcceptedAt: Date.now(),
   };
   await setDoc(doc(requireDb(), 'users', user.uid), profile);
   return { uid: user.uid, ...profile };

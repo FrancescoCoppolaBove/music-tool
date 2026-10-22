@@ -7,6 +7,7 @@ import {
   assertOrigin, authenticate, consumeQuota, corsHeaders, parseScoreInput, toErrorResponse,
 } from '../../netlify/lib/aiGuard';
 import { SCORE_MODEL, SCORE_PROMPT } from '../../netlify/lib/scorePrompt';
+import { deleteUserAccount, exportUserData } from '../../netlify/lib/account';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -91,6 +92,23 @@ app.post('/api/score/analyze', async (req: Request, res: Response) => {
     res.json({ success: true, song: songData });
   } catch (error) {
     const { status, body } = toErrorResponse(error, 'Score analysis error');
+    res.status(status).json(body);
+  }
+});
+
+// ─── Account (GDPR export / erasure) ──────────────────────────────────────────
+app.post('/api/account/:action', async (req: Request, res: Response) => {
+  try {
+    assertOrigin(req.headers.origin);
+    const caller = await authenticate(req.headers.authorization);
+    if (req.params.action === 'export') return res.json(await exportUserData(caller));
+    if (req.params.action === 'delete') {
+      await deleteUserAccount(caller);
+      return res.json({ deleted: true });
+    }
+    res.status(404).json({ error: 'Unknown account action' });
+  } catch (error) {
+    const { status, body } = toErrorResponse(error, 'account error');
     res.status(status).json(body);
   }
 });

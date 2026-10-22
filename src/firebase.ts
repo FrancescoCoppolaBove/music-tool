@@ -1,7 +1,8 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
-import { getAnalytics, isSupported } from 'firebase/analytics';
+import { getAnalytics, isSupported, setAnalyticsCollectionEnabled, type Analytics } from 'firebase/analytics';
+import { getConsent, onConsentChange } from './shared/consent/consent';
 
 const required = [
   'VITE_FIREBASE_API_KEY',
@@ -23,6 +24,7 @@ export const firebaseEnabled = missing.length === 0;
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
+let analytics: Analytics | null = null;
 
 if (firebaseEnabled) {
   const firebaseConfig = {
@@ -39,13 +41,39 @@ if (firebaseEnabled) {
   auth = getAuth(app);
   db = getFirestore(app);
 
-  isSupported().then(yes => { if (yes && app) getAnalytics(app); }).catch(() => {});
+  // Analytics sets tracking cookies: start it only after explicit consent.
+  if (getConsent()?.analytics) startAnalytics();
+  onConsentChange(c => {
+    if (c?.analytics) startAnalytics();
+    else stopAnalytics();
+  });
 } else {
   console.warn(
     `[tonic] Firebase not configured (missing: ${missing.join(', ')}). ` +
     `Running in local mode — login and cloud sync are disabled. ` +
     `Copy .env.example to .env and fill the VITE_FIREBASE_* keys to enable them.`,
   );
+}
+
+function startAnalytics() {
+  if (!app) return;
+  if (analytics) {
+    setAnalyticsCollectionEnabled(analytics, true);
+    return;
+  }
+  isSupported().then(yes => { if (yes && app) analytics = getAnalytics(app); }).catch(() => {});
+}
+
+/** Consent withdrawn: stop collection and drop the Google Analytics cookies. */
+function stopAnalytics() {
+  if (!analytics) return;
+  setAnalyticsCollectionEnabled(analytics, false);
+  const host = location.hostname;
+  document.cookie.split(';').map(c => c.split('=')[0].trim()).filter(n => n.startsWith('_ga')).forEach(name => {
+    for (const domain of ['', `; domain=${host}`, `; domain=.${host}`]) {
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${domain}`;
+    }
+  });
 }
 
 export { app, auth, db };

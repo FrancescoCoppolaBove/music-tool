@@ -5,6 +5,7 @@ import { db } from '../../firebase';
 import { useAuth } from '../../shared/context/AuthContext';
 import { useStats } from '../../shared/context/StatsContext';
 import { computeStreak } from '../../shared/hooks/useExerciseScore';
+import AccountDataCard from './AccountDataCard';
 import type { UserStats, PracticeLog } from '../../shared/context/StatsContext';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -740,6 +741,9 @@ export default function ProfileFeature() {
           </div>
         </div>
       )}
+
+      {/* GDPR: export / delete */}
+      <AccountDataCard />
 
       {/* Edit panel */}
       {editing && (

@@ -45,7 +45,7 @@ const anon = () => env.unauthenticatedContext().firestore();
 // ─── users ────────────────────────────────────────────────────────────────────
 
 test('a new user can self-register only as a student', async () => {
-  await assertSucceeds(setDoc(doc(as('carol'), 'users/carol'), student));
+  await assertSucceeds(setDoc(doc(as('carol'), 'users/carol'), { ...student, termsVersion: '2026-10', termsAcceptedAt: 1 }));
   await assertFails(setDoc(doc(as('dave'), 'users/dave'), { ...student, role: 'teacher' }));
   await assertFails(setDoc(doc(as('erin'), 'users/erin'), { ...student, plan: 'pro' }));
 });

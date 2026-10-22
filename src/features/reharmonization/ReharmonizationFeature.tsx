@@ -1,14 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Note } from 'tonal';
 
-// ─── Font injection ─────────────────────────────────────────────────────────
-if (typeof document !== 'undefined' && !document.getElementById('reharm-fonts')) {
-  const s = document.createElement('style');
-  s.id = 'reharm-fonts';
-  s.textContent = "@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@700;800&display=swap');";
-  document.head.appendChild(s);
-}
-
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface ParsedChord {
   root: string;

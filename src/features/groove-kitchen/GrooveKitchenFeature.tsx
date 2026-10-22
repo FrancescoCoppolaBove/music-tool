@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');`;
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -347,7 +346,6 @@ export default function GrooveKitchenFeature() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#e6edf3' }}>
-      <style>{FONTS}</style>
 
       {/* Header */}
       <div style={{ padding: '28px 0 20px', borderBottom: '1px solid #21262d', marginBottom: 28 }}>

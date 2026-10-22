@@ -1,9 +1,6 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
 import { aiFetch } from '../../shared/utils/aiFetch';
 
-// ─── Fonts ────────────────────────────────────────────────────────────────────
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');`;
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 type SectionType = 'Intro' | 'A' | 'B' | 'C' | 'D' | 'Verse' | 'Chorus' | 'Bridge' | 'Outro';
 type TimeSig = '4/4' | '3/4' | '6/8' | '5/4' | '7/4' | '2/4';
@@ -210,9 +207,8 @@ function buildPrintHTML(song: SongData): string {
 <meta charset="UTF-8">
 <title>${song.title || 'Chord Chart'}</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=DM+Mono&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'EB Garamond', serif; padding: 32px 40px; color: #111; background: #fff; }
+  body { font-family: 'EB Garamond', Georgia, serif; padding: 32px 40px; color: #111; background: #fff; }
   .header { text-align: center; margin-bottom: 28px; border-bottom: 2px solid #111; padding-bottom: 14px; }
   .title { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; }
   .meta { font-size: 13px; color: #555; margin-top: 4px; font-family: 'DM Mono', monospace; }
@@ -708,7 +704,6 @@ export default function ScoreToIRealFeature() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#e6edf3' }}>
-      <style>{FONTS}</style>
       <style>{`
         .bar-cell:hover .bar-delete { display: flex !important; }
         input[type=file] { display: none; }

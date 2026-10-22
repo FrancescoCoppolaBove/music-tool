@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { ARTISTS } from './data/artistProfiles';
-import { FONTS } from './components/shared';
 import { ArtistDNAPanel } from './components/ArtistDNAPanel';
 import { HarmonicPalettePanel } from './components/HarmonicPalettePanel';
 import { RhythmicPanel } from './components/RhythmicPanel';
@@ -19,7 +18,6 @@ export default function RiffArchitectFeature() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#e6edf3' }}>
-      <style>{FONTS}</style>
 
       {/* Page header */}
       <div style={{ padding: '28px 0 20px', borderBottom: '1px solid #21262d', marginBottom: 28 }}>

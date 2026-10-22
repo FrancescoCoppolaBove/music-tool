@@ -32,7 +32,7 @@ service cloud.firestore {
 
       // Self-registration always starts as a student, with no plan.
       allow create: if isSelf(uid)
-        && request.resource.data.keys().hasOnly(['displayName', 'email', 'role', 'conservatory', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['displayName', 'email', 'role', 'conservatory', 'createdAt', 'termsVersion', 'termsAcceptedAt'])
         && request.resource.data.role == 'student'
         && request.resource.data.displayName is string
         && request.resource.data.displayName.size() <= 200

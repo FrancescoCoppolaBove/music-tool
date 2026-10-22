@@ -1,14 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Note } from 'tonal';
 
-// ─── Font injection ────────────────────────────────────────────────────────────
-if (typeof document !== 'undefined' && !document.getElementById('chord-landing-fonts')) {
-  const s = document.createElement('style');
-  s.id = 'chord-landing-fonts';
-  s.textContent = "@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@700;800&display=swap');";
-  document.head.appendChild(s);
-}
-
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface ChordStep {
   interval: string;   // Tonal interval from target root going UP (e.g. '5P' for V7)

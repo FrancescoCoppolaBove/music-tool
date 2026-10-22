@@ -16,6 +16,7 @@ npm run build        # tsc + vite build
 npm run lint         # ESLint, zero warnings allowed
 npm run test:guard   # unit tests for the AI endpoint guard
 nvm exec 22 npm run test:rules   # Firestore rules tests (emulator; Firebase CLI needs Node ≥20, project is on 18)
+nvm exec 22 npm run test:account # GDPR export/delete against Firestore + Auth emulators
 ```
 
 No UI test suite. Validate changes by running `npm run build` (catches TypeScript errors) then testing in the browser with `npm run dev`.
@@ -65,6 +66,8 @@ Copy `.env.example` to `.env` and fill in:
 
 ### Security model
 - AI endpoints go through `netlify/lib/aiGuard.ts` (CORS allowlist, Firebase ID token, input limits, daily quota in `aiUsage/{uid}`). Client calls must use `aiFetch` (`src/shared/utils/aiFetch.ts`), which attaches the token.
+- Account export/delete (GDPR) live in `netlify/lib/account.ts` → `POST /api/account/{export,delete}`; delete needs a sign-in < 5 min old. Any new per-user collection must be added to both `exportUserData` and `deleteUserAccount`.
+- Privacy: Firebase Analytics starts only after cookie consent (`src/shared/consent/`). Fonts are self-hosted via `@fontsource/*` — never add Google Fonts `@import`s. Legal docs are on Iubenda (`VITE_*_URL`, `src/config/legal.ts`).
 - `firestore.rules` is versioned in the repo: `role` / `plan` on `users/{uid}` are never client-writable. Change them only via Admin SDK / console. Deploy with `npx firebase deploy --only firestore:rules`.
 
 ## Adding a new feature

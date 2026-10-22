@@ -73,8 +73,12 @@ if (authDisabled && isNetlifyProduction) {
   console.error('[aiGuard] AI_AUTH_DISABLED is ignored in production.');
 }
 
-function adminApp(): App | null {
+export function adminApp(): App | null {
   if (getApps().length) return getApps()[0];
+  // Emulator runs (tests): no service account needed.
+  if (process.env.FIRESTORE_EMULATOR_HOST && process.env.GCLOUD_PROJECT) {
+    return initializeApp({ projectId: process.env.GCLOUD_PROJECT });
+  }
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   // Netlify / .env store the key with literal "\n" sequences.
@@ -85,6 +89,8 @@ function adminApp(): App | null {
 
 export interface Caller {
   uid: string;
+  /** Seconds since epoch of the user's last real sign-in (token `auth_time`). */
+  authTime: number;
   /** True only in local dev with AI_AUTH_DISABLED — quotas are skipped. */
   anonymousDev: boolean;
 }
@@ -92,7 +98,7 @@ export interface Caller {
 /** Verifies the Firebase ID token in the Authorization header. */
 export async function authenticate(authorization: string | undefined): Promise<Caller> {
   if (authDisabled && !isNetlifyProduction) {
-    return { uid: 'local-dev', anonymousDev: true };
+    return { uid: 'local-dev', authTime: 0, anonymousDev: true };
   }
 
   const app = adminApp();
@@ -106,7 +112,7 @@ export async function authenticate(authorization: string | undefined): Promise<C
 
   try {
     const decoded = await getAuth(app).verifyIdToken(match[1], true);
-    return { uid: decoded.uid, anonymousDev: false };
+    return { uid: decoded.uid, authTime: decoded.auth_time, anonymousDev: false };
   } catch {
     throw new GuardError(401, 'auth_invalid', 'Your session has expired — sign in again');
   }

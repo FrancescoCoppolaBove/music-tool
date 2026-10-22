@@ -16,10 +16,15 @@
     "test:theory": "node --import tsx --test src/features/harmony-composition-lab/*.test.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test:guard": "node --import tsx --test tests/aiGuard.test.ts",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-tonic 'node --import tsx --test tests/firestore-rules.test.ts'"
+    "test:rules": "firebase emulators:exec --only firestore --project demo-tonic 'node --import tsx --test tests/firestore-rules.test.ts'",
+    "test:account": "firebase emulators:exec --only firestore,auth --project demo-tonic 'node --import tsx --test tests/account.test.ts'"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
+    "@fontsource/dm-mono": "^5.3.0",
+    "@fontsource/dm-sans": "^5.3.0",
+    "@fontsource/playfair-display": "^5.3.0",
+    "@fontsource/syne": "^5.3.0",
     "@spotify/basic-pitch": "1.0.1",
     "@tensorflow/tfjs": "3.21.0",
     "@tensorflow/tfjs-backend-wasm": "3.21.0",

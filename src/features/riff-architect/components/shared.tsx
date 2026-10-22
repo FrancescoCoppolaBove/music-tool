@@ -1,5 +1,3 @@
-export const FONTS = `@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');`;
-
 export function RhythmGrid({ pattern, color, offset = 0 }: { pattern: number[]; color: string; offset?: number }) {
   const beatSize = pattern.length <= 8 ? 28 : 22;
   return (

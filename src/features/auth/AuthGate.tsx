@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../shared/context/AuthContext';
+import LegalLinks from '../../shared/components/LegalLinks';
+import { LEGAL_LINKS, MIN_AGE } from '../../config/legal';
 
 const STYLES = `
   @keyframes auth-fade-in {
@@ -78,6 +80,22 @@ const STYLES = `
   .auth-google-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+  }
+
+  .auth-legal-notice {
+    margin: 12px 0 0;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: #8b949e;
+    text-align: center;
+  }
+
+  .auth-legal-notice a { color: #a5b4fc; }
+
+  .auth-legal-footer {
+    margin-top: 20px;
+    font-size: 11px;
+    color: #4b5563;
   }
 
   .auth-features {
@@ -199,6 +217,13 @@ export default function AuthGate() {
             {loading ? 'Signing in…' : 'Sign in with Google'}
           </button>
 
+          <p className="auth-legal-notice">
+            By signing in you confirm you are at least {MIN_AGE} years old and accept the{' '}
+            {LEGAL_LINKS.terms ? <a href={LEGAL_LINKS.terms} target="_blank" rel="noopener noreferrer">Terms of Service</a> : 'Terms of Service'}
+            {' '}and{' '}
+            {LEGAL_LINKS.privacy ? <a href={LEGAL_LINKS.privacy} target="_blank" rel="noopener noreferrer">Privacy Policy</a> : 'Privacy Policy'}.
+          </p>
+
           <div className="auth-features">
             <div className="auth-feature-item">
               <div className="auth-feature-icon">🔥</div>
@@ -212,6 +237,9 @@ export default function AuthGate() {
               <div className="auth-feature-icon">🎵</div>
               <span>Personal song library, anywhere</span>
             </div>
+          </div>
+          <div className="auth-legal-footer">
+            <LegalLinks />
           </div>
         </div>
       </div>

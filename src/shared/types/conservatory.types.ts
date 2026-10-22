@@ -7,6 +7,9 @@ export interface UserProfile {
   role: UserRole;
   conservatory?: string;
   createdAt: number;
+  /** Terms version accepted at sign-up (see config/legal.ts). */
+  termsVersion?: string;
+  termsAcceptedAt?: number;
 }
 
 export interface ClassDoc {
