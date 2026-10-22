@@ -1,4 +1,5 @@
-import { useRef, useLayoutEffect, useEffect } from 'react';
+import { useRef, useLayoutEffect, useEffect, useState } from 'react';
+import { Minus, Plus, Maximize2, ChevronUp, ChevronDown } from 'lucide-react';
 import type { NoteEvent, ChordEvent } from '../types';
 
 export interface PianoRollProps {
@@ -62,17 +63,57 @@ function getRowParams(notes: NoteEvent[], H: number, rowPx: number, scrollY: num
   maxMidi += 3;
   const numRows = Math.max(MIN_ROWS, maxMidi - minMidi + 1);
   maxMidi = minMidi + numRows - 1;
-  const rowH = rowPx > 0 ? rowPx : H / numRows;
+  const rowH = Math.max(H / numRows, rowPx);
   const totalH = numRows * rowH;
   const sy = rowPx > 0 ? Math.max(0, Math.min(Math.max(0, totalH - H), scrollY)) : 0;
   return { minMidi, maxMidi, numRows, rowH, scrollY: sy, totalH };
 }
 
+const sceneCache = new WeakMap<HTMLCanvasElement, {
+  canvas: HTMLCanvasElement; state: RollState; key: string;
+}>();
+
 function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
   const ctx = canvas.getContext('2d');
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  if (!ctx || !W || !H) return;
+  const active = s.notes.filter(n => s.playheadSec >= n.startSec && s.playheadSec < n.startSec + n.durationSec).map(n => n.id).join(',');
+  const key = [canvas.width, canvas.height, W, H, s.bpm, s.duration, s.zoomX, s.scrollX, s.rowPx, s.scrollY, active].join('|');
+  let cached = sceneCache.get(canvas);
+  if (!cached || cached.key !== key || cached.state.notes !== s.notes ||
+    cached.state.chords !== s.chords || cached.state.selectedIds !== s.selectedIds) {
+    const scene = cached?.canvas ?? document.createElement('canvas');
+    scene.width = canvas.width;
+    scene.height = canvas.height;
+    drawScene(scene, s, W, H);
+    cached = { canvas: scene, state: { ...s }, key };
+    sceneCache.set(canvas, cached);
+  }
+  // Text and note geometry only change at note boundaries or viewport edits.
+  // During playback, composite the cached scene and move just the cursor.
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(cached.canvas, 0, 0);
+  ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+  const phX = GUTTER + s.playheadSec * s.zoomX - s.scrollX;
+  if (phX >= GUTTER && phX <= W) {
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(phX, 0, 1, H);
+    ctx.beginPath();
+    ctx.moveTo(phX - 5, 0);
+    ctx.lineTo(phX + 5, 0);
+    ctx.lineTo(phX, 8);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawScene(canvas: HTMLCanvasElement, s: RollState, W: number, H: number): void {
+  const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  const W = canvas.width;
-  const H = canvas.height;
+  if (!W || !H) return;
+  ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+  ctx.clearRect(0, 0, W, H);
 
   const { minMidi, maxMidi, rowH, scrollY, totalH } = getRowParams(s.notes, H, s.rowPx, s.scrollY);
 
@@ -94,14 +135,19 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
   ctx.fillRect(GUTTER - 1, 0, 1, H);
 
   // Label every pitch; include octave numbers on C rows as stable landmarks.
+  const soundingPitches = new Set<number>();
+  for (const n of s.notes) {
+    if (s.playheadSec >= n.startSec && s.playheadSec < n.startSec + n.durationSec) soundingPitches.add(n.midi);
+  }
   ctx.textBaseline = 'middle';
   for (let m = minMidi; m <= maxMidi; m++) {
     const y = (maxMidi - m) * rowH + rowH / 2 - scrollY;
     if (y < -rowH || y > H + rowH) continue;
     const pitchName = PITCH_NAMES[((m % 12) + 12) % 12];
-    const label = pitchName === 'C' ? `C${Math.floor(m / 12) - 1}` : pitchName;
+    const label = `${pitchName}${Math.floor(m / 12) - 1}`;
     ctx.font = `${Math.max(6, Math.min(10, rowH * 0.78))}px "DM Sans", sans-serif`;
-    ctx.fillStyle = BLACK_PCS.has(m % 12) ? '#9ca3af' : '#6b7280';
+    const sounding = soundingPitches.has(m);
+    ctx.fillStyle = sounding ? '#67e8f9' : pitchName === 'C' ? '#e6edf3' : '#9ca3af';
     ctx.fillText(label, 4, y, GUTTER - 8);
   }
 
@@ -183,33 +229,17 @@ function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
     }
 
     // Note name label
-    if (w >= 28 && rowH >= 9) {
+    const labelX = Math.max(GUTTER + 3, x + 4);
+    const labelWidth = Math.min(W, x + w) - labelX - 3;
+    if (labelWidth >= 24 && rowH >= 12) {
       const noteName = `${PITCH_NAMES[((note.midi % 12) + 12) % 12]}${Math.floor(note.midi / 12) - 1}`;
       ctx.font = `600 ${Math.min(11, Math.max(8, rowH * 0.7))}px "DM Sans", sans-serif`;
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(noteName, x + 4, y + h / 2, Math.max(0, w - 8));
+      ctx.fillText(noteName, labelX, y + h / 2, labelWidth);
     }
   }
   ctx.restore();
-
-  // ── Playhead ──────────────────────────────────────────────
-  const phX = GUTTER + s.playheadSec * s.zoomX - s.scrollX;
-  if (phX >= GUTTER && phX <= W) {
-    ctx.strokeStyle = '#ef4444';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(phX, 0);
-    ctx.lineTo(phX, H);
-    ctx.stroke();
-    ctx.fillStyle = '#ef4444';
-    ctx.beginPath();
-    ctx.moveTo(phX - 5, 0);
-    ctx.lineTo(phX + 5, 0);
-    ctx.lineTo(phX, 8);
-    ctx.closePath();
-    ctx.fill();
-  }
 
   // ── Vertical scrollbar (when content overflows) ───────────
   if (s.rowPx > 0 && totalH > H) {
@@ -231,6 +261,47 @@ export default function PianoRoll(props: PianoRollProps) {
   });
   const propsRef = useRef(props);
   const hadNotesRef = useRef(false);
+  const previousSelectionRef = useRef(props.selectedIds);
+  const [viewport, setViewport] = useState({ width: 0, height: 0, zoomX: 120, scrollX: 0 });
+
+  function redraw() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const s = stateRef.current;
+    s.scrollY = getRowParams(s.notes, canvas.clientHeight, s.rowPx, s.scrollY).scrollY;
+    s.scrollX = Math.max(0, Math.min(Math.max(0, s.duration * s.zoomX - canvas.clientWidth + GUTTER), s.scrollX));
+    drawAll(canvas, s);
+    setViewport({ width: canvas.clientWidth, height: canvas.clientHeight, zoomX: s.zoomX, scrollX: s.scrollX });
+  }
+
+  function zoom(axis: 'time' | 'pitch', factor: number, anchor?: number) {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const s = stateRef.current;
+    if (axis === 'pitch') {
+      const p = getRowParams(s.notes, canvas.clientHeight, s.rowPx, s.scrollY);
+      const y = anchor ?? canvas.clientHeight / 2;
+      s.rowPx = Math.max(canvas.clientHeight / p.numRows, Math.min(80, p.rowH * factor));
+      s.scrollY = (y + p.scrollY) * s.rowPx / p.rowH - y;
+    } else {
+      const x = anchor ?? (canvas.clientWidth - GUTTER) / 2;
+      const time = (x + s.scrollX) / s.zoomX;
+      s.zoomX = Math.max(0.05, Math.min(2000, s.zoomX * factor));
+      s.scrollX = time * s.zoomX - x;
+    }
+    redraw();
+  }
+
+  function fit() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const s = stateRef.current;
+    s.rowPx = 0;
+    s.scrollY = 0;
+    s.scrollX = 0;
+    s.zoomX = Math.max(0.05, Math.min(2000, (canvas.clientWidth - GUTTER - 8) / Math.max(1, s.duration)));
+    redraw();
+  }
 
   useLayoutEffect(() => {
     propsRef.current = props;
@@ -248,10 +319,34 @@ export default function PianoRoll(props: PianoRollProps) {
       let first = Infinity;
       for (const n of props.notes) if (n.startSec < first) first = n.startSec;
       stateRef.current.scrollX = Math.max(0, first * stateRef.current.zoomX - 60);
-      stateRef.current.rowPx = 0;
-      stateRef.current.scrollY = 0;
+      stateRef.current.rowPx = 18;
+      const canvas = canvasRef.current;
+      const firstNote = props.notes.find(n => n.startSec === first);
+      if (canvas && firstNote) {
+        const p = getRowParams(props.notes, canvas.clientHeight, 18, 0);
+        stateRef.current.scrollY = (p.maxMidi - firstNote.midi + 0.5) * p.rowH - canvas.clientHeight / 2;
+      }
+      redraw();
     }
     hadNotesRef.current = props.notes.length > 0;
+    if (previousSelectionRef.current !== props.selectedIds) {
+      previousSelectionRef.current = props.selectedIds;
+      const selected = props.notes.find(n => props.selectedIds.has(n.id));
+      const canvas = canvasRef.current;
+      if (selected && canvas) {
+        const s = stateRef.current;
+        const p = getRowParams(s.notes, canvas.clientHeight, s.rowPx, s.scrollY);
+        const y = (p.maxMidi - selected.midi) * p.rowH - p.scrollY;
+        if (y < 0 || y + p.rowH > canvas.clientHeight) {
+          s.scrollY = (p.maxMidi - selected.midi + 0.5) * p.rowH - canvas.clientHeight / 2;
+        }
+        const x = GUTTER + selected.startSec * s.zoomX - s.scrollX;
+        if (x < GUTTER || x > canvas.clientWidth - 8) {
+          s.scrollX = selected.startSec * s.zoomX - (canvas.clientWidth - GUTTER) * 0.2;
+        }
+        redraw();
+      }
+    }
     if (canvasRef.current) drawAll(canvasRef.current, stateRef.current);
   });
 
@@ -268,10 +363,11 @@ export default function PianoRoll(props: PianoRollProps) {
       s.playheadSec = propsRef.current.getPlayheadSec();
       const canvas = canvasRef.current;
       if (canvas) {
-        const W = canvas.width;
+        const W = canvas.clientWidth;
         const phPx = GUTTER + s.playheadSec * s.zoomX - s.scrollX;
         if (phPx > W * 0.8 || phPx < GUTTER) {
           s.scrollX = Math.max(0, s.playheadSec * s.zoomX - (W - GUTTER) * 0.15);
+          redraw();
         }
         drawAll(canvas, s);
       }
@@ -288,9 +384,10 @@ export default function PianoRoll(props: PianoRollProps) {
     const ro = new ResizeObserver(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      canvas.width  = Math.min(el.clientWidth, 8192);
-      canvas.height = Math.min(el.clientHeight, 4096);
-      drawAll(canvas, stateRef.current);
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width  = Math.min(Math.round(el.clientWidth * dpr), 8192);
+      canvas.height = Math.min(Math.round(el.clientHeight * dpr), 4096);
+      redraw();
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -304,35 +401,10 @@ export default function PianoRoll(props: PianoRollProps) {
 
     function onWheel(e: WheelEvent) {
       e.preventDefault();
-      const s = stateRef.current;
-
-      if (e.shiftKey) {
-        // ── Vertical zoom ──────────────────────────────────────
-        const H = cv.height;
-        const params = getRowParams(s.notes, H, s.rowPx, s.scrollY);
-        const { rowH: currentRowH, scrollY: oldScrollY } = params;
-        const delta = e.deltaY > 0 ? 0.85 : 1 / 0.85;
-        const newRowPx = Math.max(8, Math.min(80, currentRowH * delta));
-        const autoRowH = H / params.numRows;
-
-        if (Math.abs(newRowPx - autoRowH) < 0.8 && newRowPx < currentRowH) {
-          s.rowPx = 0;
-          s.scrollY = 0;
-        } else {
-          // Anchor: keep the MIDI pitch under the cursor at the same Y position
-          const ratio = newRowPx / currentRowH;
-          s.rowPx = newRowPx;
-          s.scrollY = Math.max(0, e.offsetY * (ratio - 1) + oldScrollY * ratio);
-        }
-      } else {
-        // ── Horizontal zoom ────────────────────────────────────
-        const delta = e.deltaY > 0 ? 0.85 : 1 / 0.85;
-        const mouseX = e.offsetX - GUTTER;
-        const timeBefore = (mouseX + s.scrollX) / s.zoomX;
-        s.zoomX = Math.max(20, Math.min(2000, s.zoomX * delta));
-        s.scrollX = Math.max(0, timeBefore * s.zoomX - mouseX);
-      }
-      drawAll(cv, s);
+      const delta = e.deltaY || e.deltaX;
+      if (!delta) return;
+      zoom(e.shiftKey ? 'pitch' : 'time', delta > 0 ? 0.85 : 1 / 0.85,
+        e.shiftKey ? e.offsetY : Math.max(0, e.offsetX - GUTTER));
     }
     cv.addEventListener('wheel', onWheel, { passive: false });
     return () => cv.removeEventListener('wheel', onWheel);
@@ -347,11 +419,14 @@ export default function PianoRoll(props: PianoRollProps) {
     let dragging = false;
     let lastX = 0;
     let lastY = 0;
+    let startX = 0;
+    let startY = 0;
     let didDrag = false;
 
     function hitTestNote(mouseX: number, mouseY: number): string | null {
       const s = stateRef.current;
-      const { maxMidi, rowH, scrollY } = getRowParams(s.notes, cv.height, s.rowPx, s.scrollY);
+      if (mouseX < GUTTER) return null;
+      const { maxMidi, rowH, scrollY } = getRowParams(s.notes, cv.clientHeight, s.rowPx, s.scrollY);
       for (let i = s.notes.length - 1; i >= 0; i--) {
         const note = s.notes[i];
         const x = GUTTER + note.startSec * s.zoomX - s.scrollX;
@@ -362,32 +437,36 @@ export default function PianoRoll(props: PianoRollProps) {
       return null;
     }
 
-    function onMouseDown(e: MouseEvent) {
+    function onMouseDown(e: PointerEvent) {
       if (e.button !== 0) return;
       if (stateRef.current.editMode) return;
+      if (!e.isPrimary) return;
+      cv.setPointerCapture(e.pointerId);
       dragging = true;
       didDrag = false;
       lastX = e.clientX;
       lastY = e.clientY;
+      startX = lastX;
+      startY = lastY;
     }
 
-    function onMouseMove(e: MouseEvent) {
+    function onMouseMove(e: PointerEvent) {
       if (!dragging) return;
       const dx = e.clientX - lastX;
       const dy = e.clientY - lastY;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) didDrag = true;
+      if (Math.abs(e.clientX - startX) > 3 || Math.abs(e.clientY - startY) > 3) didDrag = true;
       lastX = e.clientX;
       lastY = e.clientY;
       const s = stateRef.current;
       s.scrollX = Math.max(0, s.scrollX - dx);
       if (s.rowPx > 0) {
-        const { totalH } = getRowParams(s.notes, cv.height, s.rowPx, s.scrollY);
-        s.scrollY = Math.max(0, Math.min(Math.max(0, totalH - cv.height), s.scrollY + dy));
+        const p = getRowParams(s.notes, cv.clientHeight, s.rowPx, s.scrollY);
+        s.scrollY = Math.max(0, Math.min(Math.max(0, p.totalH - cv.clientHeight), p.scrollY - dy));
       }
-      drawAll(cv, s);
+      redraw();
     }
 
-    function onMouseUp(e: MouseEvent) {
+    function onMouseUp(e: PointerEvent) {
       if (!dragging) return;
       dragging = false;
       if (!didDrag) {
@@ -397,20 +476,25 @@ export default function PianoRoll(props: PianoRollProps) {
         const hitId = hitTestNote(mx, my);
         if (hitId !== null) {
           propsRef.current.onSelectNote(hitId, e.shiftKey || e.metaKey);
-        } else if (my < 14 && mx > GUTTER) {
+          const note = stateRef.current.notes.find(n => n.id === hitId);
+          if (note) propsRef.current.onSeek(note.startSec + 0.001);
+        } else if (mx > GUTTER) {
           const sec = (mx - GUTTER + stateRef.current.scrollX) / stateRef.current.zoomX;
           propsRef.current.onSeek(Math.max(0, sec));
         }
       }
+      if (cv.hasPointerCapture(e.pointerId)) cv.releasePointerCapture(e.pointerId);
     }
-
-    cv.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    function cancelDrag() { dragging = false; }
+    cv.addEventListener('pointerdown', onMouseDown);
+    cv.addEventListener('pointermove', onMouseMove);
+    cv.addEventListener('pointerup', onMouseUp);
+    cv.addEventListener('pointercancel', cancelDrag);
     return () => {
-      cv.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+      cv.removeEventListener('pointerdown', onMouseDown);
+      cv.removeEventListener('pointermove', onMouseMove);
+      cv.removeEventListener('pointerup', onMouseUp);
+      cv.removeEventListener('pointercancel', cancelDrag);
     };
   }, []);
 
@@ -428,11 +512,12 @@ export default function PianoRoll(props: PianoRollProps) {
 
     function getGeometry() {
       const s = stateRef.current;
-      const { maxMidi, rowH, scrollY } = getRowParams(s.notes, cv.height, s.rowPx, s.scrollY);
+      const { maxMidi, rowH, scrollY } = getRowParams(s.notes, cv.clientHeight, s.rowPx, s.scrollY);
       return { maxMidi, rowH, scrollY };
     }
 
     function hitTestEdit(mx: number, my: number): { noteId: string; region: 'edge' | 'body' } | null {
+      if (mx < GUTTER) return null;
       const s = stateRef.current;
       const { maxMidi, rowH, scrollY } = getGeometry();
       for (let i = s.notes.length - 1; i >= 0; i--) {
@@ -485,11 +570,12 @@ export default function PianoRoll(props: PianoRollProps) {
       const rect = cv.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
+      if (mx < GUTTER) return;
       if (hitTestEdit(mx, my)) return;
       const s = stateRef.current;
       const { maxMidi, rowH, scrollY } = getGeometry();
       const sec = Math.max(0, (mx - GUTTER + s.scrollX) / s.zoomX);
-      const midi = Math.round(maxMidi - (my + scrollY) / rowH);
+      const midi = Math.max(0, Math.min(127, maxMidi - Math.floor((my + scrollY) / rowH)));
       propsRef.current.onCreateNote({ midi, cents: 0, startSec: sec, durationSec: 0.5 });
     }
 
@@ -513,38 +599,60 @@ export default function PianoRoll(props: PianoRollProps) {
 
     function onMove(e: MouseEvent) {
       const s = stateRef.current;
-      if (!s.editMode) { cv.style.cursor = 'default'; return; }
       const rect = cv.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
       const n = s.notes;
-      if (n.length === 0) { cv.style.cursor = 'crosshair'; return; }
-      const { maxMidi, rowH, scrollY } = getRowParams(n, cv.height, s.rowPx, s.scrollY);
+      if (n.length === 0) { cv.style.cursor = s.editMode ? 'crosshair' : 'default'; return; }
+      const { maxMidi, rowH, scrollY } = getRowParams(n, cv.clientHeight, s.rowPx, s.scrollY);
       for (let i = n.length - 1; i >= 0; i--) {
         const note = n[i];
         const x = GUTTER + note.startSec * s.zoomX - s.scrollX;
         const w = Math.max(4, note.durationSec * s.zoomX);
         const y = (maxMidi - note.midi) * rowH - scrollY;
-        if (mx >= x && mx <= x + w && my >= y && my <= y + rowH) {
+        if (mx >= GUTTER && mx >= x && mx <= x + w && my >= y && my <= y + rowH) {
           const edgeW = Math.min(8, w * 0.3);
-          cv.style.cursor = mx >= x + w - edgeW ? 'ew-resize' : 'grab';
+          cv.style.cursor = s.editMode ? (mx >= x + w - edgeW ? 'ew-resize' : 'grab') : 'pointer';
+          cv.title = `${PITCH_NAMES[note.midi % 12]}${Math.floor(note.midi / 12) - 1} · ${note.startSec.toFixed(2)} s · ${note.durationSec.toFixed(2)} s duration`;
           return;
         }
       }
-      cv.style.cursor = 'crosshair';
+      cv.title = 'Scroll to zoom time. Shift+scroll to zoom pitch. Drag to pan.';
+      cv.style.cursor = s.editMode ? 'crosshair' : 'grab';
     }
 
     cv.addEventListener('mousemove', onMove);
     return () => cv.removeEventListener('mousemove', onMove);
   }, []);
 
+  const controlStyle = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, padding: 0, border: '1px solid #30363d', borderRadius: 4, background: '#21262d', color: '#e6edf3', cursor: 'pointer' };
+  const maxScrollX = Math.max(0, props.duration * viewport.zoomX - viewport.width + GUTTER);
+  const selectedNotes = props.notes.filter(n => props.selectedIds.has(n.id));
   return (
-    <div
-      ref={containerRef}
-      style={{ width: '100%', height: '100%', overflow: 'hidden', position: 'relative', borderRadius: 12 }}
-      title="Scroll: zoom orizzontale | Shift+Scroll: zoom verticale | Trascina: scorrimento"
-    >
-      <canvas ref={canvasRef} style={{ display: 'block' }} />
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <div role="toolbar" aria-label="Piano roll view" style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', padding: '6px 0', fontSize: 12, color: '#9ca3af' }}>
+        {(['time', 'pitch'] as const).map(axis => <div key={axis} style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <span>{axis === 'time' ? 'Time' : 'Pitch'}</span>
+          <button style={controlStyle} aria-label={`Zoom out ${axis}`} title={`Zoom out ${axis}`} onClick={() => zoom(axis, 0.8)}><Minus size={15} /></button>
+          <button style={controlStyle} aria-label={`Zoom in ${axis}`} title={`Zoom in ${axis}`} onClick={() => zoom(axis, 1.25)}><Plus size={15} /></button>
+        </div>)}
+        <button style={controlStyle} title="Higher pitches" aria-label="Higher pitches" onClick={() => { stateRef.current.scrollY -= 80; redraw(); }}><ChevronUp size={16} /></button>
+        <button style={controlStyle} title="Lower pitches" aria-label="Lower pitches" onClick={() => { stateRef.current.scrollY += 80; redraw(); }}><ChevronDown size={16} /></button>
+        <button style={{ ...controlStyle, width: 'auto', padding: '0 8px', gap: 5 }} title="Fit entire recording" onClick={fit}><Maximize2 size={15} /> Fit</button>
+      </div>
+      <output aria-label="Selected notes" style={{ minHeight: 22, fontSize: 12, color: '#cbd5e1', overflowWrap: 'anywhere' }}>
+        {selectedNotes.length ? selectedNotes.map(n => `${PITCH_NAMES[n.midi % 12]}${Math.floor(n.midi / 12) - 1} (${n.startSec.toFixed(2)} s, ${n.durationSec.toFixed(2)} s long)`).join(' · ') : 'No note selected'}
+      </output>
+      <div ref={containerRef} style={{ flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative', borderRadius: 8 }}>
+        <canvas ref={canvasRef} aria-label="Piano roll: detected pitches over time" role="img"
+          title="Scroll to zoom time. Shift+scroll to zoom pitch. Drag to pan."
+          style={{ display: 'block', width: '100%', height: '100%', touchAction: 'none' }} />
+      </div>
+      <input type="range" aria-label="Timeline position" min={0} max={maxScrollX || 1} step="any"
+        value={Math.min(viewport.scrollX, maxScrollX)} disabled={maxScrollX === 0}
+        onChange={e => { stateRef.current.scrollX = Number(e.target.value); redraw(); }}
+        style={{ width: '100%', margin: '6px 0', accentColor: '#7c3aed' }} />
+      {props.notes.some(n => (n.confidence ?? 1) < 0.4) && <span style={{ color: '#fbbf24', fontSize: 11 }}>Dashed amber: uncertain pitch</span>}
     </div>
   );
 }

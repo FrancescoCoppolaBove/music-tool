@@ -1,6 +1,40 @@
 import type { NoteEvent } from '../types';
+import { hannWindow, magnitudeSpectrum } from './dsp';
 
 export const MODEL_SAMPLE_RATE = 22050;
+
+/** Reject only candidates whose sampled windows are consistently broadband.
+ * This is a tonality guard, not proof that any particular pitch is correct.
+ */
+export function rejectBroadbandNotes(notes: NoteEvent[], signal: Float32Array, sampleRate: number): NoteEvent[] {
+  const size = 2048;
+  const window = hannWindow(size);
+  const frame = new Float32Array(size);
+  const cache = new Map<number, boolean>();
+  const isTonal = (center: number): boolean => {
+    const bin = Math.round(center / 256);
+    const cached = cache.get(bin);
+    if (cached !== undefined) return cached;
+    const start = bin * 256 - size / 2;
+    for (let i = 0; i < size; i++) frame[i] = signal[start + i] ?? 0;
+    const spectrum = magnitudeSpectrum(frame, window);
+    const first = Math.max(1, Math.floor(25 * size / sampleRate));
+    const last = Math.min(spectrum.length, Math.ceil(9000 * size / sampleRate));
+    let sum = 0, logs = 0;
+    for (let i = first; i < last; i++) {
+      const power = Math.max(1e-20, spectrum[i] ** 2);
+      sum += power;
+      logs += Math.log(power);
+    }
+    const count = Math.max(1, last - first);
+    const flatness = Math.exp(logs / count) / (sum / count);
+    const tonal = sum > 1e-12 && flatness < 0.45;
+    cache.set(bin, tonal);
+    return tonal;
+  };
+  return notes.filter(note => [0.2, 0.5, 0.8].some(fraction =>
+    isTonal((note.startSec + Math.min(0.15, note.durationSec) * fraction) * sampleRate)));
+}
 
 /** Windowed-sinc resampling with an anti-aliasing filter before downsampling. */
 export function resampleForModel(signal: Float32Array, sampleRate: number): Float32Array {

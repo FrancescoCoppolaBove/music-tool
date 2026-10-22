@@ -4,6 +4,11 @@
       "count": 1
     }
   },
+  "src/features/audio-transcriber/components/PianoRoll.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
   "src/features/cadence-trainer/CadenceTrainerFeature.tsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1

@@ -90,7 +90,9 @@ export default function AudioTranscriberFeature() {
   const deleteSelectedRef = useRef<() => void>(() => {});
 
   function stopSource() {
+    if (sourceRef.current) sourceRef.current.onended = null;
     try { sourceRef.current?.stop(); } catch { /* already stopped */ }
+    sourceRef.current?.disconnect();
     sourceRef.current = null;
     cancelAnimationFrame(rafRef.current);
   }
@@ -265,6 +267,9 @@ export default function AudioTranscriberFeature() {
     sourceRef.current = src;
     src.onended = () => {
       if (sourceRef.current === src) {
+        cancelAnimationFrame(rafRef.current);
+        src.disconnect();
+        sourceRef.current = null;
         pausePositionRef.current = 0;
         setIsPlaying(false);
         setPlayheadSec(0);
@@ -294,9 +299,10 @@ export default function AudioTranscriberFeature() {
   function handlePause() {
     const ctx = audioCtxRef.current;
     if (!ctx) return;
-    pausePositionRef.current = ctx.currentTime - startTimeRef.current;
+    pausePositionRef.current = getPlayheadSecCb();
     stopSource();
     setIsPlaying(false);
+    setPlayheadSec(pausePositionRef.current);
   }
 
   useLayoutEffect(() => {
@@ -452,23 +458,33 @@ export default function AudioTranscriberFeature() {
           </span>
         )}
 
-        {/* Instrument pills */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {INSTRUMENTS.map(ins => (
+        <div role="group" aria-label="Analysis mode" style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          {[{ poly: false, label: 'Monophonic', profile: 'bass' as const }, { poly: true, label: 'Polyphonic', profile: 'keyboard' as const }].map(mode => (
             <button
-              key={ins.id}
+              key={mode.label}
               disabled={appState === 'analyzing' || appState === 'loading'}
-              aria-pressed={instrument === ins.id}
-              onClick={() => setInstrument(ins.id)}
+              aria-pressed={INSTRUMENT_CONFIG[instrument].poly === mode.poly}
+              title={mode.poly ? 'Overlapping notes and chords' : 'One note at a time'}
+              onClick={() => setInstrument(mode.profile)}
               style={btnStyle(
-                instrument === ins.id ? '#7c3aed' : '#21262d',
-                instrument === ins.id ? '#e6edf3' : '#8b949e',
+                INSTRUMENT_CONFIG[instrument].poly === mode.poly ? '#7c3aed' : '#21262d',
+                INSTRUMENT_CONFIG[instrument].poly === mode.poly ? '#e6edf3' : '#8b949e',
               )}
             >
-              {ins.label}
+              {mode.label}
             </button>
           ))}
         </div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#8b949e' }}>
+          Instrument
+          <select aria-label="Instrument profile" value={instrument}
+            disabled={appState === 'analyzing' || appState === 'loading'}
+            onChange={e => setInstrument(e.target.value as InstrumentKind)}
+            style={{ background: '#21262d', color: '#e6edf3', border: '1px solid #30363d', borderRadius: 6, padding: '6px 8px' }}>
+            {INSTRUMENTS.filter(ins => INSTRUMENT_CONFIG[ins.id].poly === INSTRUMENT_CONFIG[instrument].poly)
+              .map(ins => <option key={ins.id} value={ins.id}>{ins.label}</option>)}
+          </select>
+        </label>
 
         {instrument === 'winds-section' && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -614,6 +630,17 @@ export default function AudioTranscriberFeature() {
             {(appState === 'loading' || appState === 'analyzing') && (
               <div style={{ height: 3, background: '#21262d', margin: '0 16px' }}>
                 <div style={{ height: '100%', width: `${appState === 'loading' ? 24 : Math.round(analysisProgress * 100)}%`, background: '#7c3aed', transition: 'width 0.1s' }} />
+              </div>
+            )}
+            {result && (
+              <div style={{ padding: '10px 0', minHeight: 42, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, color: '#e6edf3', fontSize: 13 }}>
+                <span style={{ color: '#8b949e' }}>At playhead</span>
+                <strong>{chords.filter(c => c.startSec <= playheadSec && playheadSec < c.startSec + (c.durationSec ?? 0)).map(c => c.symbol).join(' / ') || '—'}</strong>
+                <span aria-label="Notes at playhead" style={{ fontFamily: 'monospace', color: '#67e8f9' }}>
+                  {notes.filter(n => n.startSec <= playheadSec && playheadSec < n.startSec + n.durationSec)
+                    .sort((a, b) => a.midi - b.midi)
+                    .map(n => `${['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][n.midi % 12]}${Math.floor(n.midi / 12) - 1}`).join(' · ') || 'No active notes'}
+                </span>
               </div>
             )}
             <div className="at-split">
