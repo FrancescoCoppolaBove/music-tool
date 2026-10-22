@@ -1,5 +1,5 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
+import { connectAuthEmulator, getAuth, type Auth } from 'firebase/auth';
 import type { Analytics } from 'firebase/analytics';
 import { getConsent, onConsentChange } from './shared/consent/consent';
 
@@ -37,6 +37,8 @@ if (firebaseEnabled) {
 
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
+  // Local end-to-end testing against the Firebase emulators (npm run dev:emulators).
+  if (import.meta.env.VITE_USE_EMULATORS === 'true') connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
 
   // Analytics sets tracking cookies: start it only after explicit consent.
   if (getConsent()?.analytics) startAnalytics();

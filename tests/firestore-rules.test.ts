@@ -109,6 +109,18 @@ test('submissions: create own only, immutable, private', async () => {
   await assertSucceeds(getDocs(query(collection(as('teacher1'), 'submissions'), where('userId', 'in', ['alice']))));
 });
 
+// ─── subscriptions ────────────────────────────────────────────────────────────
+
+test('entitlements: readable by the owner only, never writable by clients', async () => {
+  await env.withSecurityRulesDisabled(async ctx => {
+    await setDoc(doc(ctx.firestore(), 'entitlements/alice'), { plan: 'free', status: 'canceled' });
+  });
+  await assertSucceeds(getDoc(doc(as('alice'), 'entitlements/alice')));
+  await assertFails(getDoc(doc(as('bob'), 'entitlements/alice')));
+  await assertFails(setDoc(doc(as('alice'), 'entitlements/alice'), { plan: 'pro', status: 'active' }));
+  await assertFails(setDoc(doc(as('bob'), 'entitlements/bob'), { plan: 'pro', status: 'active' }));
+});
+
 // ─── server-only ──────────────────────────────────────────────────────────────
 
 test('AI quota counters are not readable or writable by clients', async () => {

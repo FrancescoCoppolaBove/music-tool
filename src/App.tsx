@@ -48,6 +48,7 @@ import {
   AudioTranscriberFeature,
   MyCompositionsFeature,
   isKnownTab,
+  PricingFeature,
   preloadTab,
 } from './featureRegistry';
 import LegalLinks from './shared/components/LegalLinks';
@@ -55,6 +56,9 @@ import ErrorBoundary from './shared/components/ErrorBoundary';
 import ModalBuddy from './shared/components/ModalBuddy';
 import HomePage from './features/home/HomePage';
 import { useUserProfile } from './shared/context/UserProfileContext';
+import { useEntitlement } from './shared/context/entitlement';
+import ProGate from './shared/components/ProGate';
+import { billingEnabled, PRO_TABS } from './config/plans';
 import type { UserRole } from './shared/types/conservatory.types';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
@@ -272,6 +276,18 @@ const GROUPS: GroupDef[] = [
 
 // ─── Desktop NavGroup dropdown ───────────────────────────────────────────────
 
+/** "PRO" pill next to locked tools (hidden for Pro users and when billing is off). */
+function ProBadge({ tab }: { tab: Tab }) {
+  const { isPro } = useEntitlement();
+  if (isPro || !PRO_TABS.has(tab)) return null;
+  return (
+    <span aria-label="Pro" style={{
+      marginLeft: 6, padding: '1px 6px', borderRadius: 100, verticalAlign: 'middle',
+      background: 'rgba(124,58,237,0.2)', color: '#c4b5fd', fontSize: 9.5, fontWeight: 800, letterSpacing: '0.06em',
+    }}>PRO</span>
+  );
+}
+
 /** Start downloading a tool as soon as the user shows intent (hover, focus, touch). */
 function preloadOnIntent(tab: Tab) {
   const start = () => preloadTab(tab);
@@ -294,7 +310,7 @@ function NavDropdownItem({ tab, activeTab, onSelect }: { tab: TabDef; activeTab:
         flexShrink: 0, marginRight: 14,
       }} />
       <span style={{ flex: 1, padding: '8px 14px 8px 0' }}>
-        <span className="nav-dropdown-item-name" style={{ display: 'block' }}>{tab.label}</span>
+        <span className="nav-dropdown-item-name" style={{ display: 'block' }}>{tab.label}<ProBadge tab={tab.id} /></span>
         <span className="nav-dropdown-item-desc" style={{ display: 'block' }}>{tab.desc}</span>
       </span>
     </button>
@@ -532,7 +548,7 @@ function MobileMenu({
                           color: isCurrent ? '#c4b5fd' : '#e6edf3',
                           lineHeight: 1.3,
                         }}>
-                          {tab.label}
+                          {tab.label}<ProBadge tab={tab.id} />
                         </span>
                         <span style={{
                           display: 'block',
@@ -667,8 +683,9 @@ function GlobalKeyPicker() {
 
 // ─── User avatar dropdown ──────────────────────────────────────────────────────
 
-function UserMenu({ onSignOut, onProfile }: { onSignOut: () => void; onProfile: () => void }) {
+function UserMenu({ onSignOut, onProfile, onPricing }: { onSignOut: () => void; onProfile: () => void; onPricing: () => void }) {
   const { user } = useAuth();
+  const { isPro } = useEntitlement();
   const [open, setOpen] = useState(false);
 
   if (!user) return null;
@@ -719,6 +736,18 @@ function UserMenu({ onSignOut, onProfile }: { onSignOut: () => void; onProfile: 
             >
               👤 My profile
             </button>
+            {billingEnabled && (
+              <button
+                onClick={() => { setOpen(false); onPricing(); }}
+                style={{
+                  width: '100%', textAlign: 'left', padding: '8px 12px',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: 13, color: isPro ? '#e6edf3' : '#c4b5fd', fontWeight: isPro ? 400 : 600, borderRadius: 6,
+                }}
+              >
+                ⭐ {isPro ? 'Subscription' : 'Upgrade to Pro'}
+              </button>
+            )}
             <button
               onClick={() => { setOpen(false); onSignOut(); }}
               style={{
@@ -792,6 +821,7 @@ function restoreTab(): Tab {
 export default function App() {
   const { user, loading: authLoading, signOut } = useAuth();
   const { role } = useUserProfile();
+  const { isPro, loading: planLoading } = useEntitlement();
   const { stats } = useStats();
   const { globalKey, setGlobalKey } = useGlobalKey();
   const [activeTab, setActiveTab] = useState<Tab>(restoreTab);
@@ -1002,7 +1032,7 @@ export default function App() {
             )}
 
             {/* User avatar + sign out — desktop only (hidden in local mode) */}
-            {user && <UserMenu onSignOut={signOut} onProfile={() => handleSelectTab('profile')} />}
+            {user && <UserMenu onSignOut={signOut} onProfile={() => handleSelectTab('profile')} onPricing={() => handleSelectTab('pricing')} />}
 
             {/* ── Mobile: hamburger button (hidden on desktop) ── */}
             <button
@@ -1058,6 +1088,10 @@ export default function App() {
         {/* Keyed on the tab: navigating away resets a crashed tool. */}
         <ErrorBoundary key={activeTab} label={activeToolLabel ?? undefined}>
         <Suspense fallback={<ToolLoading />}>
+        {PRO_TABS.has(activeTab) && !isPro ? (
+          planLoading ? <ToolLoading /> : <ProGate toolLabel={activeToolLabel ?? 'This tool'} onNavigate={handleSelectTab} />
+        ) : <>
+        {activeTab === 'pricing'       && <PricingFeature />}
         {activeTab === 'home'          && <HomePage onNavigate={handleSelectTab} />}
         {activeTab === 'harmony-lab'   && <MyCompositionsFeature onNavigate={handleSelectTab} />}
         {activeTab === 'voicings'      && <ChordVoicingsFeature />}
@@ -1100,6 +1134,7 @@ export default function App() {
         {activeTab === 'groove'        && <GrooveKitchenFeature />}
         {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}
         {activeTab === 'rhythmic-displacement' && <RhythmicDisplacementFeature />}
+        </>}
         </Suspense>
         </ErrorBoundary>
       </main>

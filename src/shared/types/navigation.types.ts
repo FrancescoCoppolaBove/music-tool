@@ -23,6 +23,7 @@ export type Tab =
   | 'chorddetect'
   | 'nailpitch'
   | 'profile'
+  | 'pricing'
   | 'voiceleading'
   | 'groove'
   | 'arrangement'

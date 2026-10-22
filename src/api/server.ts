@@ -3,7 +3,9 @@ import 'dotenv/config';
 import express, { type Request, type Response } from 'express';
 import type { Handler, HandlerContext, HandlerEvent } from '@netlify/functions';
 import { handler as account } from '../../netlify/functions/account';
+import { handler as billing } from '../../netlify/functions/billing';
 import { handler as buddy } from '../../netlify/functions/buddy';
+import { handler as paddleWebhook } from '../../netlify/functions/paddle-webhook';
 import { handler as score } from '../../netlify/functions/score';
 
 /**
@@ -13,7 +15,7 @@ import { handler as score } from '../../netlify/functions/score';
  *   /.netlify/functions/<fn>/... → netlify/functions/<fn>.ts
  * To add an endpoint: create the Netlify function and register it below.
  */
-const FUNCTIONS: Record<string, Handler> = { account, buddy, score };
+const FUNCTIONS: Record<string, Handler> = { account, billing, buddy, 'paddle-webhook': paddleWebhook, score };
 
 const app = express();
 const PORT = process.env.PORT || 3001;

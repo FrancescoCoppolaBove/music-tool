@@ -4,6 +4,7 @@ import App from './App.tsx'
 import ConsentBanner from './shared/components/ConsentBanner.tsx'
 import { AuthProvider } from './shared/context/AuthContext.tsx'
 import { UserProfileProvider } from './shared/context/UserProfileContext.tsx'
+import { EntitlementProvider } from './shared/context/EntitlementContext.tsx'
 import { StatsProvider } from './shared/context/StatsContext.tsx'
 import { GlobalKeyProvider } from './shared/context/GlobalKeyContext.tsx'
 // Self-hosted fonts: no requests to Google Fonts (GDPR — the user's IP stays with us).
@@ -25,15 +26,17 @@ initMonitoring()
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AuthProvider>
-      <UserProfileProvider>
-        <StatsProvider>
-          <GlobalKeyProvider>
-            <ErrorBoundary>
-              <App />
-            </ErrorBoundary>
-          </GlobalKeyProvider>
-        </StatsProvider>
-      </UserProfileProvider>
+      <EntitlementProvider>
+        <UserProfileProvider>
+          <StatsProvider>
+            <GlobalKeyProvider>
+              <ErrorBoundary>
+                <App />
+              </ErrorBoundary>
+            </GlobalKeyProvider>
+          </StatsProvider>
+        </UserProfileProvider>
+      </EntitlementProvider>
     </AuthProvider>
     <ConsentBanner />
   </React.StrictMode>,

@@ -7,6 +7,7 @@ rules_version = '2';
 // - Deny by default: anything not matched below is closed.
 // - Privileged fields (`role`, `plan`) are never writable from the client;
 //   they are changed only with the Admin SDK (console, scripts, webhooks).
+// - The subscription plan lives in `entitlements/{uid}`, written by the Paddle webhook.
 // - `aiUsage` (AI quota counters) is server-only.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -102,6 +103,13 @@ service cloud.firestore {
 
       // Results are immutable once submitted.
       allow update, delete: if false;
+    }
+
+    // ─── Subscriptions ───────────────────────────────────────────────────────
+    // Written only by the Paddle webhook (Admin SDK). Users can read their plan.
+    match /entitlements/{uid} {
+      allow read: if isSelf(uid);
+      allow write: if false;
     }
 
     // ─── Server-only collections ─────────────────────────────────────────────
