@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Deploy: npx firebase deploy --only firestore:rules
+// Deploy: npx firebase deploy --only firestore   (rules + indexes)
 // Test:   npm run test:rules   (Firestore emulator)
 //
 // Principles
