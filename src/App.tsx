@@ -1,61 +1,73 @@
-import HarmonyCheatSheetFeature from './features/harmony-cheat-sheet/HarmonyCheatSheetFeature';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { computeStreak } from './shared/hooks/useExerciseScore';
 import { useAuth } from './shared/context/AuthContext';
 import { firebaseEnabled } from './firebase';
 import { useStats } from './shared/context/StatsContext';
 import { useGlobalKey, CHROMATIC_KEYS } from './shared/context/GlobalKeyContext';
 import AuthGate from './features/auth/AuthGate';
+import {
+  HarmonyCheatSheetFeature,
+  PracticeJournalFeature,
+  SongLibraryFeature,
+  DailyChallengeFeature,
+  ChordVoicingsFeature,
+  ScaleRecognitionFeature,
+  ScaleDictionaryFeature,
+  CircleOfFifthsFeature,
+  ScaleHarmonizationFeature,
+  ModalInterchangeFeature,
+  ChordProgressionFeature,
+  ScaleAdvisorFeature,
+  HarmonicCyclesFeature,
+  ChordFinderFeature,
+  HarmonicAnalysisFeature,
+  RiffArchitectFeature,
+  MelodyArchitectFeature,
+  IntervalQuizFeature,
+  ScoreToIRealFeature,
+  ChordLandingFeature,
+  SongArchitectFeature,
+  CadenceTrainerFeature,
+  TransposingInstrumentsFeature,
+  ChordDetectionFeature,
+  NailThePitchFeature,
+  ProfileFeature,
+  VoiceLeadingFeature,
+  GrooveKitchenFeature,
+  ArrangementBlueprintFeature,
+  RhythmicDisplacementFeature,
+  EarTrainingProFeature,
+  SolfeggioCantatoFeature,
+  SetticlavioFeature,
+  ExamTemplatesFeature,
+  TeacherDashboardFeature,
+  HarmoniaCourseFeature,
+  ReharmonizationFeature,
+  MelodyHarmonizerFeature,
+  SecondaryDominantsFeature,
+  AudioTranscriberFeature,
+  MyCompositionsFeature,
+  isKnownTab,
+  preloadTab,
+} from './featureRegistry';
 import LegalLinks from './shared/components/LegalLinks';
 import ErrorBoundary from './shared/components/ErrorBoundary';
-import PracticeJournalFeature from './features/practice-journal/PracticeJournalFeature';
-import SongLibraryFeature from './features/song-library/SongLibraryFeature';
-import DailyChallengeFeature from './features/daily-challenge/DailyChallengeFeature';
-import ChordVoicingsFeature from './features/chord-voicings/ChordVoicingsFeature';
-import ScaleRecognitionFeature from './features/scale-recognition/ScaleRecognitionFeature';
-import ScaleDictionaryFeature from './features/scale-dictionary/ScaleDictionaryFeature';
-import CircleOfFifthsFeature from './features/circle-of-fifth/CircleOfFifthsFeature';
-import ScaleHarmonizationFeature from './features/scale-harmonization/ScaleHarmonizationFeature';
-import ModalInterchangeFeature from './features/modal-interchange/ModalInterchangeFeature';
-import ChordProgressionFeature from './features/chord-progression/ChordProgressionFeature';
-import ScaleAdvisorFeature from './features/scale-advisor/ScaleAdvisorFeature';
-import HarmonicCyclesFeature from './features/harmonic-cycles/HarmonicCyclesFeature';
-import ChordFinderFeature from './features/chord-finder/ChordFinderFeature';
-import HarmonicAnalysisFeature from './features/harmonic-analysis/HarmonicAnalysisFeature';
-import RiffArchitectFeature from './features/riff-architect/RiffArchitectFeature';
-import MelodyArchitectFeature from './features/melody-architect/MelodyArchitectFeature';
-import IntervalQuizFeature from './features/interval-quiz/IntervalQuizFeature';
-import ScoreToIRealFeature from './features/score-to-ireal/ScoreToIRealFeature';
-import ChordLandingFeature from './features/chord-landing/ChordLandingFeature';
-import SongArchitectFeature from './features/song-architect/SongArchitectFeature';
-import CadenceTrainerFeature from './features/cadence-trainer/CadenceTrainerFeature';
-import TransposingInstrumentsFeature from './features/transposing-instruments/TransposingInstrumentsFeature';
-import ChordDetectionFeature from './features/chord-detection/ChordDetectionFeature';
-import NailThePitchFeature from './features/nail-the-pitch/NailThePitchFeature';
-import ProfileFeature from './features/profile/ProfileFeature';
 import ModalBuddy from './shared/components/ModalBuddy';
-import VoiceLeadingFeature from './features/voice-leading/VoiceLeadingFeature';
-import GrooveKitchenFeature from './features/groove-kitchen/GrooveKitchenFeature';
-import ArrangementBlueprintFeature from './features/arrangement-blueprint/ArrangementBlueprintFeature';
-import RhythmicDisplacementFeature from './features/rhythmic-displacement/RhythmicDisplacementFeature';
 import HomePage from './features/home/HomePage';
-import EarTrainingProFeature from './features/ear-training-pro/EarTrainingProFeature';
-import SolfeggioCantatoFeature from './features/solfeggio-cantato/SolfeggioCantatoFeature';
-import SetticlavioFeature from './features/setticlavio/SetticlavioFeature';
-import ExamTemplatesFeature from './features/exam-templates/ExamTemplatesFeature';
-import TeacherDashboardFeature from './features/teacher-dashboard/TeacherDashboardFeature';
-import HarmoniaCourseFeature from './features/harmonia-course/HarmoniaCourseFeature';
-import ReharmonizationFeature from './features/reharmonization/ReharmonizationFeature';
-import MelodyHarmonizerFeature from './features/melody-harmonizer/MelodyHarmonizerFeature';
-import SecondaryDominantsFeature from './features/secondary-dominants/SecondaryDominantsFeature';
-import AudioTranscriberFeature from './features/audio-transcriber/AudioTranscriberFeature';
-import MyCompositionsFeature from './features/my-compositions/MyCompositionsFeature';
 import { useUserProfile } from './shared/context/UserProfileContext';
 import type { UserRole } from './shared/types/conservatory.types';
 
 // ─── Theme styles ─────────────────────────────────────────────────────────────
 
 const HEADER_STYLES = `
+  @keyframes tool-loading-spin { to { transform: rotate(360deg); } }
+  .tool-loading-spinner {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 3px solid #30363d; border-top-color: #7c3aed;
+    animation: tool-loading-spin 0.8s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) { .tool-loading-spinner { animation-duration: 2.4s; } }
+
 
 :root {
   --color-bg-base: #0d1117;
@@ -260,12 +272,19 @@ const GROUPS: GroupDef[] = [
 
 // ─── Desktop NavGroup dropdown ───────────────────────────────────────────────
 
+/** Start downloading a tool as soon as the user shows intent (hover, focus, touch). */
+function preloadOnIntent(tab: Tab) {
+  const start = () => preloadTab(tab);
+  return { onPointerEnter: start, onPointerDown: start, onFocus: start };
+}
+
 function NavDropdownItem({ tab, activeTab, onSelect }: { tab: TabDef; activeTab: Tab; onSelect: (t: Tab) => void }) {
   const isCurrent = tab.id === activeTab;
   return (
     <button
       key={tab.id}
       onClick={() => onSelect(tab.id)}
+      {...preloadOnIntent(tab.id)}
       className={`nav-dropdown-item${isCurrent ? ' active' : ''}`}
     >
       <span style={{
@@ -488,6 +507,7 @@ function MobileMenu({
                     )}
                     <button
                       onClick={() => onSelect(tab.id)}
+                      {...preloadOnIntent(tab.id)}
                       style={{
                         width: '100%', display: 'flex', alignItems: 'center', gap: 14,
                         padding: '12px 20px',
@@ -549,6 +569,7 @@ function MobileMenu({
             </div>
             <button
               onClick={() => onSelect('teacherdashboard')}
+              {...preloadOnIntent('teacherdashboard')}
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: 14,
                 padding: '12px 20px',
@@ -715,6 +736,17 @@ function UserMenu({ onSignOut, onProfile }: { onSignOut: () => void; onProfile: 
   );
 }
 
+// ─── Tool loading placeholder (while its chunk downloads) ────────────────────
+
+function ToolLoading() {
+  return (
+    <div role="status" aria-live="polite" style={{ display: 'flex', justifyContent: 'center', padding: '64px 16px' }}>
+      <div className="tool-loading-spinner" aria-hidden="true" />
+      <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>Loading tool…</span>
+    </div>
+  );
+}
+
 // ─── Local-mode notice (shown for cloud features when Firebase is off) ───────
 
 function LocalModeNotice({ feature }: { feature: string }) {
@@ -747,12 +779,22 @@ function LocalModeNotice({ feature }: { feature: string }) {
 
 // ─── App ─────────────────────────────────────────────────────────────────────
 
+const ACTIVE_TAB_KEY = 'tonic_active_tab';
+
+function restoreTab(): Tab {
+  try {
+    const saved = sessionStorage.getItem(ACTIVE_TAB_KEY);
+    if (saved && isKnownTab(saved)) return saved as Tab;
+  } catch { /* storage unavailable */ }
+  return 'home';
+}
+
 export default function App() {
   const { user, loading: authLoading, signOut } = useAuth();
   const { role } = useUserProfile();
   const { stats } = useStats();
   const { globalKey, setGlobalKey } = useGlobalKey();
-  const [activeTab, setActiveTab] = useState<Tab>('home');
+  const [activeTab, setActiveTab] = useState<Tab>(restoreTab);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -763,6 +805,12 @@ export default function App() {
     document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [mobileMenuOpen]);
+
+  // Survives reloads (mobile browsers discarding background tabs, the
+  // post-deploy chunk reload): the user comes back to the same tool.
+  useEffect(() => {
+    try { sessionStorage.setItem(ACTIVE_TAB_KEY, activeTab); } catch { /* storage unavailable */ }
+  }, [activeTab]);
 
   function handleToggleGroup(groupId: string) {
     setOpenGroup(prev => prev === groupId ? null : groupId);
@@ -838,7 +886,7 @@ export default function App() {
               }}
             >
               <img
-                src="/logo.png"
+                src="/logo-192.webp"
                 alt="tonic"
                 style={{ width: 36, height: 36, display: 'block', mixBlendMode: 'screen' }}
               />
@@ -884,11 +932,14 @@ export default function App() {
               <div className="mobile-breadcrumb" style={{
                 display: 'none', /* overridden by CSS on mobile */
                 alignItems: 'center',
-                flex: 1,
+                flex: 4, /* takes most of the room the desktop spacer would share */
+                minWidth: 0, /* lets the label shrink instead of wrapping */
                 fontSize: 14, fontWeight: 600, color: '#c4b5fd',
                 paddingLeft: 12,
               }}>
-                {activeToolLabel}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {activeToolLabel}
+                </span>
               </div>
             )}
 
@@ -928,6 +979,7 @@ export default function App() {
             {role === 'teacher' && (
               <button
                 onClick={() => handleSelectTab('teacherdashboard')}
+                {...preloadOnIntent('teacherdashboard')}
                 style={{
                   alignSelf: 'center',
                   display: 'flex', alignItems: 'center', gap: 5,
@@ -1005,6 +1057,7 @@ export default function App() {
       }}>
         {/* Keyed on the tab: navigating away resets a crashed tool. */}
         <ErrorBoundary key={activeTab} label={activeToolLabel ?? undefined}>
+        <Suspense fallback={<ToolLoading />}>
         {activeTab === 'home'          && <HomePage onNavigate={handleSelectTab} />}
         {activeTab === 'harmony-lab'   && <MyCompositionsFeature onNavigate={handleSelectTab} />}
         {activeTab === 'voicings'      && <ChordVoicingsFeature />}
@@ -1047,6 +1100,7 @@ export default function App() {
         {activeTab === 'groove'        && <GrooveKitchenFeature />}
         {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}
         {activeTab === 'rhythmic-displacement' && <RhythmicDisplacementFeature />}
+        </Suspense>
         </ErrorBoundary>
       </main>
 

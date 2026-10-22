@@ -19,6 +19,20 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     worker: { format: 'es' },
+    build: {
+      rollupOptions: {
+        output: {
+          // Libraries needed on every load get their own long-cached chunks, so
+          // a deploy that only changes app code doesn't re-download them.
+          // Lazy-only libraries (Firestore, tfjs, …) are split automatically.
+          manualChunks(id) {
+            if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'vendor-react'
+            if (/node_modules\/@firebase\/(app|auth|component|logger|util)\//.test(id) || /node_modules\/(firebase\/(app|auth)|idb)\//.test(id)) return 'vendor-firebase'
+            if (/node_modules\/@sentry\//.test(id)) return 'vendor-sentry'
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

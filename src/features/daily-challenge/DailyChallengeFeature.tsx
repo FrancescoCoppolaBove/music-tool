@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Volume2, Share2, CheckCircle, RotateCcw } from 'lucide-react';
-import { db } from '../../firebase';
+import { db } from '../../firestore';
 import { useAuth } from '../../shared/context/AuthContext';
 import {
   generateDailyQuestions,

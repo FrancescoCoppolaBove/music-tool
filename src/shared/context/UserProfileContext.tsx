@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
-import { getOrCreateUserProfile } from '../utils/firestoreConservatory';
 import { firebaseEnabled } from '../../firebase';
 import type { UserProfile, UserRole } from '../types/conservatory.types';
 
@@ -29,7 +28,9 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
     }
     let cancelled = false;
     setProfileLoading(true);
-    getOrCreateUserProfile(user)
+    // Firestore is loaded on demand (see src/firestore.ts).
+    import('../utils/firestoreConservatory')
+      .then(({ getOrCreateUserProfile }) => getOrCreateUserProfile(user))
       .then(p => { if (!cancelled) { setProfile(p); setProfileLoading(false); } })
       .catch(() => { if (!cancelled) setProfileLoading(false); });
     return () => { cancelled = true; };

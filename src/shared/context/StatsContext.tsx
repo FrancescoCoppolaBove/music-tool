@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { firebaseEnabled } from '../../firebase';
 import { useAuth } from './AuthContext';
+
+// Firestore is loaded on demand (see src/firestore.ts).
+const loadSync = () => import('./statsSync');
 
 export interface Score { correct: number; total: number }
 export interface PracticeLog { [date: string]: { [exerciseId: string]: Score } }
@@ -28,45 +30,44 @@ export function StatsProvider({ children }: { children: React.ReactNode }) {
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user || !db) {
+    if (!user || !firebaseEnabled) {
       setStats(EMPTY);
       setStatsLoading(false);
       return;
     }
 
-    const ref = doc(db, 'users', user.uid, 'data', 'stats');
     setStatsLoading(true);
 
     // Fallback: if snapshot takes more than 8s (e.g. ad blocker), unblock the UI
     const timeout = setTimeout(() => setStatsLoading(false), 8000);
+    let unsubscribe: (() => void) | null = null;
+    let cancelled = false;
 
-    const unsubscribe = onSnapshot(
-      ref,
-      (snap) => {
-        clearTimeout(timeout);
-        if (snap.exists()) {
-          const data = snap.data();
-          setStats({
-            practiceLog: (data.practiceLog ?? {}) as PracticeLog,
-            exerciseStats: (data.exerciseStats ?? {}) as ExerciseStats,
-          });
-        } else {
-          setStats(EMPTY);
-        }
-        setStatsLoading(false);
-      },
-      () => { clearTimeout(timeout); setStatsLoading(false); },
-    );
+    loadSync().then(({ subscribeStats }) => {
+      if (cancelled) return;
+      unsubscribe = subscribeStats(
+        user.uid,
+        data => {
+          clearTimeout(timeout);
+          setStats(data ?? EMPTY);
+          setStatsLoading(false);
+        },
+        () => { clearTimeout(timeout); setStatsLoading(false); },
+      );
+    }).catch(() => { clearTimeout(timeout); setStatsLoading(false); });
 
-    return unsubscribe;
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+      unsubscribe?.();
+    };
   }, [user]);
 
   const updateStats = useCallback((updater: (current: UserStats) => UserStats) => {
-    if (!user || !db) return;
-    const ref = doc(db, 'users', user.uid, 'data', 'stats');
+    if (!user || !firebaseEnabled) return;
     setStats(prev => {
       const next = updater(prev);
-      setDoc(ref, { ...next, lastSeen: serverTimestamp() }).catch(() => {});
+      loadSync().then(({ saveStats }) => saveStats(user.uid, next)).catch(() => {});
       return next;
     });
   }, [user]);

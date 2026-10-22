@@ -1,4 +1,4 @@
-import { Handler, HandlerEvent } from '@netlify/functions';
+import type { Handler, HandlerEvent } from '@netlify/functions';
 import { assertOrigin, authenticate, corsHeaders, toErrorResponse } from '../lib/aiGuard';
 import { deleteUserAccount, exportUserData } from '../lib/account';
 

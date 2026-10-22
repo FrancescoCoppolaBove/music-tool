@@ -3,7 +3,7 @@ import {
   query, where, orderBy, limit,
 } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
-import { db } from '../../firebase';
+import { db } from '../../firestore';
 import { TERMS_VERSION } from '../../config/legal';
 import type { UserProfile, ClassDoc, AssignmentDoc, SubmissionDoc } from '../types/conservatory.types';
 

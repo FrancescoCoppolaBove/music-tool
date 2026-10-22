@@ -377,7 +377,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         }} />
 
         <div className="fu1">
-          <img src="/logo.png" alt="tonic" style={{ width: 84, height: 84, marginBottom: 32, mixBlendMode: 'screen' }} />
+          <img src="/logo-192.webp" alt="tonic" style={{ width: 84, height: 84, marginBottom: 32, mixBlendMode: 'screen' }} />
         </div>
 
         <h1 className="tw fu2" style={{

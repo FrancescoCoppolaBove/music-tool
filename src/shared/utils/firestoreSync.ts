@@ -1,5 +1,5 @@
 import { doc, collection, getDocs, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { db } from '../../firestore';
 
 export interface Song {
   id?: string;

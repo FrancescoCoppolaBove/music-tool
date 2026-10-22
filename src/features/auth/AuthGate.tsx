@@ -194,7 +194,7 @@ export default function AuthGate() {
         <div className="auth-card">
           {/* Logo */}
           <div className="auth-logo">
-            <img src="/logo.png" alt="tonic" style={{ width: 40, height: 40, mixBlendMode: 'screen' }} />
+            <img src="/logo-192.webp" alt="tonic" style={{ width: 40, height: 40, mixBlendMode: 'screen' }} />
             <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 22, color: '#e6edf3', letterSpacing: '-0.5px' }}>
               tonic
             </span>

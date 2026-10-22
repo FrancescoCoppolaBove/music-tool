@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Edit3, Check, X, ChevronRight } from 'lucide-react';
-import { db } from '../../firebase';
+import { db } from '../../firestore';
 import { useAuth } from '../../shared/context/AuthContext';
 import { useStats } from '../../shared/context/StatsContext';
 import { computeStreak } from '../../shared/hooks/useExerciseScore';

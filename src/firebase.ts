@@ -1,7 +1,6 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
-import { getAnalytics, isSupported, setAnalyticsCollectionEnabled, type Analytics } from 'firebase/analytics';
+import type { Analytics } from 'firebase/analytics';
 import { getConsent, onConsentChange } from './shared/consent/consent';
 
 const required = [
@@ -23,7 +22,6 @@ export const firebaseEnabled = missing.length === 0;
 
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
-let db: Firestore | null = null;
 let analytics: Analytics | null = null;
 
 if (firebaseEnabled) {
@@ -39,7 +37,6 @@ if (firebaseEnabled) {
 
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
-  db = getFirestore(app);
 
   // Analytics sets tracking cookies: start it only after explicit consent.
   if (getConsent()?.analytics) startAnalytics();
@@ -57,17 +54,18 @@ if (firebaseEnabled) {
 
 function startAnalytics() {
   if (!app) return;
-  if (analytics) {
-    setAnalyticsCollectionEnabled(analytics, true);
-    return;
-  }
-  isSupported().then(yes => { if (yes && app) analytics = getAnalytics(app); }).catch(() => {});
+  // Loaded on demand: no Analytics code is downloaded without consent.
+  import('firebase/analytics').then(async ({ getAnalytics, isSupported, setAnalyticsCollectionEnabled }) => {
+    if (analytics) return setAnalyticsCollectionEnabled(analytics, true);
+    if (app && await isSupported()) analytics = getAnalytics(app);
+  }).catch(() => {});
 }
 
 /** Consent withdrawn: stop collection and drop the Google Analytics cookies. */
 function stopAnalytics() {
   if (!analytics) return;
-  setAnalyticsCollectionEnabled(analytics, false);
+  const instance = analytics;
+  import('firebase/analytics').then(m => m.setAnalyticsCollectionEnabled(instance, false)).catch(() => {});
   const host = location.hostname;
   document.cookie.split(';').map(c => c.split('=')[0].trim()).filter(n => n.startsWith('_ga')).forEach(name => {
     for (const domain of ['', `; domain=${host}`, `; domain=.${host}`]) {
@@ -76,4 +74,4 @@ function stopAnalytics() {
   });
 }
 
-export { app, auth, db };
+export { app, auth };

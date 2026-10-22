@@ -1,6 +1,6 @@
 // Must be the first import: the functions read the env at module load.
 import 'dotenv/config';
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import type { Handler, HandlerContext, HandlerEvent } from '@netlify/functions';
 import { handler as account } from '../../netlify/functions/account';
 import { handler as buddy } from '../../netlify/functions/buddy';

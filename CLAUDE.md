@@ -28,7 +28,10 @@ No UI test suite. Validate changes by running `npm run build` (catches TypeScrip
 ## Architecture
 
 ### Navigation model
-There is no React Router. Navigation is pure state: `activeTab: Tab` in `App.tsx`. The `GROUPS` array in `App.tsx` defines the nav structure — add a new feature by adding a `TabDef` to the right group, then adding a render branch in the `<main>` section.
+There is no React Router. Navigation is pure state: `activeTab: Tab` in `App.tsx` (persisted in `sessionStorage` so reloads return to the same tool). The `GROUPS` array in `App.tsx` defines the nav structure.
+
+### Code splitting (mobile performance)
+Every tool is lazy-loaded from `src/featureRegistry.ts` (`lazyFeature` + `BY_TAB` map); nav items call `preloadTab` on hover/focus/touch. Only Home and the login screen are eager. Firestore lives in `src/firestore.ts` and must only be imported by lazy code — code in the first load (contexts, App, Home, shared components) uses `import()` instead. First load is ~105 KB gzipped; check with `npm run build` before adding eager imports.
 
 ### Feature modules
 Every feature lives in `src/features/<name>/` and exports a single `*Feature.tsx` entry component. Features are self-contained — business logic, hooks, types, and subcomponents all live inside the feature folder. Shared code goes in `src/shared/`.
@@ -79,7 +82,7 @@ Copy `.env.example` to `.env` and fill in:
 
 ## Adding a new feature
 
-1. Create `src/features/<name>/<Name>Feature.tsx`
+1. Create `src/features/<name>/<Name>Feature.tsx` (default export)
 2. Add a `TabDef` entry to the appropriate group in `GROUPS` (`App.tsx`)
-3. Add a render branch in `<main>` in `App.tsx`
+3. Register it in `src/featureRegistry.ts` (`lazyFeature` export + `BY_TAB` entry) and add a render branch in `<main>` in `App.tsx`
 4. If the feature requires a backend endpoint, create a Netlify function in `netlify/functions/` and register it in the `FUNCTIONS` map in `src/api/server.ts` (dev)

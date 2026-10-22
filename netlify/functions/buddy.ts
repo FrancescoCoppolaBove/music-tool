@@ -1,4 +1,4 @@
-import { Handler, HandlerEvent } from '@netlify/functions';
+import type { Handler, HandlerEvent } from '@netlify/functions';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   assertOrigin,
