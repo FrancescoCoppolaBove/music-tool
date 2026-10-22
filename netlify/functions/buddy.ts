@@ -8,6 +8,7 @@ import {
   parseBuddyInput,
   toErrorResponse,
 } from '../lib/aiGuard';
+import { getPlan } from '../lib/billing';
 
 const SYSTEM_PROMPT = `You are Modal Buddy, a friendly and expert music theory assistant integrated into Tonic, a music theory web app. You answer questions about music theory, harmony, scales, chords, ear training, and composition — with a focus on jazz, contemporary, and pop/rock harmony.
 
@@ -49,7 +50,7 @@ export const handler: Handler = async (event: HandlerEvent) => {
       return { statusCode: 503, headers: CORS, body: JSON.stringify({ error: 'AI service is not configured', code: 'ai_not_configured' }) };
     }
 
-    await consumeQuota(caller, 'buddy');
+    await consumeQuota(caller, 'buddy', caller.anonymousDev || caller.owner ? 'pro' : await getPlan(caller.uid));
 
     const anthropic = new Anthropic({ apiKey });
 

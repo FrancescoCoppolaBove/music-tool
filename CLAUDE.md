@@ -12,11 +12,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev          # start frontend (port 3000) + backend (port 3001) together
 npm run dev:client   # frontend only
 npm run dev:server   # backend only (tsx watch)
+npm run dev:emulators # full app on Firebase Auth/Firestore emulators, billing on (fake Google sign-in, no real data)
 npm run build        # tsc + vite build
 npm run lint         # ESLint, zero warnings allowed
 npm test             # all unit tests (guard, theory, transcriber, harmony)
 npm run test:rules   # Firestore rules tests (emulator, needs Java)
-npm run test:account # GDPR export/delete against Firestore + Auth emulators
+npm run test:account # GDPR export/delete + billing webhook/quotas against the emulators
 ```
 
 Node 22 (`.nvmrc`; Firebase 12 and firebase-tools require ≥ 20). CI (`.github/workflows/ci.yml`) runs lint, build, `npm test` and the emulator suites on every PR.
@@ -68,7 +69,8 @@ Copy `.env.example` to `.env` and fill in:
 | `VITE_FIREBASE_API_KEY` etc. | Firebase (optional — enables login + cloud sync) |
 | `AI_API_KEY` / `ANTHROPIC_API_KEY` | Anthropic key for score analysis + Modal Buddy |
 | `FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` | Admin SDK service account — verifies ID tokens + counts AI quotas. Without them AI endpoints return 503 |
-| `AI_DAILY_LIMIT_BUDDY` / `AI_DAILY_LIMIT_SCORE` | Per-user daily AI quotas (default 30 / 5) |
+| `AI_DAILY_LIMIT_{FREE,PRO}_{BUDDY,SCORE}` | Per-user daily AI quotas by plan (defaults free 5/0, pro 100/10) |
+| `PADDLE_*` / `VITE_PADDLE_*` | Subscriptions (see `.env.example`). Unset = billing off, everything unlocked |
 | `VITE_SENTRY_DSN` | Sentry error monitoring (optional; off when unset) |
 | `AI_AUTH_DISABLED` | `true` = skip auth/quota in local dev only (ignored on Netlify production) |
 
@@ -76,13 +78,20 @@ Copy `.env.example` to `.env` and fill in:
 - AI endpoints go through `netlify/lib/aiGuard.ts` (CORS allowlist, Firebase ID token, input limits, daily quota in `aiUsage/{uid}`). Client calls must use `aiFetch` (`src/shared/utils/aiFetch.ts`), which attaches the token.
 - Account export/delete (GDPR) live in `netlify/lib/account.ts` → `POST /api/account/{export,delete}`; delete needs a sign-in < 5 min old. Any new per-user collection must be added to both `exportUserData` and `deleteUserAccount`.
 - Privacy: Firebase Analytics starts only after cookie consent (`src/shared/consent/`). Fonts are self-hosted via `@fontsource/*` — never add Google Fonts `@import`s. Legal docs are on Iubenda (`VITE_*_URL`, `src/config/legal.ts`).
-- `firestore.rules` is versioned in the repo: `role` / `plan` on `users/{uid}` are never client-writable. Change them only via Admin SDK / console. Deploy with `npx firebase deploy --only firestore:rules`.
+- `firestore.rules` is versioned in the repo: `role` / `plan` on `users/{uid}` are never client-writable. Change them only via Admin SDK / console. Deploy rules + composite indexes (`firestore.indexes.json`) with `npx firebase deploy --only firestore`. The app uses the `(default)` database (Standard edition, europe-west12).
 - Netlify builds fail without the `VITE_FIREBASE_*` config (`vite.config.ts`): local mode is dev-only.
 - Render errors are caught per tool by `ErrorBoundary` (keyed on `activeTab`) and reported via `src/monitoring.ts`.
+
+## Subscriptions (Paddle)
+- Free vs Pro is one list: `PRO_TABS` in `src/config/plans.ts`. Locked tools render `ProGate` (their chunk is never downloaded); this is a product gate — real enforcement is server-side for AI quotas (`consumeQuota` by plan) and Firestore data.
+- Plan source of truth: `entitlements/{uid}`, written only by `netlify/functions/paddle-webhook.ts` (signature-verified, order-safe). Clients read it live via `EntitlementProvider` / `useEntitlement()` (`src/shared/context/entitlement.ts`).
+- Checkout: server creates a Paddle transaction with `custom_data.firebase_uid` (`/api/billing/checkout`), client opens Paddle.js (lazy-loaded). Portal: `/api/billing/portal`. Account deletion cancels the subscription first.
+- Creator account: `owner: true` custom claim, granted with `npx tsx scripts/grant-owner.ts <email>` (service-account env; `--revoke` to undo; user must sign out/in). Unlocks every tool (client), skips AI quotas and refuses checkout (server), sets `role: 'teacher'`. Never gate on an email list in the frontend.
+- Billing is off unless `PADDLE_API_KEY` (server) and `VITE_PADDLE_CLIENT_TOKEN` (client) are set — keep both sides consistent.
 
 ## Adding a new feature
 
 1. Create `src/features/<name>/<Name>Feature.tsx` (default export)
 2. Add a `TabDef` entry to the appropriate group in `GROUPS` (`App.tsx`)
-3. Register it in `src/featureRegistry.ts` (`lazyFeature` export + `BY_TAB` entry) and add a render branch in `<main>` in `App.tsx`
+3. Decide Free or Pro (`PRO_TABS` in `src/config/plans.ts`). Register it in `src/featureRegistry.ts` (`lazyFeature` export + `BY_TAB` entry) and add a render branch in `<main>` in `App.tsx`
 4. If the feature requires a backend endpoint, create a Netlify function in `netlify/functions/` and register it in the `FUNCTIONS` map in `src/api/server.ts` (dev)

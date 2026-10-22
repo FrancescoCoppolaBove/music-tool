@@ -98,6 +98,12 @@ export interface Caller {
   authTime: number;
   /** True only in local dev with AI_AUTH_DISABLED — quotas are skipped. */
   anonymousDev: boolean;
+  /**
+   * The app's creator: `owner: true` custom claim (scripts/grant-owner.ts).
+   * Everything unlocked, no AI quotas. Claims are signed by Firebase, so a
+   * client cannot grant itself this.
+   */
+  owner?: boolean;
 }
 
 /** Verifies the Firebase ID token in the Authorization header. */
@@ -117,7 +123,7 @@ export async function authenticate(authorization: string | undefined): Promise<C
 
   try {
     const decoded = await getAuth(app).verifyIdToken(match[1], true);
-    return { uid: decoded.uid, authTime: decoded.auth_time, anonymousDev: false };
+    return { uid: decoded.uid, authTime: decoded.auth_time, anonymousDev: false, owner: decoded.owner === true };
   } catch {
     throw new GuardError(401, 'auth_invalid', 'Your session has expired — sign in again');
   }
@@ -126,24 +132,32 @@ export async function authenticate(authorization: string | undefined): Promise<C
 // ─── Daily quota ──────────────────────────────────────────────────────────────
 
 export type AiFeature = 'buddy' | 'score';
+type Plan = 'free' | 'pro';
 
-const DEFAULT_DAILY_LIMITS: Record<AiFeature, number> = { buddy: 30, score: 5 };
+// Free: a taste of Modal Buddy, no score analysis (it uses the most expensive
+// model). Pro: generous fair-use caps that still bound the worst-case cost.
+const DEFAULT_DAILY_LIMITS: Record<Plan, Record<AiFeature, number>> = {
+  free: { buddy: 5, score: 0 },
+  pro: { buddy: 100, score: 10 },
+};
 
-function dailyLimit(feature: AiFeature): number {
-  const raw = Number(process.env[`AI_DAILY_LIMIT_${feature.toUpperCase()}`]);
-  return Number.isFinite(raw) && raw >= 0 ? raw : DEFAULT_DAILY_LIMITS[feature];
+function dailyLimit(feature: AiFeature, plan: Plan): number {
+  const raw = Number(process.env[`AI_DAILY_LIMIT_${plan.toUpperCase()}_${feature.toUpperCase()}`] ?? NaN);
+  return Number.isFinite(raw) && raw >= 0 ? raw : DEFAULT_DAILY_LIMITS[plan][feature];
 }
 
 /**
- * Atomically counts one call against today's quota (UTC day). Throws 429 when
- * exhausted. Stored in `aiUsage/{uid}` — the Firestore rules deny all client access.
+ * Atomically counts one call against today's quota (UTC day) for the user's
+ * plan. Free users who hit the cap get `upgrade_required` (402) so the client
+ * can offer Pro; Pro users get a plain 429. Stored in `aiUsage/{uid}` —
+ * the Firestore rules deny all client access.
  */
-export async function consumeQuota(caller: Caller, feature: AiFeature): Promise<void> {
-  if (caller.anonymousDev) return;
+export async function consumeQuota(caller: Caller, feature: AiFeature, plan: Plan): Promise<void> {
+  if (caller.anonymousDev || caller.owner) return;
   const app = adminApp();
   if (!app) throw new GuardError(503, 'ai_not_configured', 'AI service is not configured');
 
-  const limit = dailyLimit(feature);
+  const limit = dailyLimit(feature, plan);
   const today = new Date().toISOString().slice(0, 10);
   const db = getFirestore(app);
   const ref = db.collection('aiUsage').doc(caller.uid);
@@ -153,7 +167,11 @@ export async function consumeQuota(caller: Caller, feature: AiFeature): Promise<
     const data = snap.data();
     const used = data?.day === today ? Number(data[feature] ?? 0) : 0;
     if (used >= limit) {
-      throw new GuardError(429, 'quota_exceeded', 'Daily AI limit reached — try again tomorrow');
+      throw plan === 'free'
+        ? new GuardError(402, 'upgrade_required', limit === 0
+          ? 'This AI feature is part of tonic Pro'
+          : 'Free plan AI limit reached for today — upgrade to Pro for more')
+        : new GuardError(429, 'quota_exceeded', 'Daily AI limit reached — try again tomorrow');
     }
     if (data?.day === today) {
       tx.update(ref, { [feature]: FieldValue.increment(1), updatedAt: FieldValue.serverTimestamp() });
@@ -236,5 +254,5 @@ export function toErrorResponse(err: unknown, logLabel: string): { status: numbe
     return { status: err.status, body: { error: err.message, code: err.code } };
   }
   console.error(`${logLabel}:`, err);
-  return { status: 500, body: { error: 'The AI service failed — try again later', code: 'internal_error' } };
+  return { status: 500, body: { error: 'Something went wrong on our side — try again later', code: 'internal_error' } };
 }

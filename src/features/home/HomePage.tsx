@@ -702,7 +702,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           Hear music differently.
         </h2>
         <p style={{ margin: '0 0 48px', fontSize: 16, color: '#6b7280', lineHeight: 1.65 }}>
-          14 tools. No account required. Free.
+          39 tools for composers and musicians. Free to start, Pro when you're ready.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button className="cta-primary" onClick={() => onNavigate('scaleadvisor')} style={{ fontSize: 16, padding: '16px 40px' }}>

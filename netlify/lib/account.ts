@@ -8,6 +8,7 @@
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore, FieldValue, Timestamp, type DocumentReference, type Firestore, type QuerySnapshot } from 'firebase-admin/firestore';
 import { adminApp, GuardError, type Caller } from './aiGuard';
+import { cancelSubscriptionForDeletion } from './billing';
 
 /** Deletion needs a sign-in from the last few minutes (stolen sessions can't erase accounts). */
 const RECENT_LOGIN_SECONDS = 5 * 60;
@@ -53,13 +54,14 @@ export async function exportUserData(caller: Caller): Promise<Record<string, unk
   const firestore = db();
   const uid = caller.uid;
 
-  const [profile, submissions, usage, ownClasses, enrolledClasses, assignments] = await Promise.all([
+  const [profile, submissions, usage, ownClasses, enrolledClasses, assignments, entitlement] = await Promise.all([
     dumpDoc(firestore.doc(`users/${uid}`)),
     firestore.collection('submissions').where('userId', '==', uid).get(),
     firestore.doc(`aiUsage/${uid}`).get(),
     firestore.collection('classes').where('teacherId', '==', uid).get(),
     firestore.collection('classes').where('studentIds', 'array-contains', uid).get(),
     firestore.collection('assignments').where('teacherId', '==', uid).get(),
+    firestore.doc(`entitlements/${uid}`).get(),
   ]);
   const authUser = await getAuth(adminApp()!).getUser(uid);
 
@@ -81,6 +83,7 @@ export async function exportUserData(caller: Caller): Promise<Record<string, unk
     classesAsTeacher: docs(ownClasses),
     classesAsStudent: enrolledClasses.docs.map(d => ({ id: d.id, name: d.get('name') })),
     assignmentsAsTeacher: docs(assignments),
+    subscription: entitlement.exists ? toJson(entitlement.data()) : null,
   };
 }
 
@@ -94,6 +97,11 @@ export async function deleteUserAccount(caller: Caller): Promise<void> {
 
   const firestore = db();
   const uid = caller.uid;
+
+  // First: stop billing. If Paddle is unreachable we abort before deleting
+  // anything, so a deleted user can never keep being charged.
+  await cancelSubscriptionForDeletion(uid);
+
   const writer = firestore.bulkWriter();
 
   const [submissions, ownClasses, enrolledClasses, assignments] = await Promise.all([
