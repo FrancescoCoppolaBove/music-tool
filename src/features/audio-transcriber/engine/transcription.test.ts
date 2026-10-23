@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { analyzeChords } from './chordAnalyzer';
-import { appendChunkNotes, estimateVelocities, rejectBroadbandNotes, resampleForModel } from './polyAudio';
+import { appendChunkNotes, estimateVelocities, filterSilentNotes, rejectBroadbandNotes, resampleForModel } from './polyAudio';
 import { decodeModelNotes, limitPolyphony } from './polyTranscriber';
 import { transcribeMono } from './monoTranscriber';
 import { tone, SR } from './checks/synth';
@@ -266,4 +266,59 @@ test('broadband noise and silence do not confirm pitches, but quiet tones do', (
 test('rounded piano frequency limits retain the full 88-key range', () => {
   const { frames, onsets } = posterior([21, 108].map(midi => ({ midi, start: 3, end: 80 })));
   assert.deepEqual(decodeModelNotes(frames, onsets, [], 'keyboard').map(n => n.midi), [21, 108]);
+});
+
+test('recording-floor notes are rejected regardless of neural confidence', () => {
+  const sr = 22050;
+  const audio = Float32Array.from({ length: sr * 4 }, (_, i) => {
+    const t = i / sr;
+    const noise = 0.00005 * Math.sin(2 * Math.PI * 71 * t);
+    return noise + (t >= 1 && t < 2 ? 0.2 * Math.sin(2 * Math.PI * 440 * t) : 0);
+  });
+  const notes = [note(69, 0.2, 0.5), note(69, 1.1, 0.5), note(69, 2.5, 0.5)]
+    .map(n => ({ ...n, confidence: 0.99 }));
+  assert.deepEqual(filterSilentNotes(notes, audio, sr).map(n => n.startSec), [1.1]);
+});
+
+test('quiet music after loud notes and uniformly quiet recordings survive the silence guard', () => {
+  const sr = 22050;
+  const audio = Float32Array.from({ length: sr * 4 }, (_, i) => {
+    const t = i / sr;
+    const gain = t >= 1 && t < 2 ? 0.5 : t >= 2.5 && t < 3 ? 0.001 : 0.00002;
+    return gain * Math.sin(2 * Math.PI * 440 * t);
+  });
+  assert.equal(filterSilentNotes([note(69, 2.55, 0.3)], audio, sr).length, 1);
+  const quiet = Float32Array.from({ length: sr }, (_, i) => 0.00001 * Math.sin(2 * Math.PI * 440 * i / sr));
+  assert.equal(filterSilentNotes([note(69, 0.1, 0.5)], quiet, sr).length, 1);
+});
+
+test('isolated near-floor clicks are rejected while short musical attacks survive', () => {
+  const sr = 22050;
+  const audio = Float32Array.from({ length: sr * 3 }, (_, i) => {
+    const t = i / sr;
+    const gain = t >= 1 && t < 2 ? 0.2 : t >= 0.3 && t < 0.32 ? 0.00025
+      : t >= 2.3 && t < 2.35 ? 0.001 : 0.00005;
+    return gain * Math.sin(2 * Math.PI * 440 * t);
+  });
+  const kept = filterSilentNotes([note(69, 0.29, 0.12), note(69, 2.3, 0.05)], audio, sr);
+  assert.deepEqual(kept.map(n => n.startSec), [2.3]);
+});
+
+test('DC and digital silence do not support notes, including at file boundaries', () => {
+  const sr = 22050;
+  const notes = [note(69, 0, 0.1), note(69, 0.9, 0.5)];
+  assert.deepEqual(filterSilentNotes(notes, new Float32Array(sr), sr), []);
+  assert.deepEqual(filterSilentNotes(notes, new Float32Array(sr).fill(0.01), sr), []);
+});
+
+test('silent tails are trimmed but short release gaps are preserved', () => {
+  const sr = 22050;
+  const audio = Float32Array.from({ length: sr * 3 }, (_, i) => {
+    const t = i / sr;
+    return t < 0.8 ? 0.1 * Math.sin(2 * Math.PI * 440 * t) : 0;
+  });
+  const long = filterSilentNotes([note(69, 0.1, 2)], audio, sr)[0];
+  assert.ok(long.startSec + long.durationSec < 1);
+  const short = filterSilentNotes([note(69, 0.1, 0.8)], audio, sr)[0];
+  assert.ok(Math.abs(short.durationSec - 0.8) < 1e-6);
 });

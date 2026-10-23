@@ -2,7 +2,7 @@ import { BasicPitch, addPitchBendsToNoteEvents, noteFramesToTime } from '@spotif
 import * as tf from '@tensorflow/tfjs';
 import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm';
 import { INSTRUMENT_CONFIG, type InstrumentKind, type NoteEvent, type TranscriptionOptions } from '../types';
-import { appendChunkNotes, estimateVelocities, MODEL_SAMPLE_RATE, rejectBroadbandNotes, resampleForModel } from './polyAudio';
+import { appendChunkNotes, estimateVelocities, filterSilentNotes, MODEL_SAMPLE_RATE, rejectBroadbandNotes, resampleForModel } from './polyAudio';
 import { decodeActivations } from './noteDecoder';
 import { freqToMidi } from './dsp';
 
@@ -164,7 +164,8 @@ export async function transcribePoly(
     appendChunkNotes(notes, owned, seam);
   }
 
-  const sorted = rejectBroadbandNotes(notes.filter(n => n.durationSec >= 0.04), audio, MODEL_SAMPLE_RATE)
+  const audible = filterSilentNotes(notes.filter(n => n.durationSec >= 0.04), audio, MODEL_SAMPLE_RATE);
+  const sorted = rejectBroadbandNotes(audible, audio, MODEL_SAMPLE_RATE)
     .sort((a, b) => a.startSec - b.startSec || a.midi - b.midi);
   // Do not discard octave doublings or low-velocity notes using harmonic heuristics.
   sorted.forEach((note, index) => { note.id = 'n' + index; });
