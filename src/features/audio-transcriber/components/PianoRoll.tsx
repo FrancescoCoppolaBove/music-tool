@@ -76,7 +76,7 @@ const sceneCache = new WeakMap<HTMLCanvasElement, {
 function drawAll(canvas: HTMLCanvasElement, s: RollState): void {
   const ctx = canvas.getContext('2d');
   const W = canvas.clientWidth, H = canvas.clientHeight;
-  if (!ctx || !W || !H) return;
+  if (!ctx || !W || !H || !canvas.width || !canvas.height) return;
   const active = s.notes.filter(n => s.playheadSec >= n.startSec && s.playheadSec < n.startSec + n.durationSec).map(n => n.id).join(',');
   const key = [canvas.width, canvas.height, W, H, s.bpm, s.duration, s.zoomX, s.scrollX, s.rowPx, s.scrollY, active].join('|');
   let cached = sceneCache.get(canvas);

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useLayoutEffect, lazy, Suspense } from 'react';
 import { Upload, Search, Square, RotateCcw, Pencil, Undo2, Redo2, Music2 } from 'lucide-react';
 import { INSTRUMENT_CONFIG, type DetectionSensitivity, type InstrumentKind, type NoteEvent, type ChordEvent, type TranscriptionResult } from './types';
 import { analyzeAudio } from './engine/workerClient';
@@ -8,6 +8,8 @@ import ExportBar from './components/ExportBar';
 import NoteTable from './components/NoteTable';
 import PianoRoll from './components/PianoRoll';
 import TransportBar from './components/TransportBar';
+
+const ScorePanel = lazy(() => import('./score/ScorePanel'));
 
 /* Altezze esplicite: la tabella può avere migliaia di righe e, senza una
    catena di altezze definita, allungherebbe .at-split (e quindi il canvas
@@ -68,6 +70,10 @@ export default function AudioTranscriberFeature() {
   const [redoStack, setRedoStack] = useState<NoteEvent[][]>([]);
   const [hasUnsavedEdits, setHasUnsavedEdits] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [view, setView] = useState<'roll' | 'score'>('roll');
+  const [scoreOpened, setScoreOpened] = useState(false);
+  const auditionPending = useRef(false);
+  const markDirty = useCallback(() => setHasUnsavedEdits(true), []);
 
   const audioCtxRef    = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
@@ -126,6 +132,7 @@ export default function AudioTranscriberFeature() {
     setAppState('loading');
     setFileName(file.name.replace(/\.[^.]+$/, ''));
     setResult(null);
+    setView('roll'); setScoreOpened(false);
     setNotes([]);
     setChords([]);
     setSelectedIds(new Set());
@@ -180,12 +187,14 @@ export default function AudioTranscriberFeature() {
   const runAnalysis = useCallback(async () => {
     const buf = audioBufferRef.current;
     if (!buf) return;
+    if (hasUnsavedEdits && !window.confirm('Reanalyze this recording and discard note and score edits? Save your score project first if needed.')) return;
     analysisAbortRef.current?.abort();
     const controller = new AbortController();
     analysisAbortRef.current = controller;
     stopSource();
     setIsPlaying(false);
     setResult(null);
+    setView('roll'); setScoreOpened(false);
     setErrorMsg(null);
     setUndoStack([]); setRedoStack([]);
     setAppState('analyzing');
@@ -222,7 +231,7 @@ export default function AudioTranscriberFeature() {
       setErrorMsg(`Analysis failed: ${err instanceof Error ? err.message : String(err)}`);
       setAppState('error');
     }
-  }, [instrument, voiceCount, sensitivity]);
+  }, [instrument, voiceCount, sensitivity, hasUnsavedEdits]);
 
   const canAnalyze = (appState === 'loaded' || appState === 'ready' || appState === 'error') && !!audioBufferRef.current;
 
@@ -317,9 +326,23 @@ export default function AudioTranscriberFeature() {
   });
 
   useEffect(() => {
+    if (auditionPending.current) { auditionPending.current = false; handlePlayRef.current(); }
+  }, [loopA, loopB]);
+
+  function auditionBar(start: number, end: number) {
+    if (end <= start) return;
+    stopSource();
+    pausePositionRef.current = start;
+    setPlayheadSec(start);
+    if (loopA === start && loopB === end) handlePlayRef.current();
+    else { auditionPending.current = true; setLoopA(start); setLoopB(end); }
+  }
+
+  useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (view === 'score' && e.key !== ' ') return;
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key === 'z') {
         e.preventDefault();
         handleUndoRef.current();
@@ -350,7 +373,7 @@ export default function AudioTranscriberFeature() {
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [view]);
 
   // Stabile (useCallback []): le righe memoizzate della NoteTable la ricevono
   // come prop e non devono ri-renderizzare a ogni render del parent.
@@ -587,7 +610,7 @@ export default function AudioTranscriberFeature() {
         {appState === 'loading' ? 'Decoding audio file...'
           : appState === 'analyzing'
           ? (analysisProgress < 0.03 && INSTRUMENT_CONFIG[instrument].poly ? 'Loading transcription model...' : 'Analyzing audio locally...')
-          : result ? `${notes.length} notes · ${chords.length} chord regions · ${result.engine === 'basic-pitch' ? 'Basic Pitch' : 'Monophonic'} · 4/4 grid (assumed)`
+          : result ? `${notes.length} notes · ${chords.length} chord regions · ${result.engine === 'basic-pitch' ? 'Basic Pitch' : 'Monophonic'} · ${view === 'score' ? 'Editable score grid' : '4/4 piano roll grid (assumed)'}`
           : 'Audio stays on your device. For best results, use an isolated instrument track.'}
       </div>
 
@@ -643,7 +666,15 @@ export default function AudioTranscriberFeature() {
                 </span>
               </div>
             )}
-            <div className="at-split">
+            {result && <div role="tablist" aria-label="Transcription view" style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+              <button role="tab" aria-selected={view === 'roll'} style={btnStyle(view === 'roll' ? '#145c52' : '#21262d', '#e6edf3')} onClick={() => setView('roll')}>Piano roll</button>
+              <button role="tab" aria-selected={view === 'score'} style={btnStyle(view === 'score' ? '#145c52' : '#21262d', '#e6edf3')} onClick={() => { setScoreOpened(true); setView('score'); }}>Score</button>
+            </div>}
+            {result && scoreOpened && <Suspense fallback={<p role="status">Loading score workspace...</p>}>
+              <ScorePanel notes={notes} chords={chords} result={result} fileName={fileName} duration={audioBufferRef.current?.duration ?? 0}
+                active={view === 'score'} playhead={playheadSec} onSeek={handleSeek} onAudition={auditionBar} onDirty={markDirty} />
+            </Suspense>}
+            <div className="at-split" style={view === 'score' ? { display: 'none' } : undefined}>
               {/* Piano roll */}
               <div className="at-roll-pane">
                 {/* Edit mode toggle */}
@@ -723,6 +754,7 @@ export default function AudioTranscriberFeature() {
         progress={analysisProgress}
         fileName={fileName}
         hasNotes={notes.length > 0}
+        onOpenScore={() => { setScoreOpened(true); setView('score'); }}
       />
 
     </div>
