@@ -47,6 +47,7 @@ import {
   SecondaryDominantsFeature,
   AudioTranscriberFeature,
   MyCompositionsFeature,
+  CreativeSparksFeature,
   isKnownTab,
   PricingFeature,
   preloadTab,
@@ -204,6 +205,7 @@ const GROUPS: GroupDef[] = [
     icon: '✍️',
     tabs: [
       { id: 'harmony-lab', label: 'My compositions', icon: '🗂️', desc: 'Saved compositions, revisions and exports', subsection: 'Workspace' },
+      { id: 'creative-sparks', label: 'Creative Sparks', icon: '💡', desc: 'Carte oblique, vincoli creativi ed esercizi per scrivere senza copiare le reference', subsection: 'Workspace' },
       { id: 'scaleadvisor',  label: 'Scale Advisor',       icon: '🧭', desc: 'Find the right scale over any chord',                              subsection: 'Harmony' },
       { id: 'cycles',        label: 'Harmonic Cycles',     icon: '🔁', desc: 'Progressions by fourths, thirds, Giant Steps & more',               subsection: 'Harmony' },
       { id: 'chordfinder',   label: 'Chord Finder',        icon: '🎯', desc: 'Find all chords that contain a given note or set of notes',            subsection: 'Harmony' },
@@ -1129,6 +1131,7 @@ export default function App() {
         {activeTab === 'examtemplates'    && <ExamTemplatesFeature />}
         {activeTab === 'teacherdashboard' && (firebaseEnabled ? <TeacherDashboardFeature /> : <LocalModeNotice feature="Dashboard Docente" />)}
         {activeTab === 'harmony-cheat-sheet' && <HarmonyCheatSheetFeature onNavigate={handleSelectTab} />}
+        {activeTab === 'creative-sparks' && <CreativeSparksFeature onNavigate={handleSelectTab} />}
         {activeTab === 'harmonia'       && <HarmoniaCourseFeature onNavigate={handleSelectTab} />}
         {activeTab === 'voiceleading'  && <VoiceLeadingFeature />}
         {activeTab === 'groove'        && <GrooveKitchenFeature />}

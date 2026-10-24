@@ -81,11 +81,13 @@ export const MelodyHarmonizerFeature = lazyFeature(() => import('./features/melo
 export const SecondaryDominantsFeature = lazyFeature(() => import('./features/secondary-dominants/SecondaryDominantsFeature'));
 export const AudioTranscriberFeature = lazyFeature(() => import('./features/audio-transcriber/AudioTranscriberFeature'));
 export const MyCompositionsFeature = lazyFeature(() => import('./features/my-compositions/MyCompositionsFeature'));
+export const CreativeSparksFeature = lazyFeature(() => import('./features/creative-sparks/CreativeSparksFeature'));
 export const PricingFeature = lazyFeature(() => import('./features/pricing/PricingFeature'));
 
 const BY_TAB: Record<string, { preload: () => Promise<unknown> }> = {
   'pricing': PricingFeature,
   'harmony-lab': MyCompositionsFeature,
+  'creative-sparks': CreativeSparksFeature,
   'voicings': ChordVoicingsFeature,
   'scales': ScaleRecognitionFeature,
   'dictionary': ScaleDictionaryFeature,

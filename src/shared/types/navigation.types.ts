@@ -42,4 +42,5 @@ export type Tab =
   | 'harmony-lab'
   | 'harmony-cheat-sheet'
   | 'secondary-dominants'
-  | 'audio-transcriber';
+  | 'audio-transcriber'
+  | 'creative-sparks';
