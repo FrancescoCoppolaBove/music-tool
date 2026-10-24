@@ -3,6 +3,57 @@ import { hannWindow, magnitudeSpectrum } from './dsp';
 
 export const MODEL_SAMPLE_RATE = 22050;
 
+/** Neural activation can be strong even on amplified recording noise. Check
+ * original audio energy independently, before assigning velocities or chords.
+ */
+export function filterSilentNotes(notes: NoteEvent[], signal: Float32Array, sampleRate: number): NoteEvent[] {
+  const hop = Math.max(1, Math.round(sampleRate * 0.02));
+  const rms: number[] = [];
+  let peak = 0;
+  for (let start = 0; start < signal.length; start += hop) {
+    const end = Math.min(signal.length, start + hop);
+    let sum = 0, squares = 0;
+    for (let i = start; i < end; i++) {
+      sum += signal[i];
+      squares += signal[i] * signal[i];
+    }
+    const count = end - start;
+    // A DC offset is not evidence of a sounding instrument.
+    const value = Math.sqrt(Math.max(0, squares / count - (sum / count) ** 2));
+    rms.push(value);
+    peak = Math.max(peak, value);
+  }
+  const positive = rms.filter(value => value > 1e-8).sort((a, b) => a - b);
+  const floor = positive[Math.floor(positive.length * 0.1)] ?? 0;
+  const reference = Math.max(positive[Math.floor(positive.length * 0.9)] ?? 0, peak * 0.1);
+  // Adapt only to a very low recording floor separated from the music by 30 dB.
+  // Uniformly quiet recordings retain their gain; no fixed -60 dB cutoff.
+  const hasNoiseFloor = floor > 0 && floor <= 1e-4 && reference >= floor * 32;
+  const open = Math.max(1e-7, hasNoiseFloor ? Math.min(floor * 4, reference * 0.003) : 0);
+  const close = open * 0.5;
+  const frameSeconds = hop / sampleRate;
+  return notes.flatMap(note => {
+    const endSec = Math.min(signal.length / sampleRate, note.startSec + note.durationSec);
+    const first = Math.max(0, Math.floor((note.startSec - 0.02) / frameSeconds));
+    const attackEnd = Math.min(rms.length - 1,
+      Math.floor(Math.min(endSec, note.startSec + 0.12) / frameSeconds));
+    let supported = false, consecutive = 0;
+    for (let i = first; i <= attackEnd; i++) {
+      consecutive = rms[i] >= open ? consecutive + 1 : 0;
+      // A near-floor one-frame click is not a musical onset. Strong staccato
+      // attacks still pass immediately; weak notes need two energy frames.
+      if (consecutive >= 2 || rms[i] >= open * 3.16) { supported = true; break; }
+    }
+    if (!supported) return [];
+    let last = Math.min(rms.length - 1, Math.floor(endSec / frameSeconds));
+    while (last >= first && rms[last] < close) last--;
+    // Preserve short gaps and natural release; trim only a sustained silent tail.
+    const supportedEnd = Math.max(note.startSec, (last + 1) * frameSeconds + 0.08);
+    const end = endSec - supportedEnd > 0.15 ? supportedEnd : endSec;
+    return end - note.startSec >= 0.04 ? [{ ...note, durationSec: end - note.startSec }] : [];
+  });
+}
+
 /** Reject only candidates whose sampled windows are consistently broadband.
  * This is a tonality guard, not proof that any particular pitch is correct.
  */

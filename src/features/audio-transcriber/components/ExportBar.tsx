@@ -3,9 +3,10 @@ interface ExportBarProps {
   progress: number;
   fileName: string;
   hasNotes: boolean;
+  onOpenScore: () => void;
 }
 
-export default function ExportBar({ appState, progress, fileName, hasNotes }: ExportBarProps) {
+export default function ExportBar({ appState, progress, fileName, hasNotes, onOpenScore }: ExportBarProps) {
   const showButtons = appState === 'ready';
   const showProgress = appState === 'analyzing';
 
@@ -33,34 +34,20 @@ export default function ExportBar({ appState, progress, fileName, hasNotes }: Ex
           <span style={{ fontSize: 12, color: '#4b5563', flex: 1 }}>
             {fileName && `${fileName}_transcription`}
           </span>
-          <div title={!hasNotes ? 'No notes to export' : 'MIDI export — planned for a future release'}>
+          <div title={!hasNotes ? 'No notes to export' : 'Open the score workspace and export'}>
             <button
               disabled={!hasNotes}
+              onClick={onOpenScore}
               style={{
                 background: '#21262d', color: hasNotes ? '#8b949e' : '#4b5563',
                 border: '1px solid #30363d', borderRadius: 8,
                 padding: '6px 14px', fontSize: 13, fontWeight: 600,
                 fontFamily: "'DM Sans', sans-serif",
-                cursor: 'not-allowed',
+                cursor: hasNotes ? 'pointer' : 'not-allowed',
                 opacity: hasNotes ? 0.7 : 0.4,
               }}
             >
-              ⬇ MIDI
-            </button>
-          </div>
-          <div title={!hasNotes ? 'No notes to export' : 'PDF export — planned for a future release'}>
-            <button
-              disabled={!hasNotes}
-              style={{
-                background: '#21262d', color: hasNotes ? '#8b949e' : '#4b5563',
-                border: '1px solid #30363d', borderRadius: 8,
-                padding: '6px 14px', fontSize: 13, fontWeight: 600,
-                fontFamily: "'DM Sans', sans-serif",
-                cursor: 'not-allowed',
-                opacity: hasNotes ? 0.7 : 0.4,
-              }}
-            >
-              ⬇ PDF
+              Score & exports
             </button>
           </div>
         </>
