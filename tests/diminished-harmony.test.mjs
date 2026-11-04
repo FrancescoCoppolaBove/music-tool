@@ -21,7 +21,7 @@ function catalogue(path, names) {
 }
 
 test('dim7 palettes contain the diminished seventh, not a minor seventh', () => {
-  const { CHORD_SCALE_DATA } = catalogue('src/features/scale-advisor/ScaleAdvisorFeature.tsx', ['SCALES', 'CHORD_SCALE_DATA']);
+  const { BASE_ENTRIES: CHORD_SCALE_DATA } = catalogue('src/features/scale-advisor/chordScales.ts', ['SCALES', 'BASE_ENTRIES']);
   const entry = CHORD_SCALE_DATA.find(x => x.quality === 'dim7');
   assert.equal(entry.primary.name, 'Whole-Half Diminished');
   for (const scale of [entry.primary, ...entry.alternatives]) {
