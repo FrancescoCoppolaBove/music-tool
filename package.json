@@ -20,7 +20,8 @@
     "test:account": "firebase emulators:exec --only firestore,auth --project demo-tonic 'node --import tsx --test tests/account.test.ts tests/billing-emulator.test.ts'",
     "test:harmony": "node --test tests/diminished-harmony.test.mjs",
     "test:sparks": "node --import tsx --test src/features/creative-sparks/*.test.ts",
-    "test": "npm run test:guard && npm run test:theory && npm run test:transcriber && npm run test:harmony && npm run test:sparks",
+    "test:scales": "node --import tsx --test src/features/scale-advisor/*.test.ts",
+    "test": "npm run test:guard && npm run test:theory && npm run test:transcriber && npm run test:harmony && npm run test:sparks && npm run test:scales",
     "dev:emulators": "firebase emulators:exec --only firestore,auth --project demo-tonic 'VITE_USE_EMULATORS=true VITE_FIREBASE_API_KEY=demo VITE_FIREBASE_AUTH_DOMAIN=demo-tonic.firebaseapp.com VITE_FIREBASE_PROJECT_ID=demo-tonic VITE_FIREBASE_APP_ID=demo VITE_PADDLE_CLIENT_TOKEN=test_demo PADDLE_API_KEY=demo PADDLE_WEBHOOK_SECRET=demo_secret AI_AUTH_DISABLED=false npm run dev'"
   },
   "dependencies": {
