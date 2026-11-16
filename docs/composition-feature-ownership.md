@@ -15,6 +15,7 @@ Updated 2026-10-11 after reviewing the existing feature modules. New work must f
 | World traditions and listening references | Scale Dictionary | Preserve the sourced World Music Explorer in an expandable section. |
 | Circle and key relationships | Circle of Fifths / Scale Harmonization | Remove the second circle and key-profile panel. |
 | Horn transposition and harmonization | Transposing Instruments / Melody Harmonizer | Keep the dedicated tools. |
+| Key change and per-instrument parts | Part Transposer | Whole parts (text, MusicXML, photo); shares the instrument table with Transposing Instruments. See `docs/superpowers/specs/2026-11-16-part-transposer-design.md`. |
 | Ear training | Ear Training Pro | No second quiz or training panel. |
 | Groove | Groove Kitchen (existing) | Outside this composition work; remove Lab handoff banners. |
 | Project snapshots, revisions and full JSON backups | My compositions | Archive only: no scale, harmony, melody or form editors. |
