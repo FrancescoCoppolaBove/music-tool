@@ -3,6 +3,7 @@
 **Data:** 2026-11-16
 **Stato:** approvato per implementazione
 **Branch:** `feat/part-transposer`
+**Piano:** `docs/superpowers/plans/2026-11-16-part-transposer.md`
 
 ---
 
@@ -76,7 +77,7 @@ su 3M, giù 6m).
 |---|---|---|---|
 | Tastiera | 1P | chiavi del sorgente | — |
 | Basso | +8P | F4 | 0 / 0 / -1 |
-| Chitarra | +8P | G2 con `<clef-octave-change>-1` | 0 / 0 / -1 |
+| Chitarra | +8P | G2 (chiave di Sol come nei real book; l'ottava è in `<transpose>`) | 0 / 0 / -1 |
 | Sax soprano | +2M | G2 | -1 / -2 |
 | Tromba in Sib | +2M | G2 | -1 / -2 |
 | Sax contralto | +6M | G2 | -5 / -9 |
@@ -92,8 +93,12 @@ voci già usate da `transpose`, che la importa al posto dell'array locale.
 - `<clef>` e `<transpose>` impostati per lo strumento destinazione (rimossi per Concert).
 - `<accidental>` esplicite: ricalcolate sulla nuova altezza (o rimosse se non più
   necessarie rispetto all'armatura e alle alterazioni precedenti nella battuta).
-- `<part-name>` = nome strumento. Tutto il resto (dinamiche, legature, testo, voci,
-  layout) resta intatto.
+- `<part-name>` = nome strumento; `<score-instrument>`, `<midi-instrument>`,
+  `<midi-device>` e i riferimenti `<instrument>` nelle note vengono rimossi (indicherebbero
+  ancora lo strumento sorgente a MuseScore). Tutto il resto (dinamiche, legature, testo,
+  voci, layout) resta intatto.
+- Note con testa `slash` (barre ritmiche): non trasposte; per strumenti con chiave propria
+  vengono ricentrate sulla linea centrale (B4 in Sol, D3 in Fa).
 
 ### Armature oltre 6 alterazioni
 Se la tonalità **scritta** risultante ha `|fifths| > 6`, si sostituisce l'intervallo con
