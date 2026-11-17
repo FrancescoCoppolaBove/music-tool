@@ -70,6 +70,7 @@ export const VoiceLeadingFeature = lazyFeature(() => import('./features/voice-le
 export const GrooveKitchenFeature = lazyFeature(() => import('./features/groove-kitchen/GrooveKitchenFeature'));
 export const ArrangementBlueprintFeature = lazyFeature(() => import('./features/arrangement-blueprint/ArrangementBlueprintFeature'));
 export const RhythmicDisplacementFeature = lazyFeature(() => import('./features/rhythmic-displacement/RhythmicDisplacementFeature'));
+export const PartTransposerFeature = lazyFeature(() => import('./features/part-transposer/PartTransposerFeature'));
 export const EarTrainingProFeature = lazyFeature(() => import('./features/ear-training-pro/EarTrainingProFeature'));
 export const SolfeggioCantatoFeature = lazyFeature(() => import('./features/solfeggio-cantato/SolfeggioCantatoFeature'));
 export const SetticlavioFeature = lazyFeature(() => import('./features/setticlavio/SetticlavioFeature'));
@@ -128,6 +129,7 @@ const BY_TAB: Record<string, { preload: () => Promise<unknown> }> = {
   'groove': GrooveKitchenFeature,
   'arrangement': ArrangementBlueprintFeature,
   'rhythmic-displacement': RhythmicDisplacementFeature,
+  'part-transposer': PartTransposerFeature,
 };
 
 /** True for tabs that render something (lazy tools + the eager home page). */

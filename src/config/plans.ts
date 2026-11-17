@@ -10,7 +10,7 @@ export const PRO_TABS: ReadonlySet<Tab> = new Set<Tab>([
   // Composition — advanced harmony
   'score', 'reharm', 'voiceleading', 'landing', 'cycles',
   // Composition — arrange
-  'riff', 'melody', 'mel-harm', 'architect', 'groove', 'arrangement', 'rhythmic-displacement',
+  'riff', 'melody', 'mel-harm', 'architect', 'groove', 'arrangement', 'rhythmic-displacement', 'part-transposer',
   // Training
   'eartrainingpro', 'solfeggiocan', 'setticlavio', 'examtemplates',
   // Theory
