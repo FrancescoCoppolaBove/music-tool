@@ -55,7 +55,7 @@
 
 ```bash
 npm install fflate@0.8.2
-npm install -D @xmldom/xmldom@0.9.8
+npm install -D @xmldom/xmldom@0.9.12
 ```
 
 - [ ] **Step 2: Scripts** — in `package.json` `scripts`, add after `"test:scales"`:
