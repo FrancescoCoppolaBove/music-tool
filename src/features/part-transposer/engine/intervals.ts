@@ -23,18 +23,19 @@ const transpose = (note: string, ivl: string) => Note.transpose(note, ivl)!;
 const ascending = (from: string, to: string) => Interval.distance(Note.pitchClass(from), Note.pitchClass(to));
 const semitonesMod12 = (ivl: string) => (((Interval.semitones(ivl) ?? 0) % 12) + 12) % 12;
 
-/** Enharmonic respelling (± diminished 2nd = same pitch, 12 fifths apart) that keeps a key within 6 accidentals. */
-function withinSix(ivl: string, fifths: number): string {
-  if (fifths > 6) return add(ivl, 'd2');
-  if (fifths < -6) return subtract(ivl, 'd2');
-  return ivl;
-}
-
-/** Key a part lands in after transposing `key` by `ivl`, respelled to at most 6 accidentals. */
-function shiftKey(key: KeySpec, ivl: string): KeySpec {
-  const moved = { tonic: transpose(key.tonic, ivl), minor: key.minor };
-  const fifths = keyFifths(moved);
-  return fifths > 6 || fifths < -6 ? { tonic: transpose(key.tonic, withinSix(ivl, fifths)), minor: key.minor } : moved;
+/**
+ * Enharmonic respelling (± diminished 2nd = same pitch, 12 fifths apart) until
+ * the written key has at most 6 accidentals. Bounded: each step moves 12 fifths.
+ */
+function withinSix(ivl: string, fifthsAfter: (ivl: string) => number): string {
+  let out = ivl;
+  for (let i = 0; i < 3; i++) {
+    const fifths = fifthsAfter(out);
+    if (fifths > 6) out = add(out, 'd2');
+    else if (fifths < -6) out = subtract(out, 'd2');
+    else break;
+  }
+  return out;
 }
 
 /** Concert key-change interval between two tonics, in the given direction. */
@@ -51,12 +52,12 @@ export function nearestDirection(fromTonic: string, toTonic: string): Direction 
 
 /** Concert key of a part written for `instrument`. */
 export function concertKey(written: KeySpec, instrument: TransposingInstrument): KeySpec {
-  return shiftKey(written, subtract('1P', instrument.toWritten));
+  return { tonic: transpose(written.tonic, subtract('1P', instrument.toWritten)), minor: written.minor };
 }
 
 /** Written key of a concert key for `instrument`. */
 export function writtenKey(concert: KeySpec, instrument: TransposingInstrument): KeySpec {
-  return shiftKey(concert, instrument.toWritten);
+  return { tonic: transpose(concert.tonic, instrument.toWritten), minor: concert.minor };
 }
 
 /**
@@ -72,6 +73,5 @@ export function partInterval(opts: {
   sourceFifths: number;
 }): string {
   const ivl = add(subtract(opts.keyChange, opts.source.toWritten), opts.target.toWritten);
-  const fifths = Key.majorKey(transpose(fifthsTonic(opts.sourceFifths), ivl)).alteration;
-  return withinSix(ivl, fifths);
+  return withinSix(ivl, candidate => Key.majorKey(transpose(fifthsTonic(opts.sourceFifths), candidate)).alteration);
 }

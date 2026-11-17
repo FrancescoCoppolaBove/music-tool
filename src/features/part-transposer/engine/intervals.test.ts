@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { Key, Note } from 'tonal';
 import assert from 'node:assert/strict';
 import { concertKey, keyChangeInterval, keyFifths, nearestDirection, partInterval, writtenKey } from './intervals';
 import { partInstrument as inst } from './partInstruments';
@@ -37,9 +38,10 @@ test('concert ↔ written keys and key signatures', () => {
   assert.equal(keyFifths({ tonic: 'D', minor: false }), 2);
 });
 
-test('written and concert keys stay within six accidentals', () => {
-  // G#m + major 6th = E#m (8 sharps) → Fm
-  assert.deepEqual(writtenKey({ tonic: 'G#', minor: true }, inst('altosax')), { tonic: 'F', minor: true });
-  // Abm − major 6th = Cbm (10 flats) → Bm
-  assert.deepEqual(concertKey({ tonic: 'Ab', minor: true }, inst('altosax')), { tonic: 'B', minor: true });
+test('part interval keeps the target key within six accidentals', () => {
+  const kb = inst('keyboard');
+  const same = partInterval({ source: kb, target: kb, keyChange: '7M', sourceFifths: 7 });
+  assert.equal(Note.pitchClass(Note.transpose('C#', same)), 'C');
+  const up = partInterval({ source: kb, target: kb, keyChange: '2M', sourceFifths: 7 });
+  assert.ok(Math.abs(Key.majorKey(Note.transpose('C#', up)).alteration) <= 6);
 });
