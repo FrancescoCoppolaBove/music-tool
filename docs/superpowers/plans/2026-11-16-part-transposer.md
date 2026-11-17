@@ -1643,7 +1643,7 @@ Expected: FAIL — cannot find module `./pipeline`.
 import type { TransposingInstrument } from '../../../shared/utils/transposingInstruments';
 import { keyChangeInterval, keyFifths, partInterval, writtenKey, type Direction, type KeySpec } from './intervals';
 import { toDisplayXml, transposePart } from './transposeXml';
-import type { XmlCodec } from './xmlDom';
+import { all, childText, type XmlCodec } from './xmlDom';
 
 export interface PartRequest {
   /** Single-part MusicXML, written for `source`. */
@@ -1662,7 +1662,11 @@ export interface PartOutput { instrument: TransposingInstrument; xml: string; ab
 /** One transposed MusicXML per target instrument. */
 export function transposeParts(codec: XmlCodec, req: PartRequest): PartOutput[] {
   const keyChange = keyChangeInterval(req.originalKey.tonic, req.newTonic, req.direction);
-  const sourceFifths = keyFifths(writtenKey(req.originalKey, req.source));
+  // Respell against the key signature the source notes are actually spelled in.
+  const sourceKey = all(codec.parse(req.sourceXml), 'key')[0];
+  const sourceFifths = sourceKey
+    ? Number(childText(sourceKey, 'fifths') ?? 0)
+    : keyFifths(writtenKey(req.originalKey, req.source));
   return req.targets.map(target => {
     const doc = codec.parse(req.sourceXml);
     const interval = partInterval({ source: req.source, target, keyChange, sourceFifths });
