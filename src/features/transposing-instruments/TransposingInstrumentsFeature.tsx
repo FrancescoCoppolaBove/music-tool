@@ -1,42 +1,9 @@
 import { useState, useMemo } from 'react';
 import { Note, Interval, Key } from 'tonal';
 import { audioPlayer } from '../ear-training/utils/audio-player';
+import { INSTRUMENTS } from '../../shared/utils/transposingInstruments';
 
-// ── Instrument data ───────────────────────────────────────────────────────────
-// `toWritten` is the interval applied to a CONCERT (sounding) pitch to obtain the
-// WRITTEN pitch the player reads. A Bb trumpet sounds a major 2nd lower than
-// written, so written = concert + M2.
-
-interface Instrument {
-  id: string;
-  name: string;
-  pitch: string;        // "Bb", "Eb", "F", "A", "C"
-  toWritten: string;    // Tonal interval: concert → written
-  group: string;
-  sounds: string;       // human description
-}
-
-const INSTRUMENTS: Instrument[] = [
-  // Concert pitch (non-transposing)
-  { id: 'flute',    name: 'Flute / Oboe / Piano', pitch: 'C',  toWritten: '1P',  group: 'Concert (C)',    sounds: 'Sounds as written — no transposition.' },
-  { id: 'cello',    name: 'Strings / Voice / Bassoon', pitch: 'C', toWritten: '1P', group: 'Concert (C)', sounds: 'Sounds as written — no transposition.' },
-  // Bb instruments
-  { id: 'trumpet',  name: 'Trumpet in B♭',        pitch: 'Bb', toWritten: '2M',  group: 'B♭ instruments', sounds: 'Sounds a major 2nd LOWER than written.' },
-  { id: 'clarinet', name: 'Clarinet in B♭',       pitch: 'Bb', toWritten: '2M',  group: 'B♭ instruments', sounds: 'Sounds a major 2nd LOWER than written.' },
-  { id: 'sopsax',   name: 'Soprano Sax in B♭',    pitch: 'Bb', toWritten: '2M',  group: 'B♭ instruments', sounds: 'Sounds a major 2nd LOWER than written.' },
-  { id: 'tenorsax', name: 'Tenor Sax in B♭',      pitch: 'Bb', toWritten: '9M',  group: 'B♭ instruments', sounds: 'Sounds a major 9th LOWER (octave + tone).' },
-  // Eb instruments
-  { id: 'altosax',  name: 'Alto Sax in E♭',       pitch: 'Eb', toWritten: '6M',  group: 'E♭ instruments', sounds: 'Sounds a major 6th LOWER than written.' },
-  { id: 'barisax',  name: 'Baritone Sax in E♭',   pitch: 'Eb', toWritten: '13M', group: 'E♭ instruments', sounds: 'Sounds an octave + major 6th LOWER.' },
-  { id: 'ebclar',   name: 'Clarinet in E♭',       pitch: 'Eb', toWritten: '-3m', group: 'E♭ instruments', sounds: 'Sounds a minor 3rd HIGHER than written.' },
-  // F instruments
-  { id: 'horn',     name: 'French Horn in F',     pitch: 'F',  toWritten: '5P',  group: 'F instruments',  sounds: 'Sounds a perfect 5th LOWER than written.' },
-  { id: 'enghorn',  name: 'English Horn in F',    pitch: 'F',  toWritten: '5P',  group: 'F instruments',  sounds: 'Sounds a perfect 5th LOWER than written.' },
-  // A instrument
-  { id: 'aclar',    name: 'Clarinet in A',        pitch: 'A',  toWritten: '3m',  group: 'A instruments',  sounds: 'Sounds a minor 3rd LOWER than written.' },
-];
-
-const GROUPS = ['Concert (C)', 'B♭ instruments', 'E♭ instruments', 'F instruments', 'A instruments'];
+const GROUPS = ['Concert (C)', 'Octave (C)', 'B♭ instruments', 'E♭ instruments', 'F instruments', 'A instruments'];
 
 const CHROMATIC = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
