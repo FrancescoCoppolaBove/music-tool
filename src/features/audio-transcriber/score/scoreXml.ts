@@ -1,17 +1,14 @@
+import { CHORD_KINDS, CHORD_SYMBOL_RE, chordWordsXml, escapeXml, harmonyXml } from '../../../shared/utils/musicXmlHarmony';
 import { DIVISIONS, KEY_SIGNATURES, type ScoreBar, type ScoreEvent } from './scoreModel';
 
-export const escapeXml = (s: string) => s.replace(/[<>&"']/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[c]!);
-const KINDS: Record<string, string> = { '': 'major', M: 'major', m: 'minor', min: 'minor', '7': 'dominant', maj7: 'major-seventh', M7: 'major-seventh', m7: 'minor-seventh', '6': 'major-sixth', m6: 'minor-sixth', dim: 'diminished', dim7: 'diminished-seventh', m7b5: 'half-diminished', aug: 'augmented', sus4: 'suspended-fourth', sus2: 'suspended-second', '9': 'dominant-ninth', maj9: 'major-ninth', m9: 'minor-ninth', '13': 'dominant-13th' };
+export { escapeXml };
+
 function harmony(symbol: string, display: boolean): string {
-  const parsed = symbol.match(/^([A-G])([#b]?)([^/]*)(?:\/([A-G])([#b]?))?$/);
-  if (!parsed) return `<direction placement="above"><direction-type><words>${escapeXml(symbol)}</words></direction-type></direction>`;
-  const [, root, accidental, quality, bass, bassAccidental] = parsed;
-  const alter = (a: string) => a ? `<root-alter>${a === '#' ? 1 : -1}</root-alter>` : '';
-  const custom = KINDS[quality] === undefined;
+  const parsed = symbol.match(CHORD_SYMBOL_RE);
   // OSMD drops custom kind text. Keep the semantic harmony in the exchange
   // file, and use its exact written label in our display/print rendition.
-  if (custom && display) return `<direction placement="above"><direction-type><words font-weight="bold">${escapeXml(symbol)}</words></direction-type></direction>`;
-  return `<harmony><root><root-step>${root}</root-step>${alter(accidental)}</root><kind text="${escapeXml(quality)}" use-symbols="no">${KINDS[quality] ?? 'other'}</kind>${bass ? `<bass><bass-step>${bass}</bass-step>${bassAccidental ? `<bass-alter>${bassAccidental === '#' ? 1 : -1}</bass-alter>` : ''}</bass>` : ''}</harmony>`;
+  if (parsed && display && CHORD_KINDS[parsed[3]] === undefined) return chordWordsXml(symbol);
+  return harmonyXml(symbol);
 }
 const VALUES = [
   { ticks: 48, type: 'whole' }, { ticks: 36, type: 'half', dot: true }, { ticks: 24, type: 'half' },
