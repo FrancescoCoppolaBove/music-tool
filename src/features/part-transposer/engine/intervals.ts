@@ -23,6 +23,20 @@ const transpose = (note: string, ivl: string) => Note.transpose(note, ivl)!;
 const ascending = (from: string, to: string) => Interval.distance(Note.pitchClass(from), Note.pitchClass(to));
 const semitonesMod12 = (ivl: string) => (((Interval.semitones(ivl) ?? 0) % 12) + 12) % 12;
 
+/** Enharmonic respelling (± diminished 2nd = same pitch, 12 fifths apart) that keeps a key within 6 accidentals. */
+function withinSix(ivl: string, fifths: number): string {
+  if (fifths > 6) return add(ivl, 'd2');
+  if (fifths < -6) return subtract(ivl, 'd2');
+  return ivl;
+}
+
+/** Key a part lands in after transposing `key` by `ivl`, respelled to at most 6 accidentals. */
+function shiftKey(key: KeySpec, ivl: string): KeySpec {
+  const moved = { tonic: transpose(key.tonic, ivl), minor: key.minor };
+  const fifths = keyFifths(moved);
+  return fifths > 6 || fifths < -6 ? { tonic: transpose(key.tonic, withinSix(ivl, fifths)), minor: key.minor } : moved;
+}
+
 /** Concert key-change interval between two tonics, in the given direction. */
 export function keyChangeInterval(fromTonic: string, toTonic: string, direction: Direction): string {
   const up = ascending(fromTonic, toTonic);
@@ -37,12 +51,12 @@ export function nearestDirection(fromTonic: string, toTonic: string): Direction 
 
 /** Concert key of a part written for `instrument`. */
 export function concertKey(written: KeySpec, instrument: TransposingInstrument): KeySpec {
-  return { tonic: transpose(written.tonic, subtract('1P', instrument.toWritten)), minor: written.minor };
+  return shiftKey(written, subtract('1P', instrument.toWritten));
 }
 
 /** Written key of a concert key for `instrument`. */
 export function writtenKey(concert: KeySpec, instrument: TransposingInstrument): KeySpec {
-  return { tonic: transpose(concert.tonic, instrument.toWritten), minor: concert.minor };
+  return shiftKey(concert, instrument.toWritten);
 }
 
 /**
@@ -57,9 +71,7 @@ export function partInterval(opts: {
   keyChange: string;
   sourceFifths: number;
 }): string {
-  let ivl = add(subtract(opts.keyChange, opts.source.toWritten), opts.target.toWritten);
+  const ivl = add(subtract(opts.keyChange, opts.source.toWritten), opts.target.toWritten);
   const fifths = Key.majorKey(transpose(fifthsTonic(opts.sourceFifths), ivl)).alteration;
-  if (fifths > 6) ivl = add(ivl, 'd2');
-  else if (fifths < -6) ivl = subtract(ivl, 'd2');
-  return ivl;
+  return withinSix(ivl, fifths);
 }

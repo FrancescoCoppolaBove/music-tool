@@ -34,3 +34,17 @@ test('stale accidentals are removed; tied continuations and slashes never show o
   recomputeAccidentals(doc.documentElement);
   assert.deepEqual(accidentals(doc), [null, 'sharp', null, null]);
 });
+
+test('a key change in a later bar updates what counts as an accidental', () => {
+  const change = '<attributes><key><fifths>-1</fifths></key></attributes>';
+  const doc = testCodec.parse(`<part id="P1"><measure number="1"><attributes><key><fifths>0</fifths></key></attributes>${note('B', 0)}</measure><measure number="2">${change}${note('B', -1)}${note('B', 0)}</measure></part>`);
+  recomputeAccidentals(doc.documentElement);
+  assert.deepEqual(accidentals(doc), [null, null, 'natural']);
+});
+
+test('the same step in different octaves is tracked separately', () => {
+  const high = `<note><pitch><step>F</step><alter>1</alter><octave>5</octave></pitch><duration>1</duration><type>quarter</type></note>`;
+  const doc = part(0, [note('F', 1), high]);
+  recomputeAccidentals(doc.documentElement);
+  assert.deepEqual(accidentals(doc), ['sharp', 'sharp']);
+});

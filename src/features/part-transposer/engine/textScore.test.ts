@@ -37,7 +37,7 @@ test('triplets and ties, across bars and lines', () => {
 });
 
 test('reports bar-level errors and returns no score', () => {
-  const { score, errors } = parseTextScore('key: Eb\n| C4:q | C4:w D4:q | [Xyz] C4:w | Q9 | C4:w~ | D4:w | [C] [F] [G] |');
+  const { score, errors } = parseTextScore('key: Eb\n| C4:q | C4:w D4:q | [Xyz] C4:w | Q9 | C4:w~ | D4:w | [C] [F] [G] | E4:w~ | [F7] | E4:w | B#3:w~ | C4:w | E4:w )');
   assert.equal(score, null);
   const messages = errors.map(e => e.message);
   const has = (predicate: (m: string) => boolean) => assert.ok(messages.some(predicate), messages.join('\n'));
@@ -47,9 +47,23 @@ test('reports bar-level errors and returns no score', () => {
   has(m => m.includes('simbolo non riconosciuto «Q9»'));
   has(m => m.startsWith('Battuta 6: la legatura'));
   has(m => m.startsWith('Battuta 7: 3 sigle non dividono'));
+  has(m => m.startsWith('Battuta 9: legatura ~ verso una battuta senza note'));
+  has(m => m.startsWith('Battuta 12: la legatura'));
+  has(m => m.includes('«)» senza «(3»'));
+  assert.ok(!messages.some(m => m.startsWith('Battuta 4: battuta vuota')), messages.join('\n'));
 });
 
 test('header errors use bar 0', () => {
-  const { errors } = parseTextScore('key: H\ntime: 5/3\n| C4:w |');
-  assert.deepEqual(errors.map(e => e.bar), [0, 0]);
+  const { errors } = parseTextScore('key: H\ntime: 5/3\nkey: Fb\n| C4:w |');
+  assert.deepEqual(errors.map(e => e.bar), [0, 0, 0]);
+});
+
+test('accepts flat/sharp symbols, lowercase letters and CRLF', () => {
+  const { score, errors } = parseTextScore('key: ebm\n| e♭4:w |');
+  assert.deepEqual(errors, []);
+  assert.deepEqual(score?.key, { tonic: 'Eb', minor: true });
+  assert.equal(score?.bars[0].events[0].pitch, 'Eb4');
+  const crlf = parseTextScore('key: C\r\n| C4:w |');
+  assert.deepEqual(crlf.errors, []);
+  assert.ok(crlf.score);
 });

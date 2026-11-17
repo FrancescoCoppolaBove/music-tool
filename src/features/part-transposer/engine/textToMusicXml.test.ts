@@ -38,3 +38,8 @@ test('triplets, ties, rests, minor key and bass clef', () => {
   assert.deepEqual(all(doc, 'tie').map(t => t.getAttribute('type')), ['start', 'stop']);
   assert.equal(all(doc, 'rest').length, 2);
 });
+
+test('adjacent triplet groups each get their own tuplet start and stop', () => {
+  const doc = build('| (3 C5:8 D5:8 E5:8) (3 F5:8 G5:8 A5:8) F5:h |');
+  assert.deepEqual(all(doc, 'tuplet').map(t => t.getAttribute('type')), ['start', 'stop', 'start', 'stop']);
+});

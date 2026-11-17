@@ -36,3 +36,10 @@ test('concert ↔ written keys and key signatures', () => {
   assert.equal(keyFifths({ tonic: 'C', minor: true }), -3);
   assert.equal(keyFifths({ tonic: 'D', minor: false }), 2);
 });
+
+test('written and concert keys stay within six accidentals', () => {
+  // G#m + major 6th = E#m (8 sharps) → Fm
+  assert.deepEqual(writtenKey({ tonic: 'G#', minor: true }, inst('altosax')), { tonic: 'F', minor: true });
+  // Abm − major 6th = Cbm (10 flats) → Bm
+  assert.deepEqual(concertKey({ tonic: 'Ab', minor: true }, inst('altosax')), { tonic: 'B', minor: true });
+});
