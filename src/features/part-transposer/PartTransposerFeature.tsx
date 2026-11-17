@@ -182,10 +182,12 @@ export default function PartTransposerFeature() {
     if (next === tab) return;
     setTab(next);
     resetOverrides();
+    setScanTruncated(false);
   }
 
   function updateText(value: string) {
     setText(value);
+    setScanTruncated(false);
     const key = parseTextScore(value).score?.key;
     if (key?.tonic !== parsed.score?.key?.tonic || key?.minor !== parsed.score?.key?.minor) resetOverrides();
   }
