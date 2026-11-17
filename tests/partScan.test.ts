@@ -16,3 +16,9 @@ test('part-scan: preflight, method and origin guards', async () => {
   assert.equal((await call({ httpMethod: 'GET' })).statusCode, 405);
   assert.equal((await call({ httpMethod: 'POST', headers: { origin: 'https://evil.example' }, body: '{}' })).statusCode, 403);
 });
+
+test('part-scan: unauthenticated empty input is rejected by the guards, never an unhandled 500', async () => {
+  // 401 with Firebase admin configured, 503 ai_not_configured without credentials (CI), 400 if auth is disabled.
+  const { statusCode } = await call({ httpMethod: 'POST', body: JSON.stringify({ images: [] }) });
+  assert.ok([400, 401, 503].includes(statusCode), `unexpected status ${statusCode}`);
+});

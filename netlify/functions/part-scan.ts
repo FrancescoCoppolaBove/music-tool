@@ -59,11 +59,12 @@ export const handler: Handler = async (event: HandlerEvent) => {
       }],
     });
 
-    const raw = response.content[0]?.type === 'text' ? response.content[0].text : '';
+    const block = response.content.find(b => b.type === 'text');
+    const raw = block?.type === 'text' ? block.text : '';
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: extractPartText(raw) }),
+      body: JSON.stringify({ text: extractPartText(raw), ...(response.stop_reason === 'max_tokens' ? { truncated: true } : {}) }),
     };
   } catch (err) {
     const { status, body } = toErrorResponse(err, 'Part scan error');
