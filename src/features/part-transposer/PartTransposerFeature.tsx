@@ -231,7 +231,7 @@ export default function PartTransposerFeature() {
       try {
         resp = await aiFetch(`${API_URL}/api/part-scan`, { images: images.map(({ base64, mimeType }) => ({ base64, mimeType })) });
       } catch {
-        throw new Error('Lettura troppo lunga: prova con una pagina alla volta');
+        throw new Error('Connessione non riuscita: riprova');
       }
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) throw new Error(scanErrorMessage(resp.status, data.code));
@@ -382,7 +382,7 @@ export default function PartTransposerFeature() {
         {result.error && <p role="alert" style={errorText}>{result.error}</p>}
         {!result.outputs.length && !result.error && (
           <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>
-            {sourceXml ? 'Scegli almeno uno strumento.' : 'Inserisci una parte valida per vedere il risultato.'}
+            {keyMissing ? 'Scegli la tonalità originale.' : sourceXml ? 'Scegli almeno uno strumento.' : 'Inserisci una parte valida per vedere il risultato.'}
           </p>
         )}
         {shown && (
