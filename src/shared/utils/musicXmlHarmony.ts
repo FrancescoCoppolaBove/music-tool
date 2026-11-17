@@ -4,9 +4,8 @@ export const escapeXml = (s: string) => s.replace(/[<>&"']/g, c => ({ '<': '&lt;
 export const CHORD_KINDS: Record<string, string> = { '': 'major', M: 'major', m: 'minor', min: 'minor', '7': 'dominant', maj7: 'major-seventh', M7: 'major-seventh', m7: 'minor-seventh', '6': 'major-sixth', m6: 'minor-sixth', dim: 'diminished', dim7: 'diminished-seventh', m7b5: 'half-diminished', aug: 'augmented', sus4: 'suspended-fourth', sus2: 'suspended-second', '9': 'dominant-ninth', maj9: 'major-ninth', m9: 'minor-ninth', '13': 'dominant-13th' };
 
 /** MusicXML kind → its first (preferred) symbol suffix in CHORD_KINDS. */
-export const KIND_SYMBOLS: Record<string, string> = Object.entries(CHORD_KINDS).reduce<Record<string, string>>(
-  (acc, [symbol, kind]) => (kind in acc ? acc : { ...acc, [kind]: symbol }), {},
-);
+export const KIND_SYMBOLS: Record<string, string> = {};
+for (const [symbol, kind] of Object.entries(CHORD_KINDS)) KIND_SYMBOLS[kind] ??= symbol;
 
 export const CHORD_SYMBOL_RE = /^([A-G])([#b]?)([^/]*)(?:\/([A-G])([#b]?))?$/;
 

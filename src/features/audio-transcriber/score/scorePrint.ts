@@ -1,4 +1,4 @@
-import { escapeXml } from './scoreXml';
+import { escapeXml } from '../../../shared/utils/musicXmlHarmony';
 
 export async function printScore(xml: string, title: string): Promise<void> {
   const popup = window.open('', '_blank');

@@ -1,8 +1,6 @@
 import { CHORD_KINDS, CHORD_SYMBOL_RE, chordWordsXml, escapeXml, harmonyXml } from '../../../shared/utils/musicXmlHarmony';
 import { DIVISIONS, KEY_SIGNATURES, type ScoreBar, type ScoreEvent } from './scoreModel';
 
-export { escapeXml };
-
 function harmony(symbol: string, display: boolean): string {
   const parsed = symbol.match(CHORD_SYMBOL_RE);
   // OSMD drops custom kind text. Keep the semantic harmony in the exchange

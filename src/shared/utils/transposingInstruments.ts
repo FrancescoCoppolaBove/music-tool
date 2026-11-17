@@ -13,6 +13,8 @@ export interface TransposingInstrument {
   toWritten: string;    // Tonal interval: concert → written
   group: string;
   sounds: string;       // human description
+  // The three fields below are set only for instruments Part Transposer offers
+  // (see features/part-transposer/engine/partInstruments.ts).
   /** Clef of a written part. Omitted = keep the source clefs (keyboard). */
   clef?: ClefSpec;
   /** MusicXML <transpose> (written → sounding). Omitted for concert pitch. */
