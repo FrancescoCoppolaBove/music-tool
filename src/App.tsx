@@ -36,6 +36,7 @@ import {
   GrooveKitchenFeature,
   ArrangementBlueprintFeature,
   RhythmicDisplacementFeature,
+  PartTransposerFeature,
   EarTrainingProFeature,
   SolfeggioCantatoFeature,
   SetticlavioFeature,
@@ -223,6 +224,7 @@ const GROUPS: GroupDef[] = [
       { id: 'groove',        label: 'Groove Kitchen',      icon: '🥁', desc: 'Drum + bass patterns for Snarky Puppy, Ghost Note, Vulfpeck, Yussef Dayes', subsection: 'Arrange' },
       { id: 'arrangement',   label: 'Arrangement Blueprint', icon: '🎼', desc: 'What each instrument plays — from idea to complete arrangement', subsection: 'Arrange' },
       { id: 'rhythmic-displacement', label: 'Rhythmic Displacement', icon: '⟳', desc: 'Displace a pattern by any subdivision — polyrhythm 3:2 and 4:3 visualizer', subsection: 'Arrange' },
+      { id: 'part-transposer', label: 'Part Transposer', icon: '🎚️', desc: 'Cambia tonalità a una parte e scrivila per ogni strumento — testo, MusicXML o foto', subsection: 'Arrange' },
     ],
   },
   {
@@ -1137,6 +1139,7 @@ export default function App() {
         {activeTab === 'groove'        && <GrooveKitchenFeature />}
         {activeTab === 'arrangement'   && <ArrangementBlueprintFeature />}
         {activeTab === 'rhythmic-displacement' && <RhythmicDisplacementFeature />}
+        {activeTab === 'part-transposer' && <PartTransposerFeature />}
         </>}
         </Suspense>
         </ErrorBoundary>
