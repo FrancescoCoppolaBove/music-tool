@@ -1,6 +1,6 @@
 import { test } from 'node:test';
-import { Key, Note } from 'tonal';
 import assert from 'node:assert/strict';
+import { Key, Note } from 'tonal';
 import { concertKey, keyChangeInterval, keyFifths, nearestDirection, partInterval, writtenKey } from './intervals';
 import { partInstrument as inst } from './partInstruments';
 
