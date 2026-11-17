@@ -1,4 +1,4 @@
-import { useMemo, useState, type ChangeEvent, type CSSProperties } from 'react';
+import { useDeferredValue, useMemo, useState, type ChangeEvent, type CSSProperties } from 'react';
 import { Note } from 'tonal';
 import { aiFetch } from '../../shared/utils/aiFetch';
 import PartPreview from './PartPreview';
@@ -42,13 +42,45 @@ function listTonic(tonic: string, minor: boolean): string {
   return (minor ? MINOR_TONICS : MAJOR_TONICS).find(t => Note.chroma(t) === Note.chroma(tonic)) ?? tonic;
 }
 
-function readImage(file: File): Promise<PhotoImage> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve({ name: file.name, base64: String(reader.result).split(',')[1], mimeType: file.type || 'image/png' });
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
+const MAX_EDGE = 2000;
+
+/** Downscales to at most MAX_EDGE px on the long side and re-encodes as JPEG, so uploads stay small. */
+async function readImage(file: File): Promise<PhotoImage> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error('Impossibile leggere l’immagine'));
+      el.src = url;
+    });
+    const scale = Math.min(1, MAX_EDGE / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Impossibile leggere l’immagine');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return { name: file.name, base64: canvas.toDataURL('image/jpeg', 0.85).split(',')[1], mimeType: 'image/jpeg' };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+/** Italian message for an error code emitted by netlify/lib/aiGuard.ts. */
+function scanErrorMessage(status: number, code: unknown): string {
+  switch (code) {
+    case 'auth_required':
+    case 'auth_invalid': return 'Accedi per usare la lettura con AI';
+    case 'quota_exceeded': return 'Hai esaurito le letture AI di oggi: riprova domani';
+    case 'upgrade_required': return 'La lettura da foto è inclusa nel piano Pro';
+    case 'ai_not_configured': return 'Lettura AI non disponibile al momento';
+    case 'invalid_input': return 'Immagine non valida (JPEG, PNG o WebP, max 5 MB)';
+  }
+  if (status === 502 || status === 504) return 'Lettura troppo lunga: prova con una pagina alla volta';
+  return 'Analisi non riuscita';
 }
 
 function download(filename: string, xml: string) {
@@ -73,10 +105,9 @@ export default function PartTransposerFeature() {
   const [text, setText] = useState(EXAMPLE);
   const [xmlSource, setXmlSource] = useState<XmlSource | null>(null);
   const [xmlError, setXmlError] = useState('');
-  const [sourceId, setSourceId] = useState('keyboard');
-  const [sourceWarning, setSourceWarning] = useState('');
-  // Key as written on the source part; the concert key is derived from it.
-  const [writtenSourceKey, setWrittenSourceKey] = useState<KeySpec>({ tonic: 'Eb', minor: false });
+  // Manual overrides only: the detected key/instrument are derived from the active source.
+  const [keyOverride, setKeyOverride] = useState<KeySpec | null>(null);
+  const [sourceOverride, setSourceOverride] = useState<string | null>(null);
   const [newTonic, setNewTonic] = useState('G');
   const [direction, setDirection] = useState<Direction | null>(null);
   const [targetIds, setTargetIds] = useState<string[]>(PART_INSTRUMENTS.map(i => i.id));
@@ -84,19 +115,38 @@ export default function PartTransposerFeature() {
   const [images, setImages] = useState<PhotoImage[]>([]);
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState('');
-  const source = partInstrument(sourceId);
-  const originalKey = concertKey(writtenSourceKey, source);
-  const shownDirection = direction ?? nearestDirection(originalKey.tonic, newTonic);
-  const parsed = useMemo(() => parseTextScore(text), [text]);
+  const [scanTruncated, setScanTruncated] = useState(false);
+  const deferredText = useDeferredValue(text);
+  const parsed = useMemo(() => parseTextScore(deferredText), [deferredText]);
   const usingXml = tab === 'xml';
 
+  const xmlPartXml = useMemo(
+    () => (xmlSource ? extractPart(browserCodec, xmlSource.xml, xmlSource.partId) : null),
+    [xmlSource],
+  );
+  const xmlInfo = useMemo(() => (xmlPartXml ? readSourceInfo(browserCodec.parse(xmlPartXml)) : null), [xmlPartXml]);
+
+  const detectedKey = (usingXml ? xmlInfo?.key : parsed.score?.key) ?? null;
+  const detectedInstrument = usingXml ? xmlInfo?.instrumentId ?? null : null;
+  const writtenSourceKey = keyOverride ?? detectedKey;
+  const sourceId = sourceOverride ?? detectedInstrument ?? 'keyboard';
+  const source = partInstrument(sourceId);
+  const hasSource = usingXml ? !!xmlPartXml : !!parsed.score;
+  const keyMissing = hasSource && !writtenSourceKey;
+  const originalKey = writtenSourceKey ? concertKey(writtenSourceKey, source) : null;
+  const minor = originalKey?.minor ?? false;
+  const shownDirection = originalKey ? direction ?? nearestDirection(originalKey.tonic, newTonic) : 'up';
+  const instrumentWarning = usingXml && xmlInfo && xmlInfo.instrumentId === null && !sourceOverride
+    ? `Strumento non riconosciuto (trasposizione di ${xmlInfo.semitones} semitoni): scegli "Scritto per" a mano.`
+    : '';
+
   const sourceXml = useMemo(() => {
-    if (usingXml) return xmlSource ? extractPart(browserCodec, xmlSource.xml, xmlSource.partId) : null;
-    return parsed.score ? textToMusicXml({ ...parsed.score, key: writtenSourceKey }) : null;
-  }, [usingXml, xmlSource, parsed, writtenSourceKey]);
+    if (usingXml) return xmlPartXml;
+    return parsed.score && writtenSourceKey ? textToMusicXml({ ...parsed.score, key: writtenSourceKey }) : null;
+  }, [usingXml, xmlPartXml, parsed, writtenSourceKey]);
 
   const result = useMemo((): { outputs: PartOutput[]; error: string } => {
-    if (!sourceXml) return { outputs: [], error: '' };
+    if (!sourceXml || !writtenSourceKey) return { outputs: [], error: '' };
     try {
       const src = partInstrument(sourceId);
       const fromKey = concertKey(writtenSourceKey, src);
@@ -119,21 +169,30 @@ export default function PartTransposerFeature() {
   const shown = result.outputs.find(o => o.instrument.id === shownId) ?? result.outputs[0];
   const shownXml = useMemo(() => (shown ? displayXml(browserCodec, shown) : ''), [shown]);
   const title = usingXml ? slug(xmlSource?.name ?? '') : slug(parsed.score?.title ?? '');
-  const tonics = originalKey.minor ? MINOR_TONICS : MAJOR_TONICS;
-  const modeLabel = originalKey.minor ? 'minore' : 'maggiore';
+  const tonics = minor ? MINOR_TONICS : MAJOR_TONICS;
+  const modeLabel = minor ? 'minore' : 'maggiore';
+
+  function resetOverrides() {
+    setKeyOverride(null);
+    setSourceOverride(null);
+    setDirection(null);
+  }
+
+  function changeTab(next: InputTab) {
+    if (next === tab) return;
+    setTab(next);
+    resetOverrides();
+  }
 
   function updateText(value: string) {
     setText(value);
     const key = parseTextScore(value).score?.key;
-    if (key) setWrittenSourceKey(key);
+    if (key?.tonic !== parsed.score?.key?.tonic || key?.minor !== parsed.score?.key?.minor) resetOverrides();
   }
 
   function choosePart(src: XmlSource) {
     setXmlSource(src);
-    const info = readSourceInfo(browserCodec.parse(extractPart(browserCodec, src.xml, src.partId)));
-    if (info.key) setWrittenSourceKey(info.key);
-    if (info.instrumentId) setSourceId(info.instrumentId);
-    setSourceWarning(info.instrumentId ? '' : `Strumento non riconosciuto (trasposizione di ${info.semitones} semitoni): scegli "Scritto per" a mano.`);
+    resetOverrides();
   }
 
   async function loadXmlFile(e: ChangeEvent<HTMLInputElement>) {
@@ -154,23 +213,32 @@ export default function PartTransposerFeature() {
   async function addImages(e: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     e.target.value = '';
+    setScanError('');
     try {
       const read = await Promise.all(files.map(readImage));
       setImages(prev => [...prev, ...read].slice(0, MAX_IMAGES));
-    } catch {
-      setScanError('Impossibile leggere l’immagine');
+    } catch (err) {
+      setScanError(err instanceof Error ? err.message : 'Impossibile leggere l’immagine');
     }
   }
 
   async function scan() {
     setScanning(true);
     setScanError('');
+    setScanTruncated(false);
     try {
-      const resp = await aiFetch(`${API_URL}/api/part-scan`, { images: images.map(({ base64, mimeType }) => ({ base64, mimeType })) });
+      let resp: Response;
+      try {
+        resp = await aiFetch(`${API_URL}/api/part-scan`, { images: images.map(({ base64, mimeType }) => ({ base64, mimeType })) });
+      } catch {
+        throw new Error('Lettura troppo lunga: prova con una pagina alla volta');
+      }
       const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) throw new Error(data.error || 'Analisi non riuscita');
+      if (!resp.ok) throw new Error(scanErrorMessage(resp.status, data.code));
       if (!data.text) throw new Error('Nessuna nota riconosciuta: prova con una foto più nitida');
       updateText(data.text);
+      resetOverrides();
+      setScanTruncated(data.truncated === true);
       setTab('text');
     } catch (err) {
       setScanError(err instanceof Error ? err.message : 'Analisi non riuscita');
@@ -184,7 +252,8 @@ export default function PartTransposerFeature() {
   }
 
   function setConcertTonic(tonic: string) {
-    setWrittenSourceKey(writtenKey({ tonic, minor: originalKey.minor }, source));
+    setKeyOverride(writtenKey({ tonic, minor }, source));
+    setDirection(null);
   }
 
   return (
@@ -201,7 +270,7 @@ export default function PartTransposerFeature() {
         <span id="pt-input" style={sectionLabel}>1 · Parte</span>
         <div role="tablist" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {([['text', 'Scrivi'], ['xml', 'MusicXML'], ['photo', 'Foto']] as const).map(([id, name]) => (
-            <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} style={chip(tab === id)}>{name}</button>
+            <button key={id} role="tab" aria-selected={tab === id} onClick={() => changeTab(id)} style={chip(tab === id)}>{name}</button>
           ))}
         </div>
 
@@ -219,8 +288,9 @@ export default function PartTransposerFeature() {
               Note <code>Eb4:q</code> (durate <code>w h q 8 16</code>, punto <code>q.</code>), pause <code>r:h</code>, legatura <code>~</code>,
               terzine <code>(3 C5:8 D5:8 E5:8)</code>, sigle <code>[Cm7]</code> prima della nota. Battute tra <code>|</code>.
             </p>
+            {scanTruncated && <p role="status" style={{ margin: 0, fontSize: 12.5, color: '#d97706' }}>La trascrizione potrebbe essere incompleta: controlla le ultime battute</p>}
             {parsed.errors.length > 0 && (
-              <ul role="alert" style={{ margin: 0, paddingLeft: 18 }}>
+              <ul role="status" style={{ margin: 0, paddingLeft: 18 }}>
                 {parsed.errors.map((err, i) => <li key={i} style={errorText}>{err.message}</li>)}
               </ul>
             )}
@@ -268,19 +338,20 @@ export default function PartTransposerFeature() {
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', fontSize: 13, color: '#e6edf3' }}>
           <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             Scritto per
-            <select style={field} value={sourceId} onChange={e => setSourceId(e.target.value)}>
+            <select style={field} value={sourceId} onChange={e => { setSourceOverride(e.target.value); setDirection(null); }}>
               {PART_INSTRUMENTS.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
             </select>
           </label>
           <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             Tonalità originale (concert)
-            <select style={field} value={listTonic(originalKey.tonic, originalKey.minor)} onChange={e => setConcertTonic(e.target.value)}>
+            <select style={field} value={originalKey ? listTonic(originalKey.tonic, minor) : ''} onChange={e => setConcertTonic(e.target.value)}>
+              {!originalKey && <option value="" disabled>—</option>}
               {tonics.map(t => <option key={t} value={t}>{t} {modeLabel}</option>)}
             </select>
           </label>
           <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             Nuova tonalità
-            <select style={field} value={listTonic(newTonic, originalKey.minor)} onChange={e => setNewTonic(e.target.value)}>
+            <select style={field} value={listTonic(newTonic, minor)} onChange={e => { setNewTonic(e.target.value); setDirection(null); }}>
               {tonics.map(t => <option key={t} value={t}>{t} {modeLabel}</option>)}
             </select>
           </label>
@@ -292,7 +363,12 @@ export default function PartTransposerFeature() {
             ))}
           </div>
         </div>
-        {sourceWarning && <p role="alert" style={errorText}>{sourceWarning}</p>}
+        {keyMissing && (
+          <p role="status" style={errorText}>
+            {usingXml ? 'Il file non indica la tonalità: sceglila' : 'Il testo non ha «key:»: scegli la tonalità originale'}
+          </p>
+        )}
+        {instrumentWarning && <p role="alert" style={errorText}>{instrumentWarning}</p>}
         <div role="group" aria-label="Strumenti di destinazione" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {PART_INSTRUMENTS.map(i => (
             <button key={i.id} aria-pressed={targetIds.includes(i.id)} onClick={() => toggleTarget(i.id)} style={chip(targetIds.includes(i.id))}>{i.name}</button>
