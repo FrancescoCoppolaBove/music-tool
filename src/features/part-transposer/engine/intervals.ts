@@ -38,6 +38,11 @@ function withinSix(ivl: string, fifthsAfter: (ivl: string) => number): string {
   return out;
 }
 
+/** `interval`, respelled so the key reached from `writtenFifths` has at most 6 accidentals. */
+export function respellForKey(interval: string, writtenFifths: number): string {
+  return withinSix(interval, candidate => Key.majorKey(transpose(fifthsTonic(writtenFifths), candidate)).alteration);
+}
+
 /** Concert key-change interval between two tonics, in the given direction. */
 export function keyChangeInterval(fromTonic: string, toTonic: string, direction: Direction): string {
   const up = ascending(fromTonic, toTonic);
@@ -73,5 +78,5 @@ export function partInterval(opts: {
   sourceFifths: number;
 }): string {
   const ivl = add(subtract(opts.keyChange, opts.source.toWritten), opts.target.toWritten);
-  return withinSix(ivl, candidate => Key.majorKey(transpose(fifthsTonic(opts.sourceFifths), candidate)).alteration);
+  return respellForKey(ivl, opts.sourceFifths);
 }

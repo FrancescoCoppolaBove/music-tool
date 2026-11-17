@@ -15,7 +15,8 @@ function decodeText(bytes: Uint8Array): string {
 
 /** Text of an uploaded .musicxml/.xml, or of the root score inside a compressed .mxl. */
 export function decodeMusicXmlFile(name: string, bytes: Uint8Array): string {
-  if (!/\.mxl$/i.test(name)) return decodeText(bytes);
+  const isZip = bytes[0] === 0x50 && bytes[1] === 0x4b;
+  if (!isZip && !/\.mxl$/i.test(name)) return decodeText(bytes);
   let files: Record<string, Uint8Array>;
   try {
     files = unzipSync(bytes);
@@ -23,21 +24,25 @@ export function decodeMusicXmlFile(name: string, bytes: Uint8Array): string {
     throw new Error('File .mxl danneggiato');
   }
   const container = files['META-INF/container.xml'];
-  const rootPath = container ? decodeText(container).match(/full-path="([^"]+)"/)?.[1] : undefined;
+  const rootPath = container ? decodeText(container).match(/full-path=["']([^"']+)["']/)?.[1] : undefined;
   const root = (rootPath && files[rootPath])
     || Object.entries(files).find(([path]) => !path.startsWith('META-INF/') && /\.(xml|musicxml)$/i.test(path))?.[1];
   if (!root) throw new Error('Nessuna partitura nel file .mxl');
   return decodeText(root);
 }
 
-/** Parts that contain notes or rests. */
+/** Pitched parts: skips drum, tablature and note-less parts. */
 export function listParts(doc: Document): PartInfo[] {
   const rootTag = doc.documentElement.tagName;
   if (rootTag === 'score-timewise') throw new Error('Formato "timewise" non supportato: esporta da MuseScore in MusicXML standard');
   if (rootTag !== 'score-partwise') throw new Error('Non è un file MusicXML');
   const scoreParts = all(doc, 'score-part');
   return all(doc, 'part')
-    .filter(part => all(part, 'note').length > 0)
+    .filter(part => all(part, 'pitch').length > 0)
+    .filter(part => {
+      const signs = all(part, 'clef').map(c => childText(c, 'sign'));
+      return !signs.length || signs.some(sign => sign !== 'percussion' && sign !== 'TAB');
+    })
     .map(part => {
       const id = part.getAttribute('id') ?? '';
       const scorePart = scoreParts.find(s => s.getAttribute('id') === id);
@@ -85,6 +90,7 @@ export function readSourceInfo(doc: Document): SourceInfo {
 
 /** One score with every single-part score as its own part (P1, P2, …), in order. */
 export function combineParts(codec: XmlCodec, parts: string[]): string {
+  if (!parts.length) throw new Error('Nessuna parte da esportare');
   const docs = parts.map(xml => codec.parse(xml));
   const [first] = docs;
   const partList = all(first, 'part-list')[0];

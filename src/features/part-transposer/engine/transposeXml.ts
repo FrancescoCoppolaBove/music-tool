@@ -2,7 +2,7 @@ import { Key, Note } from 'tonal';
 import { KIND_SYMBOLS } from '../../../shared/utils/musicXmlHarmony';
 import type { TransposingInstrument } from '../../../shared/utils/transposingInstruments';
 import { recomputeAccidentals } from './accidentals';
-import { fifthsTonic } from './intervals';
+import { fifthsTonic, respellForKey } from './intervals';
 import { all, child, childElements, childText, insertBeforeFirst, removeChildren, setChildText } from './xmlDom';
 
 export interface RangeReport { above: number; below: number }
@@ -13,6 +13,7 @@ const AFTER_TRANSPOSE = ['for-part', 'directive', 'measure-style'];
 const MIDDLE_LINE: Record<string, string> = { G: 'B4', F: 'D3' };
 const OUT_OF_RANGE_COLOR = '#d97706';
 // Would still tell MuseScore the part belongs to the source instrument.
+const STALE_PART_LABELS = ['part-name-display', 'part-abbreviation', 'part-abbreviation-display'];
 const STALE_INSTRUMENT_TAGS = ['score-instrument', 'midi-device', 'midi-instrument', 'instrument'];
 
 const accidentalsOf = (alter: number) => alter > 0 ? '#'.repeat(alter) : 'b'.repeat(-alter);
@@ -54,30 +55,45 @@ export function transposePart(doc: Document, opts: { interval: string; target: T
   const high = target.range ? Note.midi(target.range.high)! : Infinity;
   const report: RangeReport = { above: 0, below: 0 };
 
-  for (const note of all(part, 'note')) {
+  const firstKey = all(part, 'key').map(k => childText(k, 'fifths')).find(f => f !== null);
+  let current = firstKey !== undefined && firstKey !== null ? respellForKey(interval, Number(firstKey)) : interval;
+
+  const transposeNote = (note: Element) => {
     const pitch = child(note, 'pitch');
-    if (!pitch) continue;
+    if (!pitch) return;
     if (isSlash(note)) {
       if (target.clef) writePitch(pitch, MIDDLE_LINE[target.clef.sign]);
-      continue;
+      return;
     }
-    const name = Note.transpose(pitchName(pitch), interval);
+    const name = Note.transpose(pitchName(pitch), current)!;
     writePitch(pitch, name);
-    if (isTiedOver(note)) continue;
+    if (isTiedOver(note)) return;
     const midi = Note.midi(name)!;
     if (midi > high) report.above++;
     else if (midi < low) report.below++;
-  }
+  };
 
-  for (const harmony of all(part, 'harmony')) {
-    for (const root of childElements(harmony, 'root')) transposeHarmonyPitch(root, 'root-step', 'root-alter', interval);
-    for (const bass of childElements(harmony, 'bass')) transposeHarmonyPitch(bass, 'bass-step', 'bass-alter', interval);
+  // Document order, so each key region is respelled for its own key signature.
+  for (const measure of all(part, 'measure')) {
+    for (const el of childElements(measure)) {
+      if (el.tagName === 'note') transposeNote(el);
+      else if (el.tagName === 'harmony') {
+        for (const root of childElements(el, 'root')) transposeHarmonyPitch(root, 'root-step', 'root-alter', current);
+        for (const bass of childElements(el, 'bass')) transposeHarmonyPitch(bass, 'bass-step', 'bass-alter', current);
+        removeChildren(el, 'frame');
+      } else if (el.tagName === 'attributes') {
+        for (const key of childElements(el, 'key')) {
+          const fifths = childText(key, 'fifths');
+          if (fifths === null) continue;
+          current = respellForKey(interval, Number(fifths));
+          setChildText(key, 'fifths', String(Key.majorKey(Note.transpose(fifthsTonic(Number(fifths)), current)!).alteration));
+        }
+      }
+    }
   }
-
-  for (const key of all(part, 'key')) {
-    const fifths = childText(key, 'fifths');
-    if (fifths === null) continue;
-    setChildText(key, 'fifths', String(Key.majorKey(Note.transpose(fifthsTonic(Number(fifths)), interval)).alteration));
+  for (const technical of all(part, 'technical')) {
+    removeChildren(technical, 'string');
+    removeChildren(technical, 'fret');
   }
 
   const firstAttributes = all(part, 'attributes')[0];
@@ -106,7 +122,10 @@ export function transposePart(doc: Document, opts: { interval: string; target: T
   }
 
   for (const tag of STALE_INSTRUMENT_TAGS) for (const el of all(doc, tag)) el.parentNode!.removeChild(el);
-  for (const scorePart of all(doc, 'score-part')) setChildText(scorePart, 'part-name', target.name);
+  for (const scorePart of all(doc, 'score-part')) {
+    for (const tag of STALE_PART_LABELS) removeChildren(scorePart, tag);
+    setChildText(scorePart, 'part-name', target.name);
+  }
 
   recomputeAccidentals(part);
   return report;

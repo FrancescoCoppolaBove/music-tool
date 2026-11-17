@@ -9,7 +9,11 @@ export const TRUMPET = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
   <work><work-title>Blue Bossa</work-title></work>
   <part-list>
     <score-part id="P1"><part-name>Trumpet in B♭</part-name>
+      <part-name-display><display-text>Trumpet in B</display-text><accidental-text>flat</accidental-text></part-name-display>
+      <part-abbreviation>Tpt.</part-abbreviation>
+      <part-abbreviation-display><display-text>Tpt.</display-text></part-abbreviation-display>
       <score-instrument id="P1-I1"><instrument-name>B♭ Trumpet</instrument-name></score-instrument>
+      <midi-device id="P1-I1" port="1"></midi-device>
       <midi-instrument id="P1-I1"><midi-program>57</midi-program></midi-instrument>
     </score-part>
     <score-part id="P2"><part-name>Piano</part-name></score-part>
@@ -26,7 +30,7 @@ export const TRUMPET = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
     </measure>
   </part>
   <part id="P2">
-    <measure number="1"><attributes><divisions>1</divisions></attributes><note><rest measure="yes"/><duration>4</duration></note></measure>
+    <measure number="1"><attributes><divisions>1</divisions></attributes><note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration></note></measure>
   </part>
 </score-partwise>`;
 
