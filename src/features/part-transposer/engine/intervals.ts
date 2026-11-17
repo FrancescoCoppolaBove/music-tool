@@ -12,8 +12,13 @@ export function keyFifths(key: KeySpec): number {
 
 /** Major tonic of a key signature, e.g. -3 → Eb. */
 export function fifthsTonic(fifths: number): string {
-  return Note.transposeFifths('C', fifths);
+  return Note.transposeFifths('C', fifths)!;
 }
+
+// tonal types these as `string | undefined` (invalid input); every call here passes valid names.
+const add = (a: string, b: string) => Interval.add(a, b)!;
+const subtract = (a: string, b: string) => Interval.subtract(a, b)!;
+const transpose = (note: string, ivl: string) => Note.transpose(note, ivl)!;
 
 const ascending = (from: string, to: string) => Interval.distance(Note.pitchClass(from), Note.pitchClass(to));
 const semitonesMod12 = (ivl: string) => (((Interval.semitones(ivl) ?? 0) % 12) + 12) % 12;
@@ -22,7 +27,7 @@ const semitonesMod12 = (ivl: string) => (((Interval.semitones(ivl) ?? 0) % 12) +
 export function keyChangeInterval(fromTonic: string, toTonic: string, direction: Direction): string {
   const up = ascending(fromTonic, toTonic);
   if (semitonesMod12(up) === 0) return '1P';
-  return direction === 'up' ? up : Interval.subtract(up, '8P');
+  return direction === 'up' ? up : subtract(up, '8P');
 }
 
 /** Direction with the smaller jump; a tritone goes down. */
@@ -32,12 +37,12 @@ export function nearestDirection(fromTonic: string, toTonic: string): Direction 
 
 /** Concert key of a part written for `instrument`. */
 export function concertKey(written: KeySpec, instrument: TransposingInstrument): KeySpec {
-  return { tonic: Note.transpose(written.tonic, Interval.subtract('1P', instrument.toWritten)), minor: written.minor };
+  return { tonic: transpose(written.tonic, subtract('1P', instrument.toWritten)), minor: written.minor };
 }
 
 /** Written key of a concert key for `instrument`. */
 export function writtenKey(concert: KeySpec, instrument: TransposingInstrument): KeySpec {
-  return { tonic: Note.transpose(concert.tonic, instrument.toWritten), minor: concert.minor };
+  return { tonic: transpose(concert.tonic, instrument.toWritten), minor: concert.minor };
 }
 
 /**
@@ -52,9 +57,9 @@ export function partInterval(opts: {
   keyChange: string;
   sourceFifths: number;
 }): string {
-  let ivl = Interval.add(Interval.subtract(opts.keyChange, opts.source.toWritten), opts.target.toWritten);
-  const fifths = Key.majorKey(Note.transpose(fifthsTonic(opts.sourceFifths), ivl)).alteration;
-  if (fifths > 6) ivl = Interval.add(ivl, 'd2');
-  else if (fifths < -6) ivl = Interval.subtract(ivl, 'd2');
+  let ivl = add(subtract(opts.keyChange, opts.source.toWritten), opts.target.toWritten);
+  const fifths = Key.majorKey(transpose(fifthsTonic(opts.sourceFifths), ivl)).alteration;
+  if (fifths > 6) ivl = add(ivl, 'd2');
+  else if (fifths < -6) ivl = subtract(ivl, 'd2');
   return ivl;
 }
