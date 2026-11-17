@@ -5,7 +5,7 @@ export default function PartPreview({ xml, label }: { xml: string; label: string
   const host = useRef<HTMLDivElement>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const [width, setWidth] = useState(780);
+  const [width, setWidth] = useState<number | null>(null);
 
   useEffect(() => {
     if (!host.current) return;
@@ -17,7 +17,7 @@ export default function PartPreview({ xml, label }: { xml: string; label: string
   }, []);
 
   useEffect(() => {
-    if (!host.current) return;
+    if (!host.current || width === null) return;
     let cancelled = false;
     const element = document.createElement('div');
     element.style.width = `${width}px`;
@@ -37,7 +37,8 @@ export default function PartPreview({ xml, label }: { xml: string; label: string
         setLoading(false);
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Impossibile mostrare la parte.');
+          console.error('PartPreview: render failed', e);
+          setError('Impossibile mostrare la parte.');
           setLoading(false);
         }
       }
