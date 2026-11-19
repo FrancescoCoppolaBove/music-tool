@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useGlobalKey } from '@shared/context/GlobalKeyContext';
 import { Chord } from 'tonal';
 import { transposeNote } from '@shared/utils/musicTheory';
@@ -7,8 +7,16 @@ import {
   CHORD_SCALE_DATA, FAMILY_LABELS, ROOTS, getChordScaleEntry, parseProgression,
   type ChordFamily, type ScaleInfo,
 } from './chordScales';
+import { KEY_OPTIONS, analyzeProgression, keyLabel, type ContextualChord, type ProgressionChord } from './progressionContext';
 
-interface SASession { mode: 'single' | 'progression'; root: string; quality: string; progressionText: string }
+interface SASession {
+  mode: 'single' | 'progression';
+  root: string;
+  quality: string;
+  progressionText: string;
+  /** 'auto' or a keyLabel() such as 'C major' */
+  progressionKey?: string;
+}
 const SA_KEY = 'session_scaleAdvisor';
 
 // ─── Color helpers ───────────────────────────────────────────────────────────
@@ -63,11 +71,14 @@ function ScaleNoteRow({ root, scale }: { root: string; scale: ScaleInfo }) {
 function ScaleCard({
   root,
   scale,
-  isPrimary,
+  badge,
+  reason,
 }: {
   root: string;
   scale: ScaleInfo;
-  isPrimary: boolean;
+  /** PRIMARY or IN CONTEXT; highlights the card */
+  badge?: string;
+  reason?: string;
 }) {
   const relatedRoot = scale.trickSemitones !== undefined
     ? transposeNote(root, scale.trickSemitones)
@@ -76,21 +87,21 @@ function ScaleCard({
   return (
     <div style={{
       background: '#0d1117',
-      border: `1px solid ${isPrimary ? '#7c3aed50' : '#30363d'}`,
+      border: `1px solid ${badge ? '#7c3aed50' : '#30363d'}`,
       borderRadius: 10,
       padding: '14px 16px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12, flexWrap: 'wrap', gap: 6 }}>
         <div>
-          <span style={{ fontSize: 15, fontWeight: 700, color: isPrimary ? '#c4b5fd' : '#8b949e' }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: badge ? '#c4b5fd' : '#8b949e' }}>
             {root} {scale.name}
           </span>
-          {isPrimary && (
+          {badge && (
             <span style={{
               marginLeft: 8, fontSize: 10, background: '#7c3aed30', border: '1px solid #7c3aed',
               borderRadius: 20, padding: '2px 8px', color: '#a78bfa', fontWeight: 600,
             }}>
-              PRIMARY
+              {badge}
             </span>
           )}
         </div>
@@ -103,6 +114,16 @@ function ScaleCard({
       </div>
 
       <ScaleNoteRow root={root} scale={scale} />
+
+      {reason && (
+        <div style={{
+          marginTop: 12, padding: '8px 12px',
+          background: '#7c3aed10', border: '1px solid #7c3aed30',
+          borderRadius: 8, fontSize: 12, color: '#c4b5fd', lineHeight: 1.5,
+        }}>
+          🎯 {reason}
+        </div>
+      )}
 
       {relatedRoot && scale.trickScaleName && (
         <div style={{
@@ -138,9 +159,11 @@ function ScaleCard({
   );
 }
 
-function ChordScalePanel({ root, quality }: { root: string; quality: string }) {
+function ChordScalePanel({ root, quality, context }: { root: string; quality: string; context?: ContextualChord }) {
   const entry = getChordScaleEntry(quality);
   if (!entry) return <div style={{ color: '#6b7280', fontSize: 13 }}>Chord quality not recognised.</div>;
+  const featured = context?.contextual ? context.scale : null;
+  const others = [entry.primary, ...entry.alternatives].filter(s => s.name !== featured?.name);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -160,12 +183,10 @@ function ChordScalePanel({ root, quality }: { root: string; quality: string }) {
         ))}
       </div>
 
-      {/* Primary scale */}
-      <ScaleCard root={root} scale={entry.primary} isPrimary />
-
-      {/* Alternatives */}
-      {entry.alternatives.map((alt, i) => (
-        <ScaleCard key={i} root={root} scale={alt} isPrimary={false} />
+      {/* The scale chosen by the chord's function, then every other option */}
+      {featured && <ScaleCard root={root} scale={featured} badge="IN CONTEXT" reason={context?.reason} />}
+      {others.map(scale => (
+        <ScaleCard key={scale.name} root={root} scale={scale} badge={!featured && scale === entry.primary ? 'PRIMARY' : undefined} />
       ))}
 
       {/* Dominant context guide */}
@@ -202,20 +223,8 @@ function ChordScalePanel({ root, quality }: { root: string; quality: string }) {
 
 // ─── Progression Card ────────────────────────────────────────────────────────
 
-function ProgressionChordCard({
-  symbol,
-  root,
-  quality,
-  index,
-}: {
-  symbol: string;
-  root: string;
-  quality: string;
-  index: number;
-}) {
-  const entry = getChordScaleEntry(quality);
-  if (!entry) return null;
-  const { primary } = entry;
+function ProgressionChordCard({ chord, index }: { chord: ContextualChord; index: number }) {
+  const { symbol, root, roman, role, scale: primary, contextual } = chord;
   const relatedRoot = primary.trickSemitones !== undefined
     ? transposeNote(root, primary.trickSemitones)
     : null;
@@ -233,6 +242,10 @@ function ProgressionChordCard({
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
           <span style={{ fontSize: 11, color: '#4b5563', fontFamily: 'monospace' }}>#{index + 1}</span>
           <span style={{ fontSize: 20, fontWeight: 800, color: '#e6edf3' }}>{symbol}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#f59e0b', fontFamily: "'DM Mono', monospace" }}>{roman}</span>
+        </div>
+        <div style={{ fontSize: 11, color: '#8b949e', marginBottom: 6 }}>
+          {role}{!contextual && <span style={{ color: '#4b5563' }}> · chord's own scale</span>}
         </div>
         <div style={{
           fontSize: 11, color: '#c4b5fd', background: '#7c3aed20',
@@ -262,6 +275,10 @@ function ProgressionChordCard({
 
       <div style={{ fontSize: 10, color: '#06b6d4', marginBottom: 8 }}>
         {primary.extensionLabel}
+      </div>
+
+      <div style={{ fontSize: 11, color: '#6b7280', lineHeight: 1.5, marginBottom: 8 }}>
+        {chord.reason}
       </div>
 
       {relatedRoot && primary.trickScaleName && (
@@ -419,16 +436,22 @@ export default function ScaleAdvisorFeature() {
   useEffect(() => { setRoot(globalKey); }, [globalKey]);
   const [quality, setQuality] = useState(saved.current?.quality ?? 'maj7');
   const [progressionText, setProgressionText] = useState(saved.current?.progressionText ?? 'Dm7 G7 Cmaj7');
+  const [progressionKey, setProgressionKey] = useState(() => storageGet<SASession | null>(SA_KEY, null)?.progressionKey ?? 'auto');
 
   // Persist settings on change
   useEffect(() => {
-    storageSet<SASession>(SA_KEY, { mode, root, quality, progressionText });
-  }, [mode, root, quality, progressionText]);
+    storageSet<SASession>(SA_KEY, { mode, root, quality, progressionText, progressionKey });
+  }, [mode, root, quality, progressionText, progressionKey]);
 
   const selectedEntry = getChordScaleEntry(quality);
 
-  const [parsedChords, setParsedChords] = useState<Array<{ root: string; quality: string; symbol: string }>>([]);
+  const [parsedChords, setParsedChords] = useState<ProgressionChord[]>([]);
   const [parseError, setParseError] = useState('');
+
+  const analysis = useMemo(() => {
+    if (parsedChords.length === 0) return null;
+    return analyzeProgression(parsedChords, KEY_OPTIONS.find(k => keyLabel(k) === progressionKey));
+  }, [parsedChords, progressionKey]);
 
   function handleAnalyze() {
     const chords = parseProgression(progressionText);
@@ -601,10 +624,12 @@ export default function ScaleAdvisorFeature() {
               <span style={{ fontSize: 11, color: '#4b5563' }}>Examples:</span>
               {[
                 'Dm7 G7 Cmaj7',
-                'Cm7b5 F7alt Bbmaj7',
-                'Dm7 G7alt Cmaj7 A7alt',
-                'Fmaj7 Em7b5 A7alt Dm7',
-                'Cmaj7 Am7 Dm7 G7',
+                'Cmaj7 A7 Dm7 G7 Cmaj7',
+                'Dm7b5 G7 Cm6',
+                'Fm7 Bb7 Cmaj7',
+                'Dm7 Db7 Cmaj7',
+                'Cmaj7 Ebmaj7 Abmaj7 Dbmaj7',
+                'C7 F7 C7 G7 F7 C7',
               ].map(ex => (
                 <button
                   key={ex}
@@ -621,12 +646,35 @@ export default function ScaleAdvisorFeature() {
               ))}
             </div>
 
+            <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <label htmlFor="sa-key" style={{ fontSize: 12, color: '#8b949e' }}>Key</label>
+              <select
+                id="sa-key"
+                value={progressionKey}
+                onChange={e => setProgressionKey(e.target.value)}
+                style={{
+                  padding: '6px 10px', background: '#0d1117', border: '1px solid #30363d',
+                  borderRadius: 8, color: '#e6edf3', fontSize: 13, outline: 'none',
+                }}
+              >
+                <option value="auto">Auto-detect</option>
+                {KEY_OPTIONS.map(k => <option key={keyLabel(k)} value={keyLabel(k)}>{keyLabel(k)}</option>)}
+              </select>
+              {analysis && (
+                <span style={{ fontSize: 12, color: '#6b7280' }}>
+                  {progressionKey === 'auto' ? 'Detected: ' : 'Analysed in '}
+                  <strong style={{ color: '#c4b5fd' }}>{keyLabel(analysis.key)}</strong>
+                  {' '}— each chord gets the scale of its function in this key (Berklee chord-scale theory).
+                </span>
+              )}
+            </div>
+
             {parseError && (
               <div style={{ marginTop: 10, color: '#ef4444', fontSize: 12 }}>{parseError}</div>
             )}
           </div>
 
-          {parsedChords.length > 0 && (
+          {analysis && (
             <>
               {/* Legend */}
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 11, color: '#6b7280' }}>
@@ -646,8 +694,8 @@ export default function ScaleAdvisorFeature() {
 
               {/* Cards */}
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                {parsedChords.map((chord, i) => (
-                  <ProgressionChordCard key={i} index={i} {...chord} />
+                {analysis.chords.map((chord, i) => (
+                  <ProgressionChordCard key={i} index={i} chord={chord} />
                 ))}
               </div>
 
@@ -660,12 +708,12 @@ export default function ScaleAdvisorFeature() {
                   🔍 Full scale breakdown for each chord
                 </summary>
                 <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  {parsedChords.map((chord, i) => (
+                  {analysis.chords.map((chord, i) => (
                     <div key={i}>
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#e6edf3', marginBottom: 10 }}>
-                        #{i + 1} — {chord.symbol}
+                        #{i + 1} — {chord.symbol} <span style={{ color: '#f59e0b', fontSize: 13 }}>{chord.roman}</span>
                       </div>
-                      <ChordScalePanel root={chord.root} quality={chord.quality} />
+                      <ChordScalePanel root={chord.root} quality={chord.quality} context={chord} />
                     </div>
                   ))}
                 </div>
@@ -685,6 +733,18 @@ export default function ScaleAdvisorFeature() {
         </summary>
         <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10 }}>
           {[
+            {
+              title: 'Function Chooses the Scale',
+              text: 'The same chord takes a different scale depending on its job in the key (Berklee). Dm7 is Dorian as ii of C, Phrygian as iii of B♭, Aeolian as vi of F. A dominant borrows its tensions from its target: natural 9/13 into major, ♭9/♭13 into minor, Lydian ♭7 when it resolves down a half step. Progression mode applies these rules.',
+            },
+            {
+              title: 'Bebop Scales',
+              text: 'Eight-note scales (Aebersold): Mixolydian + △7, major + ♯5, Dorian + ♮3. With eight notes, a line of eighth notes that starts on a chord tone on the beat keeps every chord tone on a downbeat; the added chromatic note always falls on the off-beat.',
+            },
+            {
+              title: 'Harmonic Major',
+              text: 'Major with a ♭6, the mirror of melodic minor (Haerle, Ron Miller). Its modes fill gaps: Dorian ♭5 on m7♭5, Mixolydian ♭9 on 7♭9, Lydian ♭3 (Russell\'s Lydian Diminished) on mΔ7.',
+            },
             {
               title: 'Fixed vs Floating Extensions',
               text: 'Chords with fixed extensions (maj7, m7, unaltered 7) have predictable 9, 11, 13 from the scale. Altered dominants (7alt) have floating extensions — b9/♯9 and b13/♯11 are interchangeable depending on context.',
